@@ -30,11 +30,15 @@ vet: ## Vet all modules
 		timoni mod vet $$dir --debug
 	done
 
+PROMETHEUS_OPERATOR_VERSION := v0.93.0
+
 .PHONY: update-shared-schemas
-update-shared-schemas: ## Update the shared Timoni and Kubernetes API schemas in ./schemas
+update-shared-schemas: ## Update the shared Timoni, Kubernetes API and Prometheus Operator schemas in ./schemas
 	@timoni artifact pull oci://ghcr.io/stefanprodan/timoni/schemas:latest \
 		--output schemas/cue.mod/pkg
 	@timoni mod vendor k8s ./schemas
+	@timoni mod vendor crd ./schemas \
+		-f https://github.com/prometheus-operator/prometheus-operator/releases/download/$(PROMETHEUS_OPERATOR_VERSION)/stripped-down-crds.yaml
 
 .PHONY: build
 build: ## Render a module (make build MODULE=<name>)
