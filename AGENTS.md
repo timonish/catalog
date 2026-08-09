@@ -23,7 +23,7 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 | `modules/<name>/templates/versions.cue` | **Generated:** image repos/tags                                                                                                    |
 | `modules/<name>/templates/crds.cue`     | **Generated:** cue-imported upstream CRDs                                                                                          |
 | `schemas/`                              | Shared CUE module: single copy of the vendored `timoni.sh/core` and `k8s.io` schemas ([schemas/README.md](schemas/README.md))      |
-| `upengine/`                             | Bun/TypeScript sync engine; `upengine/config/sources.yaml` declares each module's upstream                                         |
+| `upengine/`                             | Bun/TypeScript automation engine; `upengine/config/sources.ts` declares each module's upstream and e2e test                        |
 | `upengine/history/`                     | **Generated:** per-module provenance manifests                                                                                     |
 | `test/`                                 | kind cluster config and e2e fixtures                                                                                               |
 | `.github/workflows/`                    | `test.yaml` (fmt+vet+lint), `e2e.yaml` (kind), `push.yaml` (idempotent GHCR publish), `update-catalog.yaml` (daily sync)           |
@@ -50,6 +50,10 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 - **Module README**: H1 title, blank line, then a one-sentence description.
   That line becomes the OCI description annotation; it must not contain
   double quotes.
+- **No Bash**: all automation logic lives in upengine as TypeScript
+  commands; the Makefile and the GitHub workflows are single-command
+  entrypoints only. External tools are invoked by argv (never through a
+  shell), so upstream-controlled data can never become shell syntax.
 - Tabs for indentation in CUE/Makefile (`make fmt` enforces it).
 - Commit messages: short imperative summary, signed off (`git commit -s`).
 - GitHub Actions are pinned to commit SHAs (with a `# vX.Y.Z` comment).
@@ -77,13 +81,15 @@ credentials.
 | Command | Purpose |
 |---|---|
 | `make fmt` / `make fmt-check` | Format CUE / verify formatting (CI) |
+| `make lint-modules` | Validate module metadata against sources.ts |
 | `make vet` | Vet every module (validates rendered resources) |
 | `make build MODULE=<m>` | Render a module's manifests for inspection |
+| `make e2e MODULE=<m>` | Install, verify and uninstall a module on the current cluster |
 | `make status` | Local VERSION vs published GHCR versions, all modules |
 | `make list-mod MODULE=<m>` | List a module's published versions |
-| `make push-mod MODULE=<m>` | Push one module to GHCR (CI does this) |
-| `make update-shared-schemas` | Refresh the shared Timoni and Kubernetes API schemas |
-| `make sync [MODULE=<m>] [FORCE=1]` | Sync modules with their upstream releases (upengine) |
+| `make push-mod MODULE=<m>` | Publish one module to GHCR (CI does this) |
+| `make update-shared-schemas` | Refresh the shared Timoni, Kubernetes and CRD schemas |
+| `make sync [MODULE=<m>] [FORCE=1]` | Sync modules with their upstream releases |
 | `make deps` / `make lint` / `make test` | Install, typecheck and test the upengine |
 
 ## Publishing model
@@ -117,13 +123,13 @@ conventions when onboarding a new addon:
    `timoni mod vet --debug` validates all templates against their schemas.
 5. Write `VERSION` (`<upstream>-0`), the README description line, and the
    full values documentation with a deviations section.
-6. Add `test/e2e/<name>/install.sh` + `verify.sh` + `uninstall.sh` — the
-   e2e workflow runs them per changed module against a kind cluster; the
-   uninstall script must verify that no resources are left behind
-   (including cluster-scoped ones and bindings in other namespaces).
-7. Add the upstream entry to `upengine/config/sources.yaml`.
-8. Run `make fmt vet`, `make build MODULE=<name>`, and the e2e scripts
-   against a local kind cluster.
+6. Add the module's entry to `upengine/config/sources.ts`: the upstream
+   repo, release tag glob, manifests input, image tracking, and the `e2e`
+   config (namespace, install values, verify check). The e2e workflow runs
+   install/verify/uninstall per changed module against a kind cluster, and
+   the uninstall sweep fails on any leftover resources.
+7. Run `make fmt lint-modules vet`, `make build MODULE=<name>`, and
+   `make e2e MODULE=<name>` against a local kind cluster.
 9. After the first publish: on ghcr.io, flip the new `modules/<name>`
    package to **Public** and confirm it is linked to this repository
    (one-time, needs package admin).

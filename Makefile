@@ -1,14 +1,7 @@
 # Timoni Module Catalog
 
-.ONESHELL:
-SHELL := bash
-.SHELLFLAGS += -eo pipefail
-
-OWNER    := timonish
-REPO     := catalog
-REGISTRY := oci://ghcr.io/$(OWNER)/modules
-MODULES  := $(notdir $(wildcard modules/*))
-MODULE   ?=
+MODULE ?=
+FORCE  ?=
 
 .PHONY: tools
 tools: ## Install the required CLIs with Homebrew
@@ -22,85 +15,6 @@ fmt: ## Format all CUE definitions
 fmt-check: ## Verify that all CUE definitions are formatted
 	@timoni fmt --diff .
 
-.PHONY: vet
-vet: ## Vet all modules
-	@for dir in ./modules/*/ ; do
-		[ -d "$$dir" ] || continue
-		echo "vetting $$dir"
-		timoni mod vet $$dir --debug
-	done
-
-PROMETHEUS_OPERATOR_VERSION := v0.93.0
-CERT_MANAGER_VERSION := v1.21.1
-
-.PHONY: update-shared-schemas
-update-shared-schemas: ## Update the shared Timoni, Kubernetes API, Prometheus Operator and cert-manager schemas in ./schemas
-	@timoni artifact pull oci://ghcr.io/stefanprodan/timoni/schemas:latest \
-		--output schemas/cue.mod/pkg
-	@timoni mod vendor k8s ./schemas
-	@timoni mod vendor crd ./schemas \
-		-f https://github.com/prometheus-operator/prometheus-operator/releases/download/$(PROMETHEUS_OPERATOR_VERSION)/stripped-down-crds.yaml
-	@timoni mod vendor crd ./schemas \
-		-f https://github.com/cert-manager/cert-manager/releases/download/$(CERT_MANAGER_VERSION)/cert-manager.crds.yaml
-	@rm -rf schemas/cue.mod/gen/acme.cert-manager.io
-	@(cd schemas/cue.mod/gen/monitoring.coreos.com && for dir in * ; do
-		case $$dir in
-			servicemonitor|podmonitor) ;;
-			*) rm -rf $$dir ;;
-		esac
-	done)
-	@(cd schemas/cue.mod/gen/cert-manager.io && for dir in * ; do
-		case $$dir in
-			certificate|issuer) ;;
-			*) rm -rf $$dir ;;
-		esac
-	done)
-
-.PHONY: build
-build: ## Render a module (make build MODULE=<name>)
-	@test -n "$(MODULE)" || { echo "usage: make build MODULE=<name>"; exit 1; }
-	@timoni -n $(MODULE) build $(MODULE) ./modules/$(MODULE)
-
-.PHONY: list-mod
-list-mod: ## List the published versions of a module (make list-mod MODULE=<name>)
-	@test -n "$(MODULE)" || { echo "usage: make list-mod MODULE=<name>"; exit 1; }
-	@timoni mod list $(REGISTRY)/$(MODULE)
-
-.PHONY: status
-status: ## Show local VERSION vs GHCR for every module
-	@for dir in ./modules/*/ ; do
-		[ -d "$$dir" ] || continue
-		m="$$(basename $$dir)"
-		v="$$(cat $$dir/VERSION)"
-		if tags="$$(timoni mod list $(REGISTRY)/$$m --with-digest=false 2>/dev/null)" \
-			&& awk 'NR>1 {print $$1}' <<<"$$tags" | grep -Fxq "$$v" ; then
-			echo "$$m $$v published"
-		else
-			echo "$$m $$v not published"
-		fi
-	done
-
-.PHONY: push-mod
-push-mod: ## Push a module to GHCR (make push-mod MODULE=<name>)
-	@test -n "$(MODULE)" || { echo "usage: make push-mod MODULE=<name>"; exit 1; }
-	@VERSION="$$(cat modules/$(MODULE)/VERSION)"
-	DESC="$$(awk 'NR>1 && !/^#/ && /[^[:space:]]/ {print; exit}' modules/$(MODULE)/README.md)"
-	timoni mod push ./modules/$(MODULE) $(REGISTRY)/$(MODULE) \
-		-v="$$VERSION" --latest \
-		--resolve-symlinks \
-		--sign cosign \
-		-a "org.opencontainers.image.source=https://github.com/$(OWNER)/$(REPO)" \
-		-a "org.opencontainers.image.licenses=Apache-2.0" \
-		-a "org.opencontainers.image.revision=$${GITHUB_SHA:-$$(git rev-parse HEAD)}" \
-		-a "org.opencontainers.image.description=$$DESC" \
-		-a "org.opencontainers.image.documentation=https://github.com/$(OWNER)/$(REPO)/blob/main/modules/$(MODULE)/README.md"
-
-.PHONY: push-all
-push-all: ## Push all modules to GHCR
-	@for m in $(MODULES) ; do
-		$(MAKE) push-mod MODULE=$$m
-	done
-
 .PHONY: deps
 deps: ## Install the upengine dependencies
 	@cd upengine && bun install
@@ -113,12 +27,48 @@ lint: ## Typecheck the upengine sources
 test: ## Run the upengine tests
 	@cd upengine && bun test
 
+.PHONY: lint-modules
+lint-modules: ## Validate the modules metadata against sources.ts
+	@bun upengine/src/main.ts lint
+
+.PHONY: vet
+vet: ## Vet all modules with debug values
+	@bun upengine/src/main.ts vet
+
+.PHONY: build
+build: ## Render a module (make build MODULE=<name>)
+	@timoni -n $(MODULE) build $(MODULE) ./modules/$(MODULE)
+
+.PHONY: list-mod
+list-mod: ## List the published versions of a module (make list-mod MODULE=<name>)
+	@timoni mod list oci://ghcr.io/timonish/modules/$(MODULE)
+
+.PHONY: status
+status: ## Show local VERSION vs GHCR for every module
+	@bun upengine/src/main.ts status
+
+.PHONY: push-mod
+push-mod: ## Publish a module to GHCR (make push-mod MODULE=<name>)
+	@bun upengine/src/main.ts publish --source $(MODULE)
+
+.PHONY: push-all
+push-all: ## Publish all missing module versions to GHCR
+	@bun upengine/src/main.ts publish
+
 .PHONY: sync
 sync: ## Sync modules with their upstream releases (make sync [MODULE=<name>] [FORCE=1])
 	@bun upengine/src/main.ts sync \
 		$(if $(MODULE),--source $(MODULE)) \
 		$(if $(FORCE),--force)
 
+.PHONY: e2e
+e2e: ## Run a module e2e test on the current cluster (make e2e MODULE=<name>)
+	@bun upengine/src/main.ts e2e --source $(MODULE)
+
+.PHONY: update-shared-schemas
+update-shared-schemas: ## Update the shared Timoni, Kubernetes API and CRD schemas in ./schemas
+	@bun upengine/src/main.ts vendor-schemas
+
 .PHONY: help
 help:  ## Display this help menu
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)

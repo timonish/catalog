@@ -10,9 +10,6 @@ on:
 permissions:
   contents: read
 
-env:
-  MODULE_VERSION: "0.0.0-devel"
-
 jobs:
   detect:
     runs-on: ubuntu-latest
@@ -23,26 +20,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
       - name: Detect changed modules
         id: changes
-        run: |
-          set -euo pipefail
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            base="origin/${{ github.base_ref }}"
-          else
-            base="${{ github.event.before }}"
-            git cat-file -e "$base" 2>/dev/null || base="HEAD~1"
-          fi
-          changed="$(git diff --name-only "$base"...HEAD 2>/dev/null || git diff --name-only "$base" HEAD)"
-          # Changes to shared schemas, the Makefile or workflows affect all modules.
-          if grep -qE '^(schemas/|Makefile|\.github/workflows/)' <<<"$changed"; then
-            mods="$(ls modules 2>/dev/null || true)"
-          else
-            mods="$(grep -oE '^modules/[^/]+' <<<"$changed" | cut -d/ -f2 | sort -u || true)"
-          fi
-          mods_json="$(jq -R -n -c '[inputs | select(length > 0)]' <<<"$mods")"
-          echo "modules=$mods_json" >> "$GITHUB_OUTPUT"
-          echo "changed modules: $mods_json"
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: bun upengine/src/main.ts changed --base "$BASE"
 
   e2e:
     runs-on: ubuntu-latest
@@ -62,33 +46,15 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Timoni
         uses: stefanprodan/timoni/actions/setup@dee817667ba9706be82c43de5a9f9a275490620d # v0.30.0
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
       - name: Create cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
           cluster_name: kind
           config: ./test/cluster/kind.yaml
-      - name: Push module
-        run: |
-          timoni mod push ./modules/${{ matrix.module }} \
-            oci://localhost:5000/modules/${{ matrix.module }} \
-            -v ${MODULE_VERSION} --resolve-symlinks
-      - name: Install module
-        run: |
-          ./test/e2e/${{ matrix.module }}/install.sh \
-            oci://localhost:5000/modules/${{ matrix.module }} ${MODULE_VERSION}
-      - name: Verify module
-        run: ./test/e2e/${{ matrix.module }}/verify.sh
-      - name: Uninstall module
-        run: |
-          if [ -x "./test/e2e/${{ matrix.module }}/uninstall.sh" ]; then
-            ./test/e2e/${{ matrix.module }}/uninstall.sh
-          fi
-      - name: Debug failure
-        if: failure()
-        run: |
-          kubectl -n kube-system get pods
-          kubectl -n kube-system describe deploy || true
-          kubectl -n kube-system logs -l app.kubernetes.io/name=${{ matrix.module }} --tail=100 || true
+      - name: Run module e2e
+        run: bun upengine/src/main.ts e2e --source ${{ matrix.module }} --registry oci://localhost:5000
 
   # Join job for branch protection: succeeds when all e2e legs pass
   # or when no module changed.
@@ -97,11 +63,9 @@ jobs:
     needs: [detect, e2e]
     if: always()
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
       - name: Check e2e results
-        run: |
-          result="${{ needs.e2e.result }}"
-          if [ "$result" = "failure" ] || [ "$result" = "cancelled" ]; then
-            echo "e2e failed"
-            exit 1
-          fi
-          echo "e2e ok (result: $result)"
+        run: bun upengine/src/main.ts join --result ${{ needs.e2e.result }}
