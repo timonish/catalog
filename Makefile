@@ -31,21 +31,30 @@ vet: ## Vet all modules
 	done
 
 PROMETHEUS_OPERATOR_VERSION := v0.93.0
+CERT_MANAGER_VERSION := v1.21.1
 
 .PHONY: update-shared-schemas
-update-shared-schemas: ## Update the shared Timoni, Kubernetes API and Prometheus Operator schemas in ./schemas
+update-shared-schemas: ## Update the shared Timoni, Kubernetes API, Prometheus Operator and cert-manager schemas in ./schemas
 	@timoni artifact pull oci://ghcr.io/stefanprodan/timoni/schemas:latest \
 		--output schemas/cue.mod/pkg
 	@timoni mod vendor k8s ./schemas
 	@timoni mod vendor crd ./schemas \
 		-f https://github.com/prometheus-operator/prometheus-operator/releases/download/$(PROMETHEUS_OPERATOR_VERSION)/stripped-down-crds.yaml
-	@cd schemas/cue.mod/gen/monitoring.coreos.com
-	@for dir in * ; do
+	@timoni mod vendor crd ./schemas \
+		-f https://github.com/cert-manager/cert-manager/releases/download/$(CERT_MANAGER_VERSION)/cert-manager.crds.yaml
+	@rm -rf schemas/cue.mod/gen/acme.cert-manager.io
+	@(cd schemas/cue.mod/gen/monitoring.coreos.com && for dir in * ; do
 		case $$dir in
 			servicemonitor|podmonitor) ;;
 			*) rm -rf $$dir ;;
 		esac
-	done
+	done)
+	@(cd schemas/cue.mod/gen/cert-manager.io && for dir in * ; do
+		case $$dir in
+			certificate|issuer) ;;
+			*) rm -rf $$dir ;;
+		esac
+	done)
 
 .PHONY: build
 build: ## Render a module (make build MODULE=<name>)

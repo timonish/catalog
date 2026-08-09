@@ -38,11 +38,12 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
   references `versions.cue` for image tags so routine bumps never touch
   curated files.
 - **Shared schemas are symlinked, never copied**: each module's
-  `cue.mod/gen/k8s.io`, `cue.mod/gen/monitoring.coreos.com` and
-  `cue.mod/pkg/timoni.sh` are relative symlinks into `schemas/`. Pushes use
-  `--resolve-symlinks` (set in `make push-mod`). Addon-specific CRD schemas
-  are the opposite: vendored by the sync engine as regular files into the
-  module that needs them — never into `schemas/`.
+  `cue.mod/gen/k8s.io`, `cue.mod/gen/monitoring.coreos.com`,
+  `cue.mod/gen/cert-manager.io` and `cue.mod/pkg/timoni.sh` are relative
+  symlinks into `schemas/`. Pushes use `--resolve-symlinks` (set in
+  `make push-mod`). Addon-specific CRD schemas are the opposite: vendored by
+  the sync engine as regular files into the module that needs them — never
+  into `schemas/`.
 - **VERSION file**: format `^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$`, excluded from
   the pushed artifact via `timoni.ignore`. The OCI registry is the release
   record — no git tags.
@@ -98,10 +99,10 @@ conventions when onboarding a new addon:
 
 1. Create `modules/<name>` following the blueprint: `cue.mod/module.cue`
    (`timoni.sh/<name>`), relative symlinks for `cue.mod/gen/k8s.io`,
-   `cue.mod/gen/monitoring.coreos.com` and `cue.mod/pkg/timoni.sh` (see
-   [schemas/README.md](schemas/README.md)); addon-specific CRD schemas
-   vendored into the module with `timoni mod vendor crd` and pruned to the
-   kinds the templates import.
+   `cue.mod/gen/monitoring.coreos.com`, `cue.mod/gen/cert-manager.io` and
+   `cue.mod/pkg/timoni.sh` (see [schemas/README.md](schemas/README.md));
+   addon-specific CRD schemas vendored into the module with
+   `timoni mod vendor crd` and pruned to the kinds the templates import.
 2. **Golden rule: the values API must cover every config option offered by
    the upstream chart/manifests.** Clone the upstream repo, read the chart's
    `values.yaml` and every template, and map each option to a typed CUE
