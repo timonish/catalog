@@ -30,4 +30,24 @@ export const sources: ModuleSource[] = [
       verify: { argv: ["kubectl", "top", "nodes"] },
     },
   },
+  {
+    name: "external-dns",
+    url: "https://github.com/kubernetes-sigs/external-dns",
+    // The repo interleaves external-dns-helm-chart-* release tags.
+    releaseTag: "v*",
+    crds: { file: "charts/external-dns/crds/dnsendpoints.externaldns.k8s.io.yaml" },
+    images: {
+      // Published by the upstream tagged with the release tag itself.
+      "external-dns": { repository: "registry.k8s.io/external-dns/external-dns" },
+    },
+    e2e: {
+      namespace: "external-dns",
+      // The crd source records the processed generation on the DNSEndpoint
+      // fixture; --dry-run in the test bundle keeps the provider untouched.
+      verify: {
+        argv: ["kubectl", "-n", "external-dns", "wait", "dnsendpoint/e2e",
+          "--for=jsonpath={.status.observedGeneration}=1", "--timeout=10s"],
+      },
+    },
+  },
 ];

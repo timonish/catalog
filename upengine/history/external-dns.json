@@ -1,0 +1,16 @@
+{
+  "name": "external-dns",
+  "repo": "kubernetes-sigs/external-dns",
+  "tag": "v0.21.0",
+  "commit": "066a11e2158f87689a01f0ff39493037da958171",
+  "moduleVersion": "0.21.0-0",
+  "images": {
+    "external-dns": {
+      "repository": "registry.k8s.io/external-dns/external-dns",
+      "tag": "v0.21.0",
+      "digest": ""
+    }
+  },
+  "generatedDigest": "sha256:ecc0859b9cb40b3e10bb3c91d65a3d579942531d7aa236dd37c2baa6f4071c43",
+  "updatedAt": "2026-08-09T22:46:24.031Z"
+}
