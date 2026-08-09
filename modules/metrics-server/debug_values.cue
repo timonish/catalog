@@ -2,10 +2,9 @@
 
 package main
 
-// Values used by debug_tool.cue and `timoni mod vet --debug`.
+// Values used by `timoni mod vet --debug`.
 // They enable every optional object so that all templates are
 // validated against their Kubernetes and CRD schemas.
-// Debug example 'cue cmd -t debug -t name=metrics-server -t namespace=kube-system -t mv=1.0.0 -t kv=1.31.0 build'.
 values: {
 	replicas:             2
 	revisionHistoryLimit: 5

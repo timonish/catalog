@@ -7,16 +7,6 @@ import (
 )
 
 // Config defines the schema and defaults for the Instance values.
-//
-// The config covers the full values surface of the upstream Helm chart
-// (metrics-server-helm-chart-3.13.0) with the following deviations:
-// - `tls.type: helm` is not supported (it relies on Helm-only lookup and
-//   certificate generation); use `metrics-server`, `cert-manager` or
-//   `existingSecret` instead.
-// - `rbac.pspEnabled` is not supported (PodSecurityPolicy was removed in
-//   Kubernetes 1.25, the minimum version required by this module).
-// - Secret lookups are not supported; with `tls.type: existingSecret` the
-//   CA bundle must be supplied via `apiService.caBundle`.
 #Config: {
 	// Runtime version info automatically set at apply-time.
 	moduleVersion!: string
@@ -48,7 +38,7 @@ import (
 
 	// The container image repository, tag, digest and pull policy.
 	// The default repository and tag track the upstream release
-	// and are set in `versions.cue` by the sync engine.
+	// and are set in `versions.cue` by upengine.
 	image: timoniv1.#Image & {
 		repository: *#defaultImages."metrics-server".repository | string
 		tag:        *#defaultImages."metrics-server".tag | string
