@@ -38,10 +38,11 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
   references `versions.cue` for image tags so routine bumps never touch
   curated files.
 - **Shared schemas are symlinked, never copied**: each module's
-  `cue.mod/gen/k8s.io` and `cue.mod/pkg/timoni.sh` are relative symlinks
-  into `schemas/`. Pushes use `--resolve-symlinks` (set in `make push-mod`).
-  CRD schemas are the opposite: per-addon, vendored by the sync engine as
-  regular files into the module that needs them — never into `schemas/`.
+  `cue.mod/gen/k8s.io`, `cue.mod/gen/monitoring.coreos.com` and
+  `cue.mod/pkg/timoni.sh` are relative symlinks into `schemas/`. Pushes use
+  `--resolve-symlinks` (set in `make push-mod`). Addon-specific CRD schemas
+  are the opposite: vendored by the sync engine as regular files into the
+  module that needs them — never into `schemas/`.
 - **VERSION file**: format `^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$`, excluded from
   the pushed artifact via `timoni.ignore`. The OCI registry is the release
   record — no git tags.
@@ -92,11 +93,32 @@ not-yet-created packages, so first publishes log a warning then push.
 
 ## Adding a new module
 
-1. Create `modules/<name>` following an existing module's structure; symlink
-   the schemas (see [schemas/README.md](schemas/README.md)); write `VERSION`
-   and the README description line.
-2. Add the upstream entry to `upengine/config/sources.yaml`.
-3. Run `make fmt vet` and `make build MODULE=<name>`.
-4. After the first publish: on ghcr.io, flip the new `modules/<name>`
+`modules/metrics-server` is the blueprint — copy its structure and
+conventions when onboarding a new addon:
+
+1. Create `modules/<name>` following the blueprint: `cue.mod/module.cue`
+   (`timoni.sh/<name>`), relative symlinks for `cue.mod/gen/k8s.io`,
+   `cue.mod/gen/monitoring.coreos.com` and `cue.mod/pkg/timoni.sh` (see
+   [schemas/README.md](schemas/README.md)); addon-specific CRD schemas
+   vendored into the module with `timoni mod vendor crd` and pruned to the
+   kinds the templates import.
+2. **Golden rule: the values API must cover every config option offered by
+   the upstream chart/manifests.** Clone the upstream repo, read the chart's
+   `values.yaml` and every template, and map each option to a typed CUE
+   field. Helm-only mechanics (lookup, generated certs, PSP) become
+   documented deviations in the module README.
+3. Image defaults live in the generated `templates/versions.cue`
+   (`#defaultImages`), referenced as defaults from `#Config` — never
+   hardcode tags in hand-written CUE. `values.cue` stays empty.
+4. `debug_values.cue` must enable every optional object so
+   `timoni mod vet --debug` validates all templates against their schemas.
+5. Write `VERSION` (`<upstream>-0`), the README description line, and the
+   full values documentation with a deviations section.
+6. Add `test/e2e/<name>/install.sh` + `verify.sh` — the e2e workflow runs
+   them per changed module against a kind cluster.
+7. Add the upstream entry to `upengine/config/sources.yaml`.
+8. Run `make fmt vet`, `make build MODULE=<name>`, and the e2e scripts
+   against a local kind cluster.
+9. After the first publish: on ghcr.io, flip the new `modules/<name>`
    package to **Public** and confirm it is linked to this repository
    (one-time, needs package admin).

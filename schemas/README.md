@@ -5,9 +5,11 @@ Timoni modules in this repository:
 
 - `cue.mod/pkg/timoni.sh` — the Timoni core schemas
 - `cue.mod/gen/k8s.io` — the full Kubernetes API schemas (no pruning)
+- `cue.mod/gen/monitoring.coreos.com` — the full Prometheus Operator CRD
+  schemas (most addons expose a ServiceMonitor)
 
-Only these universal schemas are shared. CRD schemas are per-addon and are
-vendored directly into the module that needs them
+Only these universal schemas are shared. Other CRD schemas are per-addon and
+are vendored directly into the module that needs them
 (`modules/<name>/cue.mod/gen/<group>`) by the sync engine.
 
 Instead of vendoring these into every module, each module symlinks them:
@@ -30,5 +32,7 @@ make update-shared-schemas   # update the Timoni core and Kubernetes API schemas
 
 The target pulls the Timoni core schemas from
 `oci://ghcr.io/stefanprodan/timoni/schemas:latest` into `cue.mod/pkg` and
-vendors the Kubernetes API schemas into `cue.mod/gen`. These are refreshed
-when upgrading Timoni/Kubernetes, not on addon releases.
+vendors the Kubernetes API and Prometheus Operator CRD schemas into
+`cue.mod/gen` (the Prometheus Operator version is pinned in the Makefile).
+These are refreshed when upgrading Timoni/Kubernetes/Prometheus Operator,
+not on addon releases.
