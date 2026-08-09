@@ -110,12 +110,14 @@ async function uninstall(source: ModuleSource): Promise<void> {
   const leftovers = clusterScoped
     .split("\n")
     .filter((l) => l.includes(source.name) || l.includes(compactName));
-  const bindings = JSON.parse(
-    await mustRun(["kubectl", "get", "rolebinding", "-A", "-o", "json"]),
-  ) as { items: { metadata: { name: string; namespace: string } }[] };
-  for (const item of bindings.items) {
+  const namespaced = JSON.parse(
+    await mustRun(["kubectl", "get", "role,rolebinding", "-A", "-o", "json"]),
+  ) as { items: { kind: string; metadata: { name: string; namespace: string } }[] };
+  for (const item of namespaced.items) {
     if (item.metadata.name.includes(source.name)) {
-      leftovers.push(`rolebinding/${item.metadata.namespace}/${item.metadata.name}`);
+      leftovers.push(
+        `${item.kind.toLowerCase()}/${item.metadata.namespace}/${item.metadata.name}`,
+      );
     }
   }
   if (leftovers.length > 0) {

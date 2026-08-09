@@ -4,7 +4,10 @@ package main
 
 // Values used by `timoni mod vet --debug`.
 // They enable every optional object so that all templates are
-// validated against their Kubernetes and CRD schemas.
+// validated against their Kubernetes and CRD schemas. The namespaced
+// scope is used here because the cluster-scoped RBAC branch is already
+// validated by the default `timoni build` guard; the rules themselves
+// are shared between both branches.
 values: {
 	replicas:             1
 	revisionHistoryLimit: 5
@@ -61,7 +64,10 @@ values: {
 	txtOwnerId: "debug"
 	txtPrefix:  "xdns-"
 
-	gatewayNamespace:          "gateway-system"
+	// Namespaced with gateway sources and no gatewayNamespace: renders
+	// the Role/RoleBinding pair plus the namespaces ClusterRole/Binding.
+	namespaced:                true
+	sourceNamespace:           "apps"
 	enableGatewayListenerSets: true
 
 	domainFilters: ["example.com"]
