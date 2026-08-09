@@ -10,4 +10,3 @@ export const ROOT_DIR = fileURLToPath(new URL("../../", import.meta.url));
 export const MODULES_DIR = join(ROOT_DIR, "modules");
 export const HISTORY_DIR = join(ROOT_DIR, "upengine/history");
 export const README_PATH = join(ROOT_DIR, "README.md");
-export const SOURCES_PATH = join(ROOT_DIR, "upengine/config/sources.yaml");

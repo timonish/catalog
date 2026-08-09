@@ -40,6 +40,10 @@ export function pickLatestRelease(releases: Release[], pattern: string): string 
   const tags = releases
     .filter((r) => !r.draft && !r.prerelease && matchGlob(pattern, r.tag_name))
     .filter((r) => /^\d/.test(r.tag_name.slice(prefix.length)))
+    // A tag whose embedded semver carries a prerelease suffix is skipped
+    // even when the release is not flagged as such (an rc of a newer minor
+    // with the flag forgotten would otherwise win and block updates).
+    .filter((r) => /^\d+\.\d+\.\d+$/.test(semverOf(r.tag_name)))
     .map((r) => r.tag_name);
   if (tags.length === 0) {
     throw new Error(`no release tag matches '${pattern}'`);
