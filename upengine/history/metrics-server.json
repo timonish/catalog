@@ -1,0 +1,21 @@
+{
+  "name": "metrics-server",
+  "repo": "kubernetes-sigs/metrics-server",
+  "tag": "v0.9.0",
+  "commit": "2a7c4b2c7d46552ff47f4aeaa3a735c582587ecd",
+  "moduleVersion": "0.9.0-0",
+  "images": {
+    "metrics-server": {
+      "repository": "registry.k8s.io/metrics-server/metrics-server",
+      "tag": "v0.9.0",
+      "digest": ""
+    },
+    "addon-resizer": {
+      "repository": "registry.k8s.io/autoscaling/addon-resizer",
+      "tag": "1.8.24",
+      "digest": ""
+    }
+  },
+  "generatedDigest": "sha256:de67535efd3def654ff6c4830f68906ef1b063eaf0f7e2fb03e11868375150ed",
+  "updatedAt": "2026-08-09T18:24:03.175Z"
+}
