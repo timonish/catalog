@@ -115,8 +115,10 @@ conventions when onboarding a new addon:
    `timoni mod vet --debug` validates all templates against their schemas.
 5. Write `VERSION` (`<upstream>-0`), the README description line, and the
    full values documentation with a deviations section.
-6. Add `test/e2e/<name>/install.sh` + `verify.sh` — the e2e workflow runs
-   them per changed module against a kind cluster.
+6. Add `test/e2e/<name>/install.sh` + `verify.sh` + `uninstall.sh` — the
+   e2e workflow runs them per changed module against a kind cluster; the
+   uninstall script must verify that no resources are left behind
+   (including cluster-scoped ones and bindings in other namespaces).
 7. Add the upstream entry to `upengine/config/sources.yaml`.
 8. Run `make fmt vet`, `make build MODULE=<name>`, and the e2e scripts
    against a local kind cluster.
