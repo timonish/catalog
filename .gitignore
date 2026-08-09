@@ -1,0 +1,38 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Build output
+bin/
+dist/
+build/
+
+# Go
+*.test
+*.out
+
+# Python
+venv/
+.venv/
+__pycache__/
+
+# Node
+node_modules/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+
+# Test coverage
+coverage/
+*.lcov
+
+# Environment / secrets
+.env
+.env.*
