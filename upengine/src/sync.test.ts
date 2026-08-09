@@ -8,6 +8,7 @@ import { extractImages, parseImageRef } from "./manifests.ts";
 import { parseModuleVersion, pickLatestRelease, semverOf, trackedImageTag } from "./resolve.ts";
 import { renderVersionsCue } from "./codegen.ts";
 import { renderChange } from "./summary.ts";
+import { plainDescription, renderModuleVersions, withModuleVersions } from "./readme.ts";
 import type { ModuleSource } from "./types.ts";
 
 const VALID: ModuleSource[] = [
@@ -207,5 +208,43 @@ package templates
     expect(body).toContain("## metrics-server 0.9.0-0");
     expect(body).toContain("`0.8.0-0` -> `0.9.0-0`");
     expect(body).toContain("| `registry.k8s.io/metrics-server/metrics-server` | v0.9.0 |");
+  });
+
+  test("strips markdown links from descriptions", () => {
+    expect(
+      plainDescription(
+        "A [Timoni](https://timoni.sh) module for deploying [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server), a scalable source of metrics.",
+      ),
+    ).toBe("A Timoni module for deploying Kubernetes Metrics Server, a scalable source of metrics.");
+    expect(plainDescription("No links here.")).toBe("No links here.");
+  });
+
+  test("renders the module readme version section", () => {
+    const history = {
+      name: "metrics-server",
+      repo: "kubernetes-sigs/metrics-server",
+      tag: "v0.9.0",
+      commit: "2a7c4b2",
+      moduleVersion: "0.9.0-1",
+      images: {
+        "metrics-server": { repository: "registry.k8s.io/metrics-server/metrics-server", tag: "v0.9.0", digest: "" },
+        "addon-resizer": { repository: "registry.k8s.io/autoscaling/addon-resizer", tag: "1.8.24", digest: "" },
+      },
+      generatedDigest: "sha256:abc",
+      updatedAt: "2026-08-09T00:00:00.000Z",
+    };
+    const section = renderModuleVersions(history);
+    expect(section).not.toContain("#");
+    expect(section).toContain("Latest module version is `0.9.0-1`, packaging the upstream release");
+    expect(section).toContain(
+      "[v0.9.0](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.0)",
+    );
+    expect(section).toContain("| `registry.k8s.io/autoscaling/addon-resizer` | 1.8.24 |");
+
+    const readme = "# metrics-server\n\nDesc.\n\n<!-- versions:start -->\nstale\n<!-- versions:end -->\n";
+    const updated = withModuleVersions(readme, history);
+    expect(updated).toContain(`<!-- versions:start -->\n${section}\n<!-- versions:end -->`);
+    expect(withModuleVersions(updated, history)).toBe(updated);
+    expect(() => withModuleVersions("# no markers\n", history)).toThrow("missing");
   });
 });

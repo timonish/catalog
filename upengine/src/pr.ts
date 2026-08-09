@@ -90,6 +90,7 @@ function changePaths(name: string): string[] {
   return [
     join(MODULES_DIR, name, "templates/versions.cue"),
     join(MODULES_DIR, name, "VERSION"),
+    join(MODULES_DIR, name, "README.md"),
     join("upengine/history", `${name}.json`),
   ];
 }

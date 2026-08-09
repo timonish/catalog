@@ -13,6 +13,7 @@ import {
   writeModuleFiles,
 } from "./codegen.ts";
 import { readHistory, writeHistory } from "./history.ts";
+import { updateModuleReadme } from "./readme.ts";
 import { MODULES_DIR } from "./paths.ts";
 import type { ImageRef, ModuleSource, SyncChange } from "./types.ts";
 
@@ -76,7 +77,7 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
     await restoreModuleFiles(source.name).catch(() => {});
     throw err;
   }
-  await writeHistory({
+  const history = {
     name: source.name,
     repo,
     tag,
@@ -85,7 +86,12 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
     images,
     generatedDigest: await generatedFilesDigest(source.name),
     updatedAt: new Date().toISOString(),
-  });
+  };
+  // The README version section renders before the history is recorded, so
+  // a failure here (e.g. missing markers) leaves a stale history and the
+  // next run re-syncs instead of skipping.
+  await updateModuleReadme(history);
+  await writeHistory(history);
 
   return {
     change: {
