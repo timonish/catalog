@@ -16,7 +16,10 @@ import (
 		if _config.podDisruptionBudget.maxUnavailable != _|_ {
 			maxUnavailable: _config.podDisruptionBudget.maxUnavailable
 		}
-		if _config.podDisruptionBudget.unhealthyPodEvictionPolicy != _|_ {
+
+		// unhealthyPodEvictionPolicy requires Kubernetes 1.27 or newer.
+		if _config.podDisruptionBudget.unhealthyPodEvictionPolicy != _|_ &&
+			(_config.clusterVersion.major > 1 || _config.clusterVersion.minor >= 27) {
 			unhealthyPodEvictionPolicy: _config.podDisruptionBudget.unhealthyPodEvictionPolicy
 		}
 		selector: matchLabels: _config.selector.labels

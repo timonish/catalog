@@ -63,6 +63,9 @@ import (
 				if _config.dnsConfig != _|_ {
 					dnsConfig: _config.dnsConfig
 				}
+				if _config.dnsPolicy != _|_ {
+					dnsPolicy: _config.dnsPolicy
+				}
 				if _config.imagePullSecrets != _|_ {
 					imagePullSecrets: _config.imagePullSecrets
 				}

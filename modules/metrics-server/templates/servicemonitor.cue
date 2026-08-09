@@ -19,8 +19,12 @@ import (
 			path:   "/metrics"
 			scheme: "https"
 			tlsConfig: insecureSkipVerify: true
-			interval:      _config.serviceMonitor.interval
-			scrapeTimeout: _config.serviceMonitor.scrapeTimeout
+			if _config.serviceMonitor.interval != "" {
+				interval: _config.serviceMonitor.interval
+			}
+			if _config.serviceMonitor.scrapeTimeout != "" {
+				scrapeTimeout: _config.serviceMonitor.scrapeTimeout
+			}
 			if _config.serviceMonitor.metricRelabelings != _|_ {
 				metricRelabelings: _config.serviceMonitor.metricRelabelings
 			}
