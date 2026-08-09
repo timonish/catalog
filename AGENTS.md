@@ -33,10 +33,11 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 
 - **Never hand-edit generated files**: `templates/versions.cue`,
   `templates/crds.cue`, `modules/<name>/cue.mod/gen/<group>` CRD schemas,
-  `schemas/cue.mod/gen/**`, `upengine/history/` and the README modules table
-  are owned by the sync engine / vendoring targets. Hand-written CUE
-  references `versions.cue` for image tags so routine bumps never touch
-  curated files.
+  `schemas/cue.mod/gen/**`, `upengine/history/`, the catalog README modules
+  table and the version section between the `<!-- versions:start -->`
+  markers in each module README are owned by the sync engine / vendoring
+  targets. Hand-written CUE references `versions.cue` for image tags so
+  routine bumps never touch curated files.
 - **Shared schemas are symlinked, never copied**: each module's
   `cue.mod/gen/k8s.io`, `cue.mod/gen/monitoring.coreos.com`,
   `cue.mod/gen/cert-manager.io` and `cue.mod/pkg/timoni.sh` are relative
@@ -47,9 +48,10 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 - **VERSION file**: format `^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$`, excluded from
   the pushed artifact via `timoni.ignore`. The OCI registry is the release
   record — no git tags.
-- **Module README**: H1 title, blank line, then a one-sentence description.
-  That line becomes the OCI description annotation; it must not contain
-  double quotes.
+- **Module README**: H1 title, blank line, then a one-sentence description
+  that links Timoni (https://timoni.sh) and the addon's upstream repository.
+  That line becomes the OCI description annotation with the markdown links
+  stripped to their text; it must not contain double quotes.
 - **No Bash**: all automation logic lives in upengine as TypeScript
   commands; the Makefile and the GitHub workflows are single-command
   entrypoints only. External tools are invoked by argv (never through a
@@ -122,10 +124,14 @@ conventions when onboarding a new addon:
 4. `debug_values.cue` must enable every optional object so
    `timoni mod vet --debug` validates all templates against their schemas.
 5. Write `VERSION` (`<upstream>-0`), the README description line, and the
-   full values documentation. The README is user-facing: never mention the
-   upstream Helm chart or differences from it, avoid shell heredocs in the
-   examples (show a `values.cue` file instead), and include a Timoni bundle
-   example that has been applied on a real cluster.
+   full values documentation. Place a `## Version` heading with
+   `<!-- versions:start -->` / `<!-- versions:end -->` markers after the
+   description — the engine renders the module version and container
+   images between the markers. The
+   README is user-facing: never mention the upstream Helm chart or
+   differences from it, avoid shell heredocs in the examples (show a
+   `values.cue` file instead), and include a Timoni bundle example that
+   has been applied on a real cluster.
 6. Enable the Timoni core health checks
    (`timoni: healthChecks: timoniv1.#HealthCheckLibrary.all` in
    `healthchecks.cue`) and add condition-based checks for any custom
@@ -149,5 +155,6 @@ provenance so the next sync run stays idempotent:
 
 1. Edit the module, then set `modules/<name>/VERSION` to `<upstream>-<n+1>`.
 2. Run `make sync MODULE=<name> FORCE=1` — the forced re-sync keeps the
-   build suffix, regenerates the history manifest and the README table.
+   build suffix and regenerates the history manifest, the module README
+   version section and the catalog README table.
 3. Open a PR; after the merge, `push.yaml` publishes the new version.

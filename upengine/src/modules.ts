@@ -3,7 +3,8 @@
 
 import { join } from "node:path";
 import { CATALOG_REPO, LICENSE, REGISTRY } from "../config/catalog.ts";
-import { moduleDescription } from "./readme.ts";
+import { moduleDescription, plainDescription, withModuleVersions } from "./readme.ts";
+import { readHistory } from "./history.ts";
 import { parseModuleVersion } from "./resolve.ts";
 import { MODULES_DIR } from "./paths.ts";
 import { mustRun, run } from "./proc.ts";
@@ -11,8 +12,10 @@ import type { ModuleSource } from "./types.ts";
 
 /**
  * Lints the module metadata that publishing depends on: every source has a
- * module directory and vice versa, VERSION parses, and the README carries a
- * description line without double quotes (it lands in an OCI annotation).
+ * module directory and vice versa, VERSION parses and matches the recorded
+ * history, the README carries a description line without double quotes once
+ * its markdown links are stripped (it lands in an OCI annotation), and the
+ * README version section is in sync with the history manifest.
  */
 export async function lintModules(sources: ModuleSource[]): Promise<void> {
   const dirs = (await mustRun(["git", "ls-files", "modules"]))
@@ -30,10 +33,25 @@ export async function lintModules(sources: ModuleSource[]): Promise<void> {
     if (!dirs.includes(source.name)) {
       throw new Error(`sources.ts declares '${source.name}' but modules/${source.name} does not exist`);
     }
-    parseModuleVersion(await Bun.file(join(MODULES_DIR, source.name, "VERSION")).text());
-    const description = await moduleDescription(source.name);
+    const version = (await Bun.file(join(MODULES_DIR, source.name, "VERSION")).text()).trim();
+    parseModuleVersion(version);
+    const description = plainDescription(await moduleDescription(source.name));
     if (description.includes('"')) {
       throw new Error(`modules/${source.name}/README.md description must not contain double quotes`);
+    }
+    const history = await readHistory(source.name);
+    if (history !== null) {
+      if (history.moduleVersion !== version) {
+        throw new Error(
+          `modules/${source.name}/VERSION is ${version} but the history records ${history.moduleVersion}; run 'make sync MODULE=${source.name} FORCE=1'`,
+        );
+      }
+      const readme = await Bun.file(join(MODULES_DIR, source.name, "README.md")).text();
+      if (withModuleVersions(readme, history) !== readme) {
+        throw new Error(
+          `modules/${source.name}/README.md version section is stale; run 'make sync MODULE=${source.name} FORCE=1'`,
+        );
+      }
     }
     console.log(`${source.name}: metadata valid`);
   }
@@ -129,7 +147,7 @@ async function pushModule(name: string, version: string): Promise<void> {
     "-a",
     `org.opencontainers.image.revision=${revision}`,
     "-a",
-    `org.opencontainers.image.description=${await moduleDescription(name)}`,
+    `org.opencontainers.image.description=${plainDescription(await moduleDescription(name))}`,
     "-a",
     `org.opencontainers.image.documentation=https://github.com/${CATALOG_REPO}/blob/main/modules/${name}/README.md`,
   ]);
