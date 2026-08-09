@@ -61,7 +61,11 @@ export async function createPullRequests(
   for (const change of changes) {
     const files = new Map<string, string>();
     for (const path of changePaths(change.name)) {
-      files.set(path, await Bun.file(path).text());
+      // crds.cue only exists for modules that track upstream CRDs.
+      const file = Bun.file(path);
+      if (await file.exists()) {
+        files.set(path, await file.text());
+      }
     }
     staged.set(change.name, files);
   }
@@ -89,6 +93,7 @@ export async function createPullRequests(
 function changePaths(name: string): string[] {
   return [
     join(MODULES_DIR, name, "templates/versions.cue"),
+    join(MODULES_DIR, name, "templates/crds.cue"),
     join(MODULES_DIR, name, "VERSION"),
     join(MODULES_DIR, name, "README.md"),
     join("upengine/history", `${name}.json`),

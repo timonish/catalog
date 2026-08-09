@@ -59,6 +59,18 @@ async function install(source: ModuleSource, moduleUrl: string, version: string)
     ["timoni", "bundle", "apply", "-f", bundlePath, "--runtime-from-env", "--timeout=5m"],
     { env: { E2E_MODULE_URL: moduleUrl, E2E_MODULE_VERSION: version } },
   );
+
+  // Optional fixtures the verify check depends on, e.g. a custom resource
+  // the addon is expected to reconcile.
+  const fixtures = fixturesPath(source);
+  if (await Bun.file(fixtures).exists()) {
+    console.log(`applying test/bundles/${source.name}/fixtures.yaml`);
+    await mustRun(["kubectl", "-n", source.e2e.namespace, "apply", "-f", fixtures]);
+  }
+}
+
+function fixturesPath(source: ModuleSource): string {
+  return join(BUNDLES_DIR, source.name, "fixtures.yaml");
 }
 
 async function verify(source: ModuleSource): Promise<void> {
@@ -69,6 +81,14 @@ async function verify(source: ModuleSource): Promise<void> {
 }
 
 async function uninstall(source: ModuleSource): Promise<void> {
+  const fixtures = fixturesPath(source);
+  if (await Bun.file(fixtures).exists()) {
+    await mustRun([
+      "kubectl", "-n", source.e2e.namespace, "delete", "-f", fixtures,
+      "--ignore-not-found", "--wait",
+    ]);
+  }
+
   console.log(`uninstalling ${source.name}`);
   await mustRun(["timoni", "-n", source.e2e.namespace, "delete", source.name, "--timeout=5m"]);
 
@@ -81,11 +101,15 @@ async function uninstall(source: ModuleSource): Promise<void> {
   );
 
   // Sweep for leftovers: cluster-scoped resources and bindings anywhere
-  // whose name references the module.
+  // whose name references the module. CRD names drop the dashes
+  // (dnsendpoints.externaldns.k8s.io), so that spelling is matched too.
   const clusterScoped = await mustRun([
-    "kubectl", "get", "clusterrole,clusterrolebinding,apiservice", "-o", "name",
+    "kubectl", "get", "clusterrole,clusterrolebinding,apiservice,crd", "-o", "name",
   ]);
-  const leftovers = clusterScoped.split("\n").filter((l) => l.includes(source.name));
+  const compactName = source.name.replaceAll("-", "");
+  const leftovers = clusterScoped
+    .split("\n")
+    .filter((l) => l.includes(source.name) || l.includes(compactName));
   const bindings = JSON.parse(
     await mustRun(["kubectl", "get", "rolebinding", "-A", "-o", "json"]),
   ) as { items: { metadata: { name: string; namespace: string } }[] };

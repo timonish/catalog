@@ -55,6 +55,28 @@ describe("validateSources", () => {
     const source = { ...VALID[0]!, name: "Metrics_Server" };
     expect(() => validateSources([source])).toThrow("invalid name");
   });
+
+  test("accepts a release image with a crds manifest", () => {
+    const source: ModuleSource = {
+      name: "external-dns",
+      url: "https://github.com/kubernetes-sigs/external-dns",
+      releaseTag: "v*",
+      crds: { file: "charts/external-dns/crds/dnsendpoints.externaldns.k8s.io.yaml" },
+      images: { "external-dns": { repository: "registry.k8s.io/external-dns/external-dns" } },
+      e2e: { namespace: "external-dns", verify: { argv: ["kubectl", "get", "crd"] } },
+    };
+    expect(validateSources([source])).toEqual([source]);
+  });
+
+  test("rejects a release image with an empty repository", () => {
+    const source = { ...VALID[0]!, images: { app: { repository: "" } } };
+    expect(() => validateSources([source])).toThrow("'repository' must not be empty");
+  });
+
+  test("rejects an empty crds file", () => {
+    const source = { ...VALID[0]!, crds: { file: "" } };
+    expect(() => validateSources([source])).toThrow("'crds.file' must not be empty");
+  });
 });
 
 describe("versions", () => {
