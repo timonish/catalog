@@ -11,7 +11,7 @@ import (
 	apiVersion: "v1"
 	kind:       "ConfigMap"
 	metadata: {
-		name:      "\(_config.metadata.name)-nanny"
+		name:      "\(_config.metadata.name)-nanny-config"
 		namespace: _config.metadata.namespace
 		labels:    _config.metadata.labels
 		if _config.metadata.annotations != _|_ {
@@ -74,7 +74,7 @@ import (
 	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "Role"
 	metadata: {
-		name:      "\(_config.metadata.name)-nanny"
+		name:      "system:\(_config.metadata.name)-nanny"
 		namespace: _config.metadata.namespace
 		labels:    _config.metadata.labels
 		if _config.metadata.annotations != _|_ {
@@ -111,7 +111,7 @@ import (
 	roleRef: {
 		apiGroup: "rbac.authorization.k8s.io"
 		kind:     "Role"
-		name:     "\(_config.metadata.name)-nanny"
+		name:     "system:\(_config.metadata.name)-nanny"
 	}
 	subjects: [{
 		kind:      "ServiceAccount"

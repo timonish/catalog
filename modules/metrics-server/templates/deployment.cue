@@ -31,6 +31,15 @@ import (
 		if _config.updateStrategy != _|_ {
 			strategy: _config.updateStrategy
 		}
+
+		// With hostNetwork, the default RollingUpdate strategy deadlocks:
+		// the new pod cannot bind the host port while the old one holds it.
+		if _config.updateStrategy == _|_ && _config.hostNetwork {
+			strategy: {
+				type: "RollingUpdate"
+				rollingUpdate: maxUnavailable: 1
+			}
+		}
 		selector: matchLabels: _config.selector.labels
 		template: {
 			metadata: {
@@ -97,7 +106,12 @@ import (
 						}]
 						livenessProbe:  _config.livenessProbe
 						readinessProbe: _config.readinessProbe
-						resources:      _config.resources
+						// When the addon-resizer is enabled, the nanny owns the
+						// container resources and patches them at runtime; rendering
+						// them here would make the server-side apply fight the nanny.
+						if !_config.addonResizer.enabled {
+							resources: _config.resources
+						}
 						volumeMounts: [
 							{
 								name:      "tmp"
@@ -156,7 +170,7 @@ import (
 					if _config.addonResizer.enabled {
 						{
 							name: "nanny-config-volume"
-							configMap: name: "\(_config.metadata.name)-nanny"
+							configMap: name: "\(_config.metadata.name)-nanny-config"
 						}
 					},
 					if _config.tls.type != "metrics-server" {
