@@ -42,11 +42,20 @@ export function extractImages(manifests: string): Map<string, string> {
 
 function parseAllDocuments(manifests: string): unknown[] {
   const docs: unknown[] = [];
-  for (const chunk of manifests.split(/^---$/m)) {
+  // A document separator is `---` at line start, optionally followed by
+  // whitespace or a comment (both are legal YAML).
+  for (const chunk of manifests.split(/^---(?:[ \t]+.*)?$/m)) {
     if (chunk.trim() === "") {
       continue;
     }
-    docs.push(YAML.parse(chunk));
+    const doc = YAML.parse(chunk) as unknown;
+    // A kind: List document carries the actual objects in items.
+    const items = (doc as Record<string, unknown> | null)?.items;
+    if ((doc as Record<string, unknown> | null)?.kind === "List" && Array.isArray(items)) {
+      docs.push(...items);
+    } else {
+      docs.push(doc);
+    }
   }
   return docs;
 }
@@ -60,6 +69,12 @@ function podSpecOf(doc: unknown): unknown {
     return obj.spec;
   }
   const spec = obj.spec as Record<string, unknown> | undefined;
+  if (obj.kind === "CronJob") {
+    const jobTemplate = spec?.jobTemplate as Record<string, unknown> | undefined;
+    const jobSpec = jobTemplate?.spec as Record<string, unknown> | undefined;
+    const template = jobSpec?.template as Record<string, unknown> | undefined;
+    return template?.spec;
+  }
   const template = spec?.template as Record<string, unknown> | undefined;
   return template?.spec;
 }

@@ -50,7 +50,9 @@ export async function fetchRetry(url: string, init: RequestInit = {}): Promise<R
     if (res.status === 403 && res.headers.get("x-ratelimit-remaining") === "0") {
       throw new Error(`GET ${url}: GitHub API rate limit exceeded; set GITHUB_TOKEN to raise it`);
     }
-    const after = Number(res.headers.get("retry-after"));
+    // Retry-After is capped so a hostile or broken response cannot stall
+    // an unattended run for an arbitrarily long time.
+    const after = Math.min(Number(res.headers.get("retry-after")) || 0, 60);
     const secondaryLimit = res.status === 403 && after > 0;
     if ((res.status === 429 || res.status >= 500 || secondaryLimit) && attempt < RETRIES) {
       await Bun.sleep(after > 0 ? after * 1000 : 1000 * 2 ** attempt);
@@ -79,15 +81,24 @@ export async function latestReleaseTag(repo: string): Promise<string> {
 }
 
 /**
- * Returns the most recent page of releases of owner/name (up to 100), for
+ * Returns up to 300 most recent releases of owner/name (three pages), for
  * callers that pick a tag themselves rather than trust /releases/latest.
+ * Busy monorepos interleave several release lines, so a single page can
+ * miss the latest release of a low-frequency component.
  */
 export async function listReleases(repo: string): Promise<Release[]> {
-  const releases = await apiJson(`/repos/${repo}/releases?per_page=100`);
-  if (!Array.isArray(releases)) {
-    throw new Error(`unexpected releases payload for ${repo}`);
+  const all: Release[] = [];
+  for (let page = 1; page <= 3; page++) {
+    const releases = await apiJson(`/repos/${repo}/releases?per_page=100&page=${page}`);
+    if (!Array.isArray(releases)) {
+      throw new Error(`unexpected releases payload for ${repo}`);
+    }
+    all.push(...(releases as Release[]));
+    if (releases.length < 100) {
+      break;
+    }
   }
-  return releases as Release[];
+  return all;
 }
 
 /**
@@ -113,7 +124,7 @@ export async function findReleaseAsset(
   tag: string,
   pattern: string,
 ): Promise<ReleaseAsset> {
-  const release = await apiJson(`/repos/${repo}/releases/tags/${tag}`);
+  const release = await apiJson(`/repos/${repo}/releases/tags/${encodeURIComponent(tag)}`);
   const assets = (release as { assets?: ReleaseAsset[] }).assets ?? [];
   const matches = assets.filter((a) => matchGlob(pattern, a.name));
   if (matches.length === 0) {

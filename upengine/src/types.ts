@@ -12,21 +12,39 @@ export interface ImageRef {
  * How the tag of one image in a module's versions.cue is resolved:
  * - `container`: extracted from the module source's release manifests by
  *   container name;
- * - `url` + `releaseTag`: tracked from another GitHub repository's releases,
- *   with the tag glob's literal prefix stripped from the release tag
- *   (`addon-resizer-1.8.24` with glob `addon-resizer-*` yields tag `1.8.24`);
- *   `repository` pins the OCI repository.
+ * - `url` + `releaseTag` + `repository`: tracked from another GitHub
+ *   repository's releases, with the tag glob's literal prefix stripped from
+ *   the release tag (`addon-resizer-1.8.24` with glob `addon-resizer-*`
+ *   yields tag `1.8.24`); `repository` pins the OCI repository.
  */
 export type ImageSource =
-  | { kind: "container"; container: string }
-  | { kind: "tracked"; url: string; releaseTag: string; repository: string };
+  | { container: string }
+  | { url: string; releaseTag: string; repository: string };
 
 /** Where a module source's release manifests are fetched from. */
-export type ManifestsInput =
-  | { kind: "releaseAsset"; asset: string }
-  | { kind: "file"; path: string };
+export type ManifestsInput = { releaseAsset: string } | { file: string };
 
-/** One entry of upengine/config/sources.yaml — a module's upstream declaration. */
+/** An argv command retried until it exits 0. Never interpreted by a shell. */
+export interface RetriedCheck {
+  argv: string[];
+  /** Attempts before giving up; defaults to 30. */
+  attempts?: number;
+  /** Delay between attempts in seconds; defaults to 10. */
+  delaySeconds?: number;
+}
+
+/** The end-to-end test of a module, run against a kind cluster. */
+export interface E2eConfig {
+  /** Namespace the instance is applied to. */
+  namespace: string;
+  /** Extra CUE values applied on install (e.g. kind needs kubelet-insecure-tls). */
+  values?: string;
+  /** Readiness check proving the addon works (timoni already waits for
+   * resource health; this checks the addon's actual function). */
+  verify: RetriedCheck;
+}
+
+/** One entry of upengine/config/sources.ts — a module's upstream declaration. */
 export interface ModuleSource {
   /** Module name; must match a modules/<name> directory. */
   name: string;
@@ -39,11 +57,9 @@ export interface ModuleSource {
   /** Release manifests location, required by `container` image sources. */
   manifests?: ManifestsInput;
   /** versions.cue image key -> tag resolution, in rendering order. */
-  images: Map<string, ImageSource>;
-}
-
-export interface EngineConfig {
-  sources: ModuleSource[];
+  images: Record<string, ImageSource>;
+  /** The module's end-to-end test definition. */
+  e2e: E2eConfig;
 }
 
 /** Per-module provenance manifest written to upengine/history/<name>.json. */
@@ -59,6 +75,9 @@ export interface HistoryEntry {
   moduleVersion: string;
   /** Images written to versions.cue. */
   images: Record<string, ImageRef>;
+  /** Digest of the generated files (versions.cue + VERSION), used to detect
+   * hand edits and corruption so the sync self-heals instead of skipping. */
+  generatedDigest: string;
   updatedAt: string;
 }
 
