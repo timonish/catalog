@@ -83,6 +83,8 @@ credentials.
 | `make list-mod MODULE=<m>` | List a module's published versions |
 | `make push-mod MODULE=<m>` | Push one module to GHCR (CI does this) |
 | `make update-shared-schemas` | Refresh the shared Timoni and Kubernetes API schemas |
+| `make sync [MODULE=<m>] [FORCE=1]` | Sync modules with their upstream releases (upengine) |
+| `make deps` / `make lint` / `make test` | Install, typecheck and test the upengine |
 
 ## Publishing model
 
