@@ -6,12 +6,12 @@ package templates
 #defaultImages: {
 	"metrics-server": {
 		repository: "registry.k8s.io/metrics-server/metrics-server"
-		tag:        "v0.8.0"
+		tag:        "v0.9.0"
 		digest:     ""
 	}
 	"addon-resizer": {
 		repository: "registry.k8s.io/autoscaling/addon-resizer"
-		tag:        "1.8.23"
+		tag:        "1.8.24"
 		digest:     ""
 	}
 }
