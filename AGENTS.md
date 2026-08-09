@@ -32,19 +32,23 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 ## Conventions
 
 - **Never hand-edit generated files**: `templates/versions.cue`,
-  `templates/crds.cue`, `modules/<name>/cue.mod/gen/<group>` CRD schemas,
-  `schemas/cue.mod/gen/**`, `upengine/history/`, the catalog README modules
-  table and the version section between the `<!-- versions:start -->`
-  markers in each module README are owned by the sync engine / vendoring
-  targets. Hand-written CUE references `versions.cue` for image tags so
-  routine bumps never touch curated files.
+  `templates/crds.cue`, `schemas/cue.mod/gen/**`, `upengine/history/`, the
+  catalog README modules table and the version section between the
+  `<!-- versions:start -->` markers in each module README are owned by the
+  sync engine / vendoring targets. Hand-written CUE references
+  `versions.cue` for image tags so routine bumps never touch curated files.
 - **Shared schemas are symlinked, never copied**: each module's
-  `cue.mod/gen/k8s.io`, `cue.mod/gen/monitoring.coreos.com`,
-  `cue.mod/gen/cert-manager.io` and `cue.mod/pkg/timoni.sh` are relative
-  symlinks into `schemas/`. Pushes use `--resolve-symlinks` (set in
-  `make push-mod`). Addon-specific CRD schemas are the opposite: vendored by
-  the sync engine as regular files into the module that needs them — never
-  into `schemas/`.
+  `cue.mod/pkg/timoni.sh`, `cue.mod/gen/k8s.io` and the CRD schema groups
+  its templates import (`monitoring.coreos.com`, `cert-manager.io`) are
+  relative symlinks into `schemas/`. Pushes use `--resolve-symlinks` (set
+  in `make push-mod`).
+- **Upstream CRDs ship in the generated `templates/crds.cue`**: a module
+  that installs CRDs declares the upstream manifest path as `crds` in
+  `sources.ts`; every sync re-imports it at the pinned commit with
+  `cue import` (see `modules/external-dns`). CRD *schemas* are a separate
+  concern, only needed when templates create typed custom resources —
+  universal ones live in the shared `schemas/`, and nothing is vendored
+  per module so far.
 - **VERSION file**: format `^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$`, excluded from
   the pushed artifact via `timoni.ignore`. The OCI registry is the release
   record — no git tags.
@@ -109,11 +113,13 @@ not-yet-created packages, so first publishes log a warning then push.
 conventions when onboarding a new addon:
 
 1. Create `modules/<name>` following the blueprint: `cue.mod/module.cue`
-   (`timoni.sh/<name>`), relative symlinks for `cue.mod/gen/k8s.io`,
-   `cue.mod/gen/monitoring.coreos.com`, `cue.mod/gen/cert-manager.io` and
-   `cue.mod/pkg/timoni.sh` (see [schemas/README.md](schemas/README.md));
-   addon-specific CRD schemas vendored into the module with
-   `timoni mod vendor crd` and pruned to the kinds the templates import.
+   (`timoni.sh/<name>`), relative symlinks for `cue.mod/pkg/timoni.sh`,
+   `cue.mod/gen/k8s.io` and the shared CRD schema groups the templates
+   import (see [schemas/README.md](schemas/README.md)). When the addon
+   ships CRDs, declare the upstream manifest path as `crds` in
+   `sources.ts` — the sync engine generates `templates/crds.cue`, and the
+   curated `#Instance` includes its objects behind a `crds.install` value
+   (see `modules/external-dns`).
 2. **Golden rule: the values API must cover every config option offered by
    the upstream chart/manifests.** Clone the upstream repo, read the chart's
    `values.yaml` and every template, and map each option to a typed CUE
@@ -138,13 +144,17 @@ conventions when onboarding a new addon:
    `healthchecks.cue`) and add condition-based checks for any custom
    resources the module creates (e.g. cert-manager Certificate).
 7. Add the module's entry to `upengine/config/sources.ts` (the upstream
-   repo, release tag glob, manifests input, image tracking, and the `e2e`
-   namespace and verify check) plus a `test/bundles/<name>/bundle.cue`
-   with the e2e install values — the bundle reads the module url and
-   version from `E2E_MODULE_URL` / `E2E_MODULE_VERSION` runtime env vars
-   set by the engine. The e2e workflow runs install/verify/uninstall per
-   changed module against a kind cluster, and the uninstall sweep fails
-   on any leftover resources.
+   repo, release tag glob, manifests input or release image, optional
+   `crds` manifest path, and the `e2e` namespace and verify check) plus a
+   `test/bundles/<name>/bundle.cue` with the e2e install values — the
+   bundle reads the module url and version from `E2E_MODULE_URL` /
+   `E2E_MODULE_VERSION` runtime env vars set by the engine. An optional
+   `test/bundles/<name>/fixtures.yaml` is applied after install and
+   deleted before uninstall, for resources the verify check depends on
+   (e.g. a custom resource the addon must reconcile). The e2e workflow
+   runs install/verify/uninstall per changed module against a kind
+   cluster, and the uninstall sweep fails on any leftover resources,
+   CRDs included.
 8. Run `make fmt lint-modules vet`, `make build MODULE=<name>`, and
    `make e2e MODULE=<name>` against a local kind cluster
    (`make cluster-up` creates one from `test/cluster/kind.yaml`).
@@ -160,6 +170,7 @@ provenance so the next sync run stays idempotent:
 
 1. Edit the module, then set `modules/<name>/VERSION` to `<upstream>-<n+1>`.
 2. Run `make sync MODULE=<name> FORCE=1` — the forced re-sync keeps the
-   build suffix and regenerates the history manifest, the module README
-   version section and the catalog README table.
+   build suffix and regenerates the generated files (`versions.cue`,
+   `crds.cue`), the history manifest, the module README version section
+   and the catalog README table.
 3. Open a PR; after the merge, `push.yaml` publishes the new version.
