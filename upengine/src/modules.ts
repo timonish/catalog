@@ -6,7 +6,7 @@ import { CATALOG_REPO, LICENSE, REGISTRY } from "../config/catalog.ts";
 import { moduleDescription, plainDescription, withModuleVersions } from "./readme.ts";
 import { readHistory } from "./history.ts";
 import { parseModuleVersion } from "./resolve.ts";
-import { MODULES_DIR } from "./paths.ts";
+import { BUNDLES_DIR, MODULES_DIR } from "./paths.ts";
 import { mustRun, run } from "./proc.ts";
 import type { ModuleSource } from "./types.ts";
 
@@ -38,6 +38,9 @@ export async function lintModules(sources: ModuleSource[]): Promise<void> {
     const description = plainDescription(await moduleDescription(source.name));
     if (description.includes('"')) {
       throw new Error(`modules/${source.name}/README.md description must not contain double quotes`);
+    }
+    if (!(await Bun.file(join(BUNDLES_DIR, source.name, "bundle.cue")).exists())) {
+      throw new Error(`test/bundles/${source.name}/bundle.cue is missing`);
     }
     const history = await readHistory(source.name);
     if (history !== null) {

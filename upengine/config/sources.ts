@@ -27,8 +27,6 @@ export const sources: ModuleSource[] = [
     },
     e2e: {
       namespace: "kube-system",
-      // Kind's kubelet serving certificates are self-signed.
-      values: 'values: args: ["--kubelet-insecure-tls"]',
       verify: { argv: ["kubectl", "top", "nodes"] },
     },
   },

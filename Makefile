@@ -61,6 +61,14 @@ sync: ## Sync modules with their upstream releases (make sync [MODULE=<name>] [F
 		$(if $(MODULE),--source $(MODULE)) \
 		$(if $(FORCE),--force)
 
+.PHONY: cluster-up
+cluster-up: ## Create the local kind cluster used for e2e testing
+	@kind create cluster --name timoni-test --config test/cluster/kind.yaml
+
+.PHONY: cluster-down
+cluster-down: ## Delete the local kind cluster
+	@kind delete cluster --name timoni-test
+
 .PHONY: e2e
 e2e: ## Run a module e2e test on the current cluster (make e2e MODULE=<name>)
 	@bun upengine/src/main.ts e2e --source $(MODULE)

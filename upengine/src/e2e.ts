@@ -2,19 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { join } from "node:path";
-import { MODULES_DIR } from "./paths.ts";
+import { BUNDLES_DIR, MODULES_DIR } from "./paths.ts";
 import { mustRun, retryRun, run } from "./proc.ts";
 import type { ModuleSource } from "./types.ts";
 
 /**
  * The end-to-end test of one module against the current kubectl context:
- * install (optionally from a just-pushed devel artifact), verify the addon
- * actually works, then uninstall and prove nothing is left behind. On any
- * failure, diagnostics are printed before the error propagates.
+ * install the module's test bundle (optionally from a just-pushed devel
+ * artifact), verify the addon actually works, then uninstall and prove
+ * nothing is left behind. On any failure, diagnostics are printed before
+ * the error propagates.
  */
 export async function e2eModule(source: ModuleSource, registry?: string): Promise<void> {
   const version = "0.0.0-devel";
-  let moduleRef = join(MODULES_DIR, source.name);
+  let moduleUrl = `file://${join(MODULES_DIR, source.name)}`;
   if (registry !== undefined) {
     const url = `${registry}/modules/${source.name}`;
     console.log(`pushing ${url}`);
@@ -22,17 +23,17 @@ export async function e2eModule(source: ModuleSource, registry?: string): Promis
       "timoni",
       "mod",
       "push",
-      moduleRef,
+      join(MODULES_DIR, source.name),
       url,
       "-v",
       version,
       "--resolve-symlinks",
     ]);
-    moduleRef = url;
+    moduleUrl = url;
   }
 
   try {
-    await install(source, moduleRef, version, registry !== undefined);
+    await install(source, moduleUrl, version);
     await verify(source);
     await uninstall(source);
   } catch (err) {
@@ -42,29 +43,22 @@ export async function e2eModule(source: ModuleSource, registry?: string): Promis
   console.log(`${source.name}: e2e passed`);
 }
 
-async function install(
-  source: ModuleSource,
-  moduleRef: string,
-  version: string,
-  fromRegistry: boolean,
-): Promise<void> {
-  const argv = [
-    "timoni",
-    "-n",
-    source.e2e.namespace,
-    "apply",
-    source.name,
-    moduleRef,
-    "--timeout=5m",
-  ];
-  if (fromRegistry) {
-    argv.push("-v", version);
+/**
+ * Applies the module's test bundle from test/bundles/<name>/bundle.cue;
+ * the bundle declares the instance values and reads the module url and
+ * version from the environment, so the same bundle installs the local
+ * worktree or a pushed devel artifact.
+ */
+async function install(source: ModuleSource, moduleUrl: string, version: string): Promise<void> {
+  const bundlePath = join(BUNDLES_DIR, source.name, "bundle.cue");
+  if (!(await Bun.file(bundlePath).exists())) {
+    throw new Error(`test/bundles/${source.name}/bundle.cue not found`);
   }
-  if (source.e2e.values !== undefined) {
-    argv.push("--values", "-");
-  }
-  console.log(`installing ${source.name} in ${source.e2e.namespace}`);
-  await mustRun(argv, { stdin: source.e2e.values });
+  console.log(`installing ${source.name} in ${source.e2e.namespace} from ${moduleUrl}`);
+  await mustRun(
+    ["timoni", "bundle", "apply", "-f", bundlePath, "--runtime-from-env", "--timeout=5m"],
+    { env: { E2E_MODULE_URL: moduleUrl, E2E_MODULE_VERSION: version } },
+  );
 }
 
 async function verify(source: ModuleSource): Promise<void> {
