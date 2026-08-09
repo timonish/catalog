@@ -22,9 +22,9 @@ See each module's README for its values API and configuration examples.
 ## Modules
 
 <!-- modules:start -->
-| Module | Version | Upstream | Description |
-|---|---|---|---|
-| [metrics-server](modules/metrics-server/README.md) | 0.9.0-1 | [kubernetes-sigs/metrics-server](https://github.com/kubernetes-sigs/metrics-server) | A [Timoni](https://timoni.sh) module for deploying [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server), a scalable source of container resource metrics for built-in autoscaling pipelines. |
+| Module | Version | Upstream |
+|---|---|---|
+| [metrics-server](modules/metrics-server/README.md) | 0.9.0-1 | [kubernetes-sigs/metrics-server](https://github.com/kubernetes-sigs/metrics-server) |
 <!-- modules:end -->
 
 ## License

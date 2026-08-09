@@ -82,12 +82,11 @@ export async function updateModuleReadme(history: HistoryEntry): Promise<void> {
 
 /** Renders the modules table from the worktree's VERSION files. */
 export async function renderReadmeTable(sources: ModuleSource[]): Promise<string> {
-  const rows = ["| Module | Version | Upstream | Description |", "|---|---|---|---|"];
+  const rows = ["| Module | Version | Upstream |", "|---|---|---|"];
   for (const source of sources) {
     const version = (await Bun.file(join(MODULES_DIR, source.name, "VERSION")).text()).trim();
-    const description = await moduleDescription(source.name);
     rows.push(
-      `| [${source.name}](modules/${source.name}/README.md) | ${version} | [${repoOf(source.url)}](${source.url}) | ${description} |`,
+      `| [${source.name}](modules/${source.name}/README.md) | ${version} | [${repoOf(source.url)}](${source.url}) |`,
     );
   }
   return rows.join("\n");
