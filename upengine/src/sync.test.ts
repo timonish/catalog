@@ -2,63 +2,57 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, expect, test } from "bun:test";
-import { parseConfig } from "./config.ts";
+import { validateSources } from "./config.ts";
+import { sources as configuredSources } from "../config/sources.ts";
 import { extractImages, parseImageRef } from "./manifests.ts";
 import { parseModuleVersion, pickLatestRelease, semverOf, trackedImageTag } from "./resolve.ts";
 import { renderVersionsCue } from "./codegen.ts";
 import { renderChange } from "./summary.ts";
+import type { ModuleSource } from "./types.ts";
 
-const VALID_CONFIG = {
-  sources: [
-    {
-      name: "metrics-server",
-      url: "https://github.com/kubernetes-sigs/metrics-server",
-      releaseTag: "v*",
-      manifests: { releaseAsset: "components.yaml" },
-      images: {
-        "metrics-server": { container: "metrics-server" },
-        "addon-resizer": {
-          url: "https://github.com/kubernetes/autoscaler",
-          releaseTag: "addon-resizer-*",
-          repository: "registry.k8s.io/autoscaling/addon-resizer",
-        },
+const VALID: ModuleSource[] = [
+  {
+    name: "metrics-server",
+    url: "https://github.com/kubernetes-sigs/metrics-server",
+    releaseTag: "v*",
+    manifests: { releaseAsset: "components.yaml" },
+    images: {
+      "metrics-server": { container: "metrics-server" },
+      "addon-resizer": {
+        url: "https://github.com/kubernetes/autoscaler",
+        releaseTag: "addon-resizer-*",
+        repository: "registry.k8s.io/autoscaling/addon-resizer",
       },
     },
-  ],
-};
+    e2e: {
+      namespace: "kube-system",
+      verify: { argv: ["kubectl", "top", "nodes"] },
+    },
+  },
+];
 
-describe("parseConfig", () => {
-  test("accepts a valid config", () => {
-    const config = parseConfig(VALID_CONFIG);
-    expect(config.sources).toHaveLength(1);
-    const source = config.sources[0]!;
-    expect(source.name).toBe("metrics-server");
-    expect(source.manifests).toEqual({ kind: "releaseAsset", asset: "components.yaml" });
-    expect(source.images.get("metrics-server")).toEqual({ kind: "container", container: "metrics-server" });
-    expect(source.images.get("addon-resizer")).toMatchObject({ kind: "tracked" });
-  });
-
-  test("rejects unknown keys", () => {
-    const doc = structuredClone(VALID_CONFIG) as Record<string, unknown>;
-    (doc.sources as Record<string, unknown>[])[0]!.pin = 1;
-    expect(() => parseConfig(doc)).toThrow("unknown keys: pin");
+describe("validateSources", () => {
+  test("accepts the checked-in config", () => {
+    expect(validateSources(configuredSources)).toBe(configuredSources);
   });
 
   test("rejects duplicate names", () => {
-    const doc = { sources: [VALID_CONFIG.sources[0], VALID_CONFIG.sources[0]] };
-    expect(() => parseConfig(doc)).toThrow("duplicate name");
+    expect(() => validateSources([VALID[0]!, VALID[0]!])).toThrow("duplicate name");
   });
 
   test("rejects container images without manifests", () => {
-    const doc = structuredClone(VALID_CONFIG);
-    delete (doc.sources[0] as Record<string, unknown>).manifests;
-    expect(() => parseConfig(doc)).toThrow("'manifests' is required");
+    const source = { ...VALID[0]!, manifests: undefined };
+    expect(() => validateSources([source])).toThrow("'manifests' is required");
   });
 
   test("rejects a non-GitHub url", () => {
-    const doc = structuredClone(VALID_CONFIG);
-    doc.sources[0]!.url = "https://gitlab.com/foo/bar";
-    expect(() => parseConfig(doc)).toThrow("not a GitHub repository URL");
+    const source = { ...VALID[0]!, url: "https://gitlab.com/foo/bar" };
+    expect(() => validateSources([source])).toThrow("not a GitHub repository URL");
+  });
+
+  test("rejects an invalid module name", () => {
+    const source = { ...VALID[0]!, name: "Metrics_Server" };
+    expect(() => validateSources([source])).toThrow("invalid name");
   });
 });
 
@@ -86,6 +80,8 @@ describe("versions", () => {
       { tag_name: "v0.9.0", draft: false, prerelease: false },
       { tag_name: "v0.8.0", draft: false, prerelease: false },
       { tag_name: "v0.10.0-rc.1", draft: false, prerelease: true },
+      // A prerelease semver with the GitHub flag mistakenly unset must not win.
+      { tag_name: "v0.11.0-rc.1", draft: false, prerelease: false },
     ];
     expect(pickLatestRelease(releases, "v*")).toBe("v0.9.0");
     expect(pickLatestRelease(releases, "metrics-server-helm-chart-*")).toBe(
@@ -124,6 +120,34 @@ spec:
     expect(() => extractImages(conflicting)).toThrow("different images");
   });
 
+  test("handles separators with comments, CronJob and List documents", () => {
+    const stream = [
+      "kind: CronJob",
+      "spec:",
+      "  jobTemplate:",
+      "    spec:",
+      "      template:",
+      "        spec:",
+      "          containers:",
+      "            - name: cleaner",
+      "              image: registry.k8s.io/cleaner:v1",
+      "--- # a comment after the separator",
+      "kind: List",
+      "items:",
+      "  - kind: Deployment",
+      "    spec:",
+      "      template:",
+      "        spec:",
+      "          containers:",
+      "            - name: app",
+      "              image: registry.k8s.io/app:v2",
+      "",
+    ].join("\n");
+    const images = extractImages(stream);
+    expect(images.get("cleaner")).toBe("registry.k8s.io/cleaner:v1");
+    expect(images.get("app")).toBe("registry.k8s.io/app:v2");
+  });
+
   test("parses image references", () => {
     expect(parseImageRef("registry.k8s.io/metrics-server/metrics-server:v0.9.0")).toEqual({
       repository: "registry.k8s.io/metrics-server/metrics-server",
@@ -145,11 +169,9 @@ spec:
 
 describe("rendering", () => {
   test("renders versions.cue deterministically", () => {
-    const cue = renderVersionsCue(
-      new Map([
-        ["metrics-server", { repository: "registry.k8s.io/metrics-server/metrics-server", tag: "v0.9.0", digest: "" }],
-      ]),
-    );
+    const cue = renderVersionsCue({
+      "metrics-server": { repository: "registry.k8s.io/metrics-server/metrics-server", tag: "v0.9.0", digest: "" },
+    });
     expect(cue).toBe(
       `// Code generated by upengine. DO NOT EDIT.
 

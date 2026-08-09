@@ -13,8 +13,13 @@ on:
 permissions:
   contents: read
 
+# Overlapping runs force-push the same update/<module> branches.
+concurrency:
+  group: update-catalog
+  cancel-in-progress: false
+
 jobs:
-  sync:
+  update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -24,50 +29,16 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # PRs created with the default GITHUB_TOKEN do not trigger the
-          # test/e2e workflows, which would deadlock auto-merge; a bot
-          # credential (BOT_GH_TOKEN) makes the loop fully hands-free.
+          # test/e2e workflows, which would deadlock auto-merge; the bot
+          # credential makes the loop fully hands-free.
           token: ${{ secrets.BOT_GH_TOKEN || github.token }}
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
       - name: Setup Timoni
         uses: stefanprodan/timoni/actions/setup@dee817667ba9706be82c43de5a9f9a275490620d # v0.30.0
-      - name: Sync modules
-        id: sync
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+      - name: Sync modules and open pull requests
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          BOT_GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
           FORCE_SYNC: ${{ inputs.force == true && '1' || '' }}
-          SYNC_SUMMARY: ${{ runner.temp }}/sync-summary.md
-        run: |
-          cd upengine && bun install --frozen-lockfile && cd ..
-          bun upengine/src/main.ts sync
-      - name: Create pull requests
-        if: steps.sync.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN || github.token }}
-        run: |
-          set -euo pipefail
-          git config user.name "timonish-bot"
-          git config user.email "bot@timonish.dev"
-          base="$(git rev-parse HEAD)"
-          for m in ${{ steps.sync.outputs.modules }}; do
-            version="$(cat modules/${m}/VERSION)"
-            branch="update/${m}"
-            git checkout -B "$branch" "$base"
-            git add "modules/${m}" "upengine/history/${m}.json" README.md
-            git commit -s -m "Update ${m} to ${version}"
-            git push --force origin "$branch"
-            # The summary contains one section per module; extract this module's.
-            awk "/^## ${m} /{found=1} found && /^## / && !/^## ${m} /{exit} found" \
-              "${{ runner.temp }}/sync-summary.md" > /tmp/pr-body.md
-            if pr="$(gh pr list --head "$branch" --json number --jq '.[0].number')" && [ -n "$pr" ]; then
-              gh pr edit "$pr" --title "Update ${m} to ${version}" --body-file /tmp/pr-body.md
-            else
-              pr="$(gh pr create --head "$branch" --title "Update ${m} to ${version}" \
-                --body-file /tmp/pr-body.md --label area/modules 2>/dev/null || \
-                gh pr create --head "$branch" --title "Update ${m} to ${version}" \
-                --body-file /tmp/pr-body.md)"
-            fi
-            gh pr merge "$branch" --auto --rebase || \
-              echo "::warning::auto-merge unavailable for ${m} (enable auto-merge and branch protection on the repo)"
-            git checkout "$base" --detach
-          done
+        run: bun upengine/src/main.ts update

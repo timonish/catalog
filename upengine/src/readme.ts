@@ -11,7 +11,7 @@ const END_MARKER = "<!-- modules:end -->";
 
 /**
  * The one-line module description: the first non-empty, non-heading line of
- * the module README (the same line push-mod uses for the OCI description).
+ * the module README (the same line publish uses for the OCI description).
  */
 export async function moduleDescription(name: string): Promise<string> {
   const text = await Bun.file(join(MODULES_DIR, name, "README.md")).text();
@@ -24,8 +24,8 @@ export async function moduleDescription(name: string): Promise<string> {
   throw new Error(`modules/${name}/README.md has no description line`);
 }
 
-/** Regenerates the modules table between the markers in the root README. */
-export async function updateReadme(sources: ModuleSource[]): Promise<void> {
+/** Renders the modules table from the worktree's VERSION files. */
+export async function renderReadmeTable(sources: ModuleSource[]): Promise<string> {
   const rows = ["| Module | Version | Upstream | Description |", "|---|---|---|---|"];
   for (const source of sources) {
     const version = (await Bun.file(join(MODULES_DIR, source.name, "VERSION")).text()).trim();
@@ -34,7 +34,11 @@ export async function updateReadme(sources: ModuleSource[]): Promise<void> {
       `| [${source.name}](modules/${source.name}/README.md) | ${version} | [${repoOf(source.url)}](${source.url}) | ${description} |`,
     );
   }
+  return rows.join("\n");
+}
 
+/** Replaces the modules table between the markers in the root README. */
+export async function writeReadmeTable(table: string): Promise<void> {
   const readme = await Bun.file(README_PATH).text();
   const start = readme.indexOf(START_MARKER);
   const end = readme.indexOf(END_MARKER);
@@ -42,12 +46,13 @@ export async function updateReadme(sources: ModuleSource[]): Promise<void> {
     throw new Error(`README.md is missing the ${START_MARKER} / ${END_MARKER} markers`);
   }
   const updated =
-    readme.slice(0, start + START_MARKER.length) +
-    "\n" +
-    rows.join("\n") +
-    "\n" +
-    readme.slice(end);
+    readme.slice(0, start + START_MARKER.length) + "\n" + table + "\n" + readme.slice(end);
   if (updated !== readme) {
     await Bun.write(README_PATH, updated);
   }
+}
+
+/** Regenerates the modules table in place. */
+export async function updateReadme(sources: ModuleSource[]): Promise<void> {
+  await writeReadmeTable(await renderReadmeTable(sources));
 }
