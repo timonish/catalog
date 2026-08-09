@@ -78,6 +78,11 @@ jobs:
             oci://localhost:5000/modules/${{ matrix.module }} ${MODULE_VERSION}
       - name: Verify module
         run: ./test/e2e/${{ matrix.module }}/verify.sh
+      - name: Uninstall module
+        run: |
+          if [ -x "./test/e2e/${{ matrix.module }}/uninstall.sh" ]; then
+            ./test/e2e/${{ matrix.module }}/uninstall.sh
+          fi
       - name: Debug failure
         if: failure()
         run: |
