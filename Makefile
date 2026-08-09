@@ -101,6 +101,24 @@ push-all: ## Push all modules to GHCR
 		$(MAKE) push-mod MODULE=$$m
 	done
 
+.PHONY: deps
+deps: ## Install the upengine dependencies
+	@cd upengine && bun install
+
+.PHONY: lint
+lint: ## Typecheck the upengine sources
+	@cd upengine && bunx tsc --noEmit -p tsconfig.json
+
+.PHONY: test
+test: ## Run the upengine tests
+	@cd upengine && bun test
+
+.PHONY: sync
+sync: ## Sync modules with their upstream releases (make sync [MODULE=<name>] [FORCE=1])
+	@bun upengine/src/main.ts sync \
+		$(if $(MODULE),--source $(MODULE)) \
+		$(if $(FORCE),--force)
+
 .PHONY: help
 help:  ## Display this help menu
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
