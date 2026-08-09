@@ -100,8 +100,13 @@ export async function restoreModuleFiles(name: string, hasCrds: boolean): Promis
     join(moduleDir, "VERSION"),
   ]);
   if (hasCrds) {
-    // Best effort: during a module's first sync the file is not in git yet.
-    await run(["git", "checkout", "--", join(moduleDir, "templates/crds.cue")]);
+    // During a module's first sync the file is not in git yet: deleting
+    // the freshly generated one restores the pre-sync state.
+    const crdsCue = join(moduleDir, "templates/crds.cue");
+    const restored = await run(["git", "checkout", "--", crdsCue]);
+    if (restored.exitCode !== 0) {
+      await rm(crdsCue, { force: true });
+    }
   }
 }
 

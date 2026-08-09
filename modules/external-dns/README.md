@@ -55,8 +55,8 @@ timoni -n external-dns apply external-dns \
   --values values.cue
 ```
 
-Provider credentials are never stored in the instance values: reference
-an existing Secret with `env` (as above) or mount one as a file with
+Keep provider credentials out of the instance values: reference an
+existing Secret with `env` (as above) or mount one as a file with
 `extraVolumes` and `extraVolumeMounts`, matching what the chosen
 provider expects.
 

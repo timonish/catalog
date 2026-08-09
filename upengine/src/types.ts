@@ -80,8 +80,9 @@ export interface HistoryEntry {
   moduleVersion: string;
   /** Images written to versions.cue. */
   images: Record<string, ImageRef>;
-  /** Digest of the generated files (versions.cue + VERSION), used to detect
-   * hand edits and corruption so the sync self-heals instead of skipping. */
+  /** Digest of the generated files (versions.cue, VERSION and crds.cue
+   * when present), used to detect hand edits and corruption so the sync
+   * self-heals instead of skipping. */
   generatedDigest: string;
   updatedAt: string;
 }
