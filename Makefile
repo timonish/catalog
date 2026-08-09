@@ -39,6 +39,13 @@ update-shared-schemas: ## Update the shared Timoni, Kubernetes API and Prometheu
 	@timoni mod vendor k8s ./schemas
 	@timoni mod vendor crd ./schemas \
 		-f https://github.com/prometheus-operator/prometheus-operator/releases/download/$(PROMETHEUS_OPERATOR_VERSION)/stripped-down-crds.yaml
+	@cd schemas/cue.mod/gen/monitoring.coreos.com
+	@for dir in * ; do
+		case $$dir in
+			servicemonitor|podmonitor) ;;
+			*) rm -rf $$dir ;;
+		esac
+	done
 
 .PHONY: build
 build: ## Render a module (make build MODULE=<name>)
