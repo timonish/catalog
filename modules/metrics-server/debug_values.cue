@@ -28,7 +28,7 @@ values: {
 
 	serviceMonitor: {
 		enabled: true
-		additionalLabels: release: "kube-prometheus-stack"
+		additionalLabels: prometheus: "platform"
 		interval:      "30s"
 		scrapeTimeout: "5s"
 		metricRelabelings: [{

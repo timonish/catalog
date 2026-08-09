@@ -59,10 +59,7 @@ bundle: {
 					enabled:      true
 					minAvailable: 1
 				}
-				serviceMonitor: {
-					enabled: true
-					additionalLabels: release: "kube-prometheus-stack"
-				}
+				serviceMonitor: enabled: true
 			}
 		}
 	}
