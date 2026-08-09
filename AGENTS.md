@@ -122,14 +122,32 @@ conventions when onboarding a new addon:
 4. `debug_values.cue` must enable every optional object so
    `timoni mod vet --debug` validates all templates against their schemas.
 5. Write `VERSION` (`<upstream>-0`), the README description line, and the
-   full values documentation with a deviations section.
-6. Add the module's entry to `upengine/config/sources.ts`: the upstream
+   full values documentation. The README is user-facing: never mention the
+   upstream Helm chart or differences from it, avoid shell heredocs in the
+   examples (show a `values.cue` file instead), and include a Timoni bundle
+   example that has been applied on a real cluster.
+6. Enable the Timoni core health checks
+   (`timoni: healthChecks: timoniv1.#HealthCheckLibrary.all` in
+   `healthchecks.cue`) and add condition-based checks for any custom
+   resources the module creates (e.g. cert-manager Certificate).
+7. Add the module's entry to `upengine/config/sources.ts`: the upstream
    repo, release tag glob, manifests input, image tracking, and the `e2e`
    config (namespace, install values, verify check). The e2e workflow runs
    install/verify/uninstall per changed module against a kind cluster, and
    the uninstall sweep fails on any leftover resources.
-7. Run `make fmt lint-modules vet`, `make build MODULE=<name>`, and
+8. Run `make fmt lint-modules vet`, `make build MODULE=<name>`, and
    `make e2e MODULE=<name>` against a local kind cluster.
 9. After the first publish: on ghcr.io, flip the new `modules/<name>`
    package to **Public** and confirm it is linked to this repository
    (one-time, needs package admin).
+
+## Releasing a module-only fix
+
+Upstream bumps are fully automated. For a change to the module itself
+(new values, templates, docs), bump the build suffix and refresh the
+provenance so the next sync run stays idempotent:
+
+1. Edit the module, then set `modules/<name>/VERSION` to `<upstream>-<n+1>`.
+2. Run `make sync MODULE=<name> FORCE=1` — the forced re-sync keeps the
+   build suffix, regenerates the history manifest and the README table.
+3. Open a PR; after the merge, `push.yaml` publishes the new version.
