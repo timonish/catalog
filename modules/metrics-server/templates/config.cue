@@ -74,7 +74,9 @@ import (
 	// e.g. `--kubelet-insecure-tls` for clusters with self-signed kubelet certs.
 	args: *[] | [...string]
 
-	// The container resource requirements.
+	// The container resource requirements. Ignored when `addonResizer`
+	// is enabled: the nanny owns the container resources and computes
+	// them from the cluster size.
 	resources: timoniv1.#ResourceRequirements & {
 		requests: {
 			cpu:    *"100m" | timoniv1.#CPUQuantity

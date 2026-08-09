@@ -127,6 +127,17 @@ The module covers the full configuration surface of the upstream Helm chart
   Kubernetes 1.25, the minimum version required by this module.
 - `nameOverride`/`fullnameOverride` are covered by the Timoni instance name.
 
+### Improvements over the Helm chart
+
+- With `addonResizer.enabled`, the module stops managing the metrics-server
+  container resources: the nanny owns and patches them at runtime, so
+  upgrades no longer fight the resizer (the chart re-applies `resources`
+  on every upgrade, which conflicts with the nanny-set values).
+- With `hostNetwork` enabled and no explicit `updateStrategy`, the rollout
+  strategy defaults to `maxUnavailable: 1`: the Kubernetes default of
+  `maxUnavailable: 0` deadlocks host-network rollouts because the new pod
+  cannot bind the host port while the old one holds it.
+
 ## Example: TLS with cert-manager
 
 ```cue
