@@ -1,6 +1,30 @@
 # metrics-server
 
-A timoni.sh module for deploying Kubernetes Metrics Server, a scalable source of container resource metrics for built-in autoscaling pipelines.
+A [Timoni](https://timoni.sh) module for deploying [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server), a scalable source of container resource metrics for built-in autoscaling pipelines.
+
+## Version
+
+<!-- versions:start -->
+Latest module version is `0.9.0-1`, packaging the upstream release
+[v0.9.0](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.0)
+with the following container images:
+
+| Image | Tag |
+|---|---|
+| `registry.k8s.io/metrics-server/metrics-server` | v0.9.0 |
+| `registry.k8s.io/autoscaling/addon-resizer` | 1.8.24 |
+<!-- versions:end -->
+
+To list all available versions and their digests:
+
+```shell
+timoni mod list oci://ghcr.io/timonish/modules/metrics-server
+```
+
+## Prerequisites
+
+- Kubernetes 1.25+
+- Timoni 0.30+
 
 ## Install
 
@@ -37,10 +61,12 @@ timoni -n kube-system delete metrics-server
 
 ## Bundle
 
-Timoni [bundles](https://timoni.sh/bundle/) manage a whole stack as one
-unit. The following bundle deploys metrics-server as part of a monitoring
-system, wired to a Prometheus Operator instance via a ServiceMonitor and
-hardened for production with a pod disruption budget:
+For production deployments it is recommended to use a Timoni
+[bundle](https://timoni.sh/bundle/) that offers a declarative way of
+managing the lifecycle of applications and their infra dependencies.
+
+The following bundle deploys a highly available metrics-server on a
+cluster with cert-manager and prometheus-operator installed:
 
 ```cue
 bundle: {
@@ -52,21 +78,33 @@ bundle: {
 				url:     "oci://ghcr.io/timonish/modules/metrics-server"
 				version: "latest"
 			}
-			namespace: "kube-system"
+			namespace: "monitoring"
 			values: {
 				replicas: 2
 				podDisruptionBudget: {
 					enabled:      true
 					minAvailable: 1
 				}
+				topologySpreadConstraints: [{
+					maxSkew:           1
+					topologyKey:       "kubernetes.io/hostname"
+					whenUnsatisfiable: "DoNotSchedule"
+					labelSelector: matchLabels: "app.kubernetes.io/name": "metrics-server"
+				}]
 				serviceMonitor: enabled: true
+				tls: type: "cert-manager"
+				apiService: insecureSkipTLSVerify: false
 			}
 		}
 	}
 }
 ```
 
-Save it as `monitoring.cue` and apply the stack with:
+With `tls.type: cert-manager`, the module creates a Certificate issued by
+a self-signed Issuer (or by `tls.certManager.existingIssuer`) and injects
+the CA into the APIService; the apply waits for the certificate issuance.
+
+Save the bundle as `monitoring.cue` and apply the stack with:
 
 ```shell
 timoni bundle apply -f monitoring.cue
@@ -159,36 +197,3 @@ All values are optional.
 | `addonResizer.resources` | `timoniv1.#ResourceRequirements` | `40m` / `25Mi` as both requests and limits | Nanny resource requirements |
 | `addonResizer.securityContext` | `corev1.#SecurityContext` | hardened | Nanny security context |
 | `addonResizer.nanny` | | `0m`/`1m`/`0Mi`/`2Mi`, `minClusterSize` 100, `pollPeriod` 300000, `threshold` 5 | Scaling parameters: resources are computed as `base + extra * max(nodes, minClusterSize)` |
-
-## TLS with cert-manager
-
-With `tls.type: cert-manager`, the module creates a Certificate (and a
-self-signed Issuer unless an existing issuer is referenced), mounts the
-issued secret, and annotates the APIService for CA injection. The apply
-waits for the Certificate to be issued before the instance is considered
-ready:
-
-```cue
-values: {
-	tls: type: "cert-manager"
-	apiService: insecureSkipTLSVerify: false
-}
-```
-
-## High availability
-
-```cue
-values: {
-	replicas: 2
-	podDisruptionBudget: {
-		enabled:      true
-		minAvailable: 1
-	}
-	topologySpreadConstraints: [{
-		maxSkew:           1
-		topologyKey:       "kubernetes.io/hostname"
-		whenUnsatisfiable: "DoNotSchedule"
-		labelSelector: matchLabels: "app.kubernetes.io/name": "metrics-server"
-	}]
-}
-```
