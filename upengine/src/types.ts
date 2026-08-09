@@ -33,12 +33,11 @@ export interface RetriedCheck {
   delaySeconds?: number;
 }
 
-/** The end-to-end test of a module, run against a kind cluster. */
+/** The end-to-end test of a module, run against a kind cluster. The
+ * install values live in the module's test/bundles/<name>/bundle.cue. */
 export interface E2eConfig {
-  /** Namespace the instance is applied to. */
+  /** Namespace the instance is applied to; must match the test bundle. */
   namespace: string;
-  /** Extra CUE values applied on install (e.g. kind needs kubelet-insecure-tls). */
-  values?: string;
   /** Readiness check proving the addon works (timoni already waits for
    * resource health; this checks the addon's actual function). */
   verify: RetriedCheck;

@@ -25,7 +25,7 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 | `schemas/`                              | Shared CUE module: single copy of the vendored `timoni.sh/core` and `k8s.io` schemas ([schemas/README.md](schemas/README.md))      |
 | `upengine/`                             | Bun/TypeScript automation engine; `upengine/config/sources.ts` declares each module's upstream and e2e test                        |
 | `upengine/history/`                     | **Generated:** per-module provenance manifests                                                                                     |
-| `test/`                                 | kind cluster config and e2e fixtures                                                                                               |
+| `test/`                                 | kind cluster config; `test/bundles/<name>/bundle.cue` — per-module e2e install bundle                                              |
 | `.github/workflows/`                    | `test.yaml` (fmt+vet+lint), `e2e.yaml` (kind), `push.yaml` (idempotent GHCR publish), `update-catalog.yaml` (daily sync)           |
 | `Makefile`                              | Entrypoints for all of the above. `Brewfile` — required CLIs                                                                       |
 
@@ -86,6 +86,7 @@ credentials.
 | `make lint-modules` | Validate module metadata against sources.ts |
 | `make vet` | Vet every module (validates rendered resources) |
 | `make build MODULE=<m>` | Render a module's manifests for inspection |
+| `make cluster-up` / `make cluster-down` | Create / delete the local `timoni-test` kind cluster for e2e |
 | `make e2e MODULE=<m>` | Install, verify and uninstall a module on the current cluster |
 | `make status` | Local VERSION vs published GHCR versions, all modules |
 | `make list-mod MODULE=<m>` | List a module's published versions |
@@ -136,13 +137,17 @@ conventions when onboarding a new addon:
    (`timoni: healthChecks: timoniv1.#HealthCheckLibrary.all` in
    `healthchecks.cue`) and add condition-based checks for any custom
    resources the module creates (e.g. cert-manager Certificate).
-7. Add the module's entry to `upengine/config/sources.ts`: the upstream
+7. Add the module's entry to `upengine/config/sources.ts` (the upstream
    repo, release tag glob, manifests input, image tracking, and the `e2e`
-   config (namespace, install values, verify check). The e2e workflow runs
-   install/verify/uninstall per changed module against a kind cluster, and
-   the uninstall sweep fails on any leftover resources.
+   namespace and verify check) plus a `test/bundles/<name>/bundle.cue`
+   with the e2e install values — the bundle reads the module url and
+   version from `E2E_MODULE_URL` / `E2E_MODULE_VERSION` runtime env vars
+   set by the engine. The e2e workflow runs install/verify/uninstall per
+   changed module against a kind cluster, and the uninstall sweep fails
+   on any leftover resources.
 8. Run `make fmt lint-modules vet`, `make build MODULE=<name>`, and
-   `make e2e MODULE=<name>` against a local kind cluster.
+   `make e2e MODULE=<name>` against a local kind cluster
+   (`make cluster-up` creates one from `test/cluster/kind.yaml`).
 9. After the first publish: on ghcr.io, flip the new `modules/<name>`
    package to **Public** and confirm it is linked to this repository
    (one-time, needs package admin).

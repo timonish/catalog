@@ -14,12 +14,16 @@ export interface RunResult {
  * returns its output. Untrusted upstream data (tags, names) can therefore
  * only ever be an argument, not shell syntax.
  */
-export async function run(argv: string[], opts: { stdin?: string } = {}): Promise<RunResult> {
+export async function run(
+  argv: string[],
+  opts: { stdin?: string; env?: Record<string, string> } = {},
+): Promise<RunResult> {
   const proc = Bun.spawn(argv, {
     cwd: ROOT_DIR,
     stdout: "pipe",
     stderr: "pipe",
     stdin: opts.stdin === undefined ? "ignore" : new TextEncoder().encode(opts.stdin),
+    env: opts.env === undefined ? process.env : { ...process.env, ...opts.env },
   });
   const [stdout, stderr, exitCode] = await Promise.all([
     new Response(proc.stdout).text(),
@@ -30,7 +34,10 @@ export async function run(argv: string[], opts: { stdin?: string } = {}): Promis
 }
 
 /** Like run, but a non-zero exit is an error carrying the tool output. */
-export async function mustRun(argv: string[], opts: { stdin?: string } = {}): Promise<string> {
+export async function mustRun(
+  argv: string[],
+  opts: { stdin?: string; env?: Record<string, string> } = {},
+): Promise<string> {
   const result = await run(argv, opts);
   if (result.exitCode !== 0) {
     throw new Error(`${argv.join(" ")} failed:\n${result.stderr || result.stdout}`);
