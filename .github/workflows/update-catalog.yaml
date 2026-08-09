@@ -34,6 +34,10 @@ jobs:
           token: ${{ secrets.BOT_GH_TOKEN || github.token }}
       - name: Setup Timoni
         uses: stefanprodan/timoni/actions/setup@dee817667ba9706be82c43de5a9f9a275490620d # v0.30.0
+      - name: Setup CUE
+        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
+        with:
+          version: v0.17.1
       - name: Setup Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
       - name: Sync modules and open pull requests

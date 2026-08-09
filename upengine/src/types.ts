@@ -16,10 +16,13 @@ export interface ImageRef {
  *   repository's releases, with the tag glob's literal prefix stripped from
  *   the release tag (`addon-resizer-1.8.24` with glob `addon-resizer-*`
  *   yields tag `1.8.24`); `repository` pins the OCI repository.
+ * - `repository` alone: a release image — the upstream publishes it tagged
+ *   with the release tag verbatim (`v0.21.0` release -> `:v0.21.0` image).
  */
 export type ImageSource =
   | { container: string }
-  | { url: string; releaseTag: string; repository: string };
+  | { url: string; releaseTag: string; repository: string }
+  | { repository: string };
 
 /** Where a module source's release manifests are fetched from. */
 export type ManifestsInput = { releaseAsset: string } | { file: string };
@@ -55,6 +58,9 @@ export interface ModuleSource {
   version?: string;
   /** Release manifests location, required by `container` image sources. */
   manifests?: ManifestsInput;
+  /** Path of the CRD manifest in the upstream repo, fetched at the pinned
+   * commit and rendered into the generated templates/crds.cue. */
+  crds?: { file: string };
   /** versions.cue image key -> tag resolution, in rendering order. */
   images: Record<string, ImageSource>;
   /** The module's end-to-end test definition. */

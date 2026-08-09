@@ -42,6 +42,14 @@ export async function lintModules(sources: ModuleSource[]): Promise<void> {
     if (!(await Bun.file(join(BUNDLES_DIR, source.name, "bundle.cue")).exists())) {
       throw new Error(`test/bundles/${source.name}/bundle.cue is missing`);
     }
+    if (
+      source.crds !== undefined &&
+      !(await Bun.file(join(MODULES_DIR, source.name, "templates/crds.cue")).exists())
+    ) {
+      throw new Error(
+        `modules/${source.name}/templates/crds.cue is missing; run 'make sync MODULE=${source.name} FORCE=1'`,
+      );
+    }
     const history = await readHistory(source.name);
     if (history !== null) {
       if (history.moduleVersion !== version) {

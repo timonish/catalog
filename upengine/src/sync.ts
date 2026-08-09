@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { join } from "node:path";
-import { isContainerImage, repoOf } from "./config.ts";
+import { isContainerImage, isTrackedImage, repoOf } from "./config.ts";
 import { commitSha, downloadText, fetchRepoFile, findReleaseAsset } from "./github.ts";
 import { extractImages, parseImageRef } from "./manifests.ts";
 import { parseModuleVersion, resolveTag, semverOf, trackedImageTag } from "./resolve.ts";
@@ -69,12 +69,14 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
   // mutable tag moves mid-sync.
   const commit = await commitSha(repo, tag);
   const images = await resolveImages(source, repo, tag, commit);
+  const crdManifest =
+    source.crds === undefined ? null : await fetchRepoFile(repo, commit, source.crds.file);
 
   try {
-    await writeModuleFiles(source.name, images, moduleVersion);
+    await writeModuleFiles(source.name, images, moduleVersion, crdManifest);
     await verifyModule(source.name);
   } catch (err) {
-    await restoreModuleFiles(source.name).catch(() => {});
+    await restoreModuleFiles(source.name, source.crds !== undefined).catch(() => {});
     throw err;
   }
   const history = {
@@ -138,7 +140,7 @@ async function resolveImages(
         );
       }
       images[key] = parseImageRef(ref);
-    } else {
+    } else if (isTrackedImage(imageSource)) {
       const trackedRepo = repoOf(imageSource.url);
       const trackedTag = await resolveTag(trackedRepo, imageSource.releaseTag, undefined);
       images[key] = {
@@ -146,6 +148,9 @@ async function resolveImages(
         tag: trackedImageTag(trackedTag, imageSource.releaseTag),
         digest: "",
       };
+    } else {
+      // A release image: the upstream tags it with the release tag verbatim.
+      images[key] = { repository: imageSource.repository, tag, digest: "" };
     }
   }
   return images;
