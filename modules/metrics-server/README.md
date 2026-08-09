@@ -11,28 +11,73 @@ timoni -n kube-system apply metrics-server \
   oci://ghcr.io/timonish/modules/metrics-server
 ```
 
-On clusters where the kubelet serving certificates are self-signed
-(e.g. kind, k3s, minikube):
+To customize the instance, place the configuration in a `values.cue` file:
+
+```cue
+values: {
+	// Required on clusters where the kubelet serving certificates
+	// are self-signed (e.g. kind, k3s, minikube).
+	args: ["--kubelet-insecure-tls"]
+}
+```
+
+And apply it with:
 
 ```shell
 timoni -n kube-system apply metrics-server \
   oci://ghcr.io/timonish/modules/metrics-server \
-  --values - <<EOF
-values: args: ["--kubelet-insecure-tls"]
-EOF
+  --values values.cue
 ```
 
-To change the configuration of an existing instance, rerun `timoni apply`
-with the updated values; to uninstall:
+To uninstall an instance and delete all the Kubernetes resources:
 
 ```shell
 timoni -n kube-system delete metrics-server
 ```
 
+## Bundle
+
+Timoni [bundles](https://timoni.sh/bundle/) manage a whole stack as one
+unit. The following bundle deploys metrics-server as part of a monitoring
+system, wired to a Prometheus Operator instance via a ServiceMonitor and
+hardened for production with a pod disruption budget:
+
+```cue
+bundle: {
+	apiVersion: "v1alpha1"
+	name:       "monitoring"
+	instances: {
+		"metrics-server": {
+			module: {
+				url:     "oci://ghcr.io/timonish/modules/metrics-server"
+				version: "latest"
+			}
+			namespace: "kube-system"
+			values: {
+				replicas: 2
+				podDisruptionBudget: {
+					enabled:      true
+					minAvailable: 1
+				}
+				serviceMonitor: {
+					enabled: true
+					additionalLabels: release: "kube-prometheus-stack"
+				}
+			}
+		}
+	}
+}
+```
+
+Save it as `monitoring.cue` and apply the stack with:
+
+```shell
+timoni bundle apply -f monitoring.cue
+```
+
 ## Configuration
 
-The module covers the full configuration surface of the upstream Helm chart
-(`metrics-server-helm-chart-3.13.0`). All values are optional.
+All values are optional.
 
 ### General values
 
@@ -63,10 +108,10 @@ The module covers the full configuration surface of the upstream Helm chart
 | `podSecurityContext` | `corev1.#PodSecurityContext` | unset | Pod security context |
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries |
 | `priorityClassName` | `string` | `system-cluster-critical` | Pod priority class |
-| `hostNetwork` | `bool` | `false` | Run in the host network namespace (e.g. Weave on EKS) |
-| `affinity` | `corev1.#Affinity` | Linux nodes | Pod affinity; a supplied value replaces the default (it cannot be removed entirely) |
+| `hostNetwork` | `bool` | `false` | Run in the host network namespace; rollouts then default to `maxUnavailable: 1` to free the host port |
+| `affinity` | `corev1.#Affinity` | Linux nodes | Pod affinity; a supplied value replaces the default |
 | `nodeSelector` / `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
-| `dnsPolicy` | `string` | unset | Pod DNS policy, e.g. `ClusterFirstWithHostNet` for host-network pods (not in the chart) |
+| `dnsPolicy` | `string` | unset | Pod DNS policy, e.g. `ClusterFirstWithHostNet` for host-network pods |
 | `dnsConfig` | `corev1.#PodDNSConfig` | unset | Pod DNS configuration |
 | `schedulerName` | `string` | unset | Alternate scheduler |
 | `deploymentAnnotations` | `{[string]: string}` | unset | Annotations on the Deployment |
@@ -96,7 +141,7 @@ The module covers the full configuration surface of the upstream Helm chart
 | `tls.certManager.existingIssuer` | | disabled | Reference an existing `Issuer`/`ClusterIssuer`; `name` is required (schema-enforced) when `enabled` |
 | `tls.certManager.duration` / `renewBefore` | `string` | unset | Certificate lifetime settings |
 | `tls.certManager.annotations` / `labels` | `{[string]: string}` | unset | Extra Certificate/Issuer metadata |
-| `tls.existingSecret.name` | `string` | unset | Name of an existing TLS secret to mount |
+| `tls.existingSecret.name` | `string` | unset | Name of an existing TLS secret to mount; the CA must be supplied via `apiService.caBundle` unless TLS verification is skipped |
 
 ### Monitoring values
 
@@ -118,37 +163,13 @@ The module covers the full configuration surface of the upstream Helm chart
 | `addonResizer.securityContext` | `corev1.#SecurityContext` | hardened | Nanny security context |
 | `addonResizer.nanny` | | `0m`/`1m`/`0Mi`/`2Mi`, `minClusterSize` 100, `pollPeriod` 300000, `threshold` 5 | Scaling parameters: resources are computed as `base + extra * max(nodes, minClusterSize)` |
 
-### Deviations from the Helm chart
+## TLS with cert-manager
 
-- `tls.type: helm` is not supported: it depends on Helm-only certificate
-  generation and secret lookups. Use `metrics-server` (default),
-  `cert-manager` or `existingSecret`.
-- Secret lookups are not supported: with `tls.type: existingSecret`, provide
-  the CA via `apiService.caBundle` or keep `insecureSkipTLSVerify`.
-- `rbac.pspEnabled` is not supported: PodSecurityPolicy was removed in
-  Kubernetes 1.25, the minimum version required by this module.
-- `nameOverride`/`fullnameOverride` are covered by the Timoni instance name.
-
-### Improvements over the Helm chart
-
-- With `addonResizer.enabled`, the module stops managing the metrics-server
-  container resources: the nanny owns and patches them at runtime, so
-  upgrades no longer fight the resizer (the chart re-applies `resources`
-  on every upgrade, which conflicts with the nanny-set values).
-- With `hostNetwork` enabled and no explicit `updateStrategy`, the rollout
-  strategy defaults to `maxUnavailable: 1`: the Kubernetes default of
-  `maxUnavailable: 0` deadlocks host-network rollouts because the new pod
-  cannot bind the host port while the old one holds it.
-- `apiService.insecureSkipTLSVerify` defaults to `false` when a trust chain
-  is available (cert-manager CA injection or a supplied `caBundle`), instead
-  of the chart's always-`true` default that silently ignores it.
-- `podDisruptionBudget.unhealthyPodEvictionPolicy` is version-gated at
-  apply time using the actual cluster version (the chart relies on Helm
-  capabilities); invalid combinations like setting both `minAvailable` and
-  `maxUnavailable`, or an empty `existingSecret`/`existingIssuer` name, are
-  rejected by the schema instead of producing broken objects.
-
-## Example: TLS with cert-manager
+With `tls.type: cert-manager`, the module creates a Certificate (and a
+self-signed Issuer unless an existing issuer is referenced), mounts the
+issued secret, and annotates the APIService for CA injection. The apply
+waits for the Certificate to be issued before the instance is considered
+ready:
 
 ```cue
 values: {
@@ -157,7 +178,7 @@ values: {
 }
 ```
 
-## Example: high availability
+## High availability
 
 ```cue
 values: {
