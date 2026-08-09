@@ -6,7 +6,8 @@ echo "waiting for the metrics API to serve node metrics"
 for i in $(seq 1 30); do
   if kubectl top nodes >/dev/null 2>&1; then
     kubectl top nodes
-    kubectl top pods -n kube-system --sort-by=memory | head -5
+    pods="$(kubectl top pods -n kube-system --sort-by=memory)"
+    head -5 <<<"$pods"
     echo "metrics API is serving"
     exit 0
   fi
