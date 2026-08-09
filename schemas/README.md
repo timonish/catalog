@@ -6,9 +6,11 @@ Timoni modules in this repository:
 - `cue.mod/pkg/timoni.sh` — the Timoni core schemas
 - `cue.mod/gen/k8s.io` — the full Kubernetes API schemas (no pruning)
 - `cue.mod/gen/monitoring.coreos.com` — the Prometheus Operator ServiceMonitor
-  and PodMonitor CRD schemas (most addons expose one of these); the other
-  Prometheus Operator kinds are pruned by `make update-shared-schemas`
+  and PodMonitor CRD schemas (most addons expose one of these)
+- `cue.mod/gen/cert-manager.io` — the cert-manager Certificate and Issuer
+  CRD schemas (most addons offer optional cert-manager provisioned TLS)
 
+The CRD kinds not listed above are pruned by `make update-shared-schemas`.
 Only these universal schemas are shared. Other CRD schemas are per-addon and
 are vendored directly into the module that needs them
 (`modules/<name>/cue.mod/gen/<group>`) by the sync engine.
