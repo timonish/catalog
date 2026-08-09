@@ -45,13 +45,13 @@ The module covers the full configuration surface of the upstream Helm chart
 | `containerPort` | `int` | `10250` | HTTPS serving port of the container |
 | `defaultArgs` | `[...string]` | upstream defaults | Base command line arguments; override only when the upstream defaults are unsuitable |
 | `args` | `[...string]` | `[]` | Extra arguments appended after `defaultArgs`, e.g. `--kubelet-insecure-tls` |
-| `resources` | `timoniv1.#ResourceRequirements` | `100m` / `200Mi` requests | Container resource requirements |
-| `securityContext` | `corev1.#SecurityContext` | hardened | Container security context |
+| `resources` | `timoniv1.#ResourceRequirements` | `100m` / `200Mi` requests | Container resource requirements; ignored when `addonResizer` is enabled (the nanny owns them) |
+| `securityContext` | `corev1.#SecurityContext` | hardened | Container security context; defaults: no privilege escalation, read-only rootfs, runAsNonRoot, UID 1000, RuntimeDefault seccomp, all capabilities dropped |
 | `livenessProbe` / `readinessProbe` | `corev1.#Probe` | `/livez` / `/readyz` | Container probes |
 | `commonLabels` | `{[string]: string}` | unset | Extra labels added to all resources |
 | `rbac.create` | `bool` | `true` | Create the cluster roles and bindings |
 | `serviceAccount.create` | `bool` | `true` | Create the service account; set to `false` to use an existing one |
-| `serviceAccount.name` | `string` | instance name | Service account name |
+| `serviceAccount.name` | `string` | instance name, or `default` when `create: false` | Service account name |
 | `serviceAccount.annotations` | `{[string]: string}` | unset | Service account annotations (e.g. for IRSA) |
 | `serviceAccount.secrets` | `[...]` | unset | Secrets mountable by the service account |
 
@@ -64,11 +64,13 @@ The module covers the full configuration surface of the upstream Helm chart
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries |
 | `priorityClassName` | `string` | `system-cluster-critical` | Pod priority class |
 | `hostNetwork` | `bool` | `false` | Run in the host network namespace (e.g. Weave on EKS) |
-| `nodeSelector` / `tolerations` / `affinity` / `topologySpreadConstraints` | | Linux nodes | Standard scheduling controls |
+| `affinity` | `corev1.#Affinity` | Linux nodes | Pod affinity; a supplied value replaces the default (it cannot be removed entirely) |
+| `nodeSelector` / `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
+| `dnsPolicy` | `string` | unset | Pod DNS policy, e.g. `ClusterFirstWithHostNet` for host-network pods (not in the chart) |
 | `dnsConfig` | `corev1.#PodDNSConfig` | unset | Pod DNS configuration |
 | `schedulerName` | `string` | unset | Alternate scheduler |
 | `deploymentAnnotations` | `{[string]: string}` | unset | Annotations on the Deployment |
-| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget; set one of `minAvailable` / `maxUnavailable`, optionally `unhealthyPodEvictionPolicy` |
+| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget; `minAvailable` / `maxUnavailable` are mutually exclusive (schema-enforced), `unhealthyPodEvictionPolicy` is applied on Kubernetes 1.27+ only |
 | `extraVolumes` / `extraVolumeMounts` | `[...]` | unset | Additional volumes for the metrics-server container |
 | `tmpVolume` | `corev1.#VolumeSource` | `emptyDir` | Volume backing the `/tmp` certificate directory |
 
@@ -81,7 +83,7 @@ The module covers the full configuration surface of the upstream Helm chart
 | `service.annotations` / `service.labels` | `{[string]: string}` | unset | Extra Service metadata |
 | `apiService.create` | `bool` | `true` | Register the `v1beta1.metrics.k8s.io` APIService |
 | `apiService.annotations` | `{[string]: string}` | unset | Extra APIService annotations |
-| `apiService.insecureSkipTLSVerify` | `bool` | `true` | Skip TLS verification of the metrics API |
+| `apiService.insecureSkipTLSVerify` | `bool` | `true`; `false` when cert-manager injects the CA or `caBundle` is set | Skip TLS verification of the metrics API |
 | `apiService.caBundle` | `string` | unset | PEM encoded CA bundle for TLS verification |
 
 ### TLS values
@@ -91,7 +93,7 @@ The module covers the full configuration surface of the upstream Helm chart
 | `tls.type` | `string` | `metrics-server` | One of `metrics-server` (self-signed at runtime), `cert-manager`, `existingSecret` |
 | `tls.clusterDomain` | `string` | `cluster.local` | Cluster domain used for the certificate SANs |
 | `tls.certManager.addInjectorAnnotations` | `bool` | `true` | Add the `cert-manager.io/inject-ca-from` annotation to the APIService |
-| `tls.certManager.existingIssuer` | | disabled | Reference an existing `Issuer`/`ClusterIssuer` instead of the generated self-signed one |
+| `tls.certManager.existingIssuer` | | disabled | Reference an existing `Issuer`/`ClusterIssuer`; `name` is required (schema-enforced) when `enabled` |
 | `tls.certManager.duration` / `renewBefore` | `string` | unset | Certificate lifetime settings |
 | `tls.certManager.annotations` / `labels` | `{[string]: string}` | unset | Extra Certificate/Issuer metadata |
 | `tls.existingSecret.name` | `string` | unset | Name of an existing TLS secret to mount |
@@ -103,7 +105,7 @@ The module covers the full configuration surface of the upstream Helm chart
 | `metrics.enabled` | `bool` | `false` | Allow unauthenticated access to `/metrics` |
 | `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor (implies `metrics.enabled`) |
 | `serviceMonitor.additionalLabels` | `{[string]: string}` | unset | Labels for Prometheus discovery |
-| `serviceMonitor.interval` / `scrapeTimeout` | `string` | `1m` / `10s` | Scrape settings |
+| `serviceMonitor.interval` / `scrapeTimeout` | `string` | `1m` / `10s` | Scrape settings; set to `""` to fall back to the Prometheus Operator defaults |
 | `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
 
 ### Addon-resizer values
@@ -112,9 +114,9 @@ The module covers the full configuration surface of the upstream Helm chart
 |---|---|---|---|
 | `addonResizer.enabled` | `bool` | `false` | Run the addon-resizer nanny sidecar that scales resources with cluster size |
 | `addonResizer.image` | `timoniv1.#Image` | upstream release | Nanny container image |
-| `addonResizer.resources` | `timoniv1.#ResourceRequirements` | `40m` / `25Mi` | Nanny resource requirements |
+| `addonResizer.resources` | `timoniv1.#ResourceRequirements` | `40m` / `25Mi` as both requests and limits | Nanny resource requirements |
 | `addonResizer.securityContext` | `corev1.#SecurityContext` | hardened | Nanny security context |
-| `addonResizer.nanny` | | upstream defaults | Scaling parameters: `cpu`, `extraCpu`, `memory`, `extraMemory`, `minClusterSize`, `pollPeriod`, `threshold` |
+| `addonResizer.nanny` | | `0m`/`1m`/`0Mi`/`2Mi`, `minClusterSize` 100, `pollPeriod` 300000, `threshold` 5 | Scaling parameters: resources are computed as `base + extra * max(nodes, minClusterSize)` |
 
 ### Deviations from the Helm chart
 
@@ -137,6 +139,14 @@ The module covers the full configuration surface of the upstream Helm chart
   strategy defaults to `maxUnavailable: 1`: the Kubernetes default of
   `maxUnavailable: 0` deadlocks host-network rollouts because the new pod
   cannot bind the host port while the old one holds it.
+- `apiService.insecureSkipTLSVerify` defaults to `false` when a trust chain
+  is available (cert-manager CA injection or a supplied `caBundle`), instead
+  of the chart's always-`true` default that silently ignores it.
+- `podDisruptionBudget.unhealthyPodEvictionPolicy` is version-gated at
+  apply time using the actual cluster version (the chart relies on Helm
+  capabilities); invalid combinations like setting both `minAvailable` and
+  `maxUnavailable`, or an empty `existingSecret`/`existingIssuer` name, are
+  rejected by the schema instead of producing broken objects.
 
 ## Example: TLS with cert-manager
 

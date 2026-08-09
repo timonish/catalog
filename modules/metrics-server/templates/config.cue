@@ -132,7 +132,10 @@ import (
 	nodeSelector?: {[string]: string}
 	tolerations?: [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
-	dnsConfig?:     corev1.#PodDNSConfig
+	dnsConfig?: corev1.#PodDNSConfig
+	// Not in the chart: pods with hostNetwork enabled may need
+	// ClusterFirstWithHostNet to resolve cluster services.
+	dnsPolicy?:     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
 	schedulerName?: string
 
 	// The priority class of the metrics-server pods.
@@ -159,8 +162,15 @@ import (
 	// ServiceAccount settings. Set `create: false` to use an existing
 	// service account referenced by `name`.
 	serviceAccount: {
-		create:       *true | bool
-		name:         *metadata.name | string
+		create: *true | bool
+		if create {
+			name: *metadata.name | string
+		}
+		if !create {
+			// Matches the chart: without a name, the pods run under the
+			// namespace default service account.
+			name: *"default" | string
+		}
 		annotations?: timoniv1.#Annotations
 		secrets?: [...timoniv1.#ObjectReference]
 	}
@@ -180,20 +190,28 @@ import (
 	// The v1beta1.metrics.k8s.io APIService registration. Disable only
 	// when the API service is managed outside of this module.
 	apiService: {
-		create:                *true | bool
-		annotations?:          timoniv1.#Annotations
-		insecureSkipTLSVerify: *true | bool
+		create:       *true | bool
+		annotations?: timoniv1.#Annotations
+		// Skip TLS verification of the metrics API. Defaults to false when
+		// cert-manager injects the CA or when a caBundle is supplied.
+		insecureSkipTLSVerify: *_insecureSkipTLSVerifyDefault | bool
 		// PEM encoded CA bundle for TLS verification, base64 encoded at render time.
 		caBundle?: string
 	}
+	_insecureSkipTLSVerifyDefault: [
+		if tls.type == "cert-manager" && tls.certManager.addInjectorAnnotations {false},
+		if apiService.caBundle != _|_ {false},
+		true,
+	][0]
 
-	// PodDisruptionBudget (optional). Set only one of
-	// `minAvailable` or `maxUnavailable`.
+	// PodDisruptionBudget (optional). The mutually exclusive
+	// `minAvailable` and `maxUnavailable` accept an absolute number
+	// or a percentage. `unhealthyPodEvictionPolicy` requires
+	// Kubernetes 1.27 or newer and is omitted on older clusters.
 	podDisruptionBudget: {
 		enabled:                     *false | bool
-		minAvailable?:               int & >=0 | string
-		maxUnavailable?:             int & >=0 | string
 		unhealthyPodEvictionPolicy?: "IfHealthyBudget" | "AlwaysAllow"
+		*{} | {minAvailable: int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
 	}
 
 	// Expose the /metrics endpoint without authorization.
@@ -204,8 +222,10 @@ import (
 	serviceMonitor: {
 		enabled:           *false | bool
 		additionalLabels?: timoniv1.#Labels
-		interval:          *"1m" | string
-		scrapeTimeout:     *"10s" | string
+		// Scrape settings; set to an empty string to omit the field and
+		// fall back to the Prometheus Operator defaults.
+		interval:      *"1m" | "" | =~"^[0-9]+(ms|s|m|h)$"
+		scrapeTimeout: *"10s" | "" | =~"^[0-9]+(ms|s|m|h)$"
 		metricRelabelings?: [...]
 		relabelings?: [...]
 	}
@@ -265,7 +285,12 @@ import (
 			existingIssuer: {
 				enabled: *false | bool
 				kind:    *"Issuer" | "ClusterIssuer"
-				name:    *"" | string
+				if enabled {
+					name: string & =~".+"
+				}
+				if !enabled {
+					name: *"" | string
+				}
 			}
 			duration?:    string
 			renewBefore?: string
@@ -273,7 +298,12 @@ import (
 			labels?:      timoniv1.#Labels
 		}
 
-		existingSecret: name: *"" | string
+		if type == "existingSecret" {
+			existingSecret: name: string & =~".+"
+		}
+		if type != "existingSecret" {
+			existingSecret: name: *"" | string
+		}
 	}
 }
 
