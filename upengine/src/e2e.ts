@@ -89,8 +89,11 @@ async function uninstall(source: ModuleSource): Promise<void> {
     ]);
   }
 
-  console.log(`uninstalling ${source.name}`);
-  await mustRun(["timoni", "-n", source.e2e.namespace, "delete", source.name, "--timeout=5m"]);
+  // Deleting the bundle (named after the module) also removes any
+  // dependency instances the test bundle installed before the module,
+  // e.g. gateway-api providing the Gateway API CRDs for envoy-gateway.
+  console.log(`uninstalling the ${source.name} bundle`);
+  await mustRun(["timoni", "bundle", "delete", source.name, "--timeout=5m"]);
 
   // Wait for the instance pods to drain. A CRDs-only module runs no pods,
   // and `kubectl wait --for=delete` fails on an empty selector match.

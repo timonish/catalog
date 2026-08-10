@@ -1,0 +1,126 @@
+# E2E fixtures: a GatewayClass backed by a ClusterIP EnvoyProxy config
+# (kind has no load balancer), a Gateway with an HTTP listener, an echo
+# backend behind an HTTPRoute, a fixed-name Service selecting the
+# managed Envoy pods (their generated Service name is not
+# deterministic), and a Job proving a request through the Envoy data
+# plane reaches the backend.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: e2e
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: ClusterIP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: e2e
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: e2e
+    namespace: envoy-gateway
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: e2e
+spec:
+  gatewayClassName: e2e
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo
+  template:
+    metadata:
+      labels:
+        app: echo
+    spec:
+      containers:
+        - name: echo
+          image: registry.k8s.io/e2e-test-images/agnhost:2.53
+          args: ["netexec", "--http-port=8080"]
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo
+spec:
+  selector:
+    app: echo
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: e2e
+spec:
+  parentRefs:
+    - name: e2e
+  hostnames:
+    - e2e.example.com
+  rules:
+    - backendRefs:
+        - name: echo
+          port: 8080
+---
+# The managed Envoy pods carry the owning-gateway labels; their
+# listener for Gateway port 80 binds container port 10080.
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy-e2e
+spec:
+  selector:
+    gateway.envoyproxy.io/owning-gateway-name: e2e
+    gateway.envoyproxy.io/owning-gateway-namespace: envoy-gateway
+  ports:
+    - port: 80
+      targetPort: 10080
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: e2e
+spec:
+  backoffLimit: 6
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: curl
+          image: registry.k8s.io/e2e-test-images/busybox:1.36.1-1
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              wget -qO- --header "Host: e2e.example.com" http://envoy-e2e.envoy-gateway.svc/hostname | grep -q echo
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
