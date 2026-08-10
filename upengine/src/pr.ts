@@ -92,7 +92,10 @@ export async function createPullRequests(
 
 function changePaths(name: string): string[] {
   return [
+    // Whichever versions.cue location the module's layout uses exists;
+    // the caller filters on existence.
     join(MODULES_DIR, name, "templates/versions.cue"),
+    join(MODULES_DIR, name, "templates/config/versions.cue"),
     join(MODULES_DIR, name, "templates/crds.cue"),
     join(MODULES_DIR, name, "VERSION"),
     join(MODULES_DIR, name, "README.md"),
@@ -112,6 +115,14 @@ async function createPullRequest(
   await mustRun(["git", "checkout", "-B", branch, baseSha]);
   for (const [path, content] of files) {
     await Bun.write(path, content);
+  }
+  // Candidate paths absent from the snapshot are removed if the base
+  // still tracks them (e.g. the flat versions.cue of a module that
+  // migrated to the packages layout).
+  for (const path of changePaths(change.name)) {
+    if (!files.has(path)) {
+      await run(["git", "rm", "-q", "--ignore-unmatch", "--", path]);
+    }
   }
   // The README table is regenerated for this branch's content: this module
   // at the new version, everything else at the base version.

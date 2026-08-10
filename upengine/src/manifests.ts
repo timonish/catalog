@@ -40,6 +40,54 @@ export function extractImages(manifests: string): Map<string, string> {
   return images;
 }
 
+/**
+ * Normalizes an upstream CRD manifest for import into a module: keeps only
+ * the CustomResourceDefinition documents and strips the packaging metadata
+ * they carry — labels and the `helm.sh/resource-policy` annotation baked
+ * into chart-rendered release assets. The module instance owns the object
+ * metadata; leftover chart labels would be wrong on every install.
+ */
+export function normalizeCrdManifest(manifest: string): string {
+  // The round-trip goes through JavaScript numbers, which silently lose
+  // precision above 2^53 — refuse loudly instead of corrupting a schema.
+  const bigInt = manifest.match(/^[^#\n]*?:\s*[+-]?[0-9]{16,}\s*$/m);
+  if (bigInt !== null) {
+    throw new Error(
+      `the CRD manifest contains an integer beyond safe JavaScript precision: ${bigInt[0].trim()}`,
+    );
+  }
+  const crds: Record<string, unknown>[] = [];
+  for (const doc of parseAllDocuments(manifest)) {
+    if (typeof doc !== "object" || doc === null) {
+      continue;
+    }
+    const obj = doc as Record<string, unknown>;
+    if (obj.kind !== "CustomResourceDefinition") {
+      continue;
+    }
+    const metadata = obj.metadata;
+    if (typeof metadata === "object" && metadata !== null) {
+      const meta = metadata as Record<string, unknown>;
+      delete meta.labels;
+      const annotations = meta.annotations;
+      if (typeof annotations === "object" && annotations !== null) {
+        const ann = annotations as Record<string, unknown>;
+        delete ann["helm.sh/resource-policy"];
+        if (Object.keys(ann).length === 0) {
+          delete meta.annotations;
+        }
+      } else if (annotations === null) {
+        delete meta.annotations;
+      }
+    }
+    crds.push(obj);
+  }
+  if (crds.length === 0) {
+    throw new Error("the CRD manifest contains no CustomResourceDefinition documents");
+  }
+  return crds.map((crd) => YAML.stringify(crd, null, 2)).join("\n---\n");
+}
+
 function parseAllDocuments(manifests: string): unknown[] {
   const docs: unknown[] = [];
   // A document separator is `---` at line start, optionally followed by

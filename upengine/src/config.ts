@@ -69,8 +69,14 @@ export function validateSources(sources: ModuleSource[]): ModuleSource[] {
     if (images.some(([, i]) => isContainerImage(i)) && source.manifests === undefined) {
       throw new Error(`${at}: 'manifests' is required when an image is extracted by container name`);
     }
-    if (source.crds !== undefined && source.crds.file === "") {
-      throw new Error(`${at}: 'crds.file' must not be empty`);
+    if (source.crds !== undefined) {
+      if ("file" in source.crds && "releaseAsset" in source.crds) {
+        throw new Error(`${at}: crds must declare either 'file' or 'releaseAsset', not both`);
+      }
+      const location = "file" in source.crds ? source.crds.file : source.crds.releaseAsset;
+      if (location === "") {
+        throw new Error(`${at}: the crds 'file' or 'releaseAsset' must not be empty`);
+      }
     }
   }
   return sources;

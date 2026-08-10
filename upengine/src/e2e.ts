@@ -104,7 +104,9 @@ async function uninstall(source: ModuleSource): Promise<void> {
   // whose name references the module. CRD names drop the dashes
   // (dnsendpoints.externaldns.k8s.io), so that spelling is matched too.
   const clusterScoped = await mustRun([
-    "kubectl", "get", "clusterrole,clusterrolebinding,apiservice,crd", "-o", "name",
+    "kubectl", "get",
+    "clusterrole,clusterrolebinding,apiservice,crd,validatingwebhookconfiguration,mutatingwebhookconfiguration",
+    "-o", "name",
   ]);
   const compactName = source.name.replaceAll("-", "");
   const leftovers = clusterScoped
