@@ -29,7 +29,7 @@ commands:
   vet                                timoni mod vet --debug every module
   status                             local VERSION vs published registry versions
   publish [--source <name>]          publish missing module versions to GHCR
-  changed --base <ref>               modules affected between a base ref and HEAD
+  changed --base <ref> | --all       modules affected between a base ref and HEAD
   e2e --source <name> [--registry <oci-url>]
                                      install, verify and uninstall on the cluster
   join --result <state>              fail when a needed matrix job failed
@@ -134,10 +134,10 @@ async function main(): Promise<void> {
       break;
     case "changed": {
       const base = flagValue(args, "--base");
-      if (base === undefined) {
-        throw new Error("changed requires --base <ref>");
+      if (base === undefined && !args.includes("--all")) {
+        throw new Error("changed requires --base <ref> or --all");
       }
-      const modules = await changedModules(sources, base);
+      const modules = base === undefined ? sources.map((s) => s.name) : await changedModules(sources, base);
       console.log(`changed modules: ${JSON.stringify(modules)}`);
       if (process.env.GITHUB_OUTPUT) {
         appendFileSync(process.env.GITHUB_OUTPUT, `modules=${JSON.stringify(modules)}\n`);
