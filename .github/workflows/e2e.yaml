@@ -1,11 +1,12 @@
 name: e2e
 
+# The e2e matrix gates PRs through the required e2e-ok check; merges to
+# main are not re-tested (modules are independent, and engine changes run
+# the full matrix in their PR already). workflow_dispatch runs the full
+# matrix on demand.
 on:
   workflow_dispatch:
   pull_request:
-  push:
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -25,8 +26,8 @@ jobs:
       - name: Detect changed modules
         id: changes
         env:
-          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
-        run: bun upengine/src/main.ts changed --base "$BASE"
+          ARGS: ${{ github.event_name == 'pull_request' && format('--base origin/{0}', github.base_ref) || '--all' }}
+        run: bun upengine/src/main.ts changed $ARGS
 
   e2e:
     runs-on: ubuntu-latest
