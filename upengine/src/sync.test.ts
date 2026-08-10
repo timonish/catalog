@@ -4,7 +4,7 @@
 import { describe, expect, test } from "bun:test";
 import { validateSources } from "./config.ts";
 import { sources as configuredSources } from "../config/sources.ts";
-import { extractImages, parseImageRef } from "./manifests.ts";
+import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
 import { parseModuleVersion, pickLatestRelease, semverOf, trackedImageTag } from "./resolve.ts";
 import { renderVersionsCue } from "./codegen.ts";
 import { renderChange } from "./summary.ts";
@@ -75,7 +75,20 @@ describe("validateSources", () => {
 
   test("rejects an empty crds file", () => {
     const source = { ...VALID[0]!, crds: { file: "" } };
-    expect(() => validateSources([source])).toThrow("'crds.file' must not be empty");
+    expect(() => validateSources([source])).toThrow("must not be empty");
+  });
+
+  test("rejects an empty crds release asset", () => {
+    const source = { ...VALID[0]!, crds: { releaseAsset: "" } };
+    expect(() => validateSources([source])).toThrow("must not be empty");
+  });
+
+  test("rejects crds declaring both file and release asset", () => {
+    const source = {
+      ...VALID[0]!,
+      crds: { file: "crds.yaml", releaseAsset: "crds.yaml" } as { file: string },
+    };
+    expect(() => validateSources([source])).toThrow("not both");
   });
 });
 
@@ -171,6 +184,86 @@ spec:
     expect(images.get("app")).toBe("registry.k8s.io/app:v2");
   });
 
+  test("normalizes a chart-rendered CRD manifest", () => {
+    const manifest = [
+      "# release header",
+      "apiVersion: apiextensions.k8s.io/v1",
+      "kind: CustomResourceDefinition",
+      "metadata:",
+      '  name: "certificates.cert-manager.io"',
+      "  annotations:",
+      "    helm.sh/resource-policy: keep",
+      "    controller-gen.kubebuilder.io/version: v0.21.0",
+      "  labels:",
+      "    app: cert-manager",
+      "    helm.sh/chart: cert-manager-v1.21.1",
+      "spec:",
+      "  group: cert-manager.io",
+      "---",
+      "apiVersion: v1",
+      "kind: Namespace",
+      "metadata:",
+      "  name: cert-manager",
+      "---",
+      "apiVersion: apiextensions.k8s.io/v1",
+      "kind: CustomResourceDefinition",
+      "metadata:",
+      "  name: issuers.cert-manager.io",
+      "  annotations:",
+      "    helm.sh/resource-policy: keep",
+      "  labels:",
+      "    app: cert-manager",
+      "spec:",
+      "  group: cert-manager.io",
+      "",
+    ].join("\n");
+    const normalized = normalizeCrdManifest(manifest);
+    const docs = normalized.split(/^---$/m).map((d) => Bun.YAML.parse(d) as Record<string, any>);
+    expect(docs.length).toBe(2);
+    expect(docs.map((d) => d.metadata.name)).toEqual([
+      "certificates.cert-manager.io",
+      "issuers.cert-manager.io",
+    ]);
+    for (const doc of docs) {
+      expect(doc.kind).toBe("CustomResourceDefinition");
+      expect(doc.metadata.labels).toBeUndefined();
+    }
+    // Non-packaging annotations survive; emptied annotation maps are dropped.
+    expect(docs[0]!.metadata.annotations).toEqual({
+      "controller-gen.kubebuilder.io/version": "v0.21.0",
+    });
+    expect(docs[1]!.metadata.annotations).toBeUndefined();
+  });
+
+  test("rejects a CRD manifest without CRDs", () => {
+    expect(() => normalizeCrdManifest("apiVersion: v1\nkind: Namespace\n")).toThrow(
+      "no CustomResourceDefinition",
+    );
+  });
+
+  test("rejects a CRD manifest with integers beyond JS precision", () => {
+    const manifest = [
+      "kind: CustomResourceDefinition",
+      "metadata:",
+      "  name: x.example.com",
+      "spec:",
+      "  bigDefault: 9007199254740993",
+    ].join("\n");
+    expect(() => normalizeCrdManifest(manifest)).toThrow("beyond safe JavaScript precision");
+  });
+
+  test("normalizes null metadata annotations", () => {
+    const manifest = [
+      "kind: CustomResourceDefinition",
+      "metadata:",
+      "  name: x.example.com",
+      "  annotations: null",
+      "spec: {}",
+    ].join("\n");
+    const doc = Bun.YAML.parse(normalizeCrdManifest(manifest)) as Record<string, any>;
+    expect(doc.metadata).toEqual({name: "x.example.com"});
+  });
+
   test("parses image references", () => {
     expect(parseImageRef("registry.k8s.io/metrics-server/metrics-server:v0.9.0")).toEqual({
       repository: "registry.k8s.io/metrics-server/metrics-server",
@@ -210,6 +303,15 @@ package templates
 }
 `,
     );
+  });
+
+  test("renders versions.cue in the config package for multi-package modules", () => {
+    const cue = renderVersionsCue(
+      { controller: { repository: "quay.io/jetstack/cert-manager-controller", tag: "v1.21.1", digest: "" } },
+      "packages",
+    );
+    expect(cue).toContain("\npackage config\n");
+    expect(cue).toContain('repository: "quay.io/jetstack/cert-manager-controller"');
   });
 
   test("renders a bump PR body", () => {

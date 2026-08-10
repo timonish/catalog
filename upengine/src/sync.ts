@@ -4,7 +4,7 @@
 import { join } from "node:path";
 import { isContainerImage, isTrackedImage, repoOf } from "./config.ts";
 import { commitSha, downloadText, fetchRepoFile, findReleaseAsset } from "./github.ts";
-import { extractImages, parseImageRef } from "./manifests.ts";
+import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
 import { parseModuleVersion, resolveTag, semverOf, trackedImageTag } from "./resolve.ts";
 import {
   generatedFilesDigest,
@@ -56,7 +56,7 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
       `resolved release ${upstream} of ${repo} is older than the module version ${current.upstream}; refusing to downgrade`,
     );
   }
-  if (order === 0 && !force && (await isIntact(source.name))) {
+  if (order === 0 && !force && (await isIntact(source))) {
     return { change: null };
   }
 
@@ -69,14 +69,16 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
   // mutable tag moves mid-sync.
   const commit = await commitSha(repo, tag);
   const images = await resolveImages(source, repo, tag, commit);
-  const crdManifest =
-    source.crds === undefined ? null : await fetchRepoFile(repo, commit, source.crds.file);
+  // The raw manifest digest is recorded as provenance: release assets
+  // are mutable, so the history must identify the consumed input.
+  const rawCrdManifest = source.crds === undefined ? null : await fetchCrds(source, repo, tag, commit);
+  const crdManifest = rawCrdManifest === null ? null : normalizeCrdManifest(rawCrdManifest);
 
   try {
-    await writeModuleFiles(source.name, images, moduleVersion, crdManifest);
+    await writeModuleFiles(source.name, images, moduleVersion, crdManifest, source.layout);
     await verifyModule(source.name);
   } catch (err) {
-    await restoreModuleFiles(source.name, source.crds !== undefined).catch(() => {});
+    await restoreModuleFiles(source.name, source.crds !== undefined, source.layout).catch(() => {});
     throw err;
   }
   const history = {
@@ -86,7 +88,10 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
     commit,
     moduleVersion,
     images,
-    generatedDigest: await generatedFilesDigest(source.name),
+    ...(rawCrdManifest !== null
+      ? { crdsDigest: `sha256:${new Bun.CryptoHasher("sha256").update(rawCrdManifest).digest("hex")}` }
+      : {}),
+    generatedDigest: await generatedFilesDigest(source.name, source.layout),
     updatedAt: new Date().toISOString(),
   };
   // The README version section renders before the history is recorded, so
@@ -108,12 +113,28 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
 }
 
 /** Whether the module's generated files match the recorded provenance. */
-async function isIntact(name: string): Promise<boolean> {
-  const history = await readHistory(name);
+async function isIntact(source: ModuleSource): Promise<boolean> {
+  const history = await readHistory(source.name);
   if (history === null) {
     return false;
   }
-  return (await generatedFilesDigest(name)) === history.generatedDigest;
+  return (await generatedFilesDigest(source.name, source.layout)) === history.generatedDigest;
+}
+
+/** Fetches the upstream CRD manifest: a repo file at the pinned commit, or
+ * an asset of the resolved release. */
+async function fetchCrds(
+  source: ModuleSource,
+  repo: string,
+  tag: string,
+  commit: string,
+): Promise<string> {
+  const input = source.crds!;
+  if ("releaseAsset" in input) {
+    const asset = await findReleaseAsset(repo, tag, input.releaseAsset);
+    return downloadText(asset.browser_download_url);
+  }
+  return fetchRepoFile(repo, commit, input.file);
 }
 
 /** Resolves every image of a module at the given upstream release tag. */

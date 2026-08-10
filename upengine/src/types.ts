@@ -58,9 +58,16 @@ export interface ModuleSource {
   version?: string;
   /** Release manifests location, required by `container` image sources. */
   manifests?: ManifestsInput;
-  /** Path of the CRD manifest in the upstream repo, fetched at the pinned
-   * commit and rendered into the generated templates/crds.cue. */
-  crds?: { file: string };
+  /** Where the upstream CRD manifest is fetched from — a repo file at the
+   * pinned commit, or an asset of the resolved release. The manifest is
+   * normalized (packaging labels/annotations stripped) and rendered into
+   * the generated templates/crds.cue. */
+  crds?: { file: string } | { releaseAsset: string };
+  /** Template layout: `packages` marks a multi-package module (one CUE
+   * package per component); the generated image defaults then live in
+   * templates/config/versions.cue (package config) instead of
+   * templates/versions.cue. */
+  layout?: "packages";
   /** versions.cue image key -> tag resolution, in rendering order. */
   images: Record<string, ImageSource>;
   /** The module's end-to-end test definition. */
@@ -80,6 +87,9 @@ export interface HistoryEntry {
   moduleVersion: string;
   /** Images written to versions.cue. */
   images: Record<string, ImageRef>;
+  /** Digest of the raw upstream CRD manifest consumed by the sync;
+   * release assets are mutable, so this identifies the exact input. */
+  crdsDigest?: string;
   /** Digest of the generated files (versions.cue, VERSION and crds.cue
    * when present), used to detect hand edits and corruption so the sync
    * self-heals instead of skipping. */
