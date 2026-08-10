@@ -8,6 +8,7 @@ import { ROOT_DIR } from "./paths.ts";
 import { mustRun } from "./proc.ts";
 
 const SCHEMAS_DIR = join(ROOT_DIR, "schemas");
+const GEN_DIR = join(SCHEMAS_DIR, "cue.mod/gen");
 
 /**
  * Refreshes the shared schemas module: the Timoni core schemas from the
@@ -37,4 +38,39 @@ export async function vendorSchemas(): Promise<void> {
     }
     console.log(`${crd.group}: kept ${crd.keep.join(", ")}`);
   }
+
+  console.log("stripping comments from the generated schemas");
+  let stripped = 0;
+  for await (const path of new Bun.Glob("**/*.cue").scan({ cwd: GEN_DIR })) {
+    const file = Bun.file(join(GEN_DIR, path));
+    const source = await file.text();
+    const lean = stripSchemaComments(source);
+    if (lean !== source) {
+      await Bun.write(file, lean);
+      stripped++;
+    }
+  }
+  console.log(`stripped ${stripped} files`);
+}
+
+/**
+ * Drops comment-only lines from a generated schema file. The vendored
+ * Kubernetes and CRD schemas repeat the upstream doc comment on every
+ * field; that prose carries no semantics for vet/build yet dominates the
+ * compressed size of every pushed module (the k8s.io tree gzips 5x
+ * smaller without it). Lines inside multiline string literals are kept,
+ * and so are trailing comments on code lines.
+ */
+export function stripSchemaComments(source: string): string {
+  let inString = false;
+  return source
+    .split("\n")
+    .filter((line) => {
+      const keep = inString || !/^\s*\/\//.test(line);
+      if ((line.match(/"""|'''/g)?.length ?? 0) % 2 === 1) {
+        inString = !inString;
+      }
+      return keep;
+    })
+    .join("\n");
 }
