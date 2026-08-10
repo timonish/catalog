@@ -1,0 +1,32 @@
+{
+  "name": "cert-manager",
+  "repo": "cert-manager/cert-manager",
+  "tag": "v1.21.1",
+  "commit": "24e33194fb39488eff2bbf10c6dc640f407cad44",
+  "moduleVersion": "1.21.1-0",
+  "images": {
+    "controller": {
+      "repository": "quay.io/jetstack/cert-manager-controller",
+      "tag": "v1.21.1",
+      "digest": ""
+    },
+    "webhook": {
+      "repository": "quay.io/jetstack/cert-manager-webhook",
+      "tag": "v1.21.1",
+      "digest": ""
+    },
+    "cainjector": {
+      "repository": "quay.io/jetstack/cert-manager-cainjector",
+      "tag": "v1.21.1",
+      "digest": ""
+    },
+    "acmesolver": {
+      "repository": "quay.io/jetstack/cert-manager-acmesolver",
+      "tag": "v1.21.1",
+      "digest": ""
+    }
+  },
+  "crdsDigest": "sha256:a1383be02862dd2802e6810f19dd1f4784550f336ff4eb27788e842302f76977",
+  "generatedDigest": "sha256:d5b38333ef9880476e475b043463988d557268f4f232b7e0dfae3990357dba2f",
+  "updatedAt": "2026-08-10T09:59:11.199Z"
+}
