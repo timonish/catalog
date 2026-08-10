@@ -1,0 +1,18 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: e2e
+  namespace: kube-state-metrics
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: probe
+          image: registry.k8s.io/e2e-test-images/busybox:1.36.1-1
+          command:
+            - /bin/sh
+            - -c
+            - wget -qO- http://kube-state-metrics.kube-state-metrics.svc:8080/metrics | grep -q kube_node_info
