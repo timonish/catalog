@@ -24,8 +24,8 @@ See each module's README for its values API and configuration examples.
 <!-- modules:start -->
 | Module | Version | Upstream |
 |---|---|---|
-| [metrics-server](modules/metrics-server/README.md) | 0.9.0-1 | [kubernetes-sigs/metrics-server](https://github.com/kubernetes-sigs/metrics-server) |
-| [external-dns](modules/external-dns/README.md) | 0.21.0-0 | [kubernetes-sigs/external-dns](https://github.com/kubernetes-sigs/external-dns) |
+| [metrics-server](modules/metrics-server/README.md) | 0.9.0-2 | [kubernetes-sigs/metrics-server](https://github.com/kubernetes-sigs/metrics-server) |
+| [external-dns](modules/external-dns/README.md) | 0.21.0-1 | [kubernetes-sigs/external-dns](https://github.com/kubernetes-sigs/external-dns) |
 <!-- modules:end -->
 
 ## License
