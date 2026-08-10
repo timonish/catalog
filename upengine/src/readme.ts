@@ -4,6 +4,7 @@
 import { join } from "node:path";
 import { MODULES_DIR, README_PATH } from "./paths.ts";
 import { repoOf } from "./config.ts";
+import { readHistory } from "./history.ts";
 import type { HistoryEntry, ModuleSource } from "./types.ts";
 
 const START_MARKER = "<!-- modules:start -->";
@@ -39,13 +40,21 @@ export async function moduleDescription(name: string): Promise<string> {
 
 /** Renders the engine-owned version section of a module README. */
 export function renderModuleVersions(history: HistoryEntry): string {
+  const images = Object.values(history.images);
+  const release = `[${history.tag}](https://github.com/${history.repo}/releases/tag/${history.tag})`;
+  if (images.length === 0) {
+    return [
+      `Latest module version is \`${history.moduleVersion}\`, packaging the upstream release`,
+      `${release}.`,
+    ].join("\n");
+  }
   const rows = ["| Image | Tag |", "|---|---|"];
-  for (const image of Object.values(history.images)) {
+  for (const image of images) {
     rows.push(`| \`${image.repository}\` | ${image.tag} |`);
   }
   return [
     `Latest module version is \`${history.moduleVersion}\`, packaging the upstream release`,
-    `[${history.tag}](https://github.com/${history.repo}/releases/tag/${history.tag})`,
+    release,
     "with the following container images:",
     "",
     ...rows,
@@ -80,16 +89,25 @@ export async function updateModuleReadme(history: HistoryEntry): Promise<void> {
   }
 }
 
-/** Renders the modules table from the worktree's VERSION files. */
+/** Renders the modules table, ordered by module name, from the
+ * worktree's VERSION files and the recorded sync history. */
 export async function renderReadmeTable(sources: ModuleSource[]): Promise<string> {
-  const rows = ["| Module | Version | Upstream |", "|---|---|---|"];
-  for (const source of sources) {
+  const rows = ["| Module | Version | Updated | Upstream |", "|---|---|---|---|"];
+  const ordered = [...sources].sort((a, b) => a.name.localeCompare(b.name));
+  for (const source of ordered) {
     const version = (await Bun.file(join(MODULES_DIR, source.name, "VERSION")).text()).trim();
+    const history = await readHistory(source.name);
+    const updated = history === null ? "" : formatTableDate(history.updatedAt);
     rows.push(
-      `| [${source.name}](modules/${source.name}/README.md) | ${version} | [${repoOf(source.url)}](${source.url}) |`,
+      `| [${source.name}](modules/${source.name}/README.md) | ${version} | ${updated} | [${repoOf(source.url)}](${source.url}) |`,
     );
   }
   return rows.join("\n");
+}
+
+/** The date of a history timestamp in the YYYY.MM.DD table format. */
+export function formatTableDate(timestamp: string): string {
+  return new Date(timestamp).toISOString().slice(0, 10).replaceAll("-", ".");
 }
 
 /** Replaces the modules table between the markers in the root README. */

@@ -7,6 +7,7 @@ import { validateSources } from "./config.ts";
 import { e2eModule } from "./e2e.ts";
 import {
   changedModules,
+  ciSources,
   lintModules,
   publishModules,
   statusModules,
@@ -137,7 +138,9 @@ async function main(): Promise<void> {
       if (base === undefined && !args.includes("--all")) {
         throw new Error("changed requires --base <ref> or --all");
       }
-      const modules = base === undefined ? sources.map((s) => s.name) : await changedModules(sources, base);
+      // The output feeds the CI e2e matrix.
+      const eligible = ciSources(sources);
+      const modules = base === undefined ? eligible.map((s) => s.name) : await changedModules(eligible, base);
       console.log(`changed modules: ${JSON.stringify(modules)}`);
       if (process.env.GITHUB_OUTPUT) {
         appendFileSync(process.env.GITHUB_OUTPUT, `modules=${JSON.stringify(modules)}\n`);

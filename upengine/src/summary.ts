@@ -35,12 +35,14 @@ export function renderChange(change: SyncChange): string {
     "",
     `Update [${change.repo}](https://github.com/${change.repo}) to [${change.tag}](https://github.com/${change.repo}/releases/tag/${change.tag}) (module \`${change.prevModuleVersion}\` -> \`${change.moduleVersion}\`).`,
     "",
-    "| Image | Tag |",
-    "|---|---|",
   ];
-  for (const ref of Object.values(change.images)) {
-    lines.push(`| \`${ref.repository}\` | ${ref.tag} |`);
+  const images = Object.values(change.images);
+  if (images.length > 0) {
+    lines.push("| Image | Tag |", "|---|---|");
+    for (const ref of images) {
+      lines.push(`| \`${ref.repository}\` | ${ref.tag} |`);
+    }
+    lines.push("");
   }
-  lines.push("");
   return lines.join("\n");
 }

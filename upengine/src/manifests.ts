@@ -40,14 +40,24 @@ export function extractImages(manifests: string): Map<string, string> {
   return images;
 }
 
+/** How normalizeCrdManifest treats the manifest beyond its defaults. */
+export interface NormalizeOptions {
+  /** Document kinds retained besides CustomResourceDefinition. */
+  keepKinds?: string[];
+  /** Preserve `metadata.labels` instead of stripping them — for upstreams
+   * whose CRD labels are semantic (e.g. the Gateway API policy labels). */
+  keepLabels?: boolean;
+}
+
 /**
  * Normalizes an upstream CRD manifest for import into a module: keeps only
- * the CustomResourceDefinition documents and strips the packaging metadata
- * they carry — labels and the `helm.sh/resource-policy` annotation baked
- * into chart-rendered release assets. The module instance owns the object
- * metadata; leftover chart labels would be wrong on every install.
+ * the CustomResourceDefinition documents (plus any `keepKinds`) and strips
+ * the packaging metadata they carry — labels (unless `keepLabels`) and the
+ * `helm.sh/resource-policy` annotation baked into chart-rendered release
+ * assets. The module instance owns the object metadata; leftover chart
+ * labels would be wrong on every install.
  */
-export function normalizeCrdManifest(manifest: string): string {
+export function normalizeCrdManifest(manifest: string, options: NormalizeOptions = {}): string {
   // The round-trip goes through JavaScript numbers, which silently lose
   // precision above 2^53 — refuse loudly instead of corrupting a schema.
   const bigInt = manifest.match(/^[^#\n]*?:\s*[+-]?[0-9]{16,}\s*$/m);
@@ -56,19 +66,26 @@ export function normalizeCrdManifest(manifest: string): string {
       `the CRD manifest contains an integer beyond safe JavaScript precision: ${bigInt[0].trim()}`,
     );
   }
-  const crds: Record<string, unknown>[] = [];
+  const kinds = new Set(["CustomResourceDefinition", ...(options.keepKinds ?? [])]);
+  const kept: Record<string, unknown>[] = [];
+  let crdCount = 0;
   for (const doc of parseAllDocuments(manifest)) {
     if (typeof doc !== "object" || doc === null) {
       continue;
     }
     const obj = doc as Record<string, unknown>;
-    if (obj.kind !== "CustomResourceDefinition") {
+    if (typeof obj.kind !== "string" || !kinds.has(obj.kind)) {
       continue;
+    }
+    if (obj.kind === "CustomResourceDefinition") {
+      crdCount++;
     }
     const metadata = obj.metadata;
     if (typeof metadata === "object" && metadata !== null) {
       const meta = metadata as Record<string, unknown>;
-      delete meta.labels;
+      if (!options.keepLabels) {
+        delete meta.labels;
+      }
       const annotations = meta.annotations;
       if (typeof annotations === "object" && annotations !== null) {
         const ann = annotations as Record<string, unknown>;
@@ -80,12 +97,12 @@ export function normalizeCrdManifest(manifest: string): string {
         delete meta.annotations;
       }
     }
-    crds.push(obj);
+    kept.push(obj);
   }
-  if (crds.length === 0) {
+  if (crdCount === 0) {
     throw new Error("the CRD manifest contains no CustomResourceDefinition documents");
   }
-  return crds.map((crd) => YAML.stringify(crd, null, 2)).join("\n---\n");
+  return kept.map((doc) => YAML.stringify(doc, null, 2)).join("\n---\n");
 }
 
 function parseAllDocuments(manifests: string): unknown[] {
