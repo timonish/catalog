@@ -1,0 +1,22 @@
+{
+  "name": "prometheus-operator",
+  "repo": "prometheus-operator/prometheus-operator",
+  "tag": "v0.93.0",
+  "commit": "f8fafd475f3d132e239432ae6172de60a6cb6516",
+  "moduleVersion": "0.93.0-0",
+  "images": {
+    "prometheus-operator": {
+      "repository": "quay.io/prometheus-operator/prometheus-operator",
+      "tag": "v0.93.0",
+      "digest": ""
+    },
+    "prometheus-config-reloader": {
+      "repository": "quay.io/prometheus-operator/prometheus-config-reloader",
+      "tag": "v0.93.0",
+      "digest": ""
+    }
+  },
+  "crdsDigest": "sha256:a3061ceebd87de793d1ba9bed10cb763be9ce748adb53b5c5ef4c7c65ee38376",
+  "generatedDigest": "sha256:c4f56a4073d7fe065ad013b23f6e21a129ee62a1cea0ff68eb5723c8e0982f71",
+  "updatedAt": "2026-08-10T13:23:15.656Z"
+}

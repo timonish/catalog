@@ -1,0 +1,14 @@
+# A minimal Prometheus instance: the operator reconciling it into a
+# ready StatefulSet (the Available condition) proves the CRDs are
+# served and the operator, config-reloader included, works end to end.
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: e2e
+spec:
+  replicas: 1
+  serviceMonitorSelector: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi

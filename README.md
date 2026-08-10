@@ -28,6 +28,7 @@ See each module's README for its values API and configuration examples.
 | [external-dns](modules/external-dns/README.md) | 0.21.0-1 | 2026.08.10 | [kubernetes-sigs/external-dns](https://github.com/kubernetes-sigs/external-dns) |
 | [gateway-api](modules/gateway-api/README.md) | 1.6.1-0 | 2026.08.10 | [kubernetes-sigs/gateway-api](https://github.com/kubernetes-sigs/gateway-api) |
 | [metrics-server](modules/metrics-server/README.md) | 0.9.0-2 | 2026.08.10 | [kubernetes-sigs/metrics-server](https://github.com/kubernetes-sigs/metrics-server) |
+| [prometheus-operator](modules/prometheus-operator/README.md) | 0.93.0-0 | 2026.08.10 | [prometheus-operator/prometheus-operator](https://github.com/prometheus-operator/prometheus-operator) |
 <!-- modules:end -->
 
 ## License
