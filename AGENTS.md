@@ -47,10 +47,21 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
   `sources.ts` — either a repo `file` fetched at the pinned commit
   (`modules/external-dns`) or a `releaseAsset` of the resolved release
   (`modules/cert-manager`); every sync normalizes it (packaging labels
-  and annotations stripped) and re-imports it with `cue import`. CRD
-  *schemas* are a separate concern, only needed when templates create
-  typed custom resources — universal ones live in the shared `schemas/`,
-  and nothing is vendored per module so far.
+  and annotations stripped) and re-imports it with `cue import`. When
+  the upstream publishes one manifest per release channel, `crds`
+  declares `channels` instead and each channel is generated into
+  `templates/crds_<channel>.cue` under `crds: <channel>:`, selected by
+  an instance value (`modules/gateway-api`). Normalization is tunable
+  per source: `keepKinds` retains extra document kinds shipped with the
+  CRDs, `keepLabels` preserves semantic upstream labels. CRD *schemas*
+  are a separate concern, only needed when templates create typed
+  custom resources — universal ones live in the shared `schemas/`, and
+  nothing is vendored per module so far.
+- **CRDs-only modules omit `images`** (`modules/gateway-api`): no
+  versions.cue is generated and the README version section renders
+  without an image table. Such a module can opt out of the GitHub
+  Actions e2e matrix with `e2e: ci: false` in `sources.ts` (vet still
+  gates it in CI; `make e2e` still runs it locally).
 - **Multi-deployment addons use the multi-package layout** (see
   `modules/cert-manager`): one CUE package per component under
   `templates/<component>`, plus `templates/config` holding the values

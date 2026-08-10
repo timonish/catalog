@@ -92,31 +92,38 @@ async function uninstall(source: ModuleSource): Promise<void> {
   console.log(`uninstalling ${source.name}`);
   await mustRun(["timoni", "-n", source.e2e.namespace, "delete", source.name, "--timeout=5m"]);
 
-  // Wait for the instance pods to drain.
-  await retryRun(
-    ["kubectl", "wait", "pod", "-l", `app.kubernetes.io/name=${source.name}`,
-      "-n", source.e2e.namespace, "--for=delete", "--timeout=2m"],
-    2,
-    5000,
-  );
+  // Wait for the instance pods to drain. A CRDs-only module runs no pods,
+  // and `kubectl wait --for=delete` fails on an empty selector match.
+  if (Object.keys(source.images ?? {}).length > 0) {
+    await retryRun(
+      ["kubectl", "wait", "pod", "-l", `app.kubernetes.io/name=${source.name}`,
+        "-n", source.e2e.namespace, "--for=delete", "--timeout=2m"],
+      2,
+      5000,
+    );
+  }
 
   // Sweep for leftovers: cluster-scoped resources and bindings anywhere
   // whose name references the module. CRD names drop the dashes
-  // (dnsendpoints.externaldns.k8s.io), so that spelling is matched too.
+  // (dnsendpoints.externaldns.k8s.io), so that spelling is matched too;
+  // sweepMatch covers names carrying an API group instead of the module
+  // name (gateways.gateway.networking.k8s.io).
   const clusterScoped = await mustRun([
     "kubectl", "get",
-    "clusterrole,clusterrolebinding,apiservice,crd,validatingwebhookconfiguration,mutatingwebhookconfiguration",
+    "clusterrole,clusterrolebinding,apiservice,crd,validatingwebhookconfiguration,mutatingwebhookconfiguration," +
+      "validatingadmissionpolicy,validatingadmissionpolicybinding",
     "-o", "name",
   ]);
   const compactName = source.name.replaceAll("-", "");
+  const matches = [source.name, compactName, ...(source.e2e.sweepMatch ?? [])];
   const leftovers = clusterScoped
     .split("\n")
-    .filter((l) => l.includes(source.name) || l.includes(compactName));
+    .filter((l) => matches.some((m) => l.includes(m)));
   const namespaced = JSON.parse(
     await mustRun(["kubectl", "get", "role,rolebinding", "-A", "-o", "json"]),
   ) as { items: { kind: string; metadata: { name: string; namespace: string } }[] };
   for (const item of namespaced.items) {
-    if (item.metadata.name.includes(source.name)) {
+    if (matches.some((m) => item.metadata.name.includes(m))) {
       leftovers.push(
         `${item.kind.toLowerCase()}/${item.metadata.namespace}/${item.metadata.name}`,
       );

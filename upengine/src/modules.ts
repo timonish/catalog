@@ -3,6 +3,7 @@
 
 import { join } from "node:path";
 import { CATALOG_REPO, LICENSE, REGISTRY } from "../config/catalog.ts";
+import { crdsCuePaths } from "./codegen.ts";
 import { moduleDescription, plainDescription, withModuleVersions } from "./readme.ts";
 import { readHistory } from "./history.ts";
 import { parseModuleVersion } from "./resolve.ts";
@@ -42,13 +43,10 @@ export async function lintModules(sources: ModuleSource[]): Promise<void> {
     if (!(await Bun.file(join(BUNDLES_DIR, source.name, "bundle.cue")).exists())) {
       throw new Error(`test/bundles/${source.name}/bundle.cue is missing`);
     }
-    if (
-      source.crds !== undefined &&
-      !(await Bun.file(join(MODULES_DIR, source.name, "templates/crds.cue")).exists())
-    ) {
-      throw new Error(
-        `modules/${source.name}/templates/crds.cue is missing; run 'make sync MODULE=${source.name} FORCE=1'`,
-      );
+    for (const path of crdsCuePaths(source.name, source.crds)) {
+      if (!(await Bun.file(path).exists())) {
+        throw new Error(`${path} is missing; run 'make sync MODULE=${source.name} FORCE=1'`);
+      }
     }
     const history = await readHistory(source.name);
     if (history !== null) {
@@ -162,6 +160,12 @@ async function pushModule(name: string, version: string): Promise<void> {
     "-a",
     `org.opencontainers.image.documentation=https://github.com/${CATALOG_REPO}/blob/main/modules/${name}/README.md`,
   ]);
+}
+
+/** The sources eligible for the CI e2e matrix: everything not opting out
+ * with `e2e.ci: false` (those stay runnable locally via `make e2e`). */
+export function ciSources(sources: ModuleSource[]): ModuleSource[] {
+  return sources.filter((s) => s.e2e.ci !== false);
 }
 
 /**

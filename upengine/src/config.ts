@@ -1,7 +1,7 @@
 // Copyright 2026 Stefan Prodan.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ImageSource, ModuleSource } from "./types.ts";
+import type { CrdInput, CrdsConfig, ImageSource, ModuleSource } from "./types.ts";
 
 const NAME_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
 const REPO_URL_RE = /^https:\/\/github\.com\/([\w.-]+\/[\w.-]+)$/;
@@ -28,6 +28,21 @@ export function isTrackedImage(
 }
 
 /**
+ * The CRD inputs of a module keyed by channel: a `channels` declaration
+ * verbatim, a single input under the `null`-marker key "" (rendered to the
+ * channel-less templates/crds.cue), or an empty record without `crds`.
+ */
+export function crdChannels(crds: CrdsConfig | undefined): Record<string, CrdInput> {
+  if (crds === undefined) {
+    return {};
+  }
+  if ("channels" in crds) {
+    return crds.channels;
+  }
+  return { "": crds };
+}
+
+/**
  * Semantic validation of the typed sources config — the shape itself is
  * enforced by the TypeScript compiler (`make lint`); this covers what the
  * types cannot: name format, duplicates, URL format, and the
@@ -48,9 +63,12 @@ export function validateSources(sources: ModuleSource[]): ModuleSource[] {
     }
     names.add(source.name);
     repoOf(source.url);
-    const images = Object.entries(source.images);
-    if (images.length === 0) {
-      throw new Error(`${at}: 'images' must not be empty`);
+    const images = Object.entries(source.images ?? {});
+    if (source.images !== undefined && images.length === 0) {
+      throw new Error(`${at}: 'images' must not be empty; omit it for a CRDs-only module`);
+    }
+    if (source.images === undefined && source.crds === undefined) {
+      throw new Error(`${at}: a module must declare 'images' or 'crds'`);
     }
     for (const [key, image] of images) {
       if (isContainerImage(image)) {
@@ -70,14 +88,37 @@ export function validateSources(sources: ModuleSource[]): ModuleSource[] {
       throw new Error(`${at}: 'manifests' is required when an image is extracted by container name`);
     }
     if (source.crds !== undefined) {
-      if ("file" in source.crds && "releaseAsset" in source.crds) {
-        throw new Error(`${at}: crds must declare either 'file' or 'releaseAsset', not both`);
+      if ("channels" in source.crds) {
+        if ("file" in source.crds || "releaseAsset" in source.crds) {
+          throw new Error(`${at}: crds 'channels' cannot be combined with 'file' or 'releaseAsset'`);
+        }
+        const channels = Object.entries(source.crds.channels);
+        if (channels.length === 0) {
+          throw new Error(`${at}: crds 'channels' must not be empty`);
+        }
+        for (const [channel, input] of channels) {
+          if (!NAME_RE.test(channel)) {
+            throw new Error(`${at}.crds.channels['${channel}']: invalid channel name`);
+          }
+          validateCrdInput(input, `${at}.crds.channels['${channel}']`);
+        }
+      } else {
+        validateCrdInput(source.crds, `${at}`);
       }
-      const location = "file" in source.crds ? source.crds.file : source.crds.releaseAsset;
-      if (location === "") {
-        throw new Error(`${at}: the crds 'file' or 'releaseAsset' must not be empty`);
+      if (source.crds.keepKinds?.some((k) => k === "")) {
+        throw new Error(`${at}: crds 'keepKinds' entries must not be empty`);
       }
     }
   }
   return sources;
+}
+
+function validateCrdInput(input: CrdInput, at: string): void {
+  if ("file" in input && "releaseAsset" in input) {
+    throw new Error(`${at}: crds must declare either 'file' or 'releaseAsset', not both`);
+  }
+  const location = "file" in input ? input.file : input.releaseAsset;
+  if (location === "") {
+    throw new Error(`${at}: the crds 'file' or 'releaseAsset' must not be empty`);
+  }
 }

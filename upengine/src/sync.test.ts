@@ -2,13 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, expect, test } from "bun:test";
-import { validateSources } from "./config.ts";
+import { crdChannels, validateSources } from "./config.ts";
 import { sources as configuredSources } from "../config/sources.ts";
 import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
 import { parseModuleVersion, pickLatestRelease, semverOf, trackedImageTag } from "./resolve.ts";
-import { renderVersionsCue } from "./codegen.ts";
+import { GENERATED_FILE_RE, crdsCuePaths, generatedFilesPresent, renderVersionsCue } from "./codegen.ts";
+import { ciSources } from "./modules.ts";
 import { renderChange } from "./summary.ts";
-import { plainDescription, renderModuleVersions, withModuleVersions } from "./readme.ts";
+import {
+  formatTableDate,
+  plainDescription,
+  renderModuleVersions,
+  renderReadmeTable,
+  withModuleVersions,
+} from "./readme.ts";
 import type { ModuleSource } from "./types.ts";
 
 const VALID: ModuleSource[] = [
@@ -89,6 +96,130 @@ describe("validateSources", () => {
       crds: { file: "crds.yaml", releaseAsset: "crds.yaml" } as { file: string },
     };
     expect(() => validateSources([source])).toThrow("not both");
+  });
+
+  const CRDS_ONLY: ModuleSource = {
+    name: "gateway-api",
+    url: "https://github.com/kubernetes-sigs/gateway-api",
+    releaseTag: "v*",
+    crds: {
+      channels: {
+        standard: { releaseAsset: "standard-install.yaml" },
+        experimental: { releaseAsset: "experimental-install.yaml" },
+      },
+      keepKinds: ["ValidatingAdmissionPolicy"],
+      keepLabels: true,
+    },
+    e2e: {
+      ci: false,
+      namespace: "gateway-system",
+      verify: { argv: ["kubectl", "get", "gatewayclass", "e2e"] },
+    },
+  };
+
+  test("accepts a CRDs-only module with channels and no images", () => {
+    expect(validateSources([CRDS_ONLY])).toEqual([CRDS_ONLY]);
+  });
+
+  test("rejects a module without images and without crds", () => {
+    const source = { ...CRDS_ONLY, crds: undefined };
+    expect(() => validateSources([source])).toThrow("must declare 'images' or 'crds'");
+  });
+
+  test("rejects declared-but-empty images", () => {
+    const source = { ...CRDS_ONLY, images: {} };
+    expect(() => validateSources([source])).toThrow("'images' must not be empty");
+  });
+
+  test("rejects empty crds channels", () => {
+    const source = { ...CRDS_ONLY, crds: { channels: {} } };
+    expect(() => validateSources([source])).toThrow("'channels' must not be empty");
+  });
+
+  test("rejects an invalid channel name", () => {
+    const source = { ...CRDS_ONLY, crds: { channels: { "Standard!": { file: "crds.yaml" } } } };
+    expect(() => validateSources([source])).toThrow("invalid channel name");
+  });
+
+  test("rejects a channel input declaring both file and release asset", () => {
+    const source = {
+      ...CRDS_ONLY,
+      crds: { channels: { standard: { file: "a.yaml", releaseAsset: "b.yaml" } as { file: string } } },
+    };
+    expect(() => validateSources([source])).toThrow("not both");
+  });
+
+  test("rejects channels combined with a single input", () => {
+    const crds = {
+      channels: { standard: { file: "a.yaml" } },
+      file: "b.yaml",
+    } as unknown as ModuleSource["crds"];
+    expect(() => validateSources([{ ...CRDS_ONLY, crds }])).toThrow("cannot be combined");
+  });
+
+  test("rejects empty keepKinds entries", () => {
+    const source = { ...CRDS_ONLY, crds: { ...CRDS_ONLY.crds!, keepKinds: [""] } };
+    expect(() => validateSources([source])).toThrow("'keepKinds' entries must not be empty");
+  });
+
+  test("maps crds inputs to channels", () => {
+    expect(crdChannels(undefined)).toEqual({});
+    expect(crdChannels({ file: "crds.yaml" })).toEqual({ "": { file: "crds.yaml" } });
+    expect(Object.keys(crdChannels(CRDS_ONLY.crds))).toEqual(["standard", "experimental"]);
+  });
+
+  test("computes the generated crds paths per channel", () => {
+    const suffixes = (paths: string[]) => paths.map((p) => p.split("/modules/")[1]);
+    expect(suffixes(crdsCuePaths("external-dns", { file: "crds.yaml" }))).toEqual([
+      "external-dns/templates/crds.cue",
+    ]);
+    expect(suffixes(crdsCuePaths("gateway-api", CRDS_ONLY.crds))).toEqual([
+      "gateway-api/templates/crds_standard.cue",
+      "gateway-api/templates/crds_experimental.cue",
+    ]);
+    expect(crdsCuePaths("metrics-server", undefined)).toEqual([]);
+  });
+
+  test("filters e2e.ci: false sources out of the CI matrix", () => {
+    expect(ciSources([VALID[0]!, CRDS_ONLY]).map((s) => s.name)).toEqual(["metrics-server"]);
+  });
+
+  test("matches the generated file paths", () => {
+    for (const path of [
+      "modules/a/templates/versions.cue",
+      "modules/a/templates/config/versions.cue",
+      "modules/a/templates/crds.cue",
+      "modules/a/templates/crds_standard.cue",
+    ]) {
+      expect(GENERATED_FILE_RE.test(path)).toBe(true);
+    }
+    for (const path of [
+      "modules/a/templates/config.cue",
+      "modules/a/templates/crds_standard.cue.bak",
+      "modules/a/README.md",
+    ]) {
+      expect(GENERATED_FILE_RE.test(path)).toBe(false);
+    }
+  });
+
+  test("detects missing expected generated files", async () => {
+    // Every checked-in module carries all the files its declaration expects.
+    for (const source of configuredSources) {
+      expect(await generatedFilesPresent(source)).toBe(true);
+    }
+    // A channel declared in sources.ts but absent on disk must re-sync.
+    const gatewayApi = configuredSources.find((s) => s.name === "gateway-api")!;
+    const withNewChannel: ModuleSource = {
+      ...gatewayApi,
+      crds: { channels: { standard: { releaseAsset: "standard-install.yaml" }, nightly: { releaseAsset: "nightly.yaml" } } },
+    };
+    expect(await generatedFilesPresent(withNewChannel)).toBe(false);
+    // Freshly declared images without a versions.cue must re-sync.
+    const withImages: ModuleSource = {
+      ...gatewayApi,
+      images: { app: { repository: "registry.k8s.io/app" } },
+    };
+    expect(await generatedFilesPresent(withImages)).toBe(false);
   });
 });
 
@@ -235,6 +366,48 @@ spec:
     expect(docs[1]!.metadata.annotations).toBeUndefined();
   });
 
+  test("keeps declared kinds and labels when asked", () => {
+    const manifest = [
+      "apiVersion: apiextensions.k8s.io/v1",
+      "kind: CustomResourceDefinition",
+      "metadata:",
+      "  name: gateways.gateway.networking.k8s.io",
+      "  annotations:",
+      "    gateway.networking.k8s.io/channel: standard",
+      "  labels:",
+      "    gateway.networking.k8s.io/policy: Direct",
+      "spec:",
+      "  group: gateway.networking.k8s.io",
+      "---",
+      "apiVersion: admissionregistration.k8s.io/v1",
+      "kind: ValidatingAdmissionPolicy",
+      "metadata:",
+      "  name: safe-upgrades.gateway.networking.k8s.io",
+      "spec: {}",
+      "---",
+      "apiVersion: v1",
+      "kind: Namespace",
+      "metadata:",
+      "  name: dropped",
+      "",
+    ].join("\n");
+    const normalized = normalizeCrdManifest(manifest, {
+      keepKinds: ["ValidatingAdmissionPolicy"],
+      keepLabels: true,
+    });
+    const docs = normalized.split(/^---$/m).map((d) => Bun.YAML.parse(d) as Record<string, any>);
+    expect(docs.map((d) => d.kind)).toEqual(["CustomResourceDefinition", "ValidatingAdmissionPolicy"]);
+    expect(docs[0]!.metadata.labels).toEqual({ "gateway.networking.k8s.io/policy": "Direct" });
+    expect(docs[0]!.metadata.annotations).toEqual({ "gateway.networking.k8s.io/channel": "standard" });
+  });
+
+  test("rejects a kept-kinds manifest without CRDs", () => {
+    const manifest = "apiVersion: admissionregistration.k8s.io/v1\nkind: ValidatingAdmissionPolicy\nmetadata:\n  name: x\n";
+    expect(() => normalizeCrdManifest(manifest, { keepKinds: ["ValidatingAdmissionPolicy"] })).toThrow(
+      "no CustomResourceDefinition",
+    );
+  });
+
   test("rejects a CRD manifest without CRDs", () => {
     expect(() => normalizeCrdManifest("apiVersion: v1\nkind: Namespace\n")).toThrow(
       "no CustomResourceDefinition",
@@ -332,6 +505,52 @@ package templates
     expect(body).toContain("## metrics-server 0.9.0-0");
     expect(body).toContain("`0.8.0-0` -> `0.9.0-0`");
     expect(body).toContain("| `registry.k8s.io/metrics-server/metrics-server` | v0.9.0 |");
+  });
+
+  test("renders an image-less bump PR body without a table", () => {
+    const body = renderChange({
+      name: "gateway-api",
+      repo: "kubernetes-sigs/gateway-api",
+      tag: "v1.6.1",
+      prevModuleVersion: "1.6.0-0",
+      moduleVersion: "1.6.1-0",
+      images: {},
+    });
+    expect(body).toContain("## gateway-api 1.6.1-0");
+    expect(body).not.toContain("| Image | Tag |");
+  });
+
+  test("renders an image-less module readme version section", () => {
+    const section = renderModuleVersions({
+      name: "gateway-api",
+      repo: "kubernetes-sigs/gateway-api",
+      tag: "v1.6.1",
+      commit: "abc",
+      moduleVersion: "1.6.1-0",
+      images: {},
+      generatedDigest: "sha256:abc",
+      updatedAt: "2026-08-10T00:00:00.000Z",
+    });
+    expect(section).toBe(
+      "Latest module version is `1.6.1-0`, packaging the upstream release\n" +
+        "[v1.6.1](https://github.com/kubernetes-sigs/gateway-api/releases/tag/v1.6.1).",
+    );
+  });
+
+  test("formats history timestamps for the modules table", () => {
+    expect(formatTableDate("2026-08-10T11:49:41.625Z")).toBe("2026.08.10");
+  });
+
+  test("renders the modules table ordered by name with update dates", async () => {
+    const table = await renderReadmeTable(configuredSources);
+    const lines = table.split("\n");
+    expect(lines[0]).toBe("| Module | Version | Updated | Upstream |");
+    const names = lines.slice(2).map((l) => l.match(/^\| \[([^\]]+)\]/)![1]);
+    expect(names).toEqual([...names].sort());
+    // Every checked-in module has a history, so every row carries a date.
+    for (const line of lines.slice(2)) {
+      expect(line).toMatch(/ \| \d{4}\.\d{2}\.\d{2} \| /);
+    }
   });
 
   test("strips markdown links from descriptions", () => {

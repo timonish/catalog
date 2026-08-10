@@ -1,9 +1,10 @@
 // Copyright 2026 Stefan Prodan.
 // SPDX-License-Identifier: Apache-2.0
 
-import { rm } from "node:fs/promises";
+import { readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { crdChannels } from "./config.ts";
 import { MODULES_DIR } from "./paths.ts";
 import { mustRun, run } from "./proc.ts";
 import type { ImageRef, ModuleSource } from "./types.ts";
@@ -28,6 +29,39 @@ function cueSafe(value: string, label: string): string {
 export function versionsCuePath(name: string, layout?: ModuleSource["layout"]): string {
   const file = layout === "packages" ? "templates/config/versions.cue" : "templates/versions.cue";
   return join(MODULES_DIR, name, file);
+}
+
+/** The generated crds file of one channel; the "" channel of a single-input
+ * module renders to the channel-less templates/crds.cue. */
+function crdsCuePath(name: string, channel: string): string {
+  const file = channel === "" ? "templates/crds.cue" : `templates/crds_${channel}.cue`;
+  return join(MODULES_DIR, name, file);
+}
+
+/** Every generated crds file of a module, in channel declaration order. */
+export function crdsCuePaths(name: string, crds: ModuleSource["crds"]): string[] {
+  return Object.keys(crdChannels(crds)).map((channel) => crdsCuePath(name, channel));
+}
+
+/** Matches every engine-generated file path inside a module directory. */
+export const GENERATED_FILE_RE = /templates\/(config\/)?versions\.cue$|templates\/crds(_[a-z0-9-]+)?\.cue$/;
+
+/** Whether every generated file the current source declaration expects
+ * exists on disk. A missing file (e.g. crds or images freshly added to
+ * sources.ts) must trigger a re-sync instead of being skipped. */
+export async function generatedFilesPresent(source: ModuleSource): Promise<boolean> {
+  if (
+    Object.keys(source.images ?? {}).length > 0 &&
+    !(await Bun.file(versionsCuePath(source.name, source.layout)).exists())
+  ) {
+    return false;
+  }
+  for (const path of crdsCuePaths(source.name, source.crds)) {
+    if (!(await Bun.file(path).exists())) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -58,36 +92,60 @@ export function renderVersionsCue(
   return lines.join("\n");
 }
 
-/** Writes the generated files of a module bump: versions.cue, VERSION and,
- * for modules that track upstream CRDs, templates/crds.cue. */
+/** Writes the generated files of a module bump: versions.cue (skipped for
+ * image-less modules), VERSION and, for modules that track upstream CRDs,
+ * one generated crds file per channel. */
 export async function writeModuleFiles(
   name: string,
   images: Record<string, ImageRef>,
   moduleVersion: string,
-  crdManifest: string | null = null,
+  crdManifests: Record<string, string> = {},
   layout?: ModuleSource["layout"],
 ): Promise<void> {
   const moduleDir = join(MODULES_DIR, name);
-  const versionsCue = versionsCuePath(name, layout);
-  await Bun.write(versionsCue, renderVersionsCue(images, layout));
+  if (Object.keys(images).length > 0) {
+    const versionsCue = versionsCuePath(name, layout);
+    await Bun.write(versionsCue, renderVersionsCue(images, layout));
+    // Only the generated files are formatted — the engine never rewrites
+    // curated templates.
+    await mustRun(["timoni", "fmt", versionsCue]);
+  } else {
+    // A module that dropped its images must not keep stale defaults.
+    await rm(versionsCuePath(name, layout), { force: true });
+  }
   await Bun.write(join(moduleDir, "VERSION"), `${moduleVersion}\n`);
-  // Only the generated files are formatted — the engine never rewrites
-  // curated templates.
-  await mustRun(["timoni", "fmt", versionsCue]);
-  if (crdManifest !== null) {
-    await writeCrdsCue(name, crdManifest);
+  // Generated crds files of channels no longer declared (or the flat
+  // crds.cue of a module migrated to channels, and vice versa) are
+  // removed so the worktree only carries what the declaration produces.
+  const templatesDir = join(moduleDir, "templates");
+  const expected = new Set(Object.keys(crdManifests).map((channel) => crdsCuePath(name, channel)));
+  for (const entry of await readdir(templatesDir)) {
+    const path = join(templatesDir, entry);
+    if (/^crds(_[a-z0-9-]+)?\.cue$/.test(entry) && !expected.has(path)) {
+      await rm(path, { force: true });
+    }
+  }
+  for (const [channel, manifest] of Object.entries(crdManifests)) {
+    await writeCrdsCue(name, channel, manifest);
   }
 }
 
-/** Renders the upstream CRD manifest into the generated templates/crds.cue,
- * keyed by lowercased kind and metadata.name (the flux-aio convention). */
-async function writeCrdsCue(name: string, crdManifest: string): Promise<void> {
-  const crdsCue = join(MODULES_DIR, name, "templates/crds.cue");
+/** Renders an upstream CRD manifest into the generated crds file of one
+ * channel, keyed by lowercased kind and metadata.name (the flux-aio
+ * convention). Channel imports are nested under `crds: <channel>:` so the
+ * same-named CRDs of two channels never unify. */
+async function writeCrdsCue(name: string, channel: string, crdManifest: string): Promise<void> {
+  const crdsCue = crdsCuePath(name, channel);
   const tmp = join(tmpdir(), `upengine-${name}-crds.yaml`);
   await Bun.write(tmp, crdManifest);
+  // A quoted -l expression is a literal CUE label, prepended to the path
+  // of every imported document.
+  const labels =
+    channel === "" ? [] : ["-l", `"crds"`, "-l", `"${channel}"`];
   try {
     await mustRun([
       "cue", "import", "-f", "-o", crdsCue,
+      ...labels,
       "-l", "strings.ToLower(kind)", "-l", "metadata.name",
       "-p", "templates", tmp,
     ]);
@@ -103,14 +161,14 @@ async function writeCrdsCue(name: string, crdManifest: string): Promise<void> {
  * later run never skips on an unverified VERSION. */
 export async function restoreModuleFiles(
   name: string,
-  hasCrds: boolean,
+  crds: ModuleSource["crds"],
   layout?: ModuleSource["layout"],
 ): Promise<void> {
   const moduleDir = join(MODULES_DIR, name);
   await restoreOrRemove(versionsCuePath(name, layout));
   await restoreOrRemove(join(moduleDir, "VERSION"));
-  if (hasCrds) {
-    await restoreOrRemove(join(moduleDir, "templates/crds.cue"));
+  for (const path of crdsCuePaths(name, crds)) {
+    await restoreOrRemove(path);
   }
 }
 
@@ -131,14 +189,20 @@ async function restoreOrRemove(path: string): Promise<void> {
 export async function generatedFilesDigest(
   name: string,
   layout?: ModuleSource["layout"],
+  crds?: ModuleSource["crds"],
 ): Promise<string> {
   const moduleDir = join(MODULES_DIR, name);
   const hasher = new Bun.CryptoHasher("sha256");
-  hasher.update(await Bun.file(versionsCuePath(name, layout)).text());
+  const versionsCue = Bun.file(versionsCuePath(name, layout));
+  if (await versionsCue.exists()) {
+    hasher.update(await versionsCue.text());
+  }
   hasher.update(await Bun.file(join(moduleDir, "VERSION")).text());
-  const crdsCue = Bun.file(join(moduleDir, "templates/crds.cue"));
-  if (await crdsCue.exists()) {
-    hasher.update(await crdsCue.text());
+  for (const path of crdsCuePaths(name, crds)) {
+    const crdsCue = Bun.file(path);
+    if (await crdsCue.exists()) {
+      hasher.update(await crdsCue.text());
+    }
   }
   return `sha256:${hasher.digest("hex")}`;
 }

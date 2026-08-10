@@ -27,6 +27,27 @@ export type ImageSource =
 /** Where a module source's release manifests are fetched from. */
 export type ManifestsInput = { releaseAsset: string } | { file: string };
 
+/** One upstream CRD manifest location — a repo file fetched at the pinned
+ * commit, or an asset of the resolved release. */
+export type CrdInput = { file: string } | { releaseAsset: string };
+
+/**
+ * The upstream CRD manifests of a module: a single input rendered into the
+ * generated templates/crds.cue, or one input per release channel rendered
+ * into templates/crds_<channel>.cue each (the module then selects a channel
+ * through a value). Every manifest is normalized before import; by default
+ * only CustomResourceDefinition documents are kept and packaging labels are
+ * stripped:
+ * - `keepKinds`: additional document kinds to retain (e.g. the Gateway API
+ *   ValidatingAdmissionPolicy shipped with the CRDs);
+ * - `keepLabels`: preserve `metadata.labels` — for upstreams whose CRD
+ *   labels are semantic rather than packaging noise.
+ */
+export type CrdsConfig = ({ channels: Record<string, CrdInput> } | CrdInput) & {
+  keepKinds?: string[];
+  keepLabels?: boolean;
+};
+
 /** An argv command retried until it exits 0. Never interpreted by a shell. */
 export interface RetriedCheck {
   argv: string[];
@@ -44,6 +65,13 @@ export interface E2eConfig {
   /** Readiness check proving the addon works (timoni already waits for
    * resource health; this checks the addon's actual function). */
   verify: RetriedCheck;
+  /** Extra substrings the uninstall leftover sweep matches resource names
+   * against, for modules whose cluster-scoped objects do not carry the
+   * module name (e.g. `gateway.networking` for the Gateway API CRDs). */
+  sweepMatch?: string[];
+  /** `false` excludes the module from the GitHub Actions e2e matrix; the
+   * test stays runnable locally via `make e2e MODULE=<name>`. */
+  ci?: false;
 }
 
 /** One entry of upengine/config/sources.ts — a module's upstream declaration. */
@@ -58,18 +86,16 @@ export interface ModuleSource {
   version?: string;
   /** Release manifests location, required by `container` image sources. */
   manifests?: ManifestsInput;
-  /** Where the upstream CRD manifest is fetched from — a repo file at the
-   * pinned commit, or an asset of the resolved release. The manifest is
-   * normalized (packaging labels/annotations stripped) and rendered into
-   * the generated templates/crds.cue. */
-  crds?: { file: string } | { releaseAsset: string };
+  /** The upstream CRD manifests rendered into the generated crds files. */
+  crds?: CrdsConfig;
   /** Template layout: `packages` marks a multi-package module (one CUE
    * package per component); the generated image defaults then live in
    * templates/config/versions.cue (package config) instead of
    * templates/versions.cue. */
   layout?: "packages";
-  /** versions.cue image key -> tag resolution, in rendering order. */
-  images: Record<string, ImageSource>;
+  /** versions.cue image key -> tag resolution, in rendering order. Absent
+   * for CRDs-only modules, which generate no versions.cue at all. */
+  images?: Record<string, ImageSource>;
   /** The module's end-to-end test definition. */
   e2e: E2eConfig;
 }
@@ -90,6 +116,9 @@ export interface HistoryEntry {
   /** Digest of the raw upstream CRD manifest consumed by the sync;
    * release assets are mutable, so this identifies the exact input. */
   crdsDigest?: string;
+  /** Per-channel digests of the raw upstream CRD manifests, for modules
+   * declaring `crds.channels`. */
+  crdsDigests?: Record<string, string>;
   /** Digest of the generated files (versions.cue, VERSION and crds.cue
    * when present), used to detect hand edits and corruption so the sync
    * self-heals instead of skipping. */

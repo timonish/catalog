@@ -3,10 +3,11 @@
 
 import { join } from "node:path";
 import { CATALOG_REPO } from "../config/catalog.ts";
+import { GENERATED_FILE_RE, crdsCuePaths } from "./codegen.ts";
 import { fetchRetry } from "./github.ts";
 import { renderReadmeTable, writeReadmeTable } from "./readme.ts";
 import { renderChange } from "./summary.ts";
-import { MODULES_DIR } from "./paths.ts";
+import { MODULES_DIR, ROOT_DIR } from "./paths.ts";
 import { mustRun, run } from "./proc.ts";
 import type { ModuleSource, SyncChange } from "./types.ts";
 
@@ -60,8 +61,9 @@ export async function createPullRequests(
   const staged = new Map<string, Map<string, string>>();
   for (const change of changes) {
     const files = new Map<string, string>();
-    for (const path of changePaths(change.name)) {
-      // crds.cue only exists for modules that track upstream CRDs.
+    for (const path of changePaths(sources, change.name)) {
+      // crds files only exist for modules that track upstream CRDs, and
+      // versions.cue only for modules with images.
       const file = Bun.file(path);
       if (await file.exists()) {
         files.set(path, await file.text());
@@ -90,13 +92,19 @@ export async function createPullRequests(
   }
 }
 
-function changePaths(name: string): string[] {
+function changePaths(sources: ModuleSource[], name: string): string[] {
+  const source = sources.find((s) => s.name === name);
   return [
     // Whichever versions.cue location the module's layout uses exists;
-    // the caller filters on existence.
-    join(MODULES_DIR, name, "templates/versions.cue"),
-    join(MODULES_DIR, name, "templates/config/versions.cue"),
-    join(MODULES_DIR, name, "templates/crds.cue"),
+    // the caller filters on existence. The channel-less crds.cue stays a
+    // candidate for every module so a layout migration removes the stale
+    // file from the branch.
+    ...new Set([
+      join(MODULES_DIR, name, "templates/versions.cue"),
+      join(MODULES_DIR, name, "templates/config/versions.cue"),
+      join(MODULES_DIR, name, "templates/crds.cue"),
+      ...crdsCuePaths(name, source?.crds),
+    ]),
     join(MODULES_DIR, name, "VERSION"),
     join(MODULES_DIR, name, "README.md"),
     join("upengine/history", `${name}.json`),
@@ -118,8 +126,17 @@ async function createPullRequest(
   }
   // Candidate paths absent from the snapshot are removed if the base
   // still tracks them (e.g. the flat versions.cue of a module that
-  // migrated to the packages layout).
-  for (const path of changePaths(change.name)) {
+  // migrated to the packages layout). Generated files tracked at the
+  // base under names the current declaration no longer produces (a
+  // renamed crds channel, dropped images) are candidates too.
+  // --full-name yields repo-root-relative paths, resolved against
+  // ROOT_DIR to match the absolute snapshot keys.
+  const tracked = (await mustRun(["git", "ls-files", "--full-name", "--", join(MODULES_DIR, change.name)]))
+    .split("\n")
+    .filter((path) => path !== "")
+    .map((path) => join(ROOT_DIR, path))
+    .filter((path) => GENERATED_FILE_RE.test(path));
+  for (const path of new Set([...changePaths(sources, change.name), ...tracked])) {
     if (!files.has(path)) {
       await run(["git", "rm", "-q", "--ignore-unmatch", "--", path]);
     }
