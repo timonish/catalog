@@ -9,12 +9,13 @@ bundle: {
 			}
 			namespace: "monitoring"
 			values: {
-				// The optional objects without external dependencies; the
-				// admission webhook needs cert-manager and is exercised
-				// manually. The feature gate proves the conditional
-				// DaemonSet RBAC passes the operator startup check.
+				// The optional objects a first install can carry: the
+				// admission webhook needs cert-manager and the
+				// ServiceMonitor needs the CRDs of a previous apply
+				// (both are exercised manually). The feature gate proves
+				// the conditional DaemonSet RBAC passes the operator
+				// startup check.
 				featureGates: PrometheusAgentDaemonSet: true
-				serviceMonitor: enabled:                true
 				networkPolicy: enabled:                 true
 				podDisruptionBudget: {
 					enabled:      true
