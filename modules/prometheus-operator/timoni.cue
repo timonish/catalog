@@ -37,14 +37,6 @@ timoni: {
 	}
 
 	// Pass Kubernetes resources outputted by the instance
-	// to Timoni's multi-step apply: the CRDs are applied and
-	// established first so that the custom resources of this very
-	// instance (e.g. the ServiceMonitor) pass validation on a
-	// fresh cluster.
-	apply: {
-		if len([for obj in instance.objects if obj.kind == "CustomResourceDefinition" {obj}]) > 0 {
-			crds: [for obj in instance.objects if obj.kind == "CustomResourceDefinition" {obj}]
-		}
-		app: [for obj in instance.objects if obj.kind != "CustomResourceDefinition" {obj}]
-	}
+	// to Timoni's multi-step apply.
+	apply: app: [for obj in instance.objects {obj}]
 }
