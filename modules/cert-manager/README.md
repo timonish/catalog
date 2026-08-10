@@ -41,16 +41,9 @@ timoni -n cert-manager apply cert-manager \
 ```
 
 Once the instance is ready, certificates can be requested through
-Issuer and ClusterIssuer resources, for example a self-signed CA:
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: selfsigned
-spec:
-  selfSigned: {}
-```
+Issuer and ClusterIssuer custom resources — see the cert-manager
+[issuer configuration docs](https://cert-manager.io/docs/configuration/)
+for the supported certificate authorities.
 
 To uninstall and prune all the Kubernetes resources:
 
@@ -117,26 +110,6 @@ Save the bundle as `cert-manager.cue` and apply the stack with:
 
 ```shell
 timoni bundle apply -f cert-manager.cue
-```
-
-After the install, create the ClusterIssuer referenced by the ingress
-shim, e.g. for Let's Encrypt:
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: admin@example.com
-    privateKeySecretRef:
-      name: letsencrypt-account
-    solvers:
-      - http01:
-          ingress:
-            ingressClassName: nginx
 ```
 
 ## Configuration

@@ -43,12 +43,27 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
   relative symlinks into `schemas/`. Pushes use `--resolve-symlinks` (set
   in `make push-mod`).
 - **Upstream CRDs ship in the generated `templates/crds.cue`**: a module
-  that installs CRDs declares the upstream manifest path as `crds` in
-  `sources.ts`; every sync re-imports it at the pinned commit with
-  `cue import` (see `modules/external-dns`). CRD *schemas* are a separate
-  concern, only needed when templates create typed custom resources —
-  universal ones live in the shared `schemas/`, and nothing is vendored
-  per module so far.
+  that installs CRDs declares the upstream manifest as `crds` in
+  `sources.ts` — either a repo `file` fetched at the pinned commit
+  (`modules/external-dns`) or a `releaseAsset` of the resolved release
+  (`modules/cert-manager`); every sync normalizes it (packaging labels
+  and annotations stripped) and re-imports it with `cue import`. CRD
+  *schemas* are a separate concern, only needed when templates create
+  typed custom resources — universal ones live in the shared `schemas/`,
+  and nothing is vendored per module so far.
+- **Multi-deployment addons use the multi-package layout** (see
+  `modules/cert-manager`): one CUE package per component under
+  `templates/<component>`, plus `templates/config` holding the values
+  schema; component object names and labels come from the Timoni
+  `#MetaComponent` convention. The module declares `layout: "packages"`
+  in `sources.ts`, which moves the generated image defaults to
+  `templates/config/versions.cue`.
+- **Prefer upstream component configuration APIs over flag mapping**:
+  when the addon supports a `--config` file (e.g. cert-manager's
+  ControllerConfiguration), expose it as a typed CUE schema rendered
+  into a hash-named immutable ConfigMap so config changes roll the
+  pods; the containers get only `--config`, and `extraArgs` remains the
+  escape hatch (flags override the file).
 - **VERSION file**: format `^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$`, excluded from
   the pushed artifact via `timoni.ignore`. The OCI registry is the release
   record — no git tags.
@@ -110,7 +125,8 @@ not-yet-created packages, so first publishes log a warning then push.
 ## Adding a new module
 
 `modules/metrics-server` is the blueprint — copy its structure and
-conventions when onboarding a new addon:
+conventions when onboarding a new addon (`modules/cert-manager` is the
+blueprint for multi-deployment addons):
 
 1. Create `modules/<name>` following the blueprint: `cue.mod/module.cue`
    (`timoni.sh/<name>`), relative symlinks for `cue.mod/pkg/timoni.sh`,
