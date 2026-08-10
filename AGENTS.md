@@ -158,9 +158,9 @@ conventions when onboarding a new addon:
 8. Run `make fmt lint-modules vet`, `make build MODULE=<name>`, and
    `make e2e MODULE=<name>` against a local kind cluster
    (`make cluster-up` creates one from `test/cluster/kind.yaml`).
-9. After the first publish: on ghcr.io, flip the new `modules/<name>`
-   package to **Public** and confirm it is linked to this repository
-   (one-time, needs package admin).
+9. After the first publish: confirm the new `modules/<name>` package is
+   publicly listable (`timoni mod list`) and linked to this repository —
+   GHCR packages inherit the repo visibility, no manual flip is needed.
 
 ## Releasing a module-only fix
 
