@@ -115,6 +115,24 @@ export const sources: ModuleSource[] = [
     },
   },
   {
+    name: "kube-state-metrics",
+    url: "https://github.com/kubernetes/kube-state-metrics",
+    releaseTag: "v*",
+    images: {
+      // Published by the upstream tagged with the release tag itself.
+      "kube-state-metrics": { repository: "registry.k8s.io/kube-state-metrics/kube-state-metrics" },
+    },
+    e2e: {
+      namespace: "kube-state-metrics",
+      // The fixture Job scrapes the metrics endpoint through the
+      // headless Service and asserts a real metric series exists.
+      verify: {
+        argv: ["kubectl", "-n", "kube-state-metrics", "wait", "job/e2e",
+          "--for=condition=Complete", "--timeout=60s"],
+      },
+    },
+  },
+  {
     name: "external-dns",
     url: "https://github.com/kubernetes-sigs/external-dns",
     // The repo interleaves external-dns-helm-chart-* release tags.
