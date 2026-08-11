@@ -1,9 +1,17 @@
 package templates
 
 import (
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	timoniv1 "timoni.sh/core/v1alpha1"
 )
+
+// Duration is a Go duration string, e.g. "15s", "1h30m".
+#Duration: string & =~"^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+
+// PromDuration is a Prometheus duration, e.g. "30s", "1m30s"; a bare
+// "0" is allowed.
+#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
 
 // Config defines the schema and defaults for the Instance values.
 #Config: {
@@ -32,6 +40,9 @@ import (
 
 	// The number of old ReplicaSets to retain.
 	revisionHistoryLimit: *10 | int & >=0
+
+	// The strategy to replace old pods with new ones.
+	strategy?: appsv1.#DeploymentStrategy
 
 	// The container image repository, tag, digest and pull policy.
 	// The default repository and tag track the upstream release
@@ -109,14 +120,20 @@ import (
 	// API server to prevent restart loops.
 	leaderElection: {
 		enabled:       *true | bool
-		leaseDuration: *"15s" | string & =~"^([0-9]+(ms|s|m|h))+$"
-		renewDeadline: *"10s" | string & =~"^([0-9]+(ms|s|m|h))+$"
+		leaseDuration: *"15s" | #Duration
+		renewDeadline: *"10s" | #Duration
 	}
 
-	// The HTTP readiness probe endpoint of the trust-manager container.
-	readinessProbe: {
-		port: *6060 | int & >0 & <=65535
-		path: *"/readyz" | string & =~"^/.*"
+	// The readiness probe of the trust-manager container; the listen
+	// port and path are wired into the container arguments (the port
+	// must be a number).
+	readinessProbe: corev1.#Probe & {
+		httpGet: {
+			path: *"/readyz" | string & =~"^/.*"
+			port: *6060 | int & >0 & <=65535
+		}
+		initialDelaySeconds: *3 | int
+		periodSeconds:       *7 | int
 	}
 
 	// The validating webhook guarding Bundle resources. Its serving
@@ -141,7 +158,12 @@ import (
 			type: *"ClusterIP" | "NodePort" | "LoadBalancer"
 			ipFamilies?: [..."IPv4" | "IPv6"]
 			ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-			nodePort?:       int & >0 & <=65535
+			if type == "NodePort" {
+				// Zero lets the cluster assign the node port.
+				nodePort: *0 | int & >=0 & <=32767
+			}
+			annotations?: timoniv1.#Annotations
+			labels?:      timoniv1.#Labels
 		}
 
 		tls: {
@@ -178,27 +200,38 @@ import (
 			type:    *"ClusterIP" | "NodePort" | "LoadBalancer"
 			ipFamilies?: [..."IPv4" | "IPv6"]
 			ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
+			annotations?:    timoniv1.#Annotations
+			labels?:         timoniv1.#Labels
 		}
 	}
 
 	// Prometheus Operator ServiceMonitor (optional) for the metrics
-	// Service. Enabling it also enables `metrics.service`.
+	// Service, created in the instance namespace. Enabling it also
+	// enables `metrics.service`.
 	serviceMonitor: {
-		enabled: *false | bool
-		// The value of the `prometheus` label on the ServiceMonitor,
-		// letting separate Prometheus instances select different
-		// ServiceMonitors.
-		prometheusInstance: *"default" | string & =~".+"
-		additionalLabels?:  timoniv1.#Labels
-		// Scrape settings; set to an empty string to omit the field and
-		// fall back to the Prometheus Operator defaults.
-		interval:      *"10s" | "" | =~"^([0-9]+(ms|s|m|h|d|w|y))+$"
-		scrapeTimeout: *"5s" | "" | =~"^([0-9]+(ms|s|m|h|d|w|y))+$"
+		enabled:           *false | bool
+		additionalLabels?: timoniv1.#Labels
+		annotations?:      timoniv1.#Annotations
+		jobLabel:          *"app.kubernetes.io/name" | string
+		// Scrape settings; the default empty string omits the field and
+		// falls back to the Prometheus defaults.
+		interval:      *"" | #PromDuration
+		scrapeTimeout: *"" | #PromDuration
+		honorLabels:   *false | bool
+		scheme?:       "http" | "https"
+		tlsConfig?: {...}
+		bearerTokenFile?: string & =~".+"
+		bearerTokenSecret?: {...}
+		proxyUrl?: string & =~".+"
 		metricRelabelings?: [...]
 		relabelings?: [...]
-		// Extra properties merged into the scrape endpoint, e.g.
-		// honorLabels, scheme or tlsConfig.
-		endpointAdditionalProperties?: {...}
+		sampleLimit?:           int & >=0
+		targetLimit?:           int & >=0
+		labelLimit?:            int & >=0
+		labelNameLengthLimit?:  int & >=0
+		labelValueLengthLimit?: int & >=0
+		targetLabels?: [...string & =~".+"]
+		podTargetLabels?: [...string & =~".+"]
 	}
 	if serviceMonitor.enabled {
 		metrics: service: enabled: true
@@ -207,8 +240,11 @@ import (
 	// PodDisruptionBudget (optional). The mutually exclusive
 	// `minAvailable` and `maxUnavailable` accept an absolute number
 	// or a percentage; `minAvailable: 1` is the default.
+	// `unhealthyPodEvictionPolicy` requires Kubernetes 1.27 or newer
+	// and is omitted on older clusters.
 	podDisruptionBudget: {
-		enabled: *false | bool
+		enabled:                     *false | bool
+		unhealthyPodEvictionPolicy?: "IfHealthyBudget" | "AlwaysAllow"
 		*{minAvailable: *1 | int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
 	}
 
@@ -240,7 +276,24 @@ import (
 	affinity?: corev1.#Affinity
 	tolerations?: [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
-	priorityClassName?: string & =~".+"
+	dnsConfig?: corev1.#PodDNSConfig
+	// Pods on the host network (webhook.hostNetwork) default to
+	// ClusterFirstWithHostNet to resolve cluster services.
+	if webhook.hostNetwork {
+		dnsPolicy: *"ClusterFirstWithHostNet" | "ClusterFirst" | "Default" | "None"
+	}
+	if !webhook.hostNetwork {
+		dnsPolicy?: "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
+	}
+	priorityClassName?:             string & =~".+"
+	schedulerName?:                 string & =~".+"
+	terminationGracePeriodSeconds?: int & >=0
+
+	// Environment variables for the trust-manager container.
+	env?: [...corev1.#EnvVar]
+
+	// Annotations added to the Deployment.
+	deploymentAnnotations?: timoniv1.#Annotations
 
 	// Mount the service account token into the pod.
 	automountServiceAccountToken: *true | bool
@@ -265,8 +318,10 @@ import (
 			// under the namespace default service account.
 			name: *"default" | string
 		}
-		annotations?:                 timoniv1.#Annotations
-		automountServiceAccountToken: *true | bool
+		labels?:      timoniv1.#Labels
+		annotations?: timoniv1.#Annotations
+		// The token is mounted through the pod setting instead.
+		automountServiceAccountToken: *false | bool
 	}
 
 	// Set `rbac.create: false` when the roles and bindings are managed
