@@ -9,6 +9,9 @@ Timoni modules in this repository:
   and PodMonitor CRD schemas (most addons expose one of these)
 - `cue.mod/gen/cert-manager.io` — the cert-manager Certificate and Issuer
   CRD schemas (most addons offer optional cert-manager provisioned TLS)
+- `cue.mod/gen/gateway.networking.k8s.io` — the Gateway API HTTPRoute and
+  GRPCRoute CRD schemas (most apps expose their endpoints through one of
+  these)
 
 The CRD kinds not listed above are pruned by `make update-shared-schemas`.
 Only these universal schemas are shared. Other CRD schemas are per-addon and

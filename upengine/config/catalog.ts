@@ -34,4 +34,10 @@ export const CRD_SCHEMAS = [
     keep: ["certificate", "issuer"],
     removeGroups: ["acme.cert-manager.io"],
   },
+  {
+    url: "https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.1/standard-install.yaml",
+    group: "gateway.networking.k8s.io",
+    keep: ["httproute", "grpcroute"],
+    removeGroups: [] as string[],
+  },
 ];
