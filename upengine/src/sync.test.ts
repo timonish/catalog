@@ -32,6 +32,7 @@ const VALID: ModuleSource[] = [
   {
     name: "metrics-server",
     url: "https://github.com/kubernetes-sigs/metrics-server",
+    parityTarget: "https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server",
     releaseTag: "v*",
     manifests: { releaseAsset: "components.yaml" },
     images: {
@@ -68,6 +69,11 @@ describe("validateSources", () => {
     expect(() => validateSources([source])).toThrow("not a GitHub repository URL");
   });
 
+  test("rejects a non-https parityTarget", () => {
+    const source = { ...VALID[0]!, parityTarget: "charts/metrics-server" };
+    expect(() => validateSources([source])).toThrow("'parityTarget' must be an https URL");
+  });
+
   test("rejects an invalid module name", () => {
     const source = { ...VALID[0]!, name: "Metrics_Server" };
     expect(() => validateSources([source])).toThrow("invalid name");
@@ -77,6 +83,7 @@ describe("validateSources", () => {
     const source: ModuleSource = {
       name: "external-dns",
       url: "https://github.com/kubernetes-sigs/external-dns",
+      parityTarget: "https://github.com/kubernetes-sigs/external-dns/tree/master/charts/external-dns",
       releaseTag: "v*",
       crds: { file: "charts/external-dns/crds/dnsendpoints.externaldns.k8s.io.yaml" },
       images: { "external-dns": { repository: "registry.k8s.io/external-dns/external-dns" } },
@@ -153,6 +160,7 @@ describe("validateSources", () => {
   const CRDS_ONLY: ModuleSource = {
     name: "gateway-api",
     url: "https://github.com/kubernetes-sigs/gateway-api",
+    parityTarget: "https://github.com/kubernetes-sigs/gateway-api/releases",
     releaseTag: "v*",
     crds: {
       channels: {

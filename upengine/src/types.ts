@@ -86,6 +86,12 @@ export interface ModuleSource {
   name: string;
   /** GitHub repository URL of the upstream project. */
   url: string;
+  /** URL of the upstream config surface — a Helm chart directory or the
+   * plain manifests — the module holds parity with. Informational only,
+   * never consumed by the engine: read it when onboarding (rendered-output
+   * parity) and when reviewing upstream drift for new config surface
+   * (see docs/internal/maintenance.md). */
+  parityTarget: string;
   /** Release tag glob constraining version resolution (e.g. `v*`). */
   releaseTag?: string;
   /** Pin the upstream version instead of resolving the latest release. */

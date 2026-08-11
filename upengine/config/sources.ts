@@ -12,7 +12,9 @@ export const sources: ModuleSource[] = [
   {
     name: "metrics-server",
     url: "https://github.com/kubernetes-sigs/metrics-server",
-    // The repo interleaves metrics-server-helm-chart-* release tags.
+    // In-repo chart, released on the interleaved metrics-server-helm-chart-*
+    // tags.
+    parityTarget: "https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server",
     releaseTag: "v*",
     manifests: { releaseAsset: "components.yaml" },
     images: {
@@ -33,6 +35,10 @@ export const sources: ModuleSource[] = [
   {
     name: "cert-manager",
     url: "https://github.com/cert-manager/cert-manager",
+    // In-repo chart; the parity surface also spans the typed component
+    // Config APIs under pkg/apis/config/, which the chart values alone
+    // do not cover.
+    parityTarget: "https://github.com/cert-manager/cert-manager/tree/master/deploy/charts/cert-manager",
     releaseTag: "v*",
     // Multi-package CUE module: one package per component, the image
     // defaults live in templates/config/versions.cue.
@@ -62,6 +68,10 @@ export const sources: ModuleSource[] = [
   {
     name: "gateway-api",
     url: "https://github.com/kubernetes-sigs/gateway-api",
+    // No chart: the parity surface is the standard-install.yaml /
+    // experimental-install.yaml release assets, fully ingested by the
+    // sync through the crds channels below.
+    parityTarget: "https://github.com/kubernetes-sigs/gateway-api/releases",
     releaseTag: "v*",
     // CRDs-only module, no images: the module renders the CRD set of the
     // channel selected through the instance values.
@@ -90,6 +100,10 @@ export const sources: ModuleSource[] = [
   {
     name: "prometheus-operator",
     url: "https://github.com/prometheus-operator/prometheus-operator",
+    // Cross-repo: the de-facto chart is kube-prometheus-stack; the parity
+    // surface is its prometheusOperator values section and the
+    // templates/prometheus-operator/ templates only.
+    parityTarget: "https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack",
     releaseTag: "v*",
     // The release bundle carries the full CRD schemas (kubectl explain
     // works); the default normalization keeps only the CRD documents and
@@ -117,6 +131,9 @@ export const sources: ModuleSource[] = [
   {
     name: "kube-state-metrics",
     url: "https://github.com/kubernetes/kube-state-metrics",
+    // Cross-repo: the chart lives in prometheus-community/helm-charts
+    // while the releases are tracked from the upstream repo.
+    parityTarget: "https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-state-metrics",
     releaseTag: "v*",
     images: {
       // Published by the upstream tagged with the release tag itself.
@@ -135,6 +152,9 @@ export const sources: ModuleSource[] = [
   {
     name: "envoy-gateway",
     url: "https://github.com/envoyproxy/gateway",
+    // In-repo chart; the onboarding parity baseline was main @ 6ff80b3
+    // with release-pinned artifacts.
+    parityTarget: "https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm",
     releaseTag: "v*",
     // The official CRDs-only release asset: exactly the eight
     // gateway.envoyproxy.io CRDs. The Gateway API CRDs are not included;
@@ -162,7 +182,9 @@ export const sources: ModuleSource[] = [
   {
     name: "external-dns",
     url: "https://github.com/kubernetes-sigs/external-dns",
-    // The repo interleaves external-dns-helm-chart-* release tags.
+    // In-repo chart, released on the interleaved external-dns-helm-chart-*
+    // tags.
+    parityTarget: "https://github.com/kubernetes-sigs/external-dns/tree/master/charts/external-dns",
     releaseTag: "v*",
     crds: { file: "charts/external-dns/crds/dnsendpoints.externaldns.k8s.io.yaml" },
     images: {
@@ -182,6 +204,8 @@ export const sources: ModuleSource[] = [
   {
     name: "trust-manager",
     url: "https://github.com/cert-manager/trust-manager",
+    // In-repo chart.
+    parityTarget: "https://github.com/cert-manager/trust-manager/tree/main/deploy/charts/trust-manager",
     releaseTag: "v*",
     // The chart-templated Bundle CRD is spec-identical to this source file;
     // the ClusterBundle CRD in the same directory is not shipped by the
@@ -217,6 +241,9 @@ export const sources: ModuleSource[] = [
   {
     name: "vertical-pod-autoscaler",
     url: "https://github.com/kubernetes/autoscaler",
+    // In-repo chart, versioned separately on vertical-pod-autoscaler-chart-*
+    // tags; its appVersion pins the app release the module tracks.
+    parityTarget: "https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler/charts/vertical-pod-autoscaler",
     // The monorepo interleaves the release lines of several components,
     // including vertical-pod-autoscaler-chart-* for the separately
     // versioned chart; the glob's digit guard keeps only the app releases.

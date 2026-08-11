@@ -71,6 +71,9 @@ export function validateSources(sources: ModuleSource[]): ModuleSource[] {
     }
     names.add(source.name);
     repoOf(source.url);
+    if (!source.parityTarget.startsWith("https://")) {
+      throw new Error(`${at}: 'parityTarget' must be an https URL`);
+    }
     const images = Object.entries(source.images ?? {});
     if (source.images !== undefined && images.length === 0) {
       throw new Error(`${at}: 'images' must not be empty; omit it for a CRDs-only module`);
