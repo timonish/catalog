@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [kube-state-metrics](https://
 ## Version
 
 <!-- versions:start -->
-Latest module version is `2.19.1-1`, packaging the upstream release
+Latest module version is `2.19.1-2`, packaging the upstream release
 [v2.19.1](https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.19.1)
 with the following container images:
 
@@ -194,7 +194,8 @@ timoni bundle apply -f bundle.cue
 | `metadata: labels:` | `{[string]: string}` | `{}` | Labels added to all resources |
 | `metadata: annotations:` | `{[string]: string}` | `{}` | Annotations added to all resources |
 | `commonLabels:` | `{[string]: string}` | `{}` | Extra labels added to all resources |
-| `replicas:` | `int` | `1` | Number of pods; with `autosharding` each pod exposes one shard of the metrics |
+| `replicas:` | `int` | `1` | Number of pods; with `autosharding` each pod exposes one shard of the metrics; zero suspends collection |
+| `schedulerName:` | `string` | unset | Alternate scheduler |
 | `autosharding: enabled:` | `bool` | `false` | Deploy a StatefulSet whose pods shard the metrics by ordinal |
 | `env:` | `[...EnvVar]` | `[]` | Environment variables for the container |
 | `extraArgs:` | `[...string]` | `[]` | Extra command line arguments appended after the generated ones |
@@ -262,7 +263,7 @@ timoni bundle apply -f bundle.cue
 | `workloadLabels:` | `{[string]: string}` | `{}` | Labels added to the Deployment or StatefulSet |
 | `workloadAnnotations:` | `{[string]: string}` | `{}` | Annotations added to the Deployment or StatefulSet |
 | `podDisruptionBudget: enabled:` | `bool` | `false` | Create a PodDisruptionBudget for the pods |
-| `podDisruptionBudget: minAvailable:` | `int or %` | unset | Minimum available pods, mutually exclusive with `maxUnavailable` |
+| `podDisruptionBudget: minAvailable:` | `int or %` | `1` | Minimum available pods, mutually exclusive with `maxUnavailable` |
 | `podDisruptionBudget: maxUnavailable:` | `int or %` | unset | Maximum unavailable pods |
 | `podDisruptionBudget: unhealthyPodEvictionPolicy:` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |
 
@@ -292,7 +293,6 @@ timoni bundle apply -f bundle.cue
 | `serviceMonitor: enabled:` | `bool` | `false` | Create a ServiceMonitor scraping the metrics endpoint (and the telemetry endpoint with `selfMonitor`) |
 | `serviceMonitor: additionalLabels:` | `{[string]: string}` | `{}` | Labels added to the ServiceMonitor, e.g. for Prometheus selectors |
 | `serviceMonitor: annotations:` | `{[string]: string}` | `{}` | Annotations added to the ServiceMonitor |
-| `serviceMonitor: namespace:` | `string` | instance namespace | The namespace the ServiceMonitor is created in |
 | `serviceMonitor: selectorOverride:` | `{[string]: string}` | instance selector | Override the label selector matching the Service |
 | `serviceMonitor: jobLabel:` | `string` | `app.kubernetes.io/name` | Label used as the Prometheus job name |
 | `serviceMonitor: targetLabels:` | `[...string]` | `[]` | Service labels transferred to the metrics |

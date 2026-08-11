@@ -147,6 +147,7 @@ values: {
 		whenUnsatisfiable: "ScheduleAnyway"
 		labelSelector: matchLabels: "app.kubernetes.io/name": "kube-state-metrics"
 	}]
+	schedulerName: "default-scheduler"
 	dnsConfig: options: [{name: "ndots", value: "2"}]
 	priorityClassName:             "system-cluster-critical"
 	terminationGracePeriodSeconds: 30
@@ -183,9 +184,8 @@ values: {
 
 	serviceMonitor: {
 		enabled: true
-		additionalLabels: "release": "e2e"
-		annotations: "team":         "platform"
-		namespace: "monitoring"
+		additionalLabels: "release":                "e2e"
+		annotations: "team":                        "platform"
 		selectorOverride: "app.kubernetes.io/name": "kube-state-metrics"
 		jobLabel: "app.kubernetes.io/instance"
 		targetLabels: ["cluster"]
