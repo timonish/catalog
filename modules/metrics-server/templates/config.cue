@@ -6,6 +6,10 @@ import (
 	timoniv1 "timoni.sh/core/v1alpha1"
 )
 
+// PromDuration is a Prometheus duration, e.g. "30s", "1m30s"; a bare
+// "0" is allowed.
+#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+
 // Config defines the schema and defaults for the Instance values.
 #Config: {
 	// Runtime version info automatically set at apply-time.
@@ -34,7 +38,7 @@ import (
 	revisionHistoryLimit?: int & >=0
 
 	// The strategy to replace old pods with new ones.
-	updateStrategy?: appsv1.#DeploymentStrategy
+	strategy?: appsv1.#DeploymentStrategy
 
 	// The container image repository, tag, digest and pull policy.
 	// The default repository and tag track the upstream release
@@ -62,7 +66,10 @@ import (
 
 	// Extra command line arguments appended after the default ones,
 	// e.g. `--kubelet-insecure-tls` for clusters with self-signed kubelet certs.
-	args: *[] | [...string]
+	extraArgs: *[] | [...string]
+
+	// Environment variables for the metrics-server container.
+	env?: [...corev1.#EnvVar]
 
 	// The container resource requirements. Ignored when `addonResizer`
 	// is enabled: the nanny owns the container resources and computes
@@ -109,6 +116,10 @@ import (
 	extraVolumes?: [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
+	// Extra containers and init containers added to the pods.
+	extraContainers?: [...corev1.#Container]
+	initContainers?: [...corev1.#Container]
+
 	// The security profile applied to the pod identity defaults: the
 	// default "hardened" profile pins the image's non-root UID, while
 	// "platform" leaves the identity to an admission controller
@@ -124,14 +135,20 @@ import (
 	// Pod optional settings.
 	podLabels?:      timoniv1.#Labels
 	podAnnotations?: timoniv1.#Annotations
-	nodeSelector?: {[string]: string}
+	// Pods are scheduled on Linux nodes by default.
+	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
 	tolerations?: [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 	dnsConfig?: corev1.#PodDNSConfig
 	// Not in the chart: pods with hostNetwork enabled may need
 	// ClusterFirstWithHostNet to resolve cluster services.
-	dnsPolicy?:     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
-	schedulerName?: string
+	dnsPolicy?:                     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
+	schedulerName?:                 string & =~".+"
+	terminationGracePeriodSeconds?: int & >=0
+
+	// Mount the service account token into the pod; metrics-server
+	// requires it for accessing the Kubernetes API.
+	automountServiceAccountToken: *true | bool
 
 	// The priority class of the metrics-server pods.
 	priorityClassName: *"system-cluster-critical" | string
@@ -140,16 +157,9 @@ import (
 	// API server cannot reach the pod network (e.g. Weave on EKS).
 	hostNetwork: *false | bool
 
-	// Pod affinity rules, by default pods are scheduled on Linux nodes.
-	affinity: *{
-		nodeAffinity: requiredDuringSchedulingIgnoredDuringExecution: nodeSelectorTerms: [{
-			matchExpressions: [{
-				key:      corev1.#LabelOSStable
-				operator: "In"
-				values: ["linux"]
-			}]
-		}]
-	} | corev1.#Affinity
+	// Pod affinity rules (optional); Linux placement comes from the
+	// nodeSelector default.
+	affinity?: corev1.#Affinity
 
 	// Annotations added to the Deployment.
 	deploymentAnnotations?: timoniv1.#Annotations
@@ -166,8 +176,11 @@ import (
 			// namespace default service account.
 			name: *"default" | string
 		}
+		labels?:      timoniv1.#Labels
 		annotations?: timoniv1.#Annotations
 		secrets?: [...timoniv1.#ObjectReference]
+		// The token is mounted through the pod setting instead.
+		automountServiceAccountToken: *false | bool
 	}
 
 	// Set `rbac.create: false` when the cluster roles and bindings
@@ -176,8 +189,24 @@ import (
 
 	// Service settings.
 	service: {
-		type:         *"ClusterIP" | "NodePort" | "LoadBalancer"
-		port:         *443 | int & >0 & <=65535
+		type:       *"ClusterIP" | "NodePort" | "LoadBalancer"
+		port:       *443 | int & >0 & <=65535
+		clusterIP?: string & =~".+"
+		ipFamilies?: [..."IPv4" | "IPv6"]
+		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
+		externalIPs?: [...string]
+		if type == "NodePort" {
+			// Zero lets the cluster assign the node port.
+			nodePort: *0 | int & >=0 & <=32767
+		}
+		if type == "LoadBalancer" {
+			loadBalancerIP?:    string & =~".+"
+			loadBalancerClass?: string & =~".+"
+			loadBalancerSourceRanges?: [...string]
+		}
+		if type != "ClusterIP" {
+			externalTrafficPolicy?: "Cluster" | "Local"
+		}
 		annotations?: timoniv1.#Annotations
 		labels?:      timoniv1.#Labels
 	}
@@ -201,28 +230,47 @@ import (
 
 	// PodDisruptionBudget (optional). The mutually exclusive
 	// `minAvailable` and `maxUnavailable` accept an absolute number
-	// or a percentage. `unhealthyPodEvictionPolicy` requires
-	// Kubernetes 1.27 or newer and is omitted on older clusters.
+	// or a percentage; `minAvailable: 1` is the default.
+	// `unhealthyPodEvictionPolicy` requires Kubernetes 1.27 or newer
+	// and is omitted on older clusters.
 	podDisruptionBudget: {
 		enabled:                     *false | bool
 		unhealthyPodEvictionPolicy?: "IfHealthyBudget" | "AlwaysAllow"
-		*{} | {minAvailable: int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
+		*{minAvailable: *1 | int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
 	}
 
 	// Expose the /metrics endpoint without authorization.
 	metrics: enabled: *false | bool
 
-	// Prometheus Operator ServiceMonitor (optional).
-	// Enabling it also enables `metrics`.
+	// Prometheus Operator ServiceMonitor (optional), created in the
+	// instance namespace. Enabling it also enables `metrics`.
 	serviceMonitor: {
 		enabled:           *false | bool
 		additionalLabels?: timoniv1.#Labels
-		// Scrape settings; set to an empty string to omit the field and
-		// fall back to the Prometheus Operator defaults.
-		interval:      *"1m" | "" | =~"^[0-9]+(ms|s|m|h)$"
-		scrapeTimeout: *"10s" | "" | =~"^[0-9]+(ms|s|m|h)$"
+		annotations?:      timoniv1.#Annotations
+		jobLabel:          *"app.kubernetes.io/name" | string
+		// Scrape settings; the default empty string omits the field and
+		// falls back to the Prometheus defaults.
+		interval:      *"" | #PromDuration
+		scrapeTimeout: *"" | #PromDuration
+		honorLabels:   *false | bool
+		// The metrics endpoint is served over TLS; the certificate is
+		// not verified by default. With `tls.type: cert-manager`, set
+		// `tlsConfig` to verify against the issued CA.
+		scheme: *"https" | "http"
+		tlsConfig: *{insecureSkipVerify: true} | {...}
+		bearerTokenFile?: string & =~".+"
+		bearerTokenSecret?: {...}
+		proxyUrl?: string & =~".+"
 		metricRelabelings?: [...]
 		relabelings?: [...]
+		sampleLimit?:           int & >=0
+		targetLimit?:           int & >=0
+		labelLimit?:            int & >=0
+		labelNameLengthLimit?:  int & >=0
+		labelValueLengthLimit?: int & >=0
+		targetLabels?: [...string & =~".+"]
+		podTargetLabels?: [...string & =~".+"]
 	}
 	if serviceMonitor.enabled {
 		metrics: enabled: true

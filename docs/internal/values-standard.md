@@ -57,23 +57,218 @@ Upstream coverage is a **floor**, this standard is the **shape**:
 
 ## Unified common surface
 
-The canonical shapes for settings shared by all modules. To be defined
-by the cross-module consistency audit; converging a module is a
-build-suffix bump (see [maintenance.md](maintenance.md)).
+The canonical shapes for settings shared by all modules, decided from
+the 2026-08 cross-module audit. A module must not express one of these
+concepts with a different field name, type or structure; addon-specific
+fields may extend a block but never replace or rename its canonical
+fields. Multi-component modules apply the same shapes per component.
+Converging a module is a build-suffix bump (see
+[maintenance.md](maintenance.md)).
 
-Sections to be filled by the audit:
+### Shared value types
 
-- **`service`**: type/port/annotations/labels plus the full networking
-  surface (`clusterIP`, `ipFamilies`, `ipFamilyPolicy`, load-balancer
-  fields, `nodePort`) regardless of upstream chart support.
-- **`serviceMonitor`**: one schema and one set of scrape defaults
-  (today they diverge four ways across modules).
-- **Duration fields**: one regex shape for intervals/timeouts.
-- **Pod scheduling and metadata**: `podLabels`, `podAnnotations`,
-  `nodeSelector`, `tolerations`, `affinity`,
-  `topologySpreadConstraints`, `priorityClassName`.
+Until a shared catalog CUE package exists, every module defines these
+locally with exactly these definitions:
 
-Known drift to resolve (recorded 2026-08-11): metrics-server Service
-lacks the dual-stack fields; serviceMonitor defaults split four ways
-(1m/10s, 60s/30s, 10s/5s, unset); external-dns lacks `scrapeTimeout`;
-three different duration regex shapes exist.
+```cue
+// Go duration, e.g. "15s", "1h30m".
+#Duration: string & =~"^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+
+// Prometheus duration, e.g. "30s", "1m30s"; bare "0" allowed.
+#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+```
+
+Ports are `int & >0 & <=65535`; node ports are `int & >=0 & <=32767`
+with `0` meaning cluster-assigned — never a concrete pinned default.
+Percent-or-count fields are `int & >=0 | string & =~"^[0-9]+%$"`.
+
+### `service`
+
+```cue
+service: {
+	type: *"ClusterIP" | "NodePort" | "LoadBalancer"
+	port: *<module-default> | int & >0 & <=65535
+	clusterIP?: string & =~".+"
+	ipFamilies?: [..."IPv4" | "IPv6"]
+	ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
+	externalIPs?: [...string]
+	if type == "NodePort" {
+		nodePort: *0 | int & >=0 & <=32767
+	}
+	if type == "LoadBalancer" {
+		loadBalancerIP?:    string & =~".+"
+		loadBalancerClass?: string & =~".+"
+		loadBalancerSourceRanges?: [...string]
+	}
+	if type != "ClusterIP" {
+		externalTrafficPolicy?: "Cluster" | "Local"
+	}
+	annotations?: timoniv1.#Annotations
+	labels?:      timoniv1.#Labels
+}
+```
+
+Every Service the module renders — primary, metrics, webhook,
+per-component — carries this surface (webhook/metrics services may
+omit `externalIPs`/LoadBalancer fields when exposing them makes no
+sense, but never omit the dual-stack fields). An `enabled` toggle is
+allowed only on auxiliary services that are genuinely optional.
+Addon-specific extras (`trafficDistribution`, `httpsPort`,
+`prometheusScrape`, headless `clusterIP: "None"` defaults) extend the
+block.
+
+### `serviceMonitor`
+
+One schema, one set of defaults. The scrape settings use the `""`
+sentinel meaning "omit the field, defer to the Prometheus defaults" —
+and that is the default: the Prometheus administrator owns the scrape
+cadence, modules do not override it.
+
+```cue
+serviceMonitor: {
+	enabled: *false | bool
+	additionalLabels?: timoniv1.#Labels
+	annotations?:      timoniv1.#Annotations
+	jobLabel: *"app.kubernetes.io/name" | string
+
+	// Scrape settings; "" omits the field (Prometheus defaults).
+	interval:      *"" | #PromDuration
+	scrapeTimeout: *"" | #PromDuration
+	honorLabels: *false | bool
+	scheme?:          "http" | "https"
+	tlsConfig?: {...}
+	bearerTokenFile?: string & =~".+"
+	bearerTokenSecret?: {...}
+	proxyUrl?: string & =~".+"
+	metricRelabelings?: [...]
+	relabelings?: [...]
+	sampleLimit?:           int & >=0
+	targetLimit?:           int & >=0
+	labelLimit?:            int & >=0
+	labelNameLengthLimit?:  int & >=0
+	labelValueLengthLimit?: int & >=0
+	targetLabels?: [...string & =~".+"]
+	podTargetLabels?: [...string & =~".+"]
+}
+```
+
+The ServiceMonitor is always created in the instance namespace — a
+module never writes resources outside the namespace it owns; Prometheus
+selects monitors across namespaces (`serviceMonitorNamespaceSelector`),
+and label-based filtering is served by `additionalLabels`. The upstream
+charts' detached-namespace option is a recorded deviation.
+
+Modules scraping several endpoints nest one scrape-settings block per
+endpoint (the kube-state-metrics `#ScrapeEndpoint` pattern) under the
+same top-level metadata. No untyped `endpointAdditionalProperties`
+escape hatch — the typed surface covers the ServiceMonitor endpoint
+API. No `prometheusInstance` convenience field — that label is set
+through `additionalLabels`. The upstream `prometheus.serviceMonitor`
+nesting (cert-manager) flattens to the canonical top-level block;
+`podMonitor` remains addon-specific where upstream offers it.
+
+### `podDisruptionBudget`
+
+```cue
+podDisruptionBudget: {
+	enabled:                     *false | bool
+	unhealthyPodEvictionPolicy?: "IfHealthyBudget" | "AlwaysAllow"
+	*{minAvailable: *1 | int & >=0 | string & =~"^[0-9]+%$"} |
+	{maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
+}
+```
+
+`minAvailable: 1` is the default of the default branch, so an enabled
+PDB always constrains disruptions — a rendered PDB with neither field
+is a bug. Modules may couple `enabled` to `replicas > 1` (the VPA
+pattern) but keep the shape.
+
+### Workload settings
+
+- `replicas: *1 | int & >=0` — scale-to-zero suspends the addon;
+  tighter upper bounds only for addons that cannot run replicated
+  (external-dns `<=1`).
+- `strategy?: appsv1.#DeploymentStrategy` — never `updateStrategy`.
+- `revisionHistoryLimit?: int & >=0` — optional, no default.
+- `deploymentAnnotations?` for Deployment metadata
+  (kube-state-metrics' `workloadLabels`/`workloadAnnotations` is the
+  sanctioned exception for its StatefulSet mode).
+- `extraArgs: *[] | [...string]` — args appended after the generated
+  ones; never plain `args` for the append hook.
+- `env?: [...corev1.#EnvVar]` — never `extraEnv`; module-specific
+  defaults (prometheus-operator GOGC) use `env: *[...] | [...]`.
+- `extraVolumes?` / `extraVolumeMounts?` — never bare
+  `volumes`/`volumeMounts`.
+- `extraContainers?` / `initContainers?` where sidecars make sense.
+- Probes: every long-running container exposes `livenessProbe` and
+  `readinessProbe` as full `corev1.#Probe` values with defaults
+  (plus `startupProbe` where the addon needs one); never a bespoke
+  `{port, path}` sub-shape.
+- `resources: timoniv1.#ResourceRequirements` with upstream request
+  defaults when upstream defines them, otherwise `resources?`.
+- Token mounting: pod-level `automountServiceAccountToken: *true |
+  bool` plus ServiceAccount-level `*false | bool` (the token reaches
+  the pod through the pod spec, not the SA).
+
+### Pod scheduling and metadata
+
+Present in every workload block:
+
+```cue
+podLabels?:      timoniv1.#Labels
+podAnnotations?: timoniv1.#Annotations
+nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
+tolerations?: [...corev1.#Toleration]
+affinity?: corev1.#Affinity
+topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
+dnsPolicy?:  "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
+dnsConfig?:  corev1.#PodDNSConfig
+priorityClassName?:             string & =~".+"
+schedulerName?:                 string & =~".+"
+terminationGracePeriodSeconds?: int & >=0
+```
+
+Linux placement is the `nodeSelector` default, not a default
+`affinity` term. Module-specific default affinities (VPA
+anti-affinity) and `hostNetwork` (with the dnsPolicy default flip to
+`ClusterFirstWithHostNet`) extend this. `priorityClassName` gets a
+concrete default only when upstream sets one
+(`system-cluster-critical` for metrics-server).
+
+### `serviceAccount`, `rbac`, `crds`
+
+```cue
+serviceAccount: {
+	create: *true | bool
+	if create {name: *metadata.name | string}
+	if !create {name: *"default" | string}
+	labels?:                      timoniv1.#Labels
+	annotations?:                 timoniv1.#Annotations
+	automountServiceAccountToken: *false | bool
+}
+
+rbac: {
+	create: *true | bool
+	// Optional per module:
+	extraRules?: [...rbacv1.#PolicyRule]   // never `additionalPermissions`
+	aggregateClusterRoles?: bool           // where upstream offers it
+}
+
+crds: {                                   // CRD-shipping modules
+	install: *true | bool
+	keep:    *false | bool
+}
+```
+
+### Naming and hardening rules
+
+- `logLevel` / `logFormat` are the field names; the value vocabulary
+  follows the upstream component.
+- TLS mode selectors are named `tls.type`; the `certManager` sub-block
+  uses `existingIssuer {enabled, kind, name}`, `duration`,
+  `renewBefore`, `annotations`, `labels`.
+- Every container image block — including sidecars, init containers
+  and third-party webhook providers — is a `timoniv1.#Image` with a
+  `digest` field, and every container has a `securityContext` with the
+  hardened `timoniv1.#ContainerSecurityContext` default. No container
+  escapes the standards because it is auxiliary.
