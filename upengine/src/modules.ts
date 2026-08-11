@@ -76,17 +76,29 @@ export async function vetModules(sources: ModuleSource[]): Promise<void> {
 
 /** The versions of a module published on the registry. */
 export async function publishedVersions(name: string): Promise<string[] | null> {
-  const result = await run(["timoni", "mod", "list", `${REGISTRY}/${name}`, "--with-digest=false"]);
+  const result = await run([
+    "timoni", "mod", "list", `${REGISTRY}/${name}`, "--with-digest=false", "-o", "json",
+  ]);
   if (result.exitCode !== 0) {
     // GHCR answers DENIED for both a missing package and bad credentials,
     // so a list failure is indistinguishable from a first publish.
     return null;
   }
-  return result.stdout
-    .split("\n")
-    .slice(1)
-    .map((l) => l.split(/\s+/)[0]!)
-    .filter((v) => v !== "");
+  return parseModuleList(result.stdout);
+}
+
+/** The version tags in a `timoni mod list -o json` document. */
+export function parseModuleList(stdout: string): string[] {
+  const entries: unknown = JSON.parse(stdout);
+  if (!Array.isArray(entries)) {
+    throw new Error("timoni mod list did not print a JSON array");
+  }
+  return entries.map((entry) => {
+    if (typeof entry?.version !== "string" || entry.version === "") {
+      throw new Error(`timoni mod list entry has no version: ${JSON.stringify(entry)}`);
+    }
+    return entry.version;
+  });
 }
 
 /** Prints each module's local VERSION next to its publish state. */
