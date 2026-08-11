@@ -39,7 +39,8 @@ import (
 				}
 			}
 			spec: corev1.#PodSpec & {
-				serviceAccountName: _u.serviceAccount.name
+				serviceAccountName:           _u.serviceAccount.name
+				automountServiceAccountToken: _u.automountServiceAccountToken
 				if !_u.serviceAccount.create {
 					if _config.imagePullSecrets != _|_ {
 						imagePullSecrets: _config.imagePullSecrets
@@ -51,6 +52,15 @@ import (
 				}
 				if _u.dnsPolicy != _|_ {
 					dnsPolicy: _u.dnsPolicy
+				}
+				if _u.dnsConfig != _|_ {
+					dnsConfig: _u.dnsConfig
+				}
+				if _u.schedulerName != _|_ {
+					schedulerName: _u.schedulerName
+				}
+				if _u.terminationGracePeriodSeconds != _|_ {
+					terminationGracePeriodSeconds: _u.terminationGracePeriodSeconds
 				}
 				containers: [{
 					name:            "updater"
@@ -81,29 +91,18 @@ import (
 						containerPort: #MetricsPort
 						protocol:      "TCP"
 					}]
-					livenessProbe: {
-						httpGet: {
-							path:   "/health-check"
-							port:   "prometheus"
-							scheme: "HTTP"
-						}
-						initialDelaySeconds: 5
-						periodSeconds:       10
-						failureThreshold:    3
-					}
-					readinessProbe: {
-						httpGet: {
-							path:   "/health-check"
-							port:   "prometheus"
-							scheme: "HTTP"
-						}
-						periodSeconds:    10
-						failureThreshold: 3
-					}
+					livenessProbe:  _u.livenessProbe
+					readinessProbe: _u.readinessProbe
 					if _u.resources != _|_ {
 						resources: _u.resources
 					}
+					if _u.extraVolumeMounts != _|_ {
+						volumeMounts: _u.extraVolumeMounts
+					}
 				}]
+				if _u.extraVolumes != _|_ {
+					volumes: _u.extraVolumes
+				}
 				nodeSelector: _u.nodeSelector
 				affinity:     _u.affinity
 				if _u.tolerations != _|_ {

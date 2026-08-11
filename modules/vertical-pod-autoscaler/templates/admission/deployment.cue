@@ -62,7 +62,8 @@ import (
 				}
 			}
 			spec: corev1.#PodSpec & {
-				serviceAccountName: _ac.serviceAccount.name
+				serviceAccountName:           _ac.serviceAccount.name
+				automountServiceAccountToken: _ac.automountServiceAccountToken
 				if !_ac.serviceAccount.create {
 					if _config.imagePullSecrets != _|_ {
 						imagePullSecrets: _config.imagePullSecrets
@@ -77,6 +78,15 @@ import (
 				}
 				if _ac.dnsPolicy != _|_ {
 					dnsPolicy: _ac.dnsPolicy
+				}
+				if _ac.dnsConfig != _|_ {
+					dnsConfig: _ac.dnsConfig
+				}
+				if _ac.schedulerName != _|_ {
+					schedulerName: _ac.schedulerName
+				}
+				if _ac.terminationGracePeriodSeconds != _|_ {
+					terminationGracePeriodSeconds: _ac.terminationGracePeriodSeconds
 				}
 				containers: [{
 					name:            "admission-controller"
@@ -109,25 +119,8 @@ import (
 							protocol:      "TCP"
 						},
 					]
-					livenessProbe: {
-						httpGet: {
-							path:   "/health-check"
-							port:   "prometheus"
-							scheme: "HTTP"
-						}
-						initialDelaySeconds: 5
-						periodSeconds:       10
-						failureThreshold:    3
-					}
-					readinessProbe: {
-						httpGet: {
-							path:   "/health-check"
-							port:   "prometheus"
-							scheme: "HTTP"
-						}
-						periodSeconds:    10
-						failureThreshold: 3
-					}
+					livenessProbe:  _ac.livenessProbe
+					readinessProbe: _ac.readinessProbe
 					volumeMounts: [
 						if _ac.certManager.enabled || _ac.volumeMounts == _|_ {
 							{

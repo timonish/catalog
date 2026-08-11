@@ -1,6 +1,7 @@
 package config
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	timoniv1 "timoni.sh/core/v1alpha1"
 )
@@ -47,17 +48,32 @@ import (
 
 	// Prometheus ServiceMonitor settings; when enabled, a metrics
 	// Service and a ServiceMonitor are created for every deployed
-	// component.
+	// component, in the instance namespace.
 	serviceMonitor: {
-		enabled:       *false | bool
-		interval:      *"60s" | #PromDuration
-		scrapeTimeout: *"30s" | #PromDuration
-		labels?:       timoniv1.#Labels
-		annotations?:  timoniv1.#Annotations
-
-		// Extra fields set on all ServiceMonitor endpoints, e.g.
-		// relabelings.
-		endpointAdditionalProperties?: {...}
+		enabled:           *false | bool
+		additionalLabels?: timoniv1.#Labels
+		annotations?:      timoniv1.#Annotations
+		// The Prometheus job name follows the component label.
+		jobLabel: *"app.kubernetes.io/component" | string
+		// Scrape settings; the default empty string omits the field and
+		// falls back to the Prometheus defaults.
+		interval:      *"" | #PromDuration
+		scrapeTimeout: *"" | #PromDuration
+		honorLabels:   *false | bool
+		scheme?:       "http" | "https"
+		tlsConfig?: {...}
+		bearerTokenFile?: string & =~".+"
+		bearerTokenSecret?: {...}
+		proxyUrl?: string & =~".+"
+		metricRelabelings?: [...]
+		relabelings?: [...]
+		sampleLimit?:           int & >=0
+		targetLimit?:           int & >=0
+		labelLimit?:            int & >=0
+		labelNameLengthLimit?:  int & >=0
+		labelValueLengthLimit?: int & >=0
+		targetLabels?: [...string & =~".+"]
+		podTargetLabels?: [...string & =~".+"]
 	}
 
 	// The security profile applied to the pod identity defaults of all
@@ -118,6 +134,10 @@ import (
 		enabled:      *(R.replicas > 1) | bool
 		resourceName: *"vpa-recommender-lease" | string & =~".+"
 	}
+
+	// Extra volumes and volume mounts for the recommender container.
+	extraVolumes?: [...corev1.#Volume]
+	extraVolumeMounts?: [...corev1.#VolumeMount]
 }
 
 // UpdaterValues defines the updater component settings.
@@ -133,4 +153,8 @@ import (
 	// Skip the PodDisruptionBudget check when applying in-place
 	// updates, which are non-disruptive by design.
 	inPlaceSkipDisruptionBudget: *true | bool
+
+	// Extra volumes and volume mounts for the updater container.
+	extraVolumes?: [...corev1.#Volume]
+	extraVolumeMounts?: [...corev1.#VolumeMount]
 }

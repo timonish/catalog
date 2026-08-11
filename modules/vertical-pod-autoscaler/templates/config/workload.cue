@@ -9,8 +9,9 @@ import (
 // Duration in Go time.ParseDuration format, e.g. "15s" or "1h30m".
 #Duration: string & =~"^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
 
-// Duration in Prometheus format, e.g. "30s" or "1m30s".
-#PromDuration: string & =~"^([0-9]+(ms|s|m|h|d|w|y))+$"
+// Duration in Prometheus format, e.g. "30s" or "1m30s"; a bare "0" is
+// allowed.
+#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
 
 // Workload defines the deployment settings common to the recommender,
 // updater and admission-controller components.
@@ -61,6 +62,40 @@ import (
 	// Environment variables for the component container.
 	env?: [...corev1.#EnvVar]
 
+	// The liveness probe of the component container, served on the
+	// metrics port.
+	livenessProbe: corev1.#Probe & {
+		httpGet: {
+			path:   *"/health-check" | string
+			port:   *"prometheus" | string | int
+			scheme: *"HTTP" | string
+		}
+		initialDelaySeconds: *5 | int
+		periodSeconds:       *10 | int
+		failureThreshold:    *3 | int
+	}
+
+	// The readiness probe of the component container, served on the
+	// metrics port.
+	readinessProbe: corev1.#Probe & {
+		httpGet: {
+			path:   *"/health-check" | string
+			port:   *"prometheus" | string | int
+			scheme: *"HTTP" | string
+		}
+		periodSeconds:    *10 | int
+		failureThreshold: *3 | int
+	}
+
+	// The metrics Service settings; the Service is created together
+	// with the ServiceMonitor.
+	metricsService: {
+		annotations?: timoniv1.#Annotations
+		labels?:      timoniv1.#Labels
+		ipFamilies?: [..."IPv4" | "IPv6"]
+		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
+	}
+
 	// Pod scheduling settings; pods are restricted to Linux nodes by
 	// default and prefer spreading the component replicas across nodes.
 	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
@@ -81,10 +116,17 @@ import (
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 
 	// Pod optional settings.
-	podLabels?:         timoniv1.#Labels
-	podAnnotations?:    timoniv1.#Annotations
-	dnsPolicy?:         "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
-	priorityClassName?: string & =~".+"
+	podLabels?:                     timoniv1.#Labels
+	podAnnotations?:                timoniv1.#Annotations
+	dnsPolicy?:                     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
+	dnsConfig?:                     corev1.#PodDNSConfig
+	priorityClassName?:             string & =~".+"
+	schedulerName?:                 string & =~".+"
+	terminationGracePeriodSeconds?: int & >=0
+
+	// Mount the service account token into the pod; the components
+	// require it for accessing the Kubernetes API.
+	automountServiceAccountToken: *true | bool
 
 	// Annotations added to the Deployment.
 	deploymentAnnotations?: timoniv1.#Annotations
@@ -92,27 +134,24 @@ import (
 	// ServiceAccount settings. Set `create: false` to use an existing
 	// service account referenced by `name`.
 	serviceAccount: {
-		create:                       *true | bool
-		name:                         string & =~".+"
-		labels?:                      timoniv1.#Labels
-		annotations?:                 timoniv1.#Annotations
-		automountServiceAccountToken: *true | bool
+		create:       *true | bool
+		name:         string & =~".+"
+		labels?:      timoniv1.#Labels
+		annotations?: timoniv1.#Annotations
+		// The token is mounted through the pod setting instead.
+		automountServiceAccountToken: *false | bool
 	}
 
-	// PodDisruptionBudget settings; created by default when running
-	// more than one replica, with `minAvailable` defaulting to 1 when
-	// neither it nor `maxUnavailable` is set.
+	// PodDisruptionBudget, created by default when running more than
+	// one replica. The mutually exclusive `minAvailable` and
+	// `maxUnavailable` accept an absolute number or a percentage;
+	// `minAvailable: 1` is the default. `unhealthyPodEvictionPolicy`
+	// requires Kubernetes 1.27 or newer and is omitted on older
+	// clusters.
 	podDisruptionBudget: {
-		enabled:         *(W.replicas > 1) | bool
-		minAvailable?:   int | string
-		maxUnavailable?: int | string
-		_guard:          "valid"
-		_guard: [
-			if minAvailable != _|_ && maxUnavailable != _|_ {
-				"minAvailable and maxUnavailable are mutually exclusive"
-			},
-			"valid",
-		][0]
+		enabled:                     *(W.replicas > 1) | bool
+		unhealthyPodEvictionPolicy?: "IfHealthyBudget" | "AlwaysAllow"
+		*{minAvailable: *1 | int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
 	}
 }
 

@@ -27,11 +27,18 @@ values: {
 	}
 	serviceMonitor: {
 		enabled:       true
-		interval:      "30s"
+		interval:      "1m30s"
 		scrapeTimeout: "10s"
-		labels: prometheus:                        "default"
-		annotations: "example.com/debug":          "true"
-		endpointAdditionalProperties: honorLabels: true
+		honorLabels:   true
+		scheme:        "http"
+		additionalLabels: prometheus:     "default"
+		annotations: "example.com/debug": "true"
+		sampleLimit: 1000
+		targetLabels: ["app.kubernetes.io/part-of"]
+		metricRelabelings: [{
+			action: "labeldrop"
+			regex:  "pod_template_hash"
+		}]
 	}
 	securityProfile: "platform"
 	recommender: {
@@ -49,14 +56,28 @@ values: {
 		}]
 		podLabels: "example.com/debug":      "true"
 		podAnnotations: "example.com/debug": "true"
-		dnsPolicy:         "ClusterFirst"
-		priorityClassName: "system-cluster-critical"
+		dnsPolicy: "ClusterFirst"
+		dnsConfig: options: [{name: "ndots", value: "2"}]
+		priorityClassName:             "system-cluster-critical"
+		schedulerName:                 "default-scheduler"
+		terminationGracePeriodSeconds: 30
 		deploymentAnnotations: "example.com/debug": "true"
 		serviceAccount: {
 			labels: "example.com/debug":      "true"
 			annotations: "example.com/debug": "true"
 		}
-		podDisruptionBudget: maxUnavailable: 1
+		podDisruptionBudget: {
+			maxUnavailable:             1
+			unhealthyPodEvictionPolicy: "AlwaysAllow"
+		}
+		metricsService: {
+			annotations: "example.com/debug": "true"
+			labels: "example.com/debug":      "true"
+			ipFamilyPolicy: "SingleStack"
+			ipFamilies: ["IPv4"]
+		}
+		extraVolumes: [{name: "extra", emptyDir: {}}]
+		extraVolumeMounts: [{name: "extra", mountPath: "/extra"}]
 		leaderElection: {
 			resourceNamespace: "kube-system"
 			leaseDuration:     "30s"
@@ -76,7 +97,11 @@ values: {
 		service: {
 			name: "vpa-webhook-debug"
 			annotations: "example.com/debug": "true"
-			ports: [{port: 443, protocol: "TCP", targetPort: 8000, name: "https"}]
+			labels: "example.com/debug":      "true"
+			port:           8443
+			targetPort:     8000
+			ipFamilyPolicy: "SingleStack"
+			ipFamilies: ["IPv4"]
 		}
 		hostNetwork: true
 		dnsPolicy:   "ClusterFirstWithHostNet"
