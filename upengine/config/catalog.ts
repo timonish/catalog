@@ -13,6 +13,10 @@ export const LICENSE = "Apache-2.0";
 /** The Timoni core schemas artifact pulled into schemas/cue.mod/pkg. */
 export const TIMONI_SCHEMAS = "oci://ghcr.io/stefanprodan/timoni/schemas:latest";
 
+/** The minimum Timoni version every module README lists as a prerequisite —
+ * the version the catalog is built, vetted and e2e-tested with. */
+export const TIMONI_MIN_VERSION = "0.31";
+
 /**
  * CRD schemas vendored into the shared schemas/ module, pruned to the
  * universally useful kinds. Everything else is per-module.

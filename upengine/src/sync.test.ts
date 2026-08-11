@@ -21,6 +21,8 @@ import {
   plainDescription,
   renderModuleVersions,
   renderReadmeTable,
+  validateDescription,
+  validatePrerequisites,
   withModuleVersions,
 } from "./readme.ts";
 import type { ModuleSource } from "./types.ts";
@@ -595,6 +597,36 @@ package templates
     for (const line of lines.slice(2)) {
       expect(line).toMatch(/ \| \d{4}\.\d{2}\.\d{2} \| /);
     }
+  });
+
+  test("validates the description line shape", () => {
+    const valid =
+      "A [Timoni](https://timoni.sh) module for deploying [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), an agent that generates Prometheus metrics about the state of Kubernetes objects.";
+    expect(() => validateDescription("ksm", valid)).not.toThrow();
+    // The gateway-api form with a 'the' article.
+    expect(() =>
+      validateDescription(
+        "gateway-api",
+        "A [Timoni](https://timoni.sh) module for deploying the [Kubernetes Gateway API](https://github.com/kubernetes-sigs/gateway-api) custom resource definitions, consumed by ingress controllers and service meshes.",
+      ),
+    ).not.toThrow();
+    expect(() =>
+      validateDescription("x", "A [Timoni](https://timoni.sh) module for deploying [X](https://x) to Kubernetes clusters."),
+    ).toThrow("must match");
+    expect(() => validateDescription("x", 'A module for "X".')).toThrow("must match");
+  });
+
+  test("validates the prerequisites section shape", () => {
+    const valid =
+      "# m\n\nDesc.\n\n## Prerequisites\n\n- Kubernetes 1.25+\n- [Timoni](https://timoni.sh/install/) 0.31+\n- Extra dependency\n\n## Install\n";
+    expect(() => validatePrerequisites("m", valid, "0.31")).not.toThrow();
+    expect(() => validatePrerequisites("m", "# m\n\nDesc.\n", "0.31")).toThrow("no '## Prerequisites'");
+    expect(() =>
+      validatePrerequisites("m", "# m\n\n## Prerequisites\n\n- Kubernetes 1.25 or newer\n- [Timoni](https://timoni.sh/install/) 0.31+\n", "0.31"),
+    ).toThrow("first prerequisite");
+    expect(() =>
+      validatePrerequisites("m", "# m\n\n## Prerequisites\n\n- Kubernetes 1.25+\n- Timoni 0.30+\n", "0.31"),
+    ).toThrow("second prerequisite");
   });
 
   test("strips markdown links from descriptions", () => {
