@@ -9,14 +9,15 @@ bundle: {
 			}
 			namespace: "monitoring"
 			values: {
-				// The optional objects a first install can carry: the
-				// admission webhook needs cert-manager and the
-				// ServiceMonitor needs the CRDs of a previous apply
-				// (both are exercised manually). The feature gate proves
-				// the conditional DaemonSet RBAC passes the operator
-				// startup check.
+				// The admission webhook needs cert-manager and is
+				// exercised manually. The ServiceMonitor proves a CR can
+				// be applied in the same run as the CRDs that define it
+				// (Timoni v0.31 refreshes the API discovery mid-apply).
+				// The feature gate proves the conditional DaemonSet RBAC
+				// passes the operator startup check.
 				featureGates: PrometheusAgentDaemonSet: true
 				networkPolicy: enabled:                 true
+				serviceMonitor: enabled:                true
 				podDisruptionBudget: {
 					enabled:      true
 					minAvailable: 1
