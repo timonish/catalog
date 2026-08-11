@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { join } from "node:path";
-import { crdChannels, isContainerImage, isTrackedImage, repoOf } from "./config.ts";
+import { crdChannels, isContainerImage, isFileVariableImage, isTrackedImage, repoOf } from "./config.ts";
 import { commitSha, downloadText, fetchRepoFile, findReleaseAsset } from "./github.ts";
 import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
 import {
   artifactListArgv,
+  fileVariableTag,
   parseArtifactDigest,
   parseModuleVersion,
   resolveTag,
@@ -177,6 +178,13 @@ async function resolveImages(
       images[key] = {
         repository: imageSource.repository,
         tag: trackedImageTag(trackedTag, imageSource.releaseTag),
+        digest: "",
+      };
+    } else if (isFileVariableImage(imageSource)) {
+      const contents = await fetchRepoFile(repo, commit, imageSource.file);
+      images[key] = {
+        repository: imageSource.repository,
+        tag: fileVariableTag(contents, imageSource.variable, imageSource.file),
         digest: "",
       };
     } else {

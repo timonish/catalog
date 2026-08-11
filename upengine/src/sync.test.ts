@@ -7,6 +7,7 @@ import { sources as configuredSources } from "../config/sources.ts";
 import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
 import {
   artifactListArgv,
+  fileVariableTag,
   parseArtifactDigest,
   parseModuleVersion,
   pickLatestRelease,
@@ -87,6 +88,48 @@ describe("validateSources", () => {
   test("rejects a release image with an empty repository", () => {
     const source = { ...VALID[0]!, images: { app: { repository: "" } } };
     expect(() => validateSources([source])).toThrow("'repository' must not be empty");
+  });
+
+  test("accepts a file-variable image", () => {
+    const source = {
+      ...VALID[0]!,
+      images: {
+        pkg: {
+          repository: "quay.io/jetstack/trust-pkg-debian-trixie",
+          file: "make/00_debian_trixie_version.mk",
+          variable: "DEBIAN_TRIXIE_BUNDLE_VERSION",
+        },
+      },
+    };
+    expect(validateSources([source])).toEqual([source]);
+  });
+
+  test("rejects a file-variable image with an empty file", () => {
+    const source = {
+      ...VALID[0]!,
+      images: { pkg: { repository: "quay.io/x", file: "", variable: "VERSION" } },
+    };
+    expect(() => validateSources([source])).toThrow("'file' and 'repository' must not be empty");
+  });
+
+  test("rejects a file-variable image with an invalid variable name", () => {
+    const source = {
+      ...VALID[0]!,
+      images: { pkg: { repository: "quay.io/x", file: "v.mk", variable: "NOT A NAME" } },
+    };
+    expect(() => validateSources([source])).toThrow("invalid 'variable' name");
+  });
+
+  test("rejects an image combining variant marker keys", () => {
+    const image = {
+      repository: "quay.io/x",
+      url: "https://github.com/o/r",
+      releaseTag: "v*",
+      file: "v.mk",
+      variable: "V",
+    } as unknown as ModuleSource["images"];
+    const source = { ...VALID[0]!, images: { pkg: image } } as unknown as ModuleSource;
+    expect(() => validateSources([source])).toThrow("cannot be combined");
   });
 
   test("rejects an empty crds file", () => {
@@ -248,6 +291,25 @@ describe("versions", () => {
   test("strips the glob prefix from tracked image tags", () => {
     expect(trackedImageTag("addon-resizer-1.8.24", "addon-resizer-*")).toBe("1.8.24");
     expect(trackedImageTag("v1.2.3", "v*")).toBe("1.2.3");
+  });
+
+  test("extracts file-variable image tags", () => {
+    const mk = [
+      "# comment",
+      "DEBIAN_TRIXIE_BUNDLE_VERSION := 20250419.1",
+      "DEBIAN_TRIXIE_BUNDLE_SOURCE_IMAGE=docker.io/library/debian:13-slim",
+      "",
+    ].join("\n");
+    expect(fileVariableTag(mk, "DEBIAN_TRIXIE_BUNDLE_VERSION", "v.mk")).toBe("20250419.1");
+    expect(fileVariableTag(mk, "DEBIAN_TRIXIE_BUNDLE_SOURCE_IMAGE", "v.mk")).toBe(
+      "docker.io/library/debian:13-slim",
+    );
+    // Debian version characters illegal in OCI tags map to '-'.
+    expect(fileVariableTag("V := 20250419+deb13~1\n", "V", "v.mk")).toBe("20250419-deb13-1");
+    expect(() => fileVariableTag(mk, "MISSING", "v.mk")).toThrow("variable 'MISSING' not found in v.mk");
+    // The variable name must match the whole identifier, not a prefix of a
+    // longer one.
+    expect(() => fileVariableTag("PREFIXED_V := 1\n", "V", "v.mk")).toThrow("not found");
   });
 
   test("picks the highest matching release", () => {

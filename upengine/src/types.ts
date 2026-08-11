@@ -16,12 +16,18 @@ export interface ImageRef {
  *   repository's releases, with the tag glob's literal prefix stripped from
  *   the release tag (`addon-resizer-1.8.24` with glob `addon-resizer-*`
  *   yields tag `1.8.24`); `repository` pins the OCI repository.
+ * - `file` + `variable` + `repository`: read from a Makefile-style
+ *   `VARIABLE := value` assignment in a repo file fetched at the pinned
+ *   release commit, for images versioned independently of the releases and
+ *   without tags of their own (the trust-manager Debian trust package);
+ *   `+` and `~` are mapped to `-` as in the upstream release tooling.
  * - `repository` alone: a release image — the upstream publishes it tagged
  *   with the release tag verbatim (`v0.21.0` release -> `:v0.21.0` image).
  */
 export type ImageSource =
   | { container: string }
   | { url: string; releaseTag: string; repository: string }
+  | { file: string; variable: string; repository: string }
   | { repository: string };
 
 /** Where a module source's release manifests are fetched from. */

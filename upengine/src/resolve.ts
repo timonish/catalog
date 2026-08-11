@@ -70,6 +70,20 @@ export function trackedImageTag(tag: string, pattern: string): string {
 }
 
 /**
+ * The tag of an image versioned by a Makefile-style `VARIABLE := value`
+ * assignment in a repo file. `+` and `~` are legal in Debian package
+ * versions but not in OCI tags; the upstream release tooling maps them to
+ * `-` (`tr '+~' '-'`) and the extracted tag mirrors that.
+ */
+export function fileVariableTag(contents: string, variable: string, file: string): string {
+  const match = contents.match(new RegExp(`^\\s*${variable}\\s*:?=\\s*(\\S+)\\s*$`, "m"));
+  if (!match) {
+    throw new Error(`variable '${variable}' not found in ${file}`);
+  }
+  return match[1]!.replace(/[+~]/g, "-");
+}
+
+/**
  * The module version parts of a VERSION file value: `0.8.0-0` →
  * { upstream: "0.8.0", build: 0 }.
  */
