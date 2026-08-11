@@ -48,9 +48,19 @@ export function renderModuleVersions(history: HistoryEntry): string {
       `${release}.`,
     ].join("\n");
   }
-  const rows = ["| Image | Tag |", "|---|---|"];
+  // The Digest column appears with the first sync that pins digests, so
+  // the sections of modules synced before digest pinning stay valid.
+  const withDigests = images.some((image) => image.digest !== "");
+  const rows = withDigests
+    ? ["| Image | Tag | Digest |", "|---|---|---|"]
+    : ["| Image | Tag |", "|---|---|"];
   for (const image of images) {
-    rows.push(`| \`${image.repository}\` | ${image.tag} |`);
+    const digest = image.digest === "" ? "" : `\`${image.digest}\``;
+    rows.push(
+      withDigests
+        ? `| \`${image.repository}\` | ${image.tag} | ${digest} |`
+        : `| \`${image.repository}\` | ${image.tag} |`,
+    );
   }
   return [
     `Latest module version is \`${history.moduleVersion}\`, packaging the upstream release`,

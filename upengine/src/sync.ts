@@ -5,7 +5,14 @@ import { join } from "node:path";
 import { crdChannels, isContainerImage, isTrackedImage, repoOf } from "./config.ts";
 import { commitSha, downloadText, fetchRepoFile, findReleaseAsset } from "./github.ts";
 import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
-import { parseModuleVersion, resolveTag, semverOf, trackedImageTag } from "./resolve.ts";
+import {
+  artifactListArgv,
+  parseArtifactDigest,
+  parseModuleVersion,
+  resolveTag,
+  semverOf,
+  trackedImageTag,
+} from "./resolve.ts";
 import {
   generatedFilesDigest,
   generatedFilesPresent,
@@ -14,6 +21,7 @@ import {
   writeModuleFiles,
 } from "./codegen.ts";
 import { readHistory, writeHistory } from "./history.ts";
+import { retryRun } from "./proc.ts";
 import { updateModuleReadme } from "./readme.ts";
 import { MODULES_DIR } from "./paths.ts";
 import type { ImageRef, ModuleSource, SyncChange } from "./types.ts";
@@ -176,7 +184,22 @@ async function resolveImages(
       images[key] = { repository: imageSource.repository, tag, digest: "" };
     }
   }
+  await resolveImageDigests(images);
   return images;
+}
+
+/**
+ * Fills in the registry digest of every image the upstream manifests did not
+ * pin, so the rendered pods reference the exact image the release tag pointed
+ * at during the sync. A tag missing from the registry fails the bump — a
+ * silently unpinned image must never reach versions.cue.
+ */
+async function resolveImageDigests(images: Record<string, ImageRef>): Promise<void> {
+  for (const ref of Object.values(images)) {
+    if (ref.digest === "") {
+      ref.digest = parseArtifactDigest(await retryRun(artifactListArgv(ref), 3, 5000), ref);
+    }
+  }
 }
 
 async function fetchManifests(

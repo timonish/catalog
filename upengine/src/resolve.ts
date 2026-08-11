@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { latestReleaseTag, listReleases, matchGlob, type Release } from "./github.ts";
+import type { ImageRef } from "./types.ts";
 
 /**
  * Resolves the upstream release tag a module should track: the explicit pin
@@ -78,4 +79,33 @@ export function parseModuleVersion(value: string): { upstream: string; build: nu
     throw new Error(`invalid module version '${value.trim()}', expected <major.minor.patch>-<build>`);
   }
   return { upstream: match[1]!, build: Number(match[2]!) };
+}
+
+/**
+ * The argv resolving an image tag to its registry digest. The tag filter is
+ * regex-escaped and anchored so an exact tag can never match its siblings
+ * (`v1.2.3` must not match `v1.2.30`).
+ */
+export function artifactListArgv(ref: ImageRef): string[] {
+  const filter = `^${ref.tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`;
+  return ["timoni", "artifact", "list", `oci://${ref.repository}`, "--filter-regex", filter, "-o", "json"];
+}
+
+/** The digest of an image tag in a `timoni artifact list -o json` document. */
+export function parseArtifactDigest(stdout: string, ref: ImageRef): string {
+  const entries: unknown = JSON.parse(stdout);
+  if (!Array.isArray(entries)) {
+    throw new Error(`timoni artifact list of ${ref.repository} did not print a JSON array`);
+  }
+  const digests = entries
+    .filter((entry) => entry?.tag === ref.tag)
+    .map((entry): unknown => entry.digest);
+  if (digests.length !== 1) {
+    throw new Error(`tag '${ref.tag}' not found on ${ref.repository}`);
+  }
+  const digest = digests[0];
+  if (typeof digest !== "string" || digest === "") {
+    throw new Error(`no digest resolved for ${ref.repository}:${ref.tag}`);
+  }
+  return digest;
 }

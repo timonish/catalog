@@ -5,9 +5,16 @@ import { describe, expect, test } from "bun:test";
 import { crdChannels, validateSources } from "./config.ts";
 import { sources as configuredSources } from "../config/sources.ts";
 import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
-import { parseModuleVersion, pickLatestRelease, semverOf, trackedImageTag } from "./resolve.ts";
+import {
+  artifactListArgv,
+  parseArtifactDigest,
+  parseModuleVersion,
+  pickLatestRelease,
+  semverOf,
+  trackedImageTag,
+} from "./resolve.ts";
 import { GENERATED_FILE_RE, crdsCuePaths, generatedFilesPresent, renderVersionsCue } from "./codegen.ts";
-import { ciSources } from "./modules.ts";
+import { ciSources, parseModuleList } from "./modules.ts";
 import { renderChange } from "./summary.ts";
 import {
   formatTableDate,
@@ -255,6 +262,43 @@ describe("versions", () => {
       "metrics-server-helm-chart-3.13.0",
     );
     expect(() => pickLatestRelease(releases, "flux-*")).toThrow("no release tag matches");
+  });
+
+  test("parses timoni mod list JSON output", () => {
+    const stdout = JSON.stringify([
+      { name: "", repository: "oci://ghcr.io/timonish/modules/metrics-server", version: "latest", digest: "" },
+      { name: "", repository: "oci://ghcr.io/timonish/modules/metrics-server", version: "0.9.0-2", digest: "" },
+    ]);
+    expect(parseModuleList(stdout)).toEqual(["latest", "0.9.0-2"]);
+    expect(parseModuleList("[]")).toEqual([]);
+    expect(() => parseModuleList(`{"version":"1.0.0"}`)).toThrow("JSON array");
+    expect(() => parseModuleList(`[{"name":""}]`)).toThrow("no version");
+  });
+
+  test("anchors and escapes the digest lookup tag filter", () => {
+    const argv = artifactListArgv({
+      repository: "registry.k8s.io/metrics-server/metrics-server",
+      tag: "v0.9.0",
+      digest: "",
+    });
+    expect(argv).toEqual([
+      "timoni", "artifact", "list", "oci://registry.k8s.io/metrics-server/metrics-server",
+      "--filter-regex", "^v0\\.9\\.0$", "-o", "json",
+    ]);
+  });
+
+  test("parses timoni artifact list JSON output", () => {
+    const ref = { repository: "registry.k8s.io/autoscaling/addon-resizer", tag: "1.8.24", digest: "" };
+    const digest = "sha256:0d97e9dd5adb46a05fb1eebd1e1b73eee3f5741621ed6247131c99672c2b6ab0";
+    const stdout = JSON.stringify([
+      { repository: `oci://${ref.repository}`, tag: "1.8.24", digest },
+    ]);
+    expect(parseArtifactDigest(stdout, ref)).toBe(digest);
+    expect(() => parseArtifactDigest("[]", ref)).toThrow("not found");
+    expect(() => parseArtifactDigest(`{}`, ref)).toThrow("JSON array");
+    expect(() =>
+      parseArtifactDigest(JSON.stringify([{ tag: "1.8.24", digest: "" }]), ref),
+    ).toThrow("no digest resolved");
   });
 });
 
@@ -570,7 +614,11 @@ package templates
       commit: "2a7c4b2",
       moduleVersion: "0.9.0-1",
       images: {
-        "metrics-server": { repository: "registry.k8s.io/metrics-server/metrics-server", tag: "v0.9.0", digest: "" },
+        "metrics-server": {
+          repository: "registry.k8s.io/metrics-server/metrics-server",
+          tag: "v0.9.0",
+          digest: "sha256:1c2b2ac30e04466f8b96fb245248b2a1c3d21a7ec3fbfef0b98cabf294f1c3dc",
+        },
         "addon-resizer": { repository: "registry.k8s.io/autoscaling/addon-resizer", tag: "1.8.24", digest: "" },
       },
       generatedDigest: "sha256:abc",
@@ -582,7 +630,22 @@ package templates
     expect(section).toContain(
       "[v0.9.0](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.0)",
     );
-    expect(section).toContain("| `registry.k8s.io/autoscaling/addon-resizer` | 1.8.24 |");
+    expect(section).toContain("| Image | Tag | Digest |");
+    expect(section).toContain(
+      "| `registry.k8s.io/metrics-server/metrics-server` | v0.9.0 | `sha256:1c2b2ac30e04466f8b96fb245248b2a1c3d21a7ec3fbfef0b98cabf294f1c3dc` |",
+    );
+    // A module synced before digest pinning renders an empty digest cell.
+    expect(section).toContain("| `registry.k8s.io/autoscaling/addon-resizer` | 1.8.24 |  |");
+
+    // A section with no digests at all keeps the pre-pinning table shape.
+    const legacy = renderModuleVersions({
+      ...history,
+      images: {
+        "addon-resizer": { repository: "registry.k8s.io/autoscaling/addon-resizer", tag: "1.8.24", digest: "" },
+      },
+    });
+    expect(legacy).toContain("| Image | Tag |");
+    expect(legacy).not.toContain("Digest");
 
     const readme = "# metrics-server\n\nDesc.\n\n<!-- versions:start -->\nstale\n<!-- versions:end -->\n";
     const updated = withModuleVersions(readme, history);
