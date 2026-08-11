@@ -9,6 +9,26 @@ import (
 	timoniv1 "timoni.sh/core/v1alpha1"
 )
 
+// PromDuration is a Prometheus duration, e.g. "30s", "1m30s"; a bare
+// "0" is allowed.
+#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+
+// ScrapeEndpoint defines the ServiceMonitor settings of one scrape
+// endpoint. Duration fields set to an empty string are omitted and
+// fall back to the Prometheus defaults.
+#ScrapeEndpoint: {
+	interval:      *"" | #PromDuration
+	scrapeTimeout: *"" | #PromDuration
+	honorLabels:   *false | bool
+	scheme?:       "http" | "https"
+	tlsConfig?: {...}
+	bearerTokenFile?: string & =~".+"
+	bearerTokenSecret?: {...}
+	proxyUrl?: string & =~".+"
+	metricRelabelings?: [...]
+	relabelings?: [...]
+}
+
 // Config defines the schema and defaults for the Instance values.
 #Config: {
 	// Runtime version info automatically set at apply-time.
@@ -65,19 +85,21 @@ import (
 		name: *"aws" | string & =~".+"
 
 		// The provider webhook sidecar container settings, used only
-		// when `provider.name` is `webhook`.
+		// when `provider.name` is `webhook`. The image can be pinned by
+		// digest like every other container image.
 		webhook: {
-			image: {
+			image: timoniv1.#Image & {
 				repository: *"" | string
 				tag:        *"" | string
-				pullPolicy: *"IfNotPresent" | "Always" | "Never"
-				reference:  "\(repository):\(tag)"
+				digest:     *"" | string
 			}
 			env?: [...corev1.#EnvVar]
 			args: *[] | [...string]
 			extraVolumeMounts?: [...corev1.#VolumeMount]
-			resources?:       timoniv1.#ResourceRequirements
-			securityContext?: corev1.#SecurityContext
+			resources?: timoniv1.#ResourceRequirements
+			// The sidecar security context, hardened by default like the
+			// main container.
+			securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 
 			// The liveness probe of the webhook container.
 			livenessProbe: corev1.#Probe & {
@@ -110,15 +132,7 @@ import (
 
 			// ServiceMonitor scrape settings of the webhook metrics
 			// endpoint, added when `serviceMonitor` is enabled.
-			serviceMonitor: {
-				interval?:      string
-				scrapeTimeout?: string
-				scheme?:        string
-				tlsConfig?: {...}
-				bearerTokenFile?: string
-				metricRelabelings?: [...]
-				relabelings?: [...]
-			}
+			serviceMonitor: #ScrapeEndpoint
 		}
 		if name == "webhook" {
 			webhook: image: {
@@ -250,13 +264,15 @@ import (
 	// Pod optional settings.
 	podLabels?:      timoniv1.#Labels
 	podAnnotations?: timoniv1.#Annotations
-	nodeSelector?: {[string]: string}
+	// Pods are scheduled on Linux nodes by default.
+	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
 	tolerations?: [...corev1.#Toleration]
 	affinity?: corev1.#Affinity
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 	dnsConfig?:                     corev1.#PodDNSConfig
 	dnsPolicy?:                     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
 	priorityClassName?:             string & =~".+"
+	schedulerName?:                 string & =~".+"
 	terminationGracePeriodSeconds?: int & >=0
 
 	// Mount the service account token into the pod.
@@ -291,48 +307,72 @@ import (
 		if !create {
 			name: *"default" | string
 		}
-		labels?:                      timoniv1.#Labels
-		annotations?:                 timoniv1.#Annotations
-		automountServiceAccountToken: *true | bool
+		labels?:      timoniv1.#Labels
+		annotations?: timoniv1.#Annotations
+		// The token is mounted through the pod setting instead.
+		automountServiceAccountToken: *false | bool
 	}
 
 	// Set `rbac.create: false` when the roles and bindings are managed
-	// outside of this module. `additionalPermissions` extends the
-	// source-derived rules.
+	// outside of this module. `extraRules` extends the source-derived
+	// rules.
 	rbac: {
 		create: *true | bool
-		additionalPermissions?: [...rbacv1.#PolicyRule]
+		extraRules?: [...rbacv1.#PolicyRule]
 	}
 
 	// Service settings for the metrics and webhook endpoints.
 	service: {
-		enabled:      *true | bool
-		port:         *7979 | int & >0 & <=65535
-		annotations?: timoniv1.#Annotations
+		enabled:    *true | bool
+		type:       *"ClusterIP" | "NodePort" | "LoadBalancer"
+		port:       *7979 | int & >0 & <=65535
+		clusterIP?: string & =~".+"
 		ipFamilies?: [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
+		externalIPs?: [...string]
+		if type == "NodePort" {
+			// Zero lets the cluster assign the node port.
+			nodePort: *0 | int & >=0 & <=32767
+		}
+		if type == "LoadBalancer" {
+			loadBalancerIP?:    string & =~".+"
+			loadBalancerClass?: string & =~".+"
+			loadBalancerSourceRanges?: [...string]
+		}
+		if type != "ClusterIP" {
+			externalTrafficPolicy?: "Cluster" | "Local"
+		}
+		annotations?: timoniv1.#Annotations
+		labels?:      timoniv1.#Labels
 	}
 
-	// Prometheus Operator ServiceMonitor (optional). When the provider
-	// webhook sidecar runs, its metrics endpoint is scraped too.
+	// Prometheus Operator ServiceMonitor (optional), created in the
+	// instance namespace. When the provider webhook sidecar runs, its
+	// metrics endpoint is scraped too through
+	// `provider.webhook.serviceMonitor`.
 	serviceMonitor: {
-		enabled:           *false | bool
-		namespace?:        string & =~".+"
-		additionalLabels?: timoniv1.#Labels
-		annotations?:      timoniv1.#Annotations
-		interval?:         string
-		scrapeTimeout?:    string
-		scheme?:           string
-		tlsConfig?: {...}
-		bearerTokenFile?: string
-		metricRelabelings?: [...]
-		relabelings?: [...]
-		targetLabels?: [...string]
+		#ScrapeEndpoint
+		enabled:                *false | bool
+		additionalLabels?:      timoniv1.#Labels
+		annotations?:           timoniv1.#Annotations
+		jobLabel:               *"app.kubernetes.io/name" | string
+		sampleLimit?:           int & >=0
+		targetLimit?:           int & >=0
+		labelLimit?:            int & >=0
+		labelNameLengthLimit?:  int & >=0
+		labelValueLengthLimit?: int & >=0
+		targetLabels?: [...string & =~".+"]
+		podTargetLabels?: [...string & =~".+"]
 	}
 
-	// Install the DNSEndpoint CRD. Disable it on secondary instances
-	// (e.g. split-horizon DNS) so a single instance owns the CRD.
-	crds: install: *true | bool
+	// The DNSEndpoint CRD lifecycle. Disable `install` on secondary
+	// instances (e.g. split-horizon DNS) so a single instance owns the
+	// CRD; `keep: true` preserves the CRD (and all DNSEndpoints) when
+	// the instance is deleted.
+	crds: {
+		install: *true | bool
+		keep:    *false | bool
+	}
 
 	// Whether any Gateway API route source is enabled.
 	_hasGatewaySources: list.Contains(sources, "gateway-httproute") ||
@@ -353,6 +393,12 @@ import (
 				"crd-\(name)": metadata: labels: config.metadata.labels
 				if config.metadata.annotations != _|_ {
 					"crd-\(name)": metadata: annotations: config.metadata.annotations
+				}
+
+				// Keep the CRD (and thus all DNSEndpoints) around when
+				// the instance is deleted.
+				if config.crds.keep {
+					"crd-\(name)": metadata: annotations: "timoni.sh/prune": "disabled"
 				}
 			}
 		}

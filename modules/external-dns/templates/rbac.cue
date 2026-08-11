@@ -218,7 +218,7 @@ import (
 				verbs: ["get", "watch", "list"]
 			}
 		},
-		if _config.rbac.additionalPermissions != _|_ for r in _config.rbac.additionalPermissions {r},
+		if _config.rbac.extraRules != _|_ for r in _config.rbac.extraRules {r},
 	]
 }
 
