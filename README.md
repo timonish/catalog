@@ -4,10 +4,12 @@ A catalog of [Timoni](https://timoni.sh) modules for popular Kubernetes
 addons, published as signed OCI artifacts to
 `ghcr.io/timonish/modules/<name>`.
 
-Each module packages an upstream addon, and its
-version mirrors the upstream stable release plus a catalog build number
-(e.g. `1.2.3-0`). Upstream releases are tracked daily and published
-automatically once they pass validation and end-to-end tests.
+Each module packages an upstream addon, and its version mirrors the
+upstream stable release plus a catalog build number (e.g. `1.2.3-0`).
+Upstream releases are tracked daily and published automatically once
+they pass validation and end-to-end tests. All container images
+shipped by the modules are pinned by digest, and listed in each
+module's README.
 
 ## Usage
 

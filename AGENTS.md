@@ -20,7 +20,7 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 |-----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
 | `modules/<name>/`                       | One Timoni module per addon                                                                                                        |
 | `modules/<name>/VERSION`                | Version source of truth (`<upstream>-<build>`)                                                                                     |
-| `modules/<name>/templates/versions.cue` | **Generated:** image repos/tags                                                                                                    |
+| `modules/<name>/templates/versions.cue` | **Generated:** image repos/tags (`templates/config/versions.cue` in the packages layout)                                           |
 | `modules/<name>/templates/crds.cue`     | **Generated:** cue-imported upstream CRDs                                                                                          |
 | `schemas/`                              | Shared CUE module: single copy of the vendored `timoni.sh/core` and `k8s.io` schemas ([schemas/README.md](schemas/README.md))      |
 | `upengine/`                             | Bun/TypeScript automation engine; `upengine/config/sources.ts` declares each module's upstream and e2e test                        |
@@ -91,6 +91,37 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 - GitHub Actions are pinned to commit SHAs (with a `# vX.Y.Z` comment).
 - Always run `make fmt` and `make vet` before committing.
 
+## CUE pitfalls
+
+Recurring template-authoring traps; the error usually appears far
+from its cause:
+
+- **`#MetaComponent` names are concrete, not defaults.** Unifying the
+  metadata with a different concrete name is "conflicting values", and
+  unifying two name fields that each carry a *different default* is an
+  "incomplete value" that only plain `build` reports — vet with debug
+  values can pass. Objects with user-overridable names
+  (ServiceAccounts, Services, Secrets) need hand-built metadata, or
+  defaults that resolve to the same string.
+- **Embedded-struct fields are invisible to sibling comprehensions.**
+  Inside `#X: {#Workload, _guard: [...]}` the guard cannot reference
+  the embedded `extraArgs` ("reference not found") — alias the struct
+  (`#X: A={...}`) and use `A.extraArgs`.
+- **k8s gen schemas type `[]byte` fields as CUE `bytes`.** For
+  `Secret.data` use `stringData` instead; for fields with no string
+  alternative (webhook `caBundle`) wrap the base64 *text* as a bytes
+  literal — `'\(base64.Encode(null, s))'` — since raw bytes render
+  verbatim and the API server rejects them.
+- **Top-level embedded disjunctions in `#Config` break cross-field
+  references** — model variants as optional fields plus a `_guard`
+  list that yields an error string for invalid combinations.
+- **`{_config: _config}` is a self-cycle** — use `let cfg = _config`
+  when passing config into composed objects.
+- **CUE package names cannot contain dashes**: a component named
+  `admission-controller` lives in `templates/admission` with
+  `package admission`; the dashed name stays in labels and object
+  names.
+
 ## Prerequisites
 
 Install the toolchain with `make tools` (uses `Brewfile`): `cue`, `kubectl`,
@@ -143,8 +174,9 @@ blueprint for multi-deployment addons):
    (`timoni.sh/<name>`), relative symlinks for `cue.mod/pkg/timoni.sh`,
    `cue.mod/gen/k8s.io` and the shared CRD schema groups the templates
    import (see [schemas/README.md](schemas/README.md)). When the addon
-   ships CRDs, declare the upstream manifest path as `crds` in
-   `sources.ts` — the sync engine generates `templates/crds.cue`, and the
+   ships CRDs, declare the upstream manifest path as `crds` in the
+   `sources.ts` entry added in step 7 — the sync engine generates
+   `templates/crds.cue`, and the
    curated `#Instance` includes its objects behind a `crds.install` value
    (see `modules/external-dns`).
 2. **Golden rule: the values API must cover every config option offered by
@@ -158,10 +190,19 @@ blueprint for multi-deployment addons):
 4. `debug_values.cue` must enable every optional object so
    `timoni mod vet --debug` validates all templates against their schemas.
 5. Write `VERSION` (`<upstream>-0`), the README description line, and the
-   full values documentation. Place a `## Version` heading with
-   `<!-- versions:start -->` / `<!-- versions:end -->` markers after the
-   description — the engine renders the module version and container
-   images between the markers. The
+   full values documentation. `make lint-modules` enforces the README
+   shape (`upengine/src/readme.ts` is the authoritative rule set):
+   the description must match
+   `A [Timoni](https://timoni.sh) module for deploying [<name>](<url>), <clause>.`
+   (extra words may sit between the link and the comma), and the
+   `## Prerequisites` section must start with the bullets
+   `- Kubernetes <major>.<minor>+` and
+   `- [Timoni](https://timoni.sh/install/) 0.31+`, in that order.
+   Place a `## Version` heading with `<!-- versions:start -->` /
+   `<!-- versions:end -->` markers after the description — the sync in
+   step 8 renders the module version and container images between the
+   markers and fails without them; lint checks the markers once the
+   module has a history manifest. The
    README is user-facing: never mention the upstream Helm chart or
    differences from it, avoid shell heredocs in the examples (show a
    `values.cue` file instead), and include a Timoni bundle example that
@@ -178,16 +219,37 @@ blueprint for multi-deployment addons):
    `E2E_MODULE_VERSION` runtime env vars set by the engine. An optional
    `test/bundles/<name>/fixtures.yaml` is applied after install and
    deleted before uninstall, for resources the verify check depends on
-   (e.g. a custom resource the addon must reconcile). The e2e workflow
+   (e.g. a custom resource the addon must reconcile). When the module
+   has a runtime dependency (e.g. cert-manager for a webhook
+   certificate), the bundle installs the published dependency modules
+   first from `oci://ghcr.io/timonish/modules/<dep>` at `latest` —
+   Timoni applies the instances in order — and `e2e.sweepMatch` lists
+   substrings covering the dependencies' leftovers (see
+   `test/bundles/trust-manager` and
+   `test/bundles/vertical-pod-autoscaler`). The e2e workflow
    runs install/verify/uninstall per changed module against a kind
-   cluster, and the uninstall sweep fails on any leftover resources,
-   CRDs included.
-8. Run `make fmt lint-modules vet`, `make build MODULE=<name>`, and
-   `make e2e MODULE=<name>` against a local kind cluster
-   (`make cluster-up` creates one from `test/cluster/kind.yaml`).
-9. After the first publish: confirm the new `modules/<name>` package is
-   publicly listable (`timoni mod list`) and linked to this repository —
-   GHCR packages inherit the repo visibility, no manual flip is needed.
+   cluster; the uninstall sweep fails on leftovers among the
+   cluster-scoped kinds (ClusterRoles/Bindings, APIServices, CRDs,
+   webhook configurations, admission policies) plus Roles and
+   RoleBindings, matched by the module name, its dash-stripped form
+   and `sweepMatch` (`upengine/src/e2e.ts` is the authoritative list).
+8. Run `make sync MODULE=<name>` — the first sync resolves the upstream
+   release, writes the generated files for the module's layout plus
+   `VERSION`, vets and builds the module, then renders the module
+   README version section, writes the history manifest and updates the
+   catalog README row. The README markers from step 5 must exist
+   before this runs. A vet/build failure rolls back the generated
+   files — deleting them, `VERSION` included, when git does not track
+   them yet, so recreate `VERSION` before retrying; failures after
+   that point (e.g. missing README markers) leave the files in place.
+9. `git add` the new files (`make lint-modules` reads the module list
+   from `git ls-files`), then run `make fmt lint-modules vet`,
+   `make build MODULE=<name>`, and `make e2e MODULE=<name>` against a
+   local kind cluster (`make cluster-up` creates one from
+   `test/cluster/kind.yaml`).
+10. After the first publish: confirm the new `modules/<name>` package is
+    publicly listable (`timoni mod list`) and linked to this repository —
+    GHCR packages inherit the repo visibility, no manual flip is needed.
 
 ## Releasing a module-only fix
 
@@ -197,7 +259,30 @@ provenance so the next sync run stays idempotent:
 
 1. Edit the module, then set `modules/<name>/VERSION` to `<upstream>-<n+1>`.
 2. Run `make sync MODULE=<name> FORCE=1` — the forced re-sync keeps the
-   build suffix and regenerates the generated files (`versions.cue`,
-   `crds.cue`), the history manifest, the module README version section
-   and the catalog README table.
+   build suffix (while the upstream release is unchanged; a newer
+   release resets it to `-0`) and regenerates the generated files
+   (`versions.cue`, `crds.cue`), the history manifest, the module
+   README version section and the catalog README table.
 3. Open a PR; after the merge, `push.yaml` publishes the new version.
+
+## Self improving
+
+This file is the durable channel between work sessions — agent memory
+is not. When a session surfaces new durable guidance, fold it in as
+part of that session's PR:
+
+- new CUE traps go to [CUE pitfalls](#cue-pitfalls);
+- new or changed rules go to [Conventions](#conventions);
+- workflow corrections (a step that was missing, wrong or
+  order-sensitive) amend the step they belong to;
+- new engine capabilities used by a module (a `sources.ts` input, an
+  e2e mechanism) get mentioned where a future onboarding would need
+  them.
+
+Write generalized guidance, not session narrative — state the rule and
+the symptom of breaking it, never the story of discovering it. Do not
+record what git history, the code or the blueprints already show, and
+prune entries that stopped being true rather than stacking updates.
+When a rule is enforced by code, point at the enforcing file instead
+of restating its logic — prose copies of code are where this file
+drifts.
