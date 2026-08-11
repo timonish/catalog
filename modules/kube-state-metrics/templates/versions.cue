@@ -7,6 +7,6 @@ package templates
 	"kube-state-metrics": {
 		repository: "registry.k8s.io/kube-state-metrics/kube-state-metrics"
 		tag:        "v2.19.1"
-		digest:     ""
+		digest:     "sha256:85108987d044b18a098126732f98602df408888c0f7d456241f5abefb9744bc1"
 	}
 }

@@ -7,6 +7,6 @@ package templates
 	"external-dns": {
 		repository: "registry.k8s.io/external-dns/external-dns"
 		tag:        "v0.21.0"
-		digest:     ""
+		digest:     "sha256:f53faaf71cb270d1ca9dce6ea0c94bfebf1a18696263487f0fbc74b9bf2bd7ff"
 	}
 }

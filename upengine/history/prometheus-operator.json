@@ -3,20 +3,20 @@
   "repo": "prometheus-operator/prometheus-operator",
   "tag": "v0.93.1",
   "commit": "51cc33a31bf3bd83dd22b1ae6efaf26e199194d9",
-  "moduleVersion": "0.93.1-0",
+  "moduleVersion": "0.93.1-1",
   "images": {
     "prometheus-operator": {
       "repository": "quay.io/prometheus-operator/prometheus-operator",
       "tag": "v0.93.1",
-      "digest": ""
+      "digest": "sha256:e52bb28fd41c98dd407c7a8cba8bdcfe7eabd7447e250afaf1fe7bb816dedbff"
     },
     "prometheus-config-reloader": {
       "repository": "quay.io/prometheus-operator/prometheus-config-reloader",
       "tag": "v0.93.1",
-      "digest": ""
+      "digest": "sha256:428f088fe6fe07ab138bda92113664b04848a1dc408e4d3680a60ecdb55d1a65"
     }
   },
   "crdsDigest": "sha256:1d38ea4ab904545f3203862c1a793b18fd53ab1e571fdbf47afb4dc9e33a98b8",
-  "generatedDigest": "sha256:9209038d53366625a72c424e1b48fda1250ed5975d036c747a16e317777b2494",
-  "updatedAt": "2026-08-11T07:18:21.672Z"
+  "generatedDigest": "sha256:b3b384d88932cd75aa159fc3e0152c16a49f4fc61176d47781127cf8c34e5b3e",
+  "updatedAt": "2026-08-11T13:18:53.622Z"
 }

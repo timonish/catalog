@@ -7,11 +7,11 @@ package templates
 	"prometheus-operator": {
 		repository: "quay.io/prometheus-operator/prometheus-operator"
 		tag:        "v0.93.1"
-		digest:     ""
+		digest:     "sha256:e52bb28fd41c98dd407c7a8cba8bdcfe7eabd7447e250afaf1fe7bb816dedbff"
 	}
 	"prometheus-config-reloader": {
 		repository: "quay.io/prometheus-operator/prometheus-config-reloader"
 		tag:        "v0.93.1"
-		digest:     ""
+		digest:     "sha256:428f088fe6fe07ab138bda92113664b04848a1dc408e4d3680a60ecdb55d1a65"
 	}
 }
