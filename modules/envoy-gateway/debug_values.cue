@@ -82,13 +82,21 @@ values: {
 		loadBalancerIP:      "10.0.0.10"
 		trafficDistribution: "PreferClose"
 		annotations: "example.com/svc": "envoy-gateway"
+		labels: "example.com/scope":    "ingress"
+		loadBalancerSourceRanges: ["10.0.0.0/8"]
+		externalTrafficPolicy: "Local"
 	}
 
 	serviceMonitor: {
 		enabled: true
-		additionalLabels: release: "prometheus"
-		interval:      "30s"
+		additionalLabels: release:       "prometheus"
+		annotations: "example.com/team": "platform"
+		interval:      "1m30s"
 		scrapeTimeout: "10s"
+		honorLabels:   true
+		scheme:        "http"
+		sampleLimit:   1000
+		targetLabels: ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
 			action: "labeldrop"
 			regex:  "instance"
@@ -103,9 +111,13 @@ values: {
 
 	topologyInjector: annotations: "example.com/webhook": "topology"
 
+	dnsPolicy: "ClusterFirst"
+	dnsConfig: options: [{name: "ndots", value: "2"}]
+	schedulerName: "default-scheduler"
+
 	wasmCacheVolume: persistentVolumeClaim: claimName: "envoy-gateway-wasm-cache"
 
-	extraEnv: [{
+	env: [{
 		name:  "GOMAXPROCS"
 		value: "2"
 	}]

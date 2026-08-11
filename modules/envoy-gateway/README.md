@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.8.3-1`, packaging the upstream release
+Latest module version is `1.8.3-2`, packaging the upstream release
 [v1.8.3](https://github.com/envoyproxy/gateway/releases/tag/v1.8.3)
 with the following container images:
 
@@ -245,7 +245,9 @@ timoni bundle apply -f bundle.cue
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `replicas:` | `int` | `1` | The number of controller pods; ignored when `hpa: enabled:` |
+| `replicas:` | `int` | `1` | The number of controller pods; zero suspends the control plane, ignored when `hpa: enabled:` |
+| `dnsPolicy:` / `dnsConfig:` | | unset | Pod DNS settings |
+| `schedulerName:` | `string` | unset | Alternate scheduler |
 | `hpa: enabled:` | `bool` | `false` | Autoscale the controller with a HorizontalPodAutoscaler |
 | `hpa: minReplicas:` | `int` | `1` | The lower replica bound |
 | `hpa: maxReplicas:` | `int` | `1` | The upper replica bound |
@@ -259,7 +261,7 @@ timoni bundle apply -f bundle.cue
 | `livenessProbe:` | `corev1.#Probe` | `/healthz` on `8081` | The liveness probe |
 | `readinessProbe:` | `corev1.#Probe` | `/readyz` on `8081` | The readiness probe |
 | `wasmCacheVolume:` | `corev1.#VolumeSource` | unset (an emptyDir) | The volume backing the Wasm module cache at `/var/lib/eg/wasm` |
-| `extraEnv:` | `[...corev1.#EnvVar]` | unset | Environment variables appended to the controller container |
+| `env:` | `[...corev1.#EnvVar]` | unset | Environment variables appended to the controller container |
 | `extraVolumes:` | `[...corev1.#Volume]` | unset | Volumes added to the controller pod |
 | `extraVolumeMounts:` | `[...corev1.#VolumeMount]` | unset | Volume mounts added to the controller container |
 | `podAnnotations:` | `{[string]: string}` | `prometheus.io/scrape` and `prometheus.io/port` | Annotations added to the pods |
@@ -283,18 +285,22 @@ timoni bundle apply -f bundle.cue
 | `ports: wasm:` | `int` | `18002` | The Wasm HTTP server port |
 | `ports: metrics:` | `int` | `19001` | The Prometheus metrics port |
 | `service: type:` | `string` | `ClusterIP` | Kubernetes Service type (`ClusterIP`, `NodePort`, `LoadBalancer`) |
-| `service: annotations:` | `{[string]: string}` | unset | Annotations added to the Service |
+| `service: annotations:` / `labels:` | `{[string]: string}` | unset | Extra Service metadata |
 | `service: trafficDistribution:` | `string` | unset | Prefer routing to topologically closer pods, e.g. `PreferClose` |
 | `service: ipFamilies:` | `[...string]` | unset | The Service IP families |
 | `service: ipFamilyPolicy:` | `string` | unset | The Service dual-stack policy |
 | `service: loadBalancerIP:` | `string` | unset | The load balancer IP (`LoadBalancer` type only) |
 | `service: loadBalancerClass:` | `string` | unset | The load balancer class (`LoadBalancer` type only) |
+| `service: loadBalancerSourceRanges:` / `externalIPs:` / `externalTrafficPolicy:` | | unset | Load balancer CIDR allowlist, external IPs and traffic policy |
 | `topologyInjector: enabled:` | `bool` | `true` | Install the topology injector webhook |
 | `topologyInjector: annotations:` | `{[string]: string}` | unset | Annotations added to the webhook configuration |
 | `serviceMonitor: enabled:` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor for the metrics endpoint |
-| `serviceMonitor: additionalLabels:` | `{[string]: string}` | unset | Labels added to the ServiceMonitor, e.g. for Prometheus instance selection |
-| `serviceMonitor: interval:` | `string` | `1m` | The metrics scrape interval; empty string falls back to the Prometheus Operator default |
-| `serviceMonitor: scrapeTimeout:` | `string` | `10s` | The metrics scrape timeout; empty string falls back to the Prometheus Operator default |
+| `serviceMonitor: additionalLabels:` / `annotations:` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
+| `serviceMonitor: jobLabel:` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
+| `serviceMonitor: honorLabels:` / `scheme:` / `tlsConfig:` / `bearerTokenFile:` / `bearerTokenSecret:` / `proxyUrl:` | | unset | Scrape endpoint settings |
+| `serviceMonitor: targetLabels:` / `podTargetLabels:` | `[...string]` | unset | Service/pod labels copied onto the metrics |
+| `serviceMonitor: interval:` | `string` | unset | The metrics scrape interval; defaults to the Prometheus settings |
+| `serviceMonitor: scrapeTimeout:` | `string` | unset | The metrics scrape timeout; defaults to the Prometheus settings |
 | `serviceMonitor: sampleLimit:` | `int` | unset | Per-scrape limit on the number of accepted samples |
 | `serviceMonitor: targetLimit:` | `int` | unset | Limit on the number of scraped targets |
 | `serviceMonitor: labelLimit:` | `int` | unset | Per-scrape limit on the number of labels |
@@ -303,7 +309,7 @@ timoni bundle apply -f bundle.cue
 | `serviceMonitor: metricRelabelings:` | `[...]` | unset | Relabeling rules applied to the scraped metrics |
 | `serviceMonitor: relabelings:` | `[...]` | unset | Relabeling rules applied to the scrape targets |
 | `podDisruptionBudget: enabled:` | `bool` | `false` | Create a PodDisruptionBudget for the controller pods |
-| `podDisruptionBudget: minAvailable:` | `int \| string` | unset | Number or percentage of pods that must remain available |
+| `podDisruptionBudget: minAvailable:` | `int or %` | `1` | Number or percentage of pods that must remain available |
 | `podDisruptionBudget: maxUnavailable:` | `int \| string` | unset | Number or percentage of pods that can be unavailable |
 | `podDisruptionBudget: unhealthyPodEvictionPolicy:` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` |
 

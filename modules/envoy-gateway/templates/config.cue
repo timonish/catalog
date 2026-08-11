@@ -8,6 +8,10 @@ import (
 	timoniv1 "timoni.sh/core/v1alpha1"
 )
 
+// PromDuration is a Prometheus duration, e.g. "30s", "1m30s"; a bare
+// "0" is allowed.
+#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+
 // Config defines the schema and defaults for the Instance values.
 #Config: {
 	// Runtime version info automatically set at apply-time.
@@ -161,8 +165,8 @@ import (
 	}
 
 	// The number of controller pods; ignored when the autoscaler is
-	// enabled.
-	replicas: *1 | int & >0
+	// enabled. Scaling to zero suspends the control plane.
+	replicas: *1 | int & >=0
 
 	// HorizontalPodAutoscaler for the controller (optional). When
 	// enabled, the Deployment leaves the replica count to the
@@ -189,14 +193,20 @@ import (
 	service: {
 		type:         *"ClusterIP" | "NodePort" | "LoadBalancer"
 		annotations?: timoniv1.#Annotations
+		labels?:      timoniv1.#Labels
 		// Prefer routing to topologically closer controller pods,
 		// e.g. `PreferClose`; requires the topology injector.
 		trafficDistribution?: string & =~".+"
 		ipFamilies?: [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
+		externalIPs?: [...string]
 		if type == "LoadBalancer" {
 			loadBalancerIP?:    string & =~".+"
 			loadBalancerClass?: string & =~".+"
+			loadBalancerSourceRanges?: [...string]
+		}
+		if type != "ClusterIP" {
+			externalTrafficPolicy?: "Cluster" | "Local"
 		}
 	}
 
@@ -274,7 +284,7 @@ import (
 	wasmCacheVolume?: corev1.#VolumeSource
 
 	// Environment variables appended to the controller container.
-	extraEnv?: [...corev1.#EnvVar]
+	env?: [...corev1.#EnvVar]
 
 	// Extra volumes and volume mounts added to the controller pod.
 	extraVolumes?: [...corev1.#Volume]
@@ -290,7 +300,10 @@ import (
 	tolerations?: [...corev1.#Toleration]
 	affinity?: corev1.#Affinity
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
+	dnsPolicy?:                    "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
+	dnsConfig?:                    corev1.#PodDNSConfig
 	priorityClassName?:            string & =~".+"
+	schedulerName?:                string & =~".+"
 	terminationGracePeriodSeconds: *10 | int & >=0
 
 	// The strategy to replace old pods with new ones.
@@ -323,7 +336,7 @@ import (
 	podDisruptionBudget: {
 		enabled:                     *false | bool
 		unhealthyPodEvictionPolicy?: "IfHealthyBudget" | "AlwaysAllow"
-		*{} | {minAvailable: int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
+		*{minAvailable: *1 | int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
 	}
 
 	// Prometheus Operator ServiceMonitor for the controller metrics
@@ -333,10 +346,18 @@ import (
 	serviceMonitor: {
 		enabled:           *false | bool
 		additionalLabels?: timoniv1.#Labels
-		// Scrape settings; set to an empty string to omit the field and
-		// fall back to the Prometheus Operator defaults.
-		interval:               *"1m" | "" | =~"^[0-9]+(ms|s|m|h)$"
-		scrapeTimeout:          *"10s" | "" | =~"^[0-9]+(ms|s|m|h)$"
+		annotations?:      timoniv1.#Annotations
+		jobLabel:          *"app.kubernetes.io/name" | string
+		// Scrape settings; the default empty string omits the field and
+		// falls back to the Prometheus defaults.
+		interval:      *"" | #PromDuration
+		scrapeTimeout: *"" | #PromDuration
+		honorLabels:   *false | bool
+		scheme?:       "http" | "https"
+		tlsConfig?: {...}
+		bearerTokenFile?: string & =~".+"
+		bearerTokenSecret?: {...}
+		proxyUrl?:              string & =~".+"
 		sampleLimit?:           int & >=0
 		targetLimit?:           int & >=0
 		labelLimit?:            int & >=0
@@ -344,6 +365,8 @@ import (
 		labelValueLengthLimit?: int & >=0
 		metricRelabelings?: [...]
 		relabelings?: [...]
+		targetLabels?: [...string & =~".+"]
+		podTargetLabels?: [...string & =~".+"]
 	}
 
 	// Set `rbac.create: false` when the roles and bindings are managed
