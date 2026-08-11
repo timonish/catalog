@@ -46,21 +46,27 @@ export async function mustRun(
 }
 
 /** Retries an argv command until it exits 0, with a fixed delay between
- * attempts; returns the last attempt's output or throws after the budget. */
+ * attempts; returns the last attempt's output or throws after the budget.
+ * With `retryOn`, only failures whose output matches the pattern are
+ * retried — anything else is deterministic and fails immediately. */
 export async function retryRun(
   argv: string[],
   attempts: number,
   delayMs: number,
+  opts: { env?: Record<string, string>; retryOn?: RegExp } = {},
 ): Promise<string> {
   let last: RunResult | null = null;
   for (let i = 0; i < attempts; i++) {
-    last = await run(argv);
+    last = await run(argv, { env: opts.env });
     if (last.exitCode === 0) {
       return last.stdout;
+    }
+    if (opts.retryOn !== undefined && !opts.retryOn.test(last.stderr + last.stdout)) {
+      break;
     }
     await Bun.sleep(delayMs);
   }
   throw new Error(
-    `${argv.join(" ")} did not succeed after ${attempts} attempts:\n${last?.stderr || last?.stdout}`,
+    `${argv.join(" ")} did not succeed after retrying:\n${last?.stderr || last?.stdout}`,
   );
 }
