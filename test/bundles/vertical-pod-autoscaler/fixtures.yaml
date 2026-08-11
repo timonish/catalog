@@ -1,0 +1,42 @@
+# Applied by the e2e engine after install and deleted before
+# uninstall. The Deployment gives the recommender a target with live
+# metrics; the VerticalPodAutoscaler in recommendation-only mode is
+# admitted through the mutating webhook (proving the cert-manager
+# issued certificate chain) and its RecommendationProvided condition is
+# the verify signal.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: e2e-target
+  namespace: vertical-pod-autoscaler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: e2e-target
+  template:
+    metadata:
+      labels:
+        app: e2e-target
+    spec:
+      containers:
+        - name: pause
+          image: registry.k8s.io/e2e-test-images/agnhost:2.53
+          args: ["pause"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: e2e
+  namespace: vertical-pod-autoscaler
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: e2e-target
+  updatePolicy:
+    updateMode: "Off"
