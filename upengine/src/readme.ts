@@ -38,6 +38,53 @@ export async function moduleDescription(name: string): Promise<string> {
   throw new Error(`modules/${name}/README.md has no description line`);
 }
 
+/**
+ * The catalog-wide description line shape: a Timoni link, the addon linked
+ * to its upstream repository, then one clause describing the addon. The
+ * line lands in the OCI description annotation with the links stripped.
+ */
+const DESCRIPTION_RE =
+  /^A \[Timoni\]\(https:\/\/timoni\.sh\) module for deploying (?:the )?\[[^\]]+\]\([^()\s]+\)[^,]*, [^"]+\.$/;
+
+/** Validates a module README description line against the catalog shape. */
+export function validateDescription(name: string, description: string): void {
+  if (!DESCRIPTION_RE.test(description)) {
+    throw new Error(
+      `modules/${name}/README.md description must match ` +
+        "'A [Timoni](https://timoni.sh) module for deploying [<name>](<upstream-url>), <clause>.'",
+    );
+  }
+  if (plainDescription(description).includes('"')) {
+    throw new Error(`modules/${name}/README.md description must not contain double quotes`);
+  }
+}
+
+/**
+ * The catalog-wide Prerequisites shape: the section opens with the
+ * Kubernetes floor in `1.XX+` form followed by the linked Timoni floor;
+ * module-specific bullets may follow.
+ */
+export function validatePrerequisites(name: string, readme: string, timoniVersion: string): void {
+  const section = readme.split("\n## Prerequisites\n")[1];
+  if (section === undefined) {
+    throw new Error(`modules/${name}/README.md has no '## Prerequisites' section`);
+  }
+  const bullets = section
+    .split("\n## ")[0]!
+    .split("\n")
+    .filter((l) => l.startsWith("- "));
+  if (!/^- Kubernetes \d+\.\d+\+$/.test(bullets[0] ?? "")) {
+    throw new Error(
+      `modules/${name}/README.md first prerequisite must be '- Kubernetes <major>.<minor>+'`,
+    );
+  }
+  if (bullets[1] !== `- [Timoni](https://timoni.sh/install/) ${timoniVersion}+`) {
+    throw new Error(
+      `modules/${name}/README.md second prerequisite must be '- [Timoni](https://timoni.sh/install/) ${timoniVersion}+'`,
+    );
+  }
+}
+
 /** Renders the engine-owned version section of a module README. */
 export function renderModuleVersions(history: HistoryEntry): string {
   const images = Object.values(history.images);

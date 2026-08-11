@@ -7,6 +7,6 @@ package templates
 	"envoy-gateway": {
 		repository: "docker.io/envoyproxy/gateway"
 		tag:        "v1.8.3"
-		digest:     ""
+		digest:     "sha256:e7a8c70537628bf996e5dec5c4c835704b4b9f4f715a74cf361bea30608c49ac"
 	}
 }

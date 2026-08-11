@@ -1,17 +1,17 @@
 # envoy-gateway
 
-A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://github.com/envoyproxy/gateway) to Kubernetes clusters.
+A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://github.com/envoyproxy/gateway), an implementation of the Kubernetes Gateway API based on the Envoy proxy.
 
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.8.3-0`, packaging the upstream release
+Latest module version is `1.8.3-1`, packaging the upstream release
 [v1.8.3](https://github.com/envoyproxy/gateway/releases/tag/v1.8.3)
 with the following container images:
 
-| Image | Tag |
-|---|---|
-| `docker.io/envoyproxy/gateway` | v1.8.3 |
+| Image | Tag | Digest |
+|---|---|---|
+| `docker.io/envoyproxy/gateway` | v1.8.3 | `sha256:e7a8c70537628bf996e5dec5c4c835704b4b9f4f715a74cf361bea30608c49ac` |
 <!-- versions:end -->
 
 The Envoy proxy and ratelimit data plane images are managed by the
@@ -22,8 +22,8 @@ custom resource and `config: provider: kubernetes:` respectively.
 
 ## Prerequisites
 
-- Kubernetes 1.29 or newer
-- [Timoni](https://timoni.sh/install/) 0.25 or newer
+- Kubernetes 1.29+
+- [Timoni](https://timoni.sh/install/) 0.31+
 - The [Gateway API](https://gateway-api.sigs.k8s.io) CRDs, e.g. from
   the [gateway-api module](https://github.com/timonish/catalog/tree/main/modules/gateway-api)
 
@@ -253,7 +253,8 @@ timoni bundle apply -f bundle.cue
 | `hpa: behavior:` | `object` | unset | The autoscaling behavior |
 | `resources:` | `timoniv1.#ResourceRequirements` | `100m/256Mi` requests, `1024Mi` memory limit | The controller container resource requirements |
 | `securityContext:` | `corev1.#SecurityContext` | hardened | The controller container security context |
-| `podSecurityContext:` | `corev1.#PodSecurityContext` | runs as `65532` | The controller pod security context |
+| `securityProfile:` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65532`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext:` | `corev1.#PodSecurityContext` | per `securityProfile` | The controller pod security context |
 | `startupProbe:` | `corev1.#Probe` | `/healthz` on `8081` | The startup probe, with a generous failure threshold for cache priming |
 | `livenessProbe:` | `corev1.#Probe` | `/healthz` on `8081` | The liveness probe |
 | `readinessProbe:` | `corev1.#Probe` | `/readyz` on `8081` | The readiness probe |

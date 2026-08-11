@@ -5,14 +5,14 @@ A [Timoni](https://timoni.sh) module for deploying [Kubernetes Metrics Server](h
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.9.0-2`, packaging the upstream release
+Latest module version is `0.9.0-3`, packaging the upstream release
 [v0.9.0](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.0)
 with the following container images:
 
-| Image | Tag |
-|---|---|
-| `registry.k8s.io/metrics-server/metrics-server` | v0.9.0 |
-| `registry.k8s.io/autoscaling/addon-resizer` | 1.8.24 |
+| Image | Tag | Digest |
+|---|---|---|
+| `registry.k8s.io/metrics-server/metrics-server` | v0.9.0 | `sha256:d9862115e7c7881280d3d75ca26bda8ffc0fc213315979575bf23ce9826205c0` |
+| `registry.k8s.io/autoscaling/addon-resizer` | 1.8.24 | `sha256:bcf3d19331e8cb1adf7e834aac0c7a98653bb27604d36482a2fa888dc566463a` |
 <!-- versions:end -->
 
 To list all available versions and their digests:
@@ -24,7 +24,7 @@ timoni mod list oci://ghcr.io/timonish/modules/metrics-server
 ## Prerequisites
 
 - Kubernetes 1.25+
-- Timoni 0.30+
+- [Timoni](https://timoni.sh/install/) 0.31+
 
 ## Install
 
@@ -126,7 +126,7 @@ All values are optional.
 | `defaultArgs` | `[...string]` | upstream defaults | Base command line arguments; override only when the upstream defaults are unsuitable |
 | `args` | `[...string]` | `[]` | Extra arguments appended after `defaultArgs`, e.g. `--kubelet-insecure-tls` |
 | `resources` | `timoniv1.#ResourceRequirements` | `100m` / `200Mi` requests | Container resource requirements; ignored when `addonResizer` is enabled (the nanny owns them) |
-| `securityContext` | `corev1.#SecurityContext` | hardened | Container security context; defaults: no privilege escalation, read-only rootfs, runAsNonRoot, UID 1000, RuntimeDefault seccomp, all capabilities dropped |
+| `securityContext` | `corev1.#SecurityContext` | hardened | Container security context; defaults: no privilege escalation, read-only rootfs, all capabilities dropped (the pod identity comes from `podSecurityContext`) |
 | `livenessProbe` / `readinessProbe` | `corev1.#Probe` | `/livez` / `/readyz` | Container probes |
 | `commonLabels` | `{[string]: string}` | unset | Extra labels added to all resources |
 | `rbac.create` | `bool` | `true` | Create the cluster roles and bindings |
@@ -140,7 +140,8 @@ All values are optional.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `podLabels` / `podAnnotations` | `{[string]: string}` | unset | Extra pod metadata |
-| `podSecurityContext` | `corev1.#PodSecurityContext` | unset | Pod security context |
+| `securityProfile` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `1000`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityProfile` | Pod security context |
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries |
 | `priorityClassName` | `string` | `system-cluster-critical` | Pod priority class |
 | `hostNetwork` | `bool` | `false` | Run in the host network namespace; rollouts then default to `maxUnavailable: 1` to free the host port |

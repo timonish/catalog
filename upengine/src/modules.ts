@@ -2,9 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { join } from "node:path";
-import { CATALOG_REPO, LICENSE, REGISTRY } from "../config/catalog.ts";
+import { CATALOG_REPO, LICENSE, REGISTRY, TIMONI_MIN_VERSION } from "../config/catalog.ts";
 import { crdsCuePaths } from "./codegen.ts";
-import { moduleDescription, plainDescription, withModuleVersions } from "./readme.ts";
+import {
+  moduleDescription,
+  plainDescription,
+  validateDescription,
+  validatePrerequisites,
+  withModuleVersions,
+} from "./readme.ts";
 import { readHistory } from "./history.ts";
 import { parseModuleVersion } from "./resolve.ts";
 import { BUNDLES_DIR, MODULES_DIR } from "./paths.ts";
@@ -14,8 +20,8 @@ import type { ModuleSource } from "./types.ts";
 /**
  * Lints the module metadata that publishing depends on: every source has a
  * module directory and vice versa, VERSION parses and matches the recorded
- * history, the README carries a description line without double quotes once
- * its markdown links are stripped (it lands in an OCI annotation), and the
+ * history, the README description line and Prerequisites section follow the
+ * catalog-wide shape (the description lands in an OCI annotation), and the
  * README version section is in sync with the history manifest.
  */
 export async function lintModules(sources: ModuleSource[]): Promise<void> {
@@ -36,10 +42,12 @@ export async function lintModules(sources: ModuleSource[]): Promise<void> {
     }
     const version = (await Bun.file(join(MODULES_DIR, source.name, "VERSION")).text()).trim();
     parseModuleVersion(version);
-    const description = plainDescription(await moduleDescription(source.name));
-    if (description.includes('"')) {
-      throw new Error(`modules/${source.name}/README.md description must not contain double quotes`);
-    }
+    validateDescription(source.name, await moduleDescription(source.name));
+    validatePrerequisites(
+      source.name,
+      await Bun.file(join(MODULES_DIR, source.name, "README.md")).text(),
+      TIMONI_MIN_VERSION,
+    );
     if (!(await Bun.file(join(BUNDLES_DIR, source.name, "bundle.cue")).exists())) {
       throw new Error(`test/bundles/${source.name}/bundle.cue is missing`);
     }

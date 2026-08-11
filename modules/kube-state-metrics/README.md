@@ -1,23 +1,23 @@
 # kube-state-metrics
 
-A [Timoni](https://timoni.sh) module for deploying [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) to Kubernetes clusters.
+A [Timoni](https://timoni.sh) module for deploying [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), an agent that generates Prometheus metrics about the state of Kubernetes objects.
 
 ## Version
 
 <!-- versions:start -->
-Latest module version is `2.19.1-0`, packaging the upstream release
+Latest module version is `2.19.1-1`, packaging the upstream release
 [v2.19.1](https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.19.1)
 with the following container images:
 
-| Image | Tag |
-|---|---|
-| `registry.k8s.io/kube-state-metrics/kube-state-metrics` | v2.19.1 |
+| Image | Tag | Digest |
+|---|---|---|
+| `registry.k8s.io/kube-state-metrics/kube-state-metrics` | v2.19.1 | `sha256:85108987d044b18a098126732f98602df408888c0f7d456241f5abefb9744bc1` |
 <!-- versions:end -->
 
 ## Prerequisites
 
-- Kubernetes 1.25 or newer
-- [Timoni](https://timoni.sh/install/) 0.25 or newer
+- Kubernetes 1.25+
+- [Timoni](https://timoni.sh/install/) 0.31+
 
 ## Install
 
@@ -244,7 +244,8 @@ timoni bundle apply -f bundle.cue
 |-----|------|---------|-------------|
 | `podLabels:` | `{[string]: string}` | `{}` | Labels added to the pods |
 | `podAnnotations:` | `{[string]: string}` | `{}` | Annotations added to the pods |
-| `podSecurityContext:` | `PodSecurityContext` | hardened | Pod security context |
+| `securityProfile:` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext:` | `PodSecurityContext` | per `securityProfile` | Pod security context |
 | `nodeSelector:` | `{[string]: string}` | `kubernetes.io/os: linux` | Node selector for pod scheduling |
 | `tolerations:` | `[...Toleration]` | `[]` | Pod tolerations |
 | `affinity:` | `Affinity` | `{}` | Pod affinity rules |

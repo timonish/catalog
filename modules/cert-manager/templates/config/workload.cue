@@ -9,7 +9,13 @@ import (
 
 // Workload defines the deployment settings common to the controller,
 // webhook and cainjector components.
-#Workload: {
+#Workload: W={
+	// The security profile wired from the module's securityProfile
+	// value. The upstream images pin no UID, so the pod identity is
+	// left to the container runtime or the cluster's admission
+	// controller under both profiles.
+	#Profile: timoniv1.#SecurityProfile
+
 	// The number of pod replicas.
 	replicas: *1 | int & >=0
 
@@ -28,16 +34,11 @@ import (
 	resources?: timoniv1.#ResourceRequirements
 
 	// The container security context, hardened by default.
-	securityContext: corev1.#SecurityContext & {
-		allowPrivilegeEscalation: *false | bool
-		readOnlyRootFilesystem:   *true | bool
-		capabilities: drop: *["ALL"] | [...string]
-	}
+	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 
-	// The pod security context.
-	podSecurityContext: corev1.#PodSecurityContext & {
-		runAsNonRoot: *true | bool
-		seccompProfile: type: *"RuntimeDefault" | string
+	// The pod security context generated for the security profile.
+	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
+		#Profile: W.#Profile
 	}
 
 	// Extra command line arguments appended after `--config`. Prefer

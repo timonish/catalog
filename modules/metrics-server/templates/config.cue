@@ -74,15 +74,9 @@ import (
 		}
 	}
 
-	// The container security context, hardened by default.
-	securityContext: corev1.#SecurityContext & {
-		allowPrivilegeEscalation: *false | bool
-		readOnlyRootFilesystem:   *true | bool
-		runAsNonRoot:             *true | bool
-		runAsUser:                *1000 | int
-		seccompProfile: type: *"RuntimeDefault" | string
-		capabilities: drop: *["ALL"] | [...string]
-	}
+	// The container security context, hardened by default. The pod
+	// identity (UID/GID) is a pod-level concern, see podSecurityContext.
+	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 
 	// The liveness probe of the metrics-server container.
 	livenessProbe: corev1.#Probe & {
@@ -115,10 +109,21 @@ import (
 	extraVolumes?: [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
+	// The security profile applied to the pod identity defaults: the
+	// default "hardened" profile pins the image's non-root UID, while
+	// "platform" leaves the identity to an admission controller
+	// (e.g. an OpenShift SecurityContextConstraint).
+	securityProfile: timoniv1.#SecurityProfile
+
+	// The pod security context generated for the security profile.
+	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
+		#Profile: securityProfile
+		#User:    1000
+	}
+
 	// Pod optional settings.
-	podLabels?:          timoniv1.#Labels
-	podAnnotations?:     timoniv1.#Annotations
-	podSecurityContext?: corev1.#PodSecurityContext
+	podLabels?:      timoniv1.#Labels
+	podAnnotations?: timoniv1.#Annotations
 	nodeSelector?: {[string]: string}
 	tolerations?: [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
@@ -232,14 +237,7 @@ import (
 			tag:        *#defaultImages."addon-resizer".tag | string
 			digest:     *#defaultImages."addon-resizer".digest | string
 		}
-		securityContext: corev1.#SecurityContext & {
-			allowPrivilegeEscalation: *false | bool
-			readOnlyRootFilesystem:   *true | bool
-			runAsNonRoot:             *true | bool
-			runAsUser:                *1000 | int
-			seccompProfile: type: *"RuntimeDefault" | string
-			capabilities: drop: *["ALL"] | [...string]
-		}
+		securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 		resources: timoniv1.#ResourceRequirements & {
 			requests: {
 				cpu:    *"40m" | timoniv1.#CPUQuantity

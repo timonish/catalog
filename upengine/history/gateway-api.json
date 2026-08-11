@@ -3,12 +3,12 @@
   "repo": "kubernetes-sigs/gateway-api",
   "tag": "v1.6.1",
   "commit": "8bb74df00e56ec8f944d48c25e6c1c9c2f6848e3",
-  "moduleVersion": "1.6.1-0",
+  "moduleVersion": "1.6.1-1",
   "images": {},
   "crdsDigests": {
     "standard": "sha256:24d931f22abd8e40c973264319ead7cfa09d0fb7716b7ab1ee2ff174cb063a73",
     "experimental": "sha256:d7fa77650e4ef28fca0411536fcb5e237deb4d50301cfded3be49d9a1b7bbd02"
   },
-  "generatedDigest": "sha256:68b0e8f1d526040c1417005bcdf67115e525f003951d10e24b858eaaf45dbe59",
-  "updatedAt": "2026-08-10T12:07:12.062Z"
+  "generatedDigest": "sha256:ab61bddb529feecfad377c0a3a33e858a08db20c0726a6b9b9db303615dd5300",
+  "updatedAt": "2026-08-11T13:18:36.520Z"
 }

@@ -9,6 +9,9 @@ package main
 // these values flip to the autosharding StatefulSet and the
 // namespaced Roles.
 values: {
+	// The default vet covers the hardened profile; flip to platform so
+	// both identity branches validate.
+	securityProfile: "platform"
 	commonLabels: "app.kubernetes.io/part-of": "monitoring"
 
 	replicas: 2

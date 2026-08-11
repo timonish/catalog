@@ -3,19 +3,19 @@
   "repo": "kubernetes-sigs/metrics-server",
   "tag": "v0.9.0",
   "commit": "2a7c4b2c7d46552ff47f4aeaa3a735c582587ecd",
-  "moduleVersion": "0.9.0-2",
+  "moduleVersion": "0.9.0-3",
   "images": {
     "metrics-server": {
       "repository": "registry.k8s.io/metrics-server/metrics-server",
       "tag": "v0.9.0",
-      "digest": ""
+      "digest": "sha256:d9862115e7c7881280d3d75ca26bda8ffc0fc213315979575bf23ce9826205c0"
     },
     "addon-resizer": {
       "repository": "registry.k8s.io/autoscaling/addon-resizer",
       "tag": "1.8.24",
-      "digest": ""
+      "digest": "sha256:bcf3d19331e8cb1adf7e834aac0c7a98653bb27604d36482a2fa888dc566463a"
     }
   },
-  "generatedDigest": "sha256:357b5058afb3a4ab490e8f32c4ab298042c552c5a504d0763c60258c34f4475a",
-  "updatedAt": "2026-08-10T07:39:55.614Z"
+  "generatedDigest": "sha256:00f72bf6b892dd6c60315d7085d158b8cd036545db923c9a4449094777710d18",
+  "updatedAt": "2026-08-11T13:18:44.499Z"
 }

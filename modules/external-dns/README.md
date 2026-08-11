@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying [ExternalDNS](https://github.
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.21.0-1`, packaging the upstream release
+Latest module version is `0.21.0-2`, packaging the upstream release
 [v0.21.0](https://github.com/kubernetes-sigs/external-dns/releases/tag/v0.21.0)
 with the following container images:
 
-| Image | Tag |
-|---|---|
-| `registry.k8s.io/external-dns/external-dns` | v0.21.0 |
+| Image | Tag | Digest |
+|---|---|---|
+| `registry.k8s.io/external-dns/external-dns` | v0.21.0 | `sha256:f53faaf71cb270d1ca9dce6ea0c94bfebf1a18696263487f0fbc74b9bf2bd7ff` |
 <!-- versions:end -->
 
 To list all available versions and their digests:
@@ -23,7 +23,7 @@ timoni mod list oci://ghcr.io/timonish/modules/external-dns
 ## Prerequisites
 
 - Kubernetes 1.25+
-- Timoni 0.30+
+- [Timoni](https://timoni.sh/install/) 0.31+
 
 ## Install
 
@@ -136,7 +136,7 @@ All values are optional.
 | `strategy` | `appsv1.#DeploymentStrategy` | `Recreate` | Rollout strategy; `Recreate` prevents concurrent record updates during a rollout |
 | `env` | `[...corev1.#EnvVar]` | unset | Environment variables, typically the provider credentials referenced from an existing Secret |
 | `resources` | `timoniv1.#ResourceRequirements` | unset | Container resource requirements |
-| `securityContext` | `corev1.#SecurityContext` | hardened | Container security context; defaults: no privilege escalation, read-only rootfs, runAsNonRoot, UID/GID 65532, all capabilities dropped |
+| `securityContext` | `corev1.#SecurityContext` | hardened | Container security context; defaults: no privilege escalation, read-only rootfs, all capabilities dropped (the pod identity comes from `podSecurityContext`) |
 | `livenessProbe` / `readinessProbe` | `corev1.#Probe` | `/healthz` | Container probes |
 | `commonLabels` | `{[string]: string}` | unset | Extra labels added to all resources |
 | `rbac.create` | `bool` | `true` | Create the roles and bindings derived from `sources` |
@@ -192,7 +192,8 @@ container next to external-dns; its image is required.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `podLabels` / `podAnnotations` | `{[string]: string}` | unset | Extra pod metadata |
-| `podSecurityContext` | `corev1.#PodSecurityContext` | runAsNonRoot, fsGroup 65534, RuntimeDefault seccomp | Pod security context |
+| `securityProfile` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65532` and fsGroup `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityProfile` | Pod security context |
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries |
 | `priorityClassName` | `string` | unset | Pod priority class |
 | `affinity` | `corev1.#Affinity` | unset | Pod affinity; terms without a label selector match the instance pods |

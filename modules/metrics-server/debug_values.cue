@@ -6,6 +6,9 @@ package main
 // They enable every optional object so that all templates are
 // validated against their Kubernetes and CRD schemas.
 values: {
+	// The default vet covers the hardened profile; flip to platform so
+	// both identity branches validate.
+	securityProfile:      "platform"
 	replicas:             2
 	revisionHistoryLimit: 5
 

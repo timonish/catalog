@@ -5,16 +5,16 @@ A [Timoni](https://timoni.sh) module for deploying [cert-manager](https://github
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.21.1-0`, packaging the upstream release
+Latest module version is `1.21.1-1`, packaging the upstream release
 [v1.21.1](https://github.com/cert-manager/cert-manager/releases/tag/v1.21.1)
 with the following container images:
 
-| Image | Tag |
-|---|---|
-| `quay.io/jetstack/cert-manager-controller` | v1.21.1 |
-| `quay.io/jetstack/cert-manager-webhook` | v1.21.1 |
-| `quay.io/jetstack/cert-manager-cainjector` | v1.21.1 |
-| `quay.io/jetstack/cert-manager-acmesolver` | v1.21.1 |
+| Image | Tag | Digest |
+|---|---|---|
+| `quay.io/jetstack/cert-manager-controller` | v1.21.1 | `sha256:416a2d76870d996460e62bd7f521bf14fa017be9e3e904aab92163a331fcb61a` |
+| `quay.io/jetstack/cert-manager-webhook` | v1.21.1 | `sha256:d8b3961b51c8c7320633f8208dc46bf88aa13804d0f7cbe48a096b2c523cee42` |
+| `quay.io/jetstack/cert-manager-cainjector` | v1.21.1 | `sha256:ccf6b919ec0500745a47a910118f834f9636d0aac1ff221245cd2557ed8c7c98` |
+| `quay.io/jetstack/cert-manager-acmesolver` | v1.21.1 | `sha256:dbc7cc1354f603918e7c5af7f55a0a620537394452c93a565bde75c6f48e8837` |
 <!-- versions:end -->
 
 To list all available versions and their digests:
@@ -26,7 +26,7 @@ timoni mod list oci://ghcr.io/timonish/modules/cert-manager
 ## Prerequisites
 
 - Kubernetes 1.22+
-- Timoni 0.30+
+- [Timoni](https://timoni.sh/install/) 0.31+
 
 ## Install
 
@@ -134,6 +134,7 @@ set options ahead of them being added to the typed schemas.
 | `crds.keep` | `bool` | `false` | Keep the CRDs (and all cert-manager custom resources) when the instance is deleted |
 | `rbac.create` | `bool` | `true` | Create the cluster roles, roles and bindings |
 | `rbac.aggregateClusterRoles` | `bool` | `true` | Aggregate the cert-manager view/edit roles into the Kubernetes user-facing roles |
+| `securityProfile` | `hardened` or `platform` | `hardened` | Pod identity defaults of all components; the upstream images pin no UID, so both profiles render runAsNonRoot with the RuntimeDefault seccomp profile |
 | `approveSignerNames` | `[...string]` | cert-manager issuers | Signer names the approver controller may approve for |
 | `disableAutoApproval` | `bool` | `false` | Disable the automatic approval of CertificateRequests and skip the approval RBAC |
 | `imagePullSecrets` | `[...timoniv1.#ObjectReference]` | unset | Registry credentials added to all service accounts |
@@ -152,7 +153,7 @@ The following values are available for each component under
 | `strategy` | `appsv1.#DeploymentStrategy` | unset | Deployment rollout strategy |
 | `resources` | `timoniv1.#ResourceRequirements` | unset | Container resource requirements |
 | `securityContext` | `corev1.#SecurityContext` | hardened | Container security context; defaults: no privilege escalation, read-only rootfs, all capabilities dropped |
-| `podSecurityContext` | `corev1.#PodSecurityContext` | hardened | Pod security context; defaults: runAsNonRoot, RuntimeDefault seccomp profile |
+| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityProfile` | Pod security context; defaults: runAsNonRoot, RuntimeDefault seccomp profile |
 | `extraArgs` | `[...string]` | `[]` | Extra command line arguments appended after `--config`; flags override the configuration file |
 | `env` | `[...corev1.#EnvVar]` | unset | Environment variables |
 | `volumes` / `volumeMounts` | `corev1` | unset | Extra pod volumes and container mounts |
