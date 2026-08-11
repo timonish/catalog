@@ -28,17 +28,21 @@ values: {
 
 	approveSignerNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
 
-	prometheus: {
-		enabled: true
-		serviceMonitor: {
-			enabled:       true
-			interval:      "30s"
-			scrapeTimeout: "10s"
-			honorLabels:   true
-			labels: release:                      "kube-prometheus-stack"
-			annotations: "example.com/team":      "platform"
-			endpointAdditionalProperties: scheme: "http"
-		}
+	prometheus: enabled: true
+	serviceMonitor: {
+		enabled:       true
+		interval:      "1m30s"
+		scrapeTimeout: "10s"
+		honorLabels:   true
+		scheme:        "http"
+		additionalLabels: release:       "kube-prometheus-stack"
+		annotations: "example.com/team": "platform"
+		sampleLimit: 1000
+		targetLabels: ["app.kubernetes.io/part-of"]
+		metricRelabelings: [{
+			action: "labeldrop"
+			regex:  "pod_template_hash"
+		}]
 	}
 
 	controller: {
@@ -101,8 +105,8 @@ values: {
 		}
 		env: [{name: "HTTPS_PROXY", value: "http://proxy.example.com:3128"}]
 		extraArgs: ["--v=4"]
-		volumes: [{name: "extra", emptyDir: {}}]
-		volumeMounts: [{name: "extra", mountPath: "/extra"}]
+		extraVolumes: [{name: "extra", emptyDir: {}}]
+		extraVolumeMounts: [{name: "extra", mountPath: "/extra"}]
 		podLabels: "example.com/scope":             "pki"
 		podAnnotations: "example.com/scrape":       "true"
 		deploymentAnnotations: "example.com/owner": "platform"
@@ -137,8 +141,9 @@ values: {
 			ipFamilies: ["IPv4"]
 		}
 		podDisruptionBudget: {
-			enabled:      true
-			minAvailable: 1
+			enabled:                    true
+			minAvailable:               1
+			unhealthyPodEvictionPolicy: "AlwaysAllow"
 		}
 		networkPolicy: enabled: true
 	}
@@ -191,7 +196,11 @@ values: {
 				apiServices:                     true
 			}
 		}
-		service: annotations: "example.com/metrics": "true"
+		service: {
+			annotations: "example.com/metrics": "true"
+			ipFamilyPolicy: "SingleStack"
+			ipFamilies: ["IPv4"]
+		}
 		podDisruptionBudget: enabled: true
 		networkPolicy: enabled:       true
 	}

@@ -40,7 +40,7 @@ import (
 				port:       443
 				targetPort: "https"
 			},
-			if _config.prometheus.enabled && !_config.prometheus.podMonitor.enabled {
+			if _config.prometheus.enabled && !_config.podMonitor.enabled {
 				{
 					name:       "metrics"
 					protocol:   "TCP"

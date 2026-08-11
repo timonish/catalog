@@ -43,7 +43,7 @@ import (
 				if _cainjector.podAnnotations != _|_ {
 					annotations: _cainjector.podAnnotations
 				}
-				if _config.prometheus.enabled && !_config.prometheus.serviceMonitor.enabled && !_config.prometheus.podMonitor.enabled {
+				if _config.prometheus.enabled && !_config.serviceMonitor.enabled && !_config.podMonitor.enabled {
 					annotations: {
 						"prometheus.io/path":   "/metrics"
 						"prometheus.io/scrape": "true"
@@ -52,10 +52,8 @@ import (
 				}
 			}
 			spec: corev1.#PodSpec & {
-				serviceAccountName: _cainjector.serviceAccount.name
-				if _cainjector.automountServiceAccountToken != _|_ {
-					automountServiceAccountToken: _cainjector.automountServiceAccountToken
-				}
+				serviceAccountName:           _cainjector.serviceAccount.name
+				automountServiceAccountToken: _cainjector.automountServiceAccountToken
 				if !_cainjector.serviceAccount.create {
 					if _config.imagePullSecrets != _|_ {
 						imagePullSecrets: _config.imagePullSecrets
@@ -112,7 +110,7 @@ import (
 								name:      "config"
 								mountPath: "/var/cert-manager/config"
 							},
-							if _cainjector.volumeMounts != _|_ for m in _cainjector.volumeMounts {m},
+							if _cainjector.extraVolumeMounts != _|_ for m in _cainjector.extraVolumeMounts {m},
 						]
 						if _cainjector.resources != _|_ {
 							resources: _cainjector.resources
@@ -125,7 +123,7 @@ import (
 						name: "config"
 						configMap: name: #cmName
 					},
-					if _cainjector.volumes != _|_ for v in _cainjector.volumes {v},
+					if _cainjector.extraVolumes != _|_ for v in _cainjector.extraVolumes {v},
 				]
 				nodeSelector: _cainjector.nodeSelector
 				if _cainjector.affinity != _|_ {

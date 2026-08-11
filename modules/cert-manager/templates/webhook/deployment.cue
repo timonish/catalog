@@ -43,7 +43,7 @@ import (
 				if _webhook.podAnnotations != _|_ {
 					annotations: _webhook.podAnnotations
 				}
-				if _config.prometheus.enabled && !_config.prometheus.serviceMonitor.enabled && !_config.prometheus.podMonitor.enabled {
+				if _config.prometheus.enabled && !_config.serviceMonitor.enabled && !_config.podMonitor.enabled {
 					annotations: {
 						"prometheus.io/path":   "/metrics"
 						"prometheus.io/scrape": "true"
@@ -52,10 +52,8 @@ import (
 				}
 			}
 			spec: corev1.#PodSpec & {
-				serviceAccountName: _webhook.serviceAccount.name
-				if _webhook.automountServiceAccountToken != _|_ {
-					automountServiceAccountToken: _webhook.automountServiceAccountToken
-				}
+				serviceAccountName:           _webhook.serviceAccount.name
+				automountServiceAccountToken: _webhook.automountServiceAccountToken
 				if !_webhook.serviceAccount.create {
 					if _config.imagePullSecrets != _|_ {
 						imagePullSecrets: _config.imagePullSecrets
@@ -127,7 +125,7 @@ import (
 								name:      "config"
 								mountPath: "/var/cert-manager/config"
 							},
-							if _webhook.volumeMounts != _|_ for m in _webhook.volumeMounts {m},
+							if _webhook.extraVolumeMounts != _|_ for m in _webhook.extraVolumeMounts {m},
 						]
 						if _webhook.resources != _|_ {
 							resources: _webhook.resources
@@ -140,7 +138,7 @@ import (
 						name: "config"
 						configMap: name: #cmName
 					},
-					if _webhook.volumes != _|_ for v in _webhook.volumes {v},
+					if _webhook.extraVolumes != _|_ for v in _webhook.extraVolumes {v},
 				]
 				nodeSelector: _webhook.nodeSelector
 				if _webhook.affinity != _|_ {

@@ -50,8 +50,8 @@ import (
 
 	// Extra volumes and volume mounts added to the pod, e.g. a CA
 	// bundle or serving certificate files.
-	volumes?: [...corev1.#Volume]
-	volumeMounts?: [...corev1.#VolumeMount]
+	extraVolumes?: [...corev1.#Volume]
+	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Extra containers added to the pod.
 	extraContainers?: [...corev1.#Container]
@@ -73,8 +73,9 @@ import (
 	priorityClassName?: string & =~".+"
 	runtimeClassName?:  string & =~".+"
 
-	// Mount the service account token into the pod.
-	automountServiceAccountToken?: bool
+	// Mount the service account token into the pod; the components
+	// require it for accessing the Kubernetes API.
+	automountServiceAccountToken: *true | bool
 
 	// Inject information about services into the pod's environment
 	// variables.
@@ -86,26 +87,23 @@ import (
 	// ServiceAccount settings. Set `create: false` to use an existing
 	// service account referenced by `name`.
 	serviceAccount: {
-		create:                       *true | bool
-		name:                         string & =~".+"
-		labels?:                      timoniv1.#Labels
-		annotations?:                 timoniv1.#Annotations
-		automountServiceAccountToken: *true | bool
+		create:       *true | bool
+		name:         string & =~".+"
+		labels?:      timoniv1.#Labels
+		annotations?: timoniv1.#Annotations
+		// The token is mounted through the pod setting instead.
+		automountServiceAccountToken: *false | bool
 	}
 
-	// PodDisruptionBudget settings; `minAvailable` defaults to 1 when
-	// neither it nor `maxUnavailable` is set.
+	// PodDisruptionBudget (optional). The mutually exclusive
+	// `minAvailable` and `maxUnavailable` accept an absolute number
+	// or a percentage; `minAvailable: 1` is the default.
+	// `unhealthyPodEvictionPolicy` requires Kubernetes 1.27 or newer
+	// and is omitted on older clusters.
 	podDisruptionBudget: {
-		enabled:         *false | bool
-		minAvailable?:   int | string
-		maxUnavailable?: int | string
-		_guard:          "valid"
-		_guard: [
-			if minAvailable != _|_ && maxUnavailable != _|_ {
-				"minAvailable and maxUnavailable are mutually exclusive"
-			},
-			"valid",
-		][0]
+		enabled:                     *false | bool
+		unhealthyPodEvictionPolicy?: "IfHealthyBudget" | "AlwaysAllow"
+		*{minAvailable: *1 | int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
 	}
 
 	// NetworkPolicy settings; the default rules allow the component's
