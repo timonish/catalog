@@ -48,7 +48,7 @@ _component: "webhook"
 
 // The webhook configuration file rendered into an immutable ConfigMap;
 // the hash-suffixed name rolls the deployment on changes.
-#ConfigMap: config.#ImmutableConfigMap & {
+#ConfigMap: timoniv1.#ImmutableConfig & {
 	#config: config.#Config
 	_config: #config
 	#Meta: #ObjectMeta & {#config: _config}

@@ -167,20 +167,19 @@ import (
 		}
 	}
 
-	// The container security context, hardened by default.
-	securityContext: corev1.#SecurityContext & {
-		allowPrivilegeEscalation: *false | bool
-		readOnlyRootFilesystem:   *true | bool
-		capabilities: drop: *["ALL"] | [...string]
-	}
+	// The security profile applied to the pod identity defaults: the
+	// default "hardened" profile pins the image's non-root UID, while
+	// "platform" leaves the identity to an admission controller
+	// (e.g. an OpenShift SecurityContextConstraint).
+	securityProfile: timoniv1.#SecurityProfile
 
-	// The pod security context, hardened by default.
-	podSecurityContext: corev1.#PodSecurityContext & {
-		runAsNonRoot: *true | bool
-		runAsUser:    *65534 | int
-		runAsGroup:   *65534 | int
-		fsGroup:      *65534 | int
-		seccompProfile: type: *"RuntimeDefault" | string
+	// The container security context, hardened by default.
+	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
+
+	// The pod security context generated for the security profile.
+	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
+		#Profile: securityProfile
+		#User:    65534
 	}
 
 	// The liveness probe of the operator container.

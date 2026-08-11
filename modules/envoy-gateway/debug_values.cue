@@ -11,6 +11,9 @@ package main
 // mode extras. The cluster-wide infra-manager variant (GatewayNamespace
 // without enumerated namespaces) is exercised with a separate build.
 values: {
+	// The default vet covers the hardened profile; flip to platform so
+	// both identity branches validate.
+	securityProfile: "platform"
 	commonLabels: "app.kubernetes.io/part-of": "ingress"
 
 	crds: keep: true

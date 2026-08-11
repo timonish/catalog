@@ -1,10 +1,7 @@
 package templates
 
 import (
-	"encoding/json"
 	"encoding/yaml"
-	"strings"
-	"uuid"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -217,20 +214,19 @@ import (
 		}
 	}
 
-	// The container security context, hardened by default.
-	securityContext: corev1.#SecurityContext & {
-		allowPrivilegeEscalation: *false | bool
-		readOnlyRootFilesystem:   *true | bool
-		capabilities: drop: *["ALL"] | [...string]
-	}
+	// The security profile applied to the pod identity defaults: the
+	// default "hardened" profile pins the image's non-root UID, while
+	// "platform" leaves the identity to an admission controller
+	// (e.g. an OpenShift SecurityContextConstraint).
+	securityProfile: timoniv1.#SecurityProfile
 
-	// The pod security context, hardened by default.
-	podSecurityContext: corev1.#PodSecurityContext & {
-		runAsNonRoot: *true | bool
-		runAsUser:    *65532 | int
-		runAsGroup:   *65532 | int
-		fsGroup:      *65532 | int
-		seccompProfile: type: *"RuntimeDefault" | string
+	// The container security context, hardened by default.
+	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
+
+	// The pod security context generated for the security profile.
+	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
+		#Profile: securityProfile
+		#User:    65532
 	}
 
 	// The startup probe of the controller container; the generous
@@ -398,8 +394,12 @@ import (
 		kind:       "EnvoyGateway"
 		config
 	})
-	_configMapName: "\(metadata.name)-config-" +
-		strings.Split(uuid.SHA1(uuid.ns.DNS, json.Marshal(_configData)), "-")[0]
+	_configMap: timoniv1.#ImmutableConfig & {
+		#Suffix: "-config"
+		#Meta:   metadata
+		#Data:   _configData
+	}
+	_configMapName: _configMap.metadata.name
 
 	// The control plane object names expected by the envoy-gateway
 	// binary: the Envoy fleet dials the xDS Service by DNS name, the
@@ -492,7 +492,7 @@ import (
 			}
 		}
 
-		"\(config.metadata.name)-config": #EnvoyGatewayConfigMap & {_config: config}
+		"\(config.metadata.name)-config": config._configMap
 		"\(config.metadata.name)-certgen-job": #CertgenJob & {_config: config}
 		"\(config.metadata.name)-svc": #Service & {_config: config}
 		"\(config.metadata.name)-deploy": #Deployment & {_config: config}

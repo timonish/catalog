@@ -9,6 +9,9 @@ package main
 // validated by the default `timoni build` guard; the rules themselves
 // are shared between both branches.
 values: {
+	// The default vet covers the hardened profile; flip to platform so
+	// both identity branches validate.
+	securityProfile:      "platform"
 	replicas:             1
 	revisionHistoryLimit: 5
 

@@ -113,8 +113,16 @@ _defaultSolverImage: (timoniv1.#Image & {
 		"0",
 	][0]
 
+	// The security profile applied to the pod identity defaults of all
+	// components: the default "hardened" profile pins the image's
+	// non-root UID when one is declared, while "platform" leaves the
+	// identity to an admission controller (e.g. an OpenShift
+	// SecurityContextConstraint).
+	securityProfile: timoniv1.#SecurityProfile
+
 	// The cert-manager controller settings.
 	controller: #ControllerValues & {
+		#Profile: securityProfile
 		image: {
 			repository: *#defaultImages.controller.repository | string
 			tag:        *#defaultImages.controller.tag | string
@@ -135,6 +143,7 @@ _defaultSolverImage: (timoniv1.#Image & {
 
 	// The cert-manager webhook settings.
 	webhook: #WebhookValues & {
+		#Profile: securityProfile
 		image: {
 			repository: *#defaultImages.webhook.repository | string
 			tag:        *#defaultImages.webhook.tag | string
@@ -175,6 +184,7 @@ _defaultSolverImage: (timoniv1.#Image & {
 	// configurations. Only disable it when another cainjector instance
 	// runs in the cluster.
 	cainjector: #CAInjectorValues & {
+		#Profile: securityProfile
 		image: {
 			repository: *#defaultImages.cainjector.repository | string
 			tag:        *#defaultImages.cainjector.tag | string

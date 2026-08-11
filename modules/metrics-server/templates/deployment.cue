@@ -69,9 +69,7 @@ import (
 				if _config.imagePullSecrets != _|_ {
 					imagePullSecrets: _config.imagePullSecrets
 				}
-				if _config.podSecurityContext != _|_ {
-					securityContext: _config.podSecurityContext
-				}
+				securityContext: _config.podSecurityContext
 				if _config.nodeSelector != _|_ {
 					nodeSelector: _config.nodeSelector
 				}

@@ -203,15 +203,10 @@ import (
 	// provider credentials referenced from an existing Secret.
 	env?: [...corev1.#EnvVar]
 
-	// The container security context, hardened by default.
-	securityContext: corev1.#SecurityContext & {
-		privileged:               *false | bool
-		allowPrivilegeEscalation: *false | bool
-		readOnlyRootFilesystem:   *true | bool
-		runAsNonRoot:             *true | bool
-		runAsUser:                *65532 | int
-		runAsGroup:               *65532 | int
-		capabilities: drop: *["ALL"] | [...string]
+	// The container security context, hardened by default. The pod
+	// identity (UID/GID) is a pod-level concern, see podSecurityContext.
+	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext & {
+		privileged: *false | bool
 	}
 
 	// The liveness probe of the external-dns container.
@@ -270,11 +265,17 @@ import (
 	// Share a single process namespace between all of the pod containers.
 	shareProcessNamespace: *false | bool
 
-	// The pod security context.
-	podSecurityContext: corev1.#PodSecurityContext & {
-		runAsNonRoot: *true | bool
-		fsGroup:      *65534 | int
-		seccompProfile: type: *"RuntimeDefault" | string
+	// The security profile applied to the pod identity defaults: the
+	// default "hardened" profile pins the image's non-root UID, while
+	// "platform" leaves the identity to an admission controller
+	// (e.g. an OpenShift SecurityContextConstraint).
+	securityProfile: timoniv1.#SecurityProfile
+
+	// The pod security context generated for the security profile.
+	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
+		#Profile: securityProfile
+		#User:    65532
+		#FSGroup: 65534
 	}
 
 	// Annotations added to the Deployment.

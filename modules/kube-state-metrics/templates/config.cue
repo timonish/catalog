@@ -1,10 +1,7 @@
 package templates
 
 import (
-	"encoding/json"
 	"encoding/yaml"
-	"strings"
-	"uuid"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -229,13 +226,18 @@ import (
 		}
 	}
 
-	// Hidden fields computing the Custom Resource State ConfigMap name
-	// from the hash of its data, shared between the ConfigMap object
-	// and the pod volume referencing it. With `existingConfigMap` the
-	// referenced name and key are used instead.
+	// Hidden fields computing the Custom Resource State ConfigMap
+	// (immutable, hash-named, so config changes roll the pods), shared
+	// between the emitted object and the pod volume referencing it.
+	// With `existingConfigMap` the referenced name and key are used
+	// instead.
 	_crsData: "config.yaml": yaml.Marshal(customResourceState.config)
-	_crsConfigMapName: "\(metadata.name)-crs-" +
-		strings.Split(uuid.SHA1(uuid.ns.DNS, json.Marshal(_crsData)), "-")[0]
+	_crsConfigMap: timoniv1.#ImmutableConfig & {
+		#Suffix: "-crs"
+		#Meta:   metadata
+		#Data:   _crsData
+	}
+	_crsConfigMapName: _crsConfigMap.metadata.name
 	_crsVolumeConfigMapName: [
 		if customResourceState.existingConfigMap != _|_ {
 			customResourceState.existingConfigMap.name
@@ -289,20 +291,19 @@ import (
 		}
 	}
 
-	// The container security context, hardened by default.
-	securityContext: corev1.#SecurityContext & {
-		allowPrivilegeEscalation: *false | bool
-		readOnlyRootFilesystem:   *true | bool
-		capabilities: drop: *["ALL"] | [...string]
-	}
+	// The security profile applied to the pod identity defaults: the
+	// default "hardened" profile pins the image's non-root UID, while
+	// "platform" leaves the identity to an admission controller
+	// (e.g. an OpenShift SecurityContextConstraint).
+	securityProfile: timoniv1.#SecurityProfile
 
-	// The pod security context, hardened by default.
-	podSecurityContext: corev1.#PodSecurityContext & {
-		runAsNonRoot: *true | bool
-		runAsUser:    *65534 | int
-		runAsGroup:   *65534 | int
-		fsGroup:      *65534 | int
-		seccompProfile: type: *"RuntimeDefault" | string
+	// The container security context, hardened by default.
+	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
+
+	// The pod security context generated for the security profile.
+	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
+		#Profile: securityProfile
+		#User:    65534
 	}
 
 	// The liveness probe of the kube-state-metrics container.
@@ -574,7 +575,7 @@ import (
 		}
 
 		if config.customResourceState.enabled if config.customResourceState.existingConfigMap == _|_ {
-			"\(config.metadata.name)-crs-cm": #CustomResourceStateConfigMap & {_config: config}
+			"\(config.metadata.name)-crs-cm": config._crsConfigMap
 		}
 
 		"\(config.metadata.name)-svc": #Service & {_config: config}
