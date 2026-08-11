@@ -1,24 +1,24 @@
 # prometheus-operator
 
-A [Timoni](https://timoni.sh) module for deploying [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator) to Kubernetes clusters.
+A [Timoni](https://timoni.sh) module for deploying [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator), the controller that manages Prometheus, Alertmanager and ThanosRuler monitoring stacks through Kubernetes custom resources.
 
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.93.1-0`, packaging the upstream release
+Latest module version is `0.93.1-1`, packaging the upstream release
 [v0.93.1](https://github.com/prometheus-operator/prometheus-operator/releases/tag/v0.93.1)
 with the following container images:
 
-| Image | Tag |
-|---|---|
-| `quay.io/prometheus-operator/prometheus-operator` | v0.93.1 |
-| `quay.io/prometheus-operator/prometheus-config-reloader` | v0.93.1 |
+| Image | Tag | Digest |
+|---|---|---|
+| `quay.io/prometheus-operator/prometheus-operator` | v0.93.1 | `sha256:e52bb28fd41c98dd407c7a8cba8bdcfe7eabd7447e250afaf1fe7bb816dedbff` |
+| `quay.io/prometheus-operator/prometheus-config-reloader` | v0.93.1 | `sha256:428f088fe6fe07ab138bda92113664b04848a1dc408e4d3680a60ecdb55d1a65` |
 <!-- versions:end -->
 
 ## Prerequisites
 
-- Kubernetes 1.25 or newer
-- [Timoni](https://timoni.sh/install/) 0.25 or newer
+- Kubernetes 1.25+
+- [Timoni](https://timoni.sh/install/) 0.31+
 
 ## Install
 
@@ -246,7 +246,8 @@ timoni bundle apply -f bundle.cue
 |-----|------|---------|-------------|
 | `podLabels:` | `{[string]: string}` | `{}` | Labels added to the pods |
 | `podAnnotations:` | `{[string]: string}` | `{}` | Annotations added to the pods |
-| `podSecurityContext:` | `PodSecurityContext` | hardened | Pod security context |
+| `securityProfile:` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext:` | `PodSecurityContext` | per `securityProfile` | Pod security context |
 | `nodeSelector:` | `{[string]: string}` | `kubernetes.io/os: linux` | Node selector for pod scheduling |
 | `tolerations:` | `[...Toleration]` | `[]` | Pod tolerations |
 | `affinity:` | `Affinity` | `{}` | Pod affinity rules |
