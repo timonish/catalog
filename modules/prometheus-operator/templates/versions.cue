@@ -6,12 +6,12 @@ package templates
 #defaultImages: {
 	"prometheus-operator": {
 		repository: "quay.io/prometheus-operator/prometheus-operator"
-		tag:        "v0.93.0"
+		tag:        "v0.93.1"
 		digest:     ""
 	}
 	"prometheus-config-reloader": {
 		repository: "quay.io/prometheus-operator/prometheus-config-reloader"
-		tag:        "v0.93.0"
+		tag:        "v0.93.1"
 		digest:     ""
 	}
 }
