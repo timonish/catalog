@@ -6,6 +6,11 @@ import { BUNDLES_DIR, MODULES_DIR } from "./paths.ts";
 import { mustRun, retryRun, run } from "./proc.ts";
 import type { ModuleSource } from "./types.ts";
 
+/** Failure signatures of admission requests racing a webhook or CRD
+ * that is still coming up — the only failures worth retrying. */
+export const TRANSIENT_ADMISSION_RE =
+  /failed calling webhook|connection refused|x509:|no endpoints available|no matches for kind/;
+
 /**
  * The end-to-end test of one module against the current kubectl context:
  * install the module's test bundle (optionally from a just-pushed devel
@@ -55,17 +60,32 @@ async function install(source: ModuleSource, moduleUrl: string, version: string)
     throw new Error(`test/bundles/${source.name}/bundle.cue not found`);
   }
   console.log(`installing ${source.name} in ${source.e2e.namespace} from ${moduleUrl}`);
-  await mustRun(
+  // Webhook-serving dependency instances (e.g. cert-manager) report
+  // ready before their webhook CA is injected: on a reinstall the new
+  // cainjector waits out the stale leader-election lease (~1 minute)
+  // before it starts injecting, failing the dry-run of custom resources
+  // applied in the meantime. The apply is idempotent, so transient
+  // admission failures are retried with a budget outlasting the lease
+  // takeover; anything else fails immediately.
+  await retryRun(
     ["timoni", "bundle", "apply", "-f", bundlePath, "--runtime-from-env", "--timeout=5m"],
-    { env: { E2E_MODULE_URL: moduleUrl, E2E_MODULE_VERSION: version } },
+    6,
+    20000,
+    {
+      env: { E2E_MODULE_URL: moduleUrl, E2E_MODULE_VERSION: version },
+      retryOn: TRANSIENT_ADMISSION_RE,
+    },
   );
 
   // Optional fixtures the verify check depends on, e.g. a custom resource
-  // the addon is expected to reconcile.
+  // the addon is expected to reconcile. Retried for the same webhook CA
+  // reason: the module under test may itself admit the fixture.
   const fixtures = fixturesPath(source);
   if (await Bun.file(fixtures).exists()) {
     console.log(`applying test/bundles/${source.name}/fixtures.yaml`);
-    await mustRun(["kubectl", "-n", source.e2e.namespace, "apply", "-f", fixtures]);
+    await retryRun(["kubectl", "-n", source.e2e.namespace, "apply", "-f", fixtures], 6, 5000, {
+      retryOn: TRANSIENT_ADMISSION_RE,
+    });
   }
 }
 

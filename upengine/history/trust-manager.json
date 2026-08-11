@@ -1,0 +1,22 @@
+{
+  "name": "trust-manager",
+  "repo": "cert-manager/trust-manager",
+  "tag": "v0.24.0",
+  "commit": "75590d07c8b52b29cafd7b01bac6a1adbfa591cd",
+  "moduleVersion": "0.24.0-0",
+  "images": {
+    "trust-manager": {
+      "repository": "quay.io/jetstack/trust-manager",
+      "tag": "v0.24.0",
+      "digest": "sha256:a7c1d71cad37b404738192213e3801dbf89fe797e72664b0ff0d498db35cea74"
+    },
+    "trust-pkg-debian-trixie": {
+      "repository": "quay.io/jetstack/trust-pkg-debian-trixie",
+      "tag": "20250419.1",
+      "digest": "sha256:17084a794d1e75065c9047438e2a6167907771fe78d7e4b5d4373a4b1d4e0494"
+    }
+  },
+  "crdsDigest": "sha256:712b2ede1c7cd9c9b86c3eef4d1c894b3b0913b3467cf96981dd35ac166bf334",
+  "generatedDigest": "sha256:efdd54c72ed71cb99f1e0ff310402f10d5b2a95dddb02be23db2844961f78767",
+  "updatedAt": "2026-08-11T15:03:02.409Z"
+}
