@@ -49,24 +49,13 @@ import (
 	// Prometheus ServiceMonitor settings; when enabled, a metrics
 	// Service and a ServiceMonitor are created for every deployed
 	// component, in the instance namespace.
-	serviceMonitor: {
+	serviceMonitor: timoniv1.#MonitorEndpoint & {
 		enabled:           *false | bool
 		additionalLabels?: timoniv1.#Labels
 		annotations?:      timoniv1.#Annotations
-		// The Prometheus job name follows the component label.
-		jobLabel: *"app.kubernetes.io/component" | string
-		// Scrape settings; the default empty string omits the field and
-		// falls back to the Prometheus defaults.
-		interval:      *"" | #PromDuration
-		scrapeTimeout: *"" | #PromDuration
-		honorLabels:   *false | bool
-		scheme?:       "http" | "https"
-		tlsConfig?: {...}
-		bearerTokenFile?: string & =~".+"
-		bearerTokenSecret?: {...}
-		proxyUrl?: string & =~".+"
-		metricRelabelings?: [...]
-		relabelings?: [...]
+		// The Prometheus job name follows the component label, deviating
+		// from the timoniv1.#Monitor default.
+		jobLabel:               *timoniv1.#StdLabelComponent | string
 		sampleLimit?:           int & >=0
 		targetLimit?:           int & >=0
 		labelLimit?:            int & >=0
@@ -76,18 +65,18 @@ import (
 		podTargetLabels?: [...string & =~".+"]
 	}
 
-	// The security profile applied to the pod identity defaults of all
-	// components: the default "hardened" profile pins the upstream
+	// The security preset applied to the pod identity defaults of all
+	// components: the default "hardened" preset pins the upstream
 	// image's non-root UID 65534, while "platform" leaves the identity
 	// to an admission controller (e.g. an OpenShift
 	// SecurityContextConstraint).
-	securityProfile: timoniv1.#SecurityProfile
+	securityContextPreset: timoniv1.#SecurityContextPreset
 
 	// The recommender computes the recommended resource requests from
 	// the metrics history.
 	recommender: #RecommenderValues & {
 		#Component: "recommender"
-		#Profile:   securityProfile
+		#Preset:    securityContextPreset
 		image: {
 			repository: *#defaultImages.recommender.repository | string
 			tag:        *#defaultImages.recommender.tag | string
@@ -101,7 +90,7 @@ import (
 	// diverge from the recommendation.
 	updater: #UpdaterValues & {
 		#Component: "updater"
-		#Profile:   securityProfile
+		#Preset:    securityContextPreset
 		image: {
 			repository: *#defaultImages.updater.repository | string
 			tag:        *#defaultImages.updater.tag | string
@@ -115,7 +104,7 @@ import (
 	// recommended resources.
 	admissionController: #AdmissionControllerValues & {
 		#Component: "admission-controller"
-		#Profile:   securityProfile
+		#Preset:    securityContextPreset
 		image: {
 			repository: *#defaultImages."admission-controller".repository | string
 			tag:        *#defaultImages."admission-controller".tag | string

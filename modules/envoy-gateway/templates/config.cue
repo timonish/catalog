@@ -8,10 +8,6 @@ import (
 	timoniv1 "timoni.sh/core/v1alpha1"
 )
 
-// PromDuration is a Prometheus duration, e.g. "30s", "1m30s"; a bare
-// "0" is allowed.
-#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
-
 // Config defines the schema and defaults for the Instance values.
 #Config: {
 	// Runtime version info automatically set at apply-time.
@@ -224,19 +220,19 @@ import (
 		}
 	}
 
-	// The security profile applied to the pod identity defaults: the
-	// default "hardened" profile pins the image's non-root UID, while
+	// The security preset applied to the pod identity defaults: the
+	// default "hardened" preset pins the image's non-root UID, while
 	// "platform" leaves the identity to an admission controller
 	// (e.g. an OpenShift SecurityContextConstraint).
-	securityProfile: timoniv1.#SecurityProfile
+	securityContextPreset: timoniv1.#SecurityContextPreset
 
 	// The container security context, hardened by default.
 	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 
-	// The pod security context generated for the security profile.
+	// The pod security context generated for the security preset.
 	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
-		#Profile: securityProfile
-		#User:    65532
+		#Preset: securityContextPreset
+		#User:   65532
 	}
 
 	// The startup probe of the controller container; the generous
@@ -298,7 +294,15 @@ import (
 	} | timoniv1.#Annotations
 	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
 	tolerations?: [...corev1.#Toleration]
-	affinity?: corev1.#Affinity
+	// The affinity rules; Linux placement comes from the nodeSelector
+	// default. `podAntiAffinity` accepts the `soft` (default), `hard`
+	// and `none` presets for spreading the replicas across nodes, or
+	// raw pod anti-affinity rules.
+	affinity: timoniv1.#AffinityValues & {
+		podAntiAffinity: timoniv1.#AffinityPreset | corev1.#PodAntiAffinity
+		nodeAffinity?:   corev1.#NodeAffinity
+		podAffinity?:    corev1.#PodAffinity
+	}
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 	dnsPolicy?:                    "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
 	dnsConfig?:                    corev1.#PodDNSConfig
@@ -343,31 +347,7 @@ import (
 	// endpoint (optional). The controller exposes its Prometheus
 	// metrics on the `metrics` port; enabling this requires the
 	// Prometheus Operator CRDs on the cluster.
-	serviceMonitor: {
-		enabled:           *false | bool
-		additionalLabels?: timoniv1.#Labels
-		annotations?:      timoniv1.#Annotations
-		jobLabel:          *"app.kubernetes.io/name" | string
-		// Scrape settings; the default empty string omits the field and
-		// falls back to the Prometheus defaults.
-		interval:      *"" | #PromDuration
-		scrapeTimeout: *"" | #PromDuration
-		honorLabels:   *false | bool
-		scheme?:       "http" | "https"
-		tlsConfig?: {...}
-		bearerTokenFile?: string & =~".+"
-		bearerTokenSecret?: {...}
-		proxyUrl?:              string & =~".+"
-		sampleLimit?:           int & >=0
-		targetLimit?:           int & >=0
-		labelLimit?:            int & >=0
-		labelNameLengthLimit?:  int & >=0
-		labelValueLengthLimit?: int & >=0
-		metricRelabelings?: [...]
-		relabelings?: [...]
-		targetLabels?: [...string & =~".+"]
-		podTargetLabels?: [...string & =~".+"]
-	}
+	serviceMonitor: timoniv1.#MonitorValues
 
 	// Set `rbac.create: false` when the roles and bindings are managed
 	// outside of this module.

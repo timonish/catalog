@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Kubernetes Metrics Server](h
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.9.0-4`, packaging the upstream release
+Latest module version is `0.9.0-5`, packaging the upstream release
 [v0.9.0](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.0)
 with the following container images:
 
@@ -143,13 +143,15 @@ All values are optional.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `podLabels` / `podAnnotations` | `{[string]: string}` | unset | Extra pod metadata |
-| `securityProfile` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `1000`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
-| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityProfile` | Pod security context |
+| `securityContextPreset` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `1000`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityContextPreset` | Pod security context |
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries |
 | `priorityClassName` | `string` | `system-cluster-critical` | Pod priority class |
 | `hostNetwork` | `bool` | `false` | Run in the host network namespace; rollouts then default to `maxUnavailable: 1` to free the host port |
 | `nodeSelector` | `{[string]: string}` | Linux nodes | Node selection; a supplied value replaces the default |
-| `affinity` / `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
+| `affinity.podAntiAffinity` | `soft`, `hard`, `none` or raw rules | `soft` | Spread the replicas across nodes; raw rules replace the preset |
+| `affinity.nodeAffinity` / `affinity.podAffinity` | raw rules | unset | Node and pod affinity rules |
+| `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
 | `terminationGracePeriodSeconds` | `int` | unset | Pod termination grace period |
 | `dnsPolicy` | `string` | unset | Pod DNS policy, e.g. `ClusterFirstWithHostNet` for host-network pods |
 | `dnsConfig` | `corev1.#PodDNSConfig` | unset | Pod DNS configuration |
@@ -195,15 +197,16 @@ All values are optional.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `metrics.enabled` | `bool` | `false` | Allow unauthenticated access to `/metrics` |
-| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor in the instance namespace (implies `metrics.enabled`) |
+| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor for the metrics endpoint, in the instance namespace (implies `metrics.enabled`) |
 | `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
 | `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
 | `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
+| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
 | `serviceMonitor.scheme` | `https` or `http` | `https` | Scrape scheme |
 | `serviceMonitor.tlsConfig` | `{...}` | `insecureSkipVerify: true` | Scrape TLS settings; with `tls.type: cert-manager` set the issued CA here to verify |
-| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
 | `serviceMonitor.bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape authentication and proxy settings |
-| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
 | `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
 | `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 

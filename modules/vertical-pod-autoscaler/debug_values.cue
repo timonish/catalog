@@ -40,7 +40,7 @@ values: {
 			regex:  "pod_template_hash"
 		}]
 	}
-	securityProfile: "platform"
+	securityContextPreset: "platform"
 	recommender: {
 		replicas: 2
 		strategy: type: "Recreate"

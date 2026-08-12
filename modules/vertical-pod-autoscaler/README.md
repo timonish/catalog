@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying the [Vertical Pod Autoscaler]
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.7.1-1`, packaging the upstream release
+Latest module version is `1.7.1-2`, packaging the upstream release
 [vertical-pod-autoscaler-1.7.1](https://github.com/kubernetes/autoscaler/releases/tag/vertical-pod-autoscaler-1.7.1)
 with the following container images:
 
@@ -121,14 +121,20 @@ All values are optional.
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries, attached to the service accounts |
 | `rbac.create` | `bool` | `true` | Create the roles and bindings |
 | `rbac.extraRules` | `[...rbacv1.#PolicyRule]` | unset | Extra rules appended to the recommender metrics-reader ClusterRole, e.g. for custom metrics |
-| `securityProfile` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins the upstream image's non-root UID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `securityContextPreset` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins the upstream image's non-root UID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+
+### Monitoring values
+
+| Key | Type | Default | Description |
+|---|---|---|---|
 | `serviceMonitor.enabled` | `bool` | `false` | Create a metrics Service and a Prometheus Operator ServiceMonitor for every deployed component, in the instance namespace |
 | `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
 | `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/component` | Service label used as the Prometheus job name |
 | `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
 | `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
 | `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
-| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
 | `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
 | `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 
@@ -147,11 +153,12 @@ The three components are configured through the `recommender`,
 | `recommender.strategy` | `appsv1.#DeploymentStrategy` | unset | Deployment update strategy |
 | `recommender.resources` | `timoniv1.#ResourceRequirements` | unset | Container resource requirements |
 | `recommender.securityContext` | `corev1.#SecurityContext` | hardened | Container security context; defaults: no privilege escalation, read-only rootfs, all capabilities dropped |
-| `recommender.podSecurityContext` | `corev1.#PodSecurityContext` | per `securityProfile` | Pod security context |
+| `recommender.podSecurityContext` | `corev1.#PodSecurityContext` | per `securityContextPreset` | Pod security context |
 | `recommender.extraArgs` | `[...string]` | `[]` | Extra command line arguments appended after the generated ones |
 | `recommender.env` | `[...corev1.#EnvVar]` | unset | Extra environment variables |
 | `recommender.nodeSelector` | `{[string]: string}` | Linux nodes | Node selection |
-| `recommender.affinity` | `corev1.#Affinity` | soft anti-affinity | Scheduling affinity; defaults to preferring nodes not running the same component |
+| `recommender.affinity.podAntiAffinity` | `soft`, `hard`, `none` or raw rules | `soft` | Spread the component replicas across nodes; raw rules replace the preset |
+| `recommender.affinity.nodeAffinity` / `podAffinity` | raw rules | unset | Node and pod affinity rules |
 | `recommender.tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
 | `recommender.podLabels` / `podAnnotations` | `{[string]: string}` | unset | Extra pod metadata |
 | `recommender.dnsPolicy` / `dnsConfig` | | cluster default | Pod DNS settings |

@@ -96,16 +96,16 @@ _defaultSolverImage: (timoniv1.#Image & {
 		"0",
 	][0]
 
-	// The security profile applied to the pod identity defaults of all
-	// components: the default "hardened" profile pins the image's
+	// The security preset applied to the pod identity defaults of all
+	// components: the default "hardened" preset pins the image's
 	// non-root UID when one is declared, while "platform" leaves the
 	// identity to an admission controller (e.g. an OpenShift
 	// SecurityContextConstraint).
-	securityProfile: timoniv1.#SecurityProfile
+	securityContextPreset: timoniv1.#SecurityContextPreset
 
 	// The cert-manager controller settings.
 	controller: #ControllerValues & {
-		#Profile: securityProfile
+		#Preset: securityContextPreset
 		image: {
 			repository: *#defaultImages.controller.repository | string
 			tag:        *#defaultImages.controller.tag | string
@@ -126,7 +126,7 @@ _defaultSolverImage: (timoniv1.#Image & {
 
 	// The cert-manager webhook settings.
 	webhook: #WebhookValues & {
-		#Profile: securityProfile
+		#Preset: securityContextPreset
 		image: {
 			repository: *#defaultImages.webhook.repository | string
 			tag:        *#defaultImages.webhook.tag | string
@@ -167,7 +167,7 @@ _defaultSolverImage: (timoniv1.#Image & {
 	// configurations. Only disable it when another cainjector instance
 	// runs in the cluster.
 	cainjector: #CAInjectorValues & {
-		#Profile: securityProfile
+		#Preset: securityContextPreset
 		image: {
 			repository: *#defaultImages.cainjector.repository | string
 			tag:        *#defaultImages.cainjector.tag | string
@@ -183,32 +183,7 @@ _defaultSolverImage: (timoniv1.#Image & {
 
 // MonitorValues defines the canonical scrape settings of the
 // ServiceMonitor and PodMonitor.
-#MonitorValues: {
-	enabled:           *false | bool
-	additionalLabels?: timoniv1.#Labels
-	annotations?:      timoniv1.#Annotations
-	jobLabel:          *"app.kubernetes.io/name" | string
-	// Scrape settings; the default empty string omits the field and
-	// falls back to the Prometheus defaults.
-	interval:      *"" | #PromDuration
-	scrapeTimeout: *"" | #PromDuration
-	honorLabels:   *false | bool
-	scheme?:       "http" | "https"
-	tlsConfig?: {...}
-	bearerTokenFile?: string & =~".+"
-	bearerTokenSecret?: {...}
-	proxyUrl?: string & =~".+"
-	metricRelabelings?: [...]
-	relabelings?: [...]
-	sampleLimit?:           int & >=0
-	targetLimit?:           int & >=0
-	labelLimit?:            int & >=0
-	labelNameLengthLimit?:  int & >=0
-	labelValueLengthLimit?: int & >=0
-	// Service labels copied onto the metrics (ServiceMonitor only).
-	targetLabels?: [...string & =~".+"]
-	podTargetLabels?: [...string & =~".+"]
-}
+#MonitorValues: timoniv1.#MonitorValues
 
 // ControllerValues defines the controller component settings.
 #ControllerValues: {

@@ -3,10 +3,18 @@ package templates
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	timoniv1 "timoni.sh/core/v1alpha1"
 )
 
 #Deployment: appsv1.#Deployment & {
 	_config: #Config
+
+	// The affinity rules generated from the affinity values;
+	// the anti-affinity presets match the instance selector labels.
+	_affinity: timoniv1.#Affinity & {
+		#Values:      _config.affinity
+		#MatchLabels: _config.selector.labels
+	}
 
 	_env: [
 		{
@@ -101,8 +109,8 @@ import (
 				if _config.imagePullSecrets != _|_ {
 					imagePullSecrets: _config.imagePullSecrets
 				}
-				if _config.affinity != _|_ {
-					affinity: _config.affinity
+				if _affinity.#Enabled {
+					affinity: _affinity
 				}
 				if _config.tolerations != _|_ {
 					tolerations: _config.tolerations

@@ -8,7 +8,7 @@ package main
 values: {
 	// The default vet covers the hardened profile; flip to platform so
 	// both identity branches validate.
-	securityProfile: "platform"
+	securityContextPreset: "platform"
 	commonLabels: "app.kubernetes.io/part-of": "monitoring"
 
 	crds: keep: true

@@ -3,6 +3,7 @@ package webhook
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	timoniv1 "timoni.sh/core/v1alpha1"
 	"timoni.sh/cert-manager/templates/config"
 )
 
@@ -16,6 +17,13 @@ import (
 
 	_webhook: _config.webhook
 	_selectorLabels: #SelectorLabels & {#config: _config}
+
+	// The affinity rules generated from the affinity values;
+	// the anti-affinity presets match the component pods.
+	_affinity: timoniv1.#Affinity & {
+		#Values:      _webhook.affinity
+		#MatchLabels: _selectorLabels
+	}
 	_metricsPort: (#MetricsPort & {#config: _config}).port
 
 	apiVersion: "apps/v1"
@@ -141,8 +149,8 @@ import (
 					if _webhook.extraVolumes != _|_ for v in _webhook.extraVolumes {v},
 				]
 				nodeSelector: _webhook.nodeSelector
-				if _webhook.affinity != _|_ {
-					affinity: _webhook.affinity
+				if _affinity.#Enabled {
+					affinity: _affinity
 				}
 				if _webhook.tolerations != _|_ {
 					tolerations: _webhook.tolerations

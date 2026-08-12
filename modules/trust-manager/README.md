@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [trust-manager](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.24.0-1`, packaging the upstream release
+Latest module version is `0.24.0-2`, packaging the upstream release
 [v0.24.0](https://github.com/cert-manager/trust-manager/releases/tag/v0.24.0)
 with the following container images:
 
@@ -175,13 +175,18 @@ the cainjector keeps the webhook configuration CA in sync.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `podLabels` / `podAnnotations` | `{[string]: string}` | unset | Extra pod metadata |
-| `securityProfile` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins the image's non-root UID `65532`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
-| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityProfile` | Pod security context |
+| `securityContextPreset` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins the image's non-root UID `65532`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityContextPreset` | Pod security context |
 | `priorityClassName` | `string` | unset | Pod priority class |
 | `nodeSelector` | `{[string]: string}` | Linux nodes | Node selection; trust-manager does not support Windows nodes |
-| `affinity` / `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
+| `affinity.podAntiAffinity` | `soft`, `hard`, `none` or raw rules | `soft` | Spread the replicas across nodes; raw rules replace the preset |
+| `affinity.nodeAffinity` / `affinity.podAffinity` | raw rules | unset | Node and pod affinity rules |
+| `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
 | `automountServiceAccountToken` | `bool` | `true` | Automount the API credentials in the pod |
 | `extraVolumes` / `extraVolumeMounts` | `[...]` | unset | Additional volumes and container mounts |
+| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget for the pods |
+| `podDisruptionBudget.minAvailable` / `maxUnavailable` | `int` or percent | `minAvailable: 1` | Disruption budget; the two are mutually exclusive (schema-enforced) |
+| `podDisruptionBudget.unhealthyPodEvictionPolicy` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |
 
 ### Monitoring values
 
@@ -196,10 +201,8 @@ the cainjector keeps the webhook configuration CA in sync.
 | `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
 | `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
 | `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
 | `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
-| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
 | `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
 | `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
-| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget for the pods |
-| `podDisruptionBudget.minAvailable` / `maxUnavailable` | `int` or percent | `minAvailable: 1` | Disruption budget; the two are mutually exclusive (schema-enforced) |
-| `podDisruptionBudget.unhealthyPodEvictionPolicy` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |

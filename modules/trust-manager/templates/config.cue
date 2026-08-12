@@ -9,10 +9,6 @@ import (
 // Duration is a Go duration string, e.g. "15s", "1h30m".
 #Duration: string & =~"^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
 
-// PromDuration is a Prometheus duration, e.g. "30s", "1m30s"; a bare
-// "0" is allowed.
-#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
-
 // Config defines the schema and defaults for the Instance values.
 #Config: {
 	// Runtime version info automatically set at apply-time.
@@ -208,31 +204,7 @@ import (
 	// Prometheus Operator ServiceMonitor (optional) for the metrics
 	// Service, created in the instance namespace. Enabling it also
 	// enables `metrics.service`.
-	serviceMonitor: {
-		enabled:           *false | bool
-		additionalLabels?: timoniv1.#Labels
-		annotations?:      timoniv1.#Annotations
-		jobLabel:          *"app.kubernetes.io/name" | string
-		// Scrape settings; the default empty string omits the field and
-		// falls back to the Prometheus defaults.
-		interval:      *"" | #PromDuration
-		scrapeTimeout: *"" | #PromDuration
-		honorLabels:   *false | bool
-		scheme?:       "http" | "https"
-		tlsConfig?: {...}
-		bearerTokenFile?: string & =~".+"
-		bearerTokenSecret?: {...}
-		proxyUrl?: string & =~".+"
-		metricRelabelings?: [...]
-		relabelings?: [...]
-		sampleLimit?:           int & >=0
-		targetLimit?:           int & >=0
-		labelLimit?:            int & >=0
-		labelNameLengthLimit?:  int & >=0
-		labelValueLengthLimit?: int & >=0
-		targetLabels?: [...string & =~".+"]
-		podTargetLabels?: [...string & =~".+"]
-	}
+	serviceMonitor: timoniv1.#MonitorValues
 	if serviceMonitor.enabled {
 		metrics: service: enabled: true
 	}
@@ -255,16 +227,16 @@ import (
 	// identity (UID/GID) is a pod-level concern, see podSecurityContext.
 	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 
-	// The security profile applied to the pod identity defaults: the
-	// default "hardened" profile pins the image's non-root UID, while
+	// The security preset applied to the pod identity defaults: the
+	// default "hardened" preset pins the image's non-root UID, while
 	// "platform" leaves the identity to an admission controller
 	// (e.g. an OpenShift SecurityContextConstraint).
-	securityProfile: timoniv1.#SecurityProfile
+	securityContextPreset: timoniv1.#SecurityContextPreset
 
-	// The pod security context generated for the security profile.
+	// The pod security context generated for the security preset.
 	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
-		#Profile: securityProfile
-		#User:    65532
+		#Preset: securityContextPreset
+		#User:   65532
 	}
 
 	// Pod optional settings.
@@ -273,7 +245,15 @@ import (
 	// Pods are scheduled on Linux nodes by default; trust-manager does
 	// not support Windows nodes.
 	nodeSelector: *{(corev1.#LabelOSStable): "linux"} | {[string]: string}
-	affinity?: corev1.#Affinity
+	// The affinity rules; Linux placement comes from the nodeSelector
+	// default. `podAntiAffinity` accepts the `soft` (default), `hard`
+	// and `none` presets for spreading the replicas across nodes, or
+	// raw pod anti-affinity rules.
+	affinity: timoniv1.#AffinityValues & {
+		podAntiAffinity: timoniv1.#AffinityPreset | corev1.#PodAntiAffinity
+		nodeAffinity?:   corev1.#NodeAffinity
+		podAffinity?:    corev1.#PodAffinity
+	}
 	tolerations?: [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 	dnsConfig?: corev1.#PodDNSConfig

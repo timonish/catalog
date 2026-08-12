@@ -8,9 +8,9 @@ package main
 values: {
 	// The default vet covers the hardened profile; flip to platform so
 	// both identity branches validate.
-	securityProfile:      "platform"
-	replicas:             2
-	revisionHistoryLimit: 5
+	securityContextPreset: "platform"
+	replicas:              2
+	revisionHistoryLimit:  5
 
 	strategy: {
 		type: "RollingUpdate"

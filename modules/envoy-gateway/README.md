@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.8.3-2`, packaging the upstream release
+Latest module version is `1.8.3-3`, packaging the upstream release
 [v1.8.3](https://github.com/envoyproxy/gateway/releases/tag/v1.8.3)
 with the following container images:
 
@@ -18,7 +18,7 @@ The Envoy proxy and ratelimit data plane images are managed by the
 Envoy Gateway controller itself and track its compiled-in defaults;
 they can be overridden through the
 [EnvoyProxy](https://gateway.envoyproxy.io/docs/api/extension_types/#envoyproxy)
-custom resource and `config: provider: kubernetes:` respectively.
+custom resource and `config.provider.kubernetes` respectively.
 
 ## Prerequisites
 
@@ -92,7 +92,7 @@ configuration changes roll the controller pods automatically.
 
 The common fields are typed and validated at build time; every other
 EnvoyGateway API field (`telemetry`, `rateLimit`, `extensionManager`,
-`extensionApis`, the `provider: kubernetes:` deployment overrides,
+`extensionApis`, the `provider.kubernetes` deployment overrides,
 etc.) passes through as-is and is validated by the controller at
 startup. For example, to enable the global rate limit backed by an
 existing Redis:
@@ -108,6 +108,14 @@ values: {
 
 The controller then deploys the ratelimit service automatically, with
 its image tracking the compiled-in default.
+
+The watched namespaces are configured through
+`config.provider.kubernetes.watch`; when namespaces are enumerated
+by name, the module scopes the controller RBAC to those namespaces
+with per-namespace roles. The `GatewayNamespace` deploy mode
+(`config.provider.kubernetes.deploy.type`) grants the
+infrastructure manager access in the watched namespaces and enables
+TokenReview-based authentication for the Envoy fleet.
 
 ## Control plane TLS
 
@@ -129,7 +137,7 @@ values: {
 ```
 
 In this mode the module manages a self-signed CA (overridable with
-`tls: certManager: existingIssuer:`) and issues the control plane
+`tls.certManager.existingIssuer`) and issues the control plane
 certificates from it, the webhook CA bundle is injected by
 cert-manager, and the certificate generator Job only maintains the
 `envoy-oidc-hmac` secret used for OIDC token encryption.
@@ -201,122 +209,116 @@ timoni bundle apply -f bundle.cue
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `crds: install:` | `bool` | `true` | Install the `gateway.envoyproxy.io` CRDs; set to `false` when they are managed outside of this module |
-| `crds: keep:` | `bool` | `false` | Keep the CRDs (and thereby all Envoy Gateway custom resources) when the instance is deleted |
-| `image: repository:` | `string` | `docker.io/envoyproxy/gateway` | Container image repository |
-| `image: tag:` | `string` | `<version>` | Container image tag, tracking the upstream release |
-| `image: digest:` | `string` | `""` | Container image digest, takes precedence over `tag` when specified |
-| `image: pullPolicy:` | `string` | `IfNotPresent` | Kubernetes image pull policy |
-| `imagePullSecrets:` | `[...timoniv1.#ObjectReference]` | unset | References to secrets for pulling images from private registries |
-| `commonLabels:` | `{[string]: string}` | unset | Extra labels added to all resources |
-| `metadata: annotations:` | `{[string]: string}` | unset | Annotations added to all resources |
-| `config:` | `object` | see [above](#envoy-gateway-configuration) | The EnvoyGateway configuration file contents |
-| `config: gateway: controllerName:` | `string` | `gateway.envoyproxy.io/gatewayclass-controller` | The controller name GatewayClasses reference |
-| `config: logging: level: default:` | `string` | `info` | Log verbosity (`debug`, `info`, `warn`, `error`), overridable per component |
-| `tls: mode:` | `string` | `certgen` | Control plane TLS bootstrap: `certgen` or `cert-manager` |
-| `tls: certManager: existingIssuer:` | `object` | `enabled: false` | Issue the CA from an existing `Issuer` or `ClusterIssuer` instead of the module's self-signed one |
-| `tls: certManager: caDuration:` | `string` | unset | Validity of the CA certificate |
-| `tls: certManager: duration:` | `string` | unset | Validity of the leaf certificates |
-| `tls: certManager: renewBefore:` | `string` | unset | Renewal window of the leaf certificates |
-| `tls: certManager: annotations:` | `{[string]: string}` | unset | Annotations added to the cert-manager objects |
-| `tls: certManager: labels:` | `{[string]: string}` | unset | Labels added to the cert-manager objects |
-| `rbac: create:` | `bool` | `true` | Create the cluster roles, roles and bindings |
-| `serviceAccount: create:` | `bool` | `true` | Create the controller and certgen service accounts; when `false`, both are expected to exist and `name` defaults to `default` |
-| `serviceAccount: name:` | `string` | instance name | The service account used by the controller pods |
-| `serviceAccount: annotations:` | `{[string]: string}` | unset | Annotations added to the service account |
-| `serviceAccount: automountServiceAccountToken:` | `bool` | `false` | Mount the token on the ServiceAccount itself; the pods that need API access mount it explicitly |
-| `kubernetesClusterDomain:` | `string` | `cluster.local` | The cluster domain used for the generated in-cluster addresses |
+| `crds.install` | `bool` | `true` | Install the `gateway.envoyproxy.io` CRDs; set to `false` when they are managed outside of this module |
+| `crds.keep` | `bool` | `false` | Keep the CRDs (and thereby all Envoy Gateway custom resources) when the instance is deleted |
+| `image.repository` | `string` | `docker.io/envoyproxy/gateway` | Container image repository |
+| `image.tag` | `string` | `<version>` | Container image tag, tracking the upstream release |
+| `image.digest` | `string` | `""` | Container image digest, takes precedence over `tag` when specified |
+| `image.pullPolicy` | `string` | `IfNotPresent` | Kubernetes image pull policy |
+| `imagePullSecrets` | `[...timoniv1.#ObjectReference]` | unset | References to secrets for pulling images from private registries |
+| `commonLabels` | `{[string]: string}` | unset | Extra labels added to all resources |
+| `metadata.annotations` | `{[string]: string}` | unset | Annotations added to all resources |
+| `config` | `object` | see [above](#envoy-gateway-configuration) | The EnvoyGateway configuration file contents |
+| `config.gateway.controllerName` | `string` | `gateway.envoyproxy.io/gatewayclass-controller` | The controller name GatewayClasses reference |
+| `config.logging.level.default` | `string` | `info` | Log verbosity (`debug`, `info`, `warn`, `error`), overridable per component |
+| `tls.mode` | `string` | `certgen` | Control plane TLS bootstrap: `certgen` or `cert-manager` |
+| `tls.certManager.existingIssuer` | `object` | `enabled: false` | Issue the CA from an existing `Issuer` or `ClusterIssuer` instead of the module's self-signed one |
+| `tls.certManager.caDuration` | `string` | unset | Validity of the CA certificate |
+| `tls.certManager.duration` | `string` | unset | Validity of the leaf certificates |
+| `tls.certManager.renewBefore` | `string` | unset | Renewal window of the leaf certificates |
+| `tls.certManager.annotations` | `{[string]: string}` | unset | Annotations added to the cert-manager objects |
+| `tls.certManager.labels` | `{[string]: string}` | unset | Labels added to the cert-manager objects |
+| `rbac.create` | `bool` | `true` | Create the cluster roles, roles and bindings |
+| `serviceAccount.create` | `bool` | `true` | Create the controller and certgen service accounts; when `false`, both are expected to exist and `name` defaults to `default` |
+| `serviceAccount.name` | `string` | instance name | The service account used by the controller pods |
+| `serviceAccount.annotations` | `{[string]: string}` | unset | Annotations added to the service account |
+| `serviceAccount.automountServiceAccountToken` | `bool` | `false` | Mount the token on the ServiceAccount itself; the pods that need API access mount it explicitly |
+| `kubernetesClusterDomain` | `string` | `cluster.local` | The cluster domain used for the generated in-cluster addresses |
 
 ### Certificate generator values
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `certgen: args:` | `[...string]` | `[]` | Extra arguments appended to the `certgen` command |
-| `certgen: annotations:` | `{[string]: string}` | unset | Annotations added to the Job |
-| `certgen: podAnnotations:` | `{[string]: string}` | unset | Annotations added to the Job pod |
-| `certgen: podLabels:` | `{[string]: string}` | unset | Labels added to the Job pod |
-| `certgen: resources:` | `timoniv1.#ResourceRequirements` | unset | The Job container resource requirements |
-| `certgen: affinity:` | `corev1.#Affinity` | unset | The Job pod affinity rules |
-| `certgen: tolerations:` | `[...corev1.#Toleration]` | unset | The Job pod tolerations |
-| `certgen: nodeSelector:` | `{[string]: string}` | `kubernetes.io/os: linux` | The Job pod node selector |
-| `certgen: ttlSecondsAfterFinished:` | `int` | `30` | Delete the completed Job after this many seconds |
+| `certgen.args` | `[...string]` | `[]` | Extra arguments appended to the `certgen` command |
+| `certgen.annotations` | `{[string]: string}` | unset | Annotations added to the Job |
+| `certgen.podAnnotations` | `{[string]: string}` | unset | Annotations added to the Job pod |
+| `certgen.podLabels` | `{[string]: string}` | unset | Labels added to the Job pod |
+| `certgen.resources` | `timoniv1.#ResourceRequirements` | unset | The Job container resource requirements |
+| `certgen.affinity` | `corev1.#Affinity` | unset | The Job pod affinity rules |
+| `certgen.tolerations` | `[...corev1.#Toleration]` | unset | The Job pod tolerations |
+| `certgen.nodeSelector` | `{[string]: string}` | `kubernetes.io/os: linux` | The Job pod node selector |
+| `certgen.ttlSecondsAfterFinished` | `int` | `30` | Delete the completed Job after this many seconds |
 
 ### Workload values
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `replicas:` | `int` | `1` | The number of controller pods; zero suspends the control plane, ignored when `hpa: enabled:` |
-| `dnsPolicy:` / `dnsConfig:` | | unset | Pod DNS settings |
-| `schedulerName:` | `string` | unset | Alternate scheduler |
-| `hpa: enabled:` | `bool` | `false` | Autoscale the controller with a HorizontalPodAutoscaler |
-| `hpa: minReplicas:` | `int` | `1` | The lower replica bound |
-| `hpa: maxReplicas:` | `int` | `1` | The upper replica bound |
-| `hpa: metrics:` | `[...]` | `[]` | The autoscaling metrics (`autoscaling/v2`) |
-| `hpa: behavior:` | `object` | unset | The autoscaling behavior |
-| `resources:` | `timoniv1.#ResourceRequirements` | `100m/256Mi` requests, `1024Mi` memory limit | The controller container resource requirements |
-| `securityContext:` | `corev1.#SecurityContext` | hardened | The controller container security context |
-| `securityProfile:` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65532`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
-| `podSecurityContext:` | `corev1.#PodSecurityContext` | per `securityProfile` | The controller pod security context |
-| `startupProbe:` | `corev1.#Probe` | `/healthz` on `8081` | The startup probe, with a generous failure threshold for cache priming |
-| `livenessProbe:` | `corev1.#Probe` | `/healthz` on `8081` | The liveness probe |
-| `readinessProbe:` | `corev1.#Probe` | `/readyz` on `8081` | The readiness probe |
-| `wasmCacheVolume:` | `corev1.#VolumeSource` | unset (an emptyDir) | The volume backing the Wasm module cache at `/var/lib/eg/wasm` |
-| `env:` | `[...corev1.#EnvVar]` | unset | Environment variables appended to the controller container |
-| `extraVolumes:` | `[...corev1.#Volume]` | unset | Volumes added to the controller pod |
-| `extraVolumeMounts:` | `[...corev1.#VolumeMount]` | unset | Volume mounts added to the controller container |
-| `podAnnotations:` | `{[string]: string}` | `prometheus.io/scrape` and `prometheus.io/port` | Annotations added to the pods |
-| `podLabels:` | `{[string]: string}` | unset | Labels added to the pods |
-| `nodeSelector:` | `{[string]: string}` | `kubernetes.io/os: linux` | The pod node selector |
-| `tolerations:` | `[...corev1.#Toleration]` | unset | The pod tolerations |
-| `affinity:` | `corev1.#Affinity` | unset | The pod affinity rules |
-| `topologySpreadConstraints:` | `[...corev1.#TopologySpreadConstraint]` | unset | The pod topology spread constraints |
-| `priorityClassName:` | `string` | unset | The priority class of the pods |
-| `terminationGracePeriodSeconds:` | `int` | `10` | Seconds the pods are given to shut down |
-| `strategy:` | `appsv1.#DeploymentStrategy` | unset | The strategy to replace old pods with new ones |
-| `revisionHistoryLimit:` | `int` | unset | The number of old ReplicaSets to retain |
-| `deploymentAnnotations:` | `{[string]: string}` | unset | Annotations added to the Deployment |
+| `replicas` | `int` | `1` | The number of controller pods; zero suspends the control plane, ignored when `hpa.enabled` |
+| `dnsPolicy` / `dnsConfig` | | unset | Pod DNS settings |
+| `schedulerName` | `string` | unset | Alternate scheduler |
+| `hpa.enabled` | `bool` | `false` | Autoscale the controller with a HorizontalPodAutoscaler |
+| `hpa.minReplicas` | `int` | `1` | The lower replica bound |
+| `hpa.maxReplicas` | `int` | `1` | The upper replica bound |
+| `hpa.metrics` | `[...]` | `[]` | The autoscaling metrics (`autoscaling/v2`) |
+| `hpa.behavior` | `object` | unset | The autoscaling behavior |
+| `resources` | `timoniv1.#ResourceRequirements` | `100m/256Mi` requests, `1024Mi` memory limit | The controller container resource requirements |
+| `securityContext` | `corev1.#SecurityContext` | hardened | The controller container security context |
+| `securityContextPreset` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65532`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityContextPreset` | The controller pod security context |
+| `startupProbe` | `corev1.#Probe` | `/healthz` on `8081` | The startup probe, with a generous failure threshold for cache priming |
+| `livenessProbe` | `corev1.#Probe` | `/healthz` on `8081` | The liveness probe |
+| `readinessProbe` | `corev1.#Probe` | `/readyz` on `8081` | The readiness probe |
+| `wasmCacheVolume` | `corev1.#VolumeSource` | unset (an emptyDir) | The volume backing the Wasm module cache at `/var/lib/eg/wasm` |
+| `env` | `[...corev1.#EnvVar]` | unset | Environment variables appended to the controller container |
+| `extraVolumes` | `[...corev1.#Volume]` | unset | Volumes added to the controller pod |
+| `extraVolumeMounts` | `[...corev1.#VolumeMount]` | unset | Volume mounts added to the controller container |
+| `podAnnotations` | `{[string]: string}` | `prometheus.io/scrape` and `prometheus.io/port` | Annotations added to the pods |
+| `podLabels` | `{[string]: string}` | unset | Labels added to the pods |
+| `nodeSelector` | `{[string]: string}` | `kubernetes.io/os: linux` | The pod node selector |
+| `tolerations` | `[...corev1.#Toleration]` | unset | The pod tolerations |
+| `affinity.podAntiAffinity` | `soft`, `hard`, `none` or raw rules | `soft` | Spread the replicas across nodes; raw rules replace the preset |
+| `affinity.nodeAffinity` / `affinity.podAffinity` | raw rules | unset | Node and pod affinity rules |
+| `topologySpreadConstraints` | `[...corev1.#TopologySpreadConstraint]` | unset | The pod topology spread constraints |
+| `priorityClassName` | `string` | unset | The priority class of the pods |
+| `terminationGracePeriodSeconds` | `int` | `10` | Seconds the pods are given to shut down |
+| `strategy` | `appsv1.#DeploymentStrategy` | unset | The strategy to replace old pods with new ones |
+| `revisionHistoryLimit` | `int` | unset | The number of old ReplicaSets to retain |
+| `deploymentAnnotations` | `{[string]: string}` | unset | Annotations added to the Deployment |
+| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget for the controller pods |
+| `podDisruptionBudget.minAvailable` | `int or %` | `1` | Number or percentage of pods that must remain available |
+| `podDisruptionBudget.maxUnavailable` | `int \| string` | unset | Number or percentage of pods that can be unavailable |
+| `podDisruptionBudget.unhealthyPodEvictionPolicy` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` |
 
-### Service and monitoring values
+### Service values
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `ports: grpc:` | `int` | `18000` | The xDS gRPC port |
-| `ports: ratelimit:` | `int` | `18001` | The ratelimit discovery port |
-| `ports: wasm:` | `int` | `18002` | The Wasm HTTP server port |
-| `ports: metrics:` | `int` | `19001` | The Prometheus metrics port |
-| `service: type:` | `string` | `ClusterIP` | Kubernetes Service type (`ClusterIP`, `NodePort`, `LoadBalancer`) |
-| `service: annotations:` / `labels:` | `{[string]: string}` | unset | Extra Service metadata |
-| `service: trafficDistribution:` | `string` | unset | Prefer routing to topologically closer pods, e.g. `PreferClose` |
-| `service: ipFamilies:` | `[...string]` | unset | The Service IP families |
-| `service: ipFamilyPolicy:` | `string` | unset | The Service dual-stack policy |
-| `service: loadBalancerIP:` | `string` | unset | The load balancer IP (`LoadBalancer` type only) |
-| `service: loadBalancerClass:` | `string` | unset | The load balancer class (`LoadBalancer` type only) |
-| `service: loadBalancerSourceRanges:` / `externalIPs:` / `externalTrafficPolicy:` | | unset | Load balancer CIDR allowlist, external IPs and traffic policy |
-| `topologyInjector: enabled:` | `bool` | `true` | Install the topology injector webhook |
-| `topologyInjector: annotations:` | `{[string]: string}` | unset | Annotations added to the webhook configuration |
-| `serviceMonitor: enabled:` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor for the metrics endpoint |
-| `serviceMonitor: additionalLabels:` / `annotations:` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
-| `serviceMonitor: jobLabel:` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
-| `serviceMonitor: honorLabels:` / `scheme:` / `tlsConfig:` / `bearerTokenFile:` / `bearerTokenSecret:` / `proxyUrl:` | | unset | Scrape endpoint settings |
-| `serviceMonitor: targetLabels:` / `podTargetLabels:` | `[...string]` | unset | Service/pod labels copied onto the metrics |
-| `serviceMonitor: interval:` | `string` | unset | The metrics scrape interval; defaults to the Prometheus settings |
-| `serviceMonitor: scrapeTimeout:` | `string` | unset | The metrics scrape timeout; defaults to the Prometheus settings |
-| `serviceMonitor: sampleLimit:` | `int` | unset | Per-scrape limit on the number of accepted samples |
-| `serviceMonitor: targetLimit:` | `int` | unset | Limit on the number of scraped targets |
-| `serviceMonitor: labelLimit:` | `int` | unset | Per-scrape limit on the number of labels |
-| `serviceMonitor: labelNameLengthLimit:` | `int` | unset | Per-scrape limit on the length of label names |
-| `serviceMonitor: labelValueLengthLimit:` | `int` | unset | Per-scrape limit on the length of label values |
-| `serviceMonitor: metricRelabelings:` | `[...]` | unset | Relabeling rules applied to the scraped metrics |
-| `serviceMonitor: relabelings:` | `[...]` | unset | Relabeling rules applied to the scrape targets |
-| `podDisruptionBudget: enabled:` | `bool` | `false` | Create a PodDisruptionBudget for the controller pods |
-| `podDisruptionBudget: minAvailable:` | `int or %` | `1` | Number or percentage of pods that must remain available |
-| `podDisruptionBudget: maxUnavailable:` | `int \| string` | unset | Number or percentage of pods that can be unavailable |
-| `podDisruptionBudget: unhealthyPodEvictionPolicy:` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` |
+| `ports.grpc` | `int` | `18000` | The xDS gRPC port |
+| `ports.ratelimit` | `int` | `18001` | The ratelimit discovery port |
+| `ports.wasm` | `int` | `18002` | The Wasm HTTP server port |
+| `ports.metrics` | `int` | `19001` | The Prometheus metrics port |
+| `service.type` | `string` | `ClusterIP` | Kubernetes Service type (`ClusterIP`, `NodePort`, `LoadBalancer`) |
+| `service.annotations` / `labels` | `{[string]: string}` | unset | Extra Service metadata |
+| `service.trafficDistribution` | `string` | unset | Prefer routing to topologically closer pods, e.g. `PreferClose` |
+| `service.ipFamilies` | `[...string]` | unset | The Service IP families |
+| `service.ipFamilyPolicy` | `string` | unset | The Service dual-stack policy |
+| `service.loadBalancerIP` | `string` | unset | The load balancer IP (`LoadBalancer` type only) |
+| `service.loadBalancerClass` | `string` | unset | The load balancer class (`LoadBalancer` type only) |
+| `service.loadBalancerSourceRanges` / `externalIPs` / `externalTrafficPolicy` | | unset | Load balancer CIDR allowlist, external IPs and traffic policy |
+| `topologyInjector.enabled` | `bool` | `true` | Install the topology injector webhook |
+| `topologyInjector.annotations` | `{[string]: string}` | unset | Annotations added to the webhook configuration |
 
-The watched namespaces are configured through
-`config: provider: kubernetes: watch:`; when namespaces are enumerated
-by name, the module scopes the controller RBAC to those namespaces
-with per-namespace roles. The `GatewayNamespace` deploy mode
-(`config: provider: kubernetes: deploy: type:`) grants the
-infrastructure manager access in the watched namespaces and enables
-TokenReview-based authentication for the Envoy fleet.
+### Monitoring values
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor for the metrics endpoint, in the instance namespace |
+| `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
+| `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
+| `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
+| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
+| `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
+| `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
+| `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |

@@ -3,8 +3,12 @@
   "repo": "kubernetes-sigs/metrics-server",
   "tag": "v0.9.0",
   "commit": "2a7c4b2c7d46552ff47f4aeaa3a735c582587ecd",
-  "moduleVersion": "0.9.0-4",
+  "moduleVersion": "0.9.0-5",
   "moduleReleases": [
+    {
+      "version": "0.9.0-5",
+      "releasedAt": "2026-08-12T13:00:21.066Z"
+    },
     {
       "version": "0.9.0-4",
       "releasedAt": "2026-08-12T05:53:50.000Z"
@@ -42,6 +46,6 @@
       "digest": "sha256:bcf3d19331e8cb1adf7e834aac0c7a98653bb27604d36482a2fa888dc566463a"
     }
   },
-  "generatedDigest": "sha256:4f2b0d2dadf4bc7ed48a1d4bd2cd5fe39b22005fc2f301f0c0cb499a312e5a91",
-  "updatedAt": "2026-08-11T22:48:25.026Z"
+  "generatedDigest": "sha256:7057d864f224b61c9849981dc3cddb305a47785ad4d2fc00e966b9cdbd5633ab",
+  "updatedAt": "2026-08-12T13:00:21.066Z"
 }

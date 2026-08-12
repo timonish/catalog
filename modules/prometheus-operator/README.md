@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Prometheus Operator](https:/
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.93.1-2`, packaging the upstream release
+Latest module version is `0.93.1-3`, packaging the upstream release
 [v0.93.1](https://github.com/prometheus-operator/prometheus-operator/releases/tag/v0.93.1)
 with the following container images:
 
@@ -85,7 +85,7 @@ resources at admission time, rejecting invalid rule expressions and
 Alertmanager configurations before they reach the operator. The
 webhook is disabled by default; enabling it switches the operator web
 server to TLS with the certificate provisioned according to
-`webhook: tls:`.
+`webhook.tls`.
 
 With [cert-manager](https://cert-manager.io) installed in the cluster,
 the module requests the certificate from a self-signed issuer and lets
@@ -179,156 +179,151 @@ timoni bundle apply -f bundle.cue
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `crds: install:` | `bool` | `true` | Install the `monitoring.coreos.com` custom resource definitions |
-| `crds: keep:` | `bool` | `false` | Keep the CRDs and all custom resources when the instance is uninstalled |
-| `image: repository:` | `string` | `quay.io/prometheus-operator/prometheus-operator` | Container image repository |
-| `image: tag:` | `string` | `<latest version>` | Container image tag |
-| `image: digest:` | `string` | `""` | Container image digest, takes precedence over `tag` when specified |
-| `image: pullPolicy:` | `string` | `IfNotPresent` | Container image pull policy |
-| `imagePullSecrets:` | `[...ObjectReference]` | `[]` | References to secrets for pulling images from private registries |
-| `metadata: labels:` | `{[string]: string}` | `{}` | Labels added to all resources |
-| `metadata: annotations:` | `{[string]: string}` | `{}` | Annotations added to all resources |
-| `commonLabels:` | `{[string]: string}` | `{}` | Extra labels added to all resources |
-| `logLevel:` | `string` | `info` | Log verbosity: `all`, `debug`, `info`, `warn`, `error` or `none` |
-| `logFormat:` | `string` | `logfmt` | Log format: `logfmt` or `json` |
-| `env:` | `[...EnvVar]` | `GOGC=30` | Environment variables for the operator container |
-| `extraArgs:` | `[...string]` | `[]` | Extra command line arguments appended after the generated ones |
-| `extraVolumes:` | `[...Volume]` | `[]` | Extra volumes added to the pod |
-| `extraVolumeMounts:` | `[...VolumeMount]` | `[]` | Extra volume mounts for the operator container |
-| `resources:` | `ResourceRequirements` | `100m/100Mi (requests), 200m/200Mi (limits)` | Container resource requirements |
-| `securityContext:` | `SecurityContext` | hardened | Container security context |
-| `livenessProbe:` | `Probe` | `/healthz` on the serving port | Liveness probe of the operator container |
-| `readinessProbe:` | `Probe` | `/healthz` on the serving port | Readiness probe of the operator container |
-| `rbac: create:` | `bool` | `true` | Create the ClusterRole and ClusterRoleBinding |
-| `rbac: aggregateClusterRoles:` | `bool` | `false` | Create view/edit ClusterRoles for the monitoring custom resources, aggregated into the built-in user-facing roles |
-| `serviceAccount: create:` | `bool` | `true` | Create the ServiceAccount, or reference an existing one via `name` |
-| `serviceAccount: name:` | `string` | instance name | Name of the ServiceAccount the operator runs under |
-| `serviceAccount: annotations:` | `{[string]: string}` | `{}` | Annotations added to the ServiceAccount |
-| `serviceAccount: automountServiceAccountToken:` | `bool` | `false` | Mount the token by default in pods using this ServiceAccount (the operator pod mounts it through the pod-level setting) |
+| `crds.install` | `bool` | `true` | Install the `monitoring.coreos.com` custom resource definitions |
+| `crds.keep` | `bool` | `false` | Keep the CRDs and all custom resources when the instance is uninstalled |
+| `image.repository` | `string` | `quay.io/prometheus-operator/prometheus-operator` | Container image repository |
+| `image.tag` | `string` | `<latest version>` | Container image tag |
+| `image.digest` | `string` | `""` | Container image digest, takes precedence over `tag` when specified |
+| `image.pullPolicy` | `string` | `IfNotPresent` | Container image pull policy |
+| `imagePullSecrets` | `[...ObjectReference]` | `[]` | References to secrets for pulling images from private registries |
+| `metadata.labels` | `{[string]: string}` | `{}` | Labels added to all resources |
+| `metadata.annotations` | `{[string]: string}` | `{}` | Annotations added to all resources |
+| `commonLabels` | `{[string]: string}` | `{}` | Extra labels added to all resources |
+| `logLevel` | `string` | `info` | Log verbosity: `all`, `debug`, `info`, `warn`, `error` or `none` |
+| `logFormat` | `string` | `logfmt` | Log format: `logfmt` or `json` |
+| `env` | `[...EnvVar]` | `GOGC=30` | Environment variables for the operator container |
+| `extraArgs` | `[...string]` | `[]` | Extra command line arguments appended after the generated ones |
+| `extraVolumes` | `[...Volume]` | `[]` | Extra volumes added to the pod |
+| `extraVolumeMounts` | `[...VolumeMount]` | `[]` | Extra volume mounts for the operator container |
+| `resources` | `ResourceRequirements` | `100m/100Mi (requests), 200m/200Mi (limits)` | Container resource requirements |
+| `securityContext` | `SecurityContext` | hardened | Container security context |
+| `livenessProbe` | `Probe` | `/healthz` on the serving port | Liveness probe of the operator container |
+| `readinessProbe` | `Probe` | `/healthz` on the serving port | Readiness probe of the operator container |
+| `rbac.create` | `bool` | `true` | Create the ClusterRole and ClusterRoleBinding |
+| `rbac.aggregateClusterRoles` | `bool` | `false` | Create view/edit ClusterRoles for the monitoring custom resources, aggregated into the built-in user-facing roles |
+| `serviceAccount.create` | `bool` | `true` | Create the ServiceAccount, or reference an existing one via `name` |
+| `serviceAccount.name` | `string` | instance name | Name of the ServiceAccount the operator runs under |
+| `serviceAccount.annotations` | `{[string]: string}` | `{}` | Annotations added to the ServiceAccount |
+| `serviceAccount.automountServiceAccountToken` | `bool` | `false` | Mount the token by default in pods using this ServiceAccount (the operator pod mounts it through the pod-level setting) |
 
 ### Operator scope values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `namespaces:` | `[...string]` | `[]` | Namespaces watched for ServiceMonitor, PodMonitor, Probe, PrometheusRule and configuration resources; empty means all. Mutually exclusive with `denyNamespaces` |
-| `denyNamespaces:` | `[...string]` | `[]` | Namespaces excluded from watching |
-| `prometheusInstanceNamespaces:` | `[...string]` | `[]` | Namespaces watched for Prometheus and PrometheusAgent resources |
-| `alertmanagerInstanceNamespaces:` | `[...string]` | `[]` | Namespaces watched for Alertmanager resources |
-| `alertmanagerConfigNamespaces:` | `[...string]` | `[]` | Namespaces watched for AlertmanagerConfig resources |
-| `thanosRulerInstanceNamespaces:` | `[...string]` | `[]` | Namespaces watched for ThanosRuler resources |
-| `prometheusInstanceSelector:` | `string` | `""` | Label selector filtering the Prometheus resources this operator manages |
-| `alertmanagerInstanceSelector:` | `string` | `""` | Label selector filtering the Alertmanager resources this operator manages |
-| `thanosRulerInstanceSelector:` | `string` | `""` | Label selector filtering the ThanosRuler resources this operator manages |
-| `secretFieldSelector:` | `string` | excludes dockercfg, SA token, Helm and Timoni secrets | Field selector filtering the Secrets the operator watches and caches |
-| `watchReferencedObjectsInAllNamespaces:` | `bool` | `true` | Watch objects referenced from the custom resources in all namespaces |
-| `disableUnmanagedPrometheusConfiguration:` | `bool` | `true` | Reject Prometheus instances with no resource selectors configured |
-| `featureGates:` | `{[string]: bool}` | `{}` | Operator feature gates, e.g. `PrometheusAgentDaemonSet: true` |
-| `kubeletService: enabled:` | `bool` | `true` | Maintain the kubelet Endpoints for scraping the kubelets |
-| `kubeletService: namespace:` | `string` | `kube-system` | Namespace of the kubelet Service |
-| `kubeletService: name:` | `string` | `kubelet` | Name of the kubelet Service |
-| `kubeletService: selector:` | `string` | `""` | Label selector filtering the kubelet nodes |
-| `kubeletEndpoints:` | `bool` | `true` | Maintain the kubelet Endpoints object |
-| `kubeletEndpointSlice:` | `bool` | `false` | Maintain the kubelet EndpointSlice objects |
-| `clusterDomain:` | `string` | `""` | Cluster domain used for the generated addresses |
-| `configReloader: image: repository:` | `string` | `quay.io/prometheus-operator/prometheus-config-reloader` | Config-reloader image repository |
-| `configReloader: image: tag:` | `string` | `<latest version>` | Config-reloader image tag |
-| `configReloader: image: digest:` | `string` | `""` | Config-reloader image digest, takes precedence over `tag` when specified |
-| `configReloader: resources:` | `ResourceRequirements` | operator defaults | Resource requirements of the config-reloader sidecars injected into the managed pods |
-| `configReloader: enableProbe:` | `bool` | `false` | Enable the config-reloader sidecar probes |
-| `prometheusDefaultBaseImage:` | `string` | operator default | Base image for Prometheus instances without an image |
-| `alertmanagerDefaultBaseImage:` | `string` | operator default | Base image for Alertmanager instances without an image |
-| `thanosDefaultBaseImage:` | `string` | operator default | Base image for Thanos instances without an image |
-| `localhostAddress:` | `string` | operator default | Address on which the operator reaches its managed instances |
+| `namespaces` | `[...string]` | `[]` | Namespaces watched for ServiceMonitor, PodMonitor, Probe, PrometheusRule and configuration resources; empty means all. Mutually exclusive with `denyNamespaces` |
+| `denyNamespaces` | `[...string]` | `[]` | Namespaces excluded from watching |
+| `prometheusInstanceNamespaces` | `[...string]` | `[]` | Namespaces watched for Prometheus and PrometheusAgent resources |
+| `alertmanagerInstanceNamespaces` | `[...string]` | `[]` | Namespaces watched for Alertmanager resources |
+| `alertmanagerConfigNamespaces` | `[...string]` | `[]` | Namespaces watched for AlertmanagerConfig resources |
+| `thanosRulerInstanceNamespaces` | `[...string]` | `[]` | Namespaces watched for ThanosRuler resources |
+| `prometheusInstanceSelector` | `string` | `""` | Label selector filtering the Prometheus resources this operator manages |
+| `alertmanagerInstanceSelector` | `string` | `""` | Label selector filtering the Alertmanager resources this operator manages |
+| `thanosRulerInstanceSelector` | `string` | `""` | Label selector filtering the ThanosRuler resources this operator manages |
+| `secretFieldSelector` | `string` | excludes dockercfg, SA token, Helm and Timoni secrets | Field selector filtering the Secrets the operator watches and caches |
+| `watchReferencedObjectsInAllNamespaces` | `bool` | `true` | Watch objects referenced from the custom resources in all namespaces |
+| `disableUnmanagedPrometheusConfiguration` | `bool` | `true` | Reject Prometheus instances with no resource selectors configured |
+| `featureGates` | `{[string]: bool}` | `{}` | Operator feature gates, e.g. `PrometheusAgentDaemonSet: true` |
+| `kubeletService.enabled` | `bool` | `true` | Maintain the kubelet Endpoints for scraping the kubelets |
+| `kubeletService.namespace` | `string` | `kube-system` | Namespace of the kubelet Service |
+| `kubeletService.name` | `string` | `kubelet` | Name of the kubelet Service |
+| `kubeletService.selector` | `string` | `""` | Label selector filtering the kubelet nodes |
+| `kubeletEndpoints` | `bool` | `true` | Maintain the kubelet Endpoints object |
+| `kubeletEndpointSlice` | `bool` | `false` | Maintain the kubelet EndpointSlice objects |
+| `clusterDomain` | `string` | `""` | Cluster domain used for the generated addresses |
+| `configReloader.image.repository` | `string` | `quay.io/prometheus-operator/prometheus-config-reloader` | Config-reloader image repository |
+| `configReloader.image.tag` | `string` | `<latest version>` | Config-reloader image tag |
+| `configReloader.image.digest` | `string` | `""` | Config-reloader image digest, takes precedence over `tag` when specified |
+| `configReloader.resources` | `ResourceRequirements` | operator defaults | Resource requirements of the config-reloader sidecars injected into the managed pods |
+| `configReloader.enableProbe` | `bool` | `false` | Enable the config-reloader sidecar probes |
+| `prometheusDefaultBaseImage` | `string` | operator default | Base image for Prometheus instances without an image |
+| `alertmanagerDefaultBaseImage` | `string` | operator default | Base image for Alertmanager instances without an image |
+| `thanosDefaultBaseImage` | `string` | operator default | Base image for Thanos instances without an image |
+| `localhostAddress` | `string` | operator default | Address on which the operator reaches its managed instances |
 
 ### Pod scheduling values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `podLabels:` | `{[string]: string}` | `{}` | Labels added to the pods |
-| `podAnnotations:` | `{[string]: string}` | `{}` | Annotations added to the pods |
-| `securityProfile:` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
-| `podSecurityContext:` | `PodSecurityContext` | per `securityProfile` | Pod security context |
-| `nodeSelector:` | `{[string]: string}` | `kubernetes.io/os: linux` | Node selector for pod scheduling |
-| `tolerations:` | `[...Toleration]` | `[]` | Pod tolerations |
-| `affinity:` | `Affinity` | `{}` | Pod affinity rules |
-| `topologySpreadConstraints:` | `[...TopologySpreadConstraint]` | `[]` | Pod topology spread constraints |
-| `dnsConfig:` | `PodDNSConfig` | `{}` | Pod DNS configuration |
-| `dnsPolicy:` | `string` | `ClusterFirst` | Pod DNS policy, defaults to `ClusterFirstWithHostNet` with `hostNetwork` |
-| `hostNetwork:` | `bool` | `false` | Run the pods in the host network namespace |
-| `priorityClassName:` | `string` | `""` | Priority class of the pods |
-| `schedulerName:` | `string` | unset | Alternate scheduler |
-| `terminationGracePeriodSeconds:` | `int` | `30` | Pod termination grace period |
-| `automountServiceAccountToken:` | `bool` | `true` | Mount the service account token into the pod |
-| `strategy:` | `DeploymentStrategy` | `RollingUpdate` | Deployment update strategy |
-| `revisionHistoryLimit:` | `int` | `10` | Number of old ReplicaSets to retain |
-| `deploymentAnnotations:` | `{[string]: string}` | `{}` | Annotations added to the Deployment |
-| `podDisruptionBudget: enabled:` | `bool` | `false` | Create a PodDisruptionBudget for the operator pod |
-| `podDisruptionBudget: minAvailable:` | `int or %` | `1` | Minimum available pods, mutually exclusive with `maxUnavailable` |
-| `podDisruptionBudget: maxUnavailable:` | `int or %` | unset | Maximum unavailable pods |
-| `podDisruptionBudget: unhealthyPodEvictionPolicy:` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |
+| `podLabels` | `{[string]: string}` | `{}` | Labels added to the pods |
+| `podAnnotations` | `{[string]: string}` | `{}` | Annotations added to the pods |
+| `securityContextPreset` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext` | `PodSecurityContext` | per `securityContextPreset` | Pod security context |
+| `nodeSelector` | `{[string]: string}` | `kubernetes.io/os: linux` | Node selector for pod scheduling |
+| `tolerations` | `[...Toleration]` | `[]` | Pod tolerations |
+| `affinity.podAntiAffinity` | `soft`, `hard`, `none` or raw rules | `soft` | Spread the replicas across nodes; raw rules replace the preset |
+| `affinity.nodeAffinity` / `affinity.podAffinity` | raw rules | unset | Node and pod affinity rules |
+| `topologySpreadConstraints` | `[...TopologySpreadConstraint]` | `[]` | Pod topology spread constraints |
+| `dnsConfig` | `PodDNSConfig` | `{}` | Pod DNS configuration |
+| `dnsPolicy` | `string` | `ClusterFirst` | Pod DNS policy, defaults to `ClusterFirstWithHostNet` with `hostNetwork` |
+| `hostNetwork` | `bool` | `false` | Run the pods in the host network namespace |
+| `priorityClassName` | `string` | `""` | Priority class of the pods |
+| `schedulerName` | `string` | unset | Alternate scheduler |
+| `terminationGracePeriodSeconds` | `int` | `30` | Pod termination grace period |
+| `automountServiceAccountToken` | `bool` | `true` | Mount the service account token into the pod |
+| `strategy` | `DeploymentStrategy` | `RollingUpdate` | Deployment update strategy |
+| `revisionHistoryLimit` | `int` | `10` | Number of old ReplicaSets to retain |
+| `deploymentAnnotations` | `{[string]: string}` | `{}` | Annotations added to the Deployment |
+| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget for the operator pod |
+| `podDisruptionBudget.minAvailable` | `int or %` | `1` | Minimum available pods, mutually exclusive with `maxUnavailable` |
+| `podDisruptionBudget.maxUnavailable` | `int or %` | unset | Maximum unavailable pods |
+| `podDisruptionBudget.unhealthyPodEvictionPolicy` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |
 
 ### Service values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `service: type:` | `string` | `ClusterIP` | Service type: `ClusterIP`, `NodePort` or `LoadBalancer` |
-| `service: port:` | `int` | `8080` | Service port of the operator web server |
-| `service: httpsPort:` | `int` | `443` | Service port of the TLS web server when the webhook is enabled |
-| `service: clusterIP:` | `string` | `""` | Static cluster IP, or `None` for a headless Service |
-| `service: annotations:` | `{[string]: string}` | `{}` | Annotations added to the Service |
-| `service: labels:` | `{[string]: string}` | `{}` | Labels added to the Service |
-| `service: ipFamilies:` | `[...string]` | `[]` | IP families: `IPv4` and/or `IPv6` |
-| `service: ipFamilyPolicy:` | `string` | `""` | `SingleStack`, `PreferDualStack` or `RequireDualStack` |
-| `service: externalIPs:` | `[...string]` | `[]` | External IPs accepted by the Service |
-| `service: nodePort:` | `int` | `0` (auto) | Node port of the web server with `type: NodePort` |
-| `service: nodePortTls:` | `int` | `0` (auto) | Node port of the TLS web server with `type: NodePort` |
-| `service: loadBalancerIP:` | `string` | `""` | Load balancer IP with `type: LoadBalancer` |
-| `service: loadBalancerClass:` | `string` | unset | Load balancer implementation class with `type: LoadBalancer` |
-| `service: loadBalancerSourceRanges:` | `[...string]` | `[]` | CIDRs allowed to reach the load balancer |
-| `service: externalTrafficPolicy:` | `string` | `Cluster` | External traffic policy for `NodePort` and `LoadBalancer` |
+| `service.type` | `string` | `ClusterIP` | Service type: `ClusterIP`, `NodePort` or `LoadBalancer` |
+| `service.port` | `int` | `8080` | Service port of the operator web server |
+| `service.httpsPort` | `int` | `443` | Service port of the TLS web server when the webhook is enabled |
+| `service.clusterIP` | `string` | `""` | Static cluster IP, or `None` for a headless Service |
+| `service.annotations` | `{[string]: string}` | `{}` | Annotations added to the Service |
+| `service.labels` | `{[string]: string}` | `{}` | Labels added to the Service |
+| `service.ipFamilies` | `[...string]` | `[]` | IP families: `IPv4` and/or `IPv6` |
+| `service.ipFamilyPolicy` | `string` | `""` | `SingleStack`, `PreferDualStack` or `RequireDualStack` |
+| `service.externalIPs` | `[...string]` | `[]` | External IPs accepted by the Service |
+| `service.nodePort` | `int` | `0` (auto) | Node port of the web server with `type: NodePort` |
+| `service.nodePortTls` | `int` | `0` (auto) | Node port of the TLS web server with `type: NodePort` |
+| `service.loadBalancerIP` | `string` | `""` | Load balancer IP with `type: LoadBalancer` |
+| `service.loadBalancerClass` | `string` | unset | Load balancer implementation class with `type: LoadBalancer` |
+| `service.loadBalancerSourceRanges` | `[...string]` | `[]` | CIDRs allowed to reach the load balancer |
+| `service.externalTrafficPolicy` | `string` | `Cluster` | External traffic policy for `NodePort` and `LoadBalancer` |
+| `networkPolicy.enabled` | `bool` | `false` | Create ingress and egress NetworkPolicies for the operator pod |
+| `networkPolicy.ingress` / `egress` | `netv1` rules | serving port in; DNS and Kubernetes API out | The policy rules |
 
-### Monitoring and network values
+### Monitoring values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `serviceMonitor: enabled:` | `bool` | `false` | Create a ServiceMonitor scraping the operator's own metrics |
-| `serviceMonitor: additionalLabels:` | `{[string]: string}` | `{}` | Labels added to the ServiceMonitor, e.g. for Prometheus selectors |
-| `serviceMonitor: annotations:` | `{[string]: string}` | `{}` | Annotations added to the ServiceMonitor |
-| `serviceMonitor: jobLabel:` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
-| `serviceMonitor: interval:` | `string` | unset | Scrape interval; defaults to the Prometheus settings |
-| `serviceMonitor: scrapeTimeout:` | `string` | unset | Scrape timeout; defaults to the Prometheus settings |
-| `serviceMonitor: honorLabels:` | `bool` | `false` | Keep scraped label values on collision |
-| `serviceMonitor: scheme:` | `string` | `http`; `https` with the webhook | Scrape scheme |
-| `serviceMonitor: tlsConfig:` | `{...}` | `insecureSkipVerify: true` with the webhook | Scrape TLS settings |
-| `serviceMonitor: bearerTokenFile:` / `bearerTokenSecret:` / `proxyUrl:` | | unset | Scrape authentication and proxy settings |
-| `serviceMonitor: targetLabels:` / `podTargetLabels:` | `[...string]` | unset | Service/pod labels copied onto the metrics |
-| `serviceMonitor: sampleLimit:` | `int` | unset | Per-scrape sample limit |
-| `serviceMonitor: targetLimit:` | `int` | unset | Scraped target limit |
-| `serviceMonitor: labelLimit:` | `int` | unset | Per-scrape label limit |
-| `serviceMonitor: labelNameLengthLimit:` | `int` | unset | Label name length limit |
-| `serviceMonitor: labelValueLengthLimit:` | `int` | unset | Label value length limit |
-| `serviceMonitor: metricRelabelings:` | `[...RelabelConfig]` | `[]` | Relabeling rules applied to the samples |
-| `serviceMonitor: relabelings:` | `[...RelabelConfig]` | `[]` | Relabeling rules applied to the targets |
-| `networkPolicy: enabled:` | `bool` | `false` | Create ingress and egress NetworkPolicies for the operator pod |
-| `networkPolicy: ingress:` / `egress:` | `netv1` rules | serving port in; DNS and Kubernetes API out | The policy rules |
+| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor scraping the operator's own metrics, in the instance namespace |
+| `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
+| `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
+| `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
+| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
+| `serviceMonitor.scheme` | `string` | `http`; `https` with the webhook | Scrape scheme |
+| `serviceMonitor.tlsConfig` | `{...}` | `insecureSkipVerify: true` with the webhook | Scrape TLS settings |
+| `serviceMonitor.bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape authentication and proxy settings |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
+| `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
+| `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 
 ### Admission webhook values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `webhook: enabled:` | `bool` | `false` | Enable the PrometheusRule and AlertmanagerConfig admission webhooks and switch the operator web server to TLS |
-| `webhook: port:` | `int` | `10250` | Container port of the TLS web server |
-| `webhook: failurePolicy:` | `string` | `Fail` | `Fail` rejects admission while the webhook is unreachable, `Ignore` admits |
-| `webhook: timeoutSeconds:` | `int` | `10` | Webhook call timeout |
-| `webhook: namespaceSelector:` | `LabelSelector` | derived from the watch scope | Namespaces subject to admission |
-| `webhook: objectSelector:` | `LabelSelector` | `{}` | Objects subject to admission |
-| `webhook: matchConditions:` | `[...MatchCondition]` | `[]` | CEL expressions gating admission (Kubernetes 1.28+, omitted on older clusters) |
-| `webhook: tls: type:` | `string` | `cert-manager` | Certificate provisioning: `cert-manager` or `existingSecret` |
-| `webhook: tls: minVersion:` | `string` | `VersionTLS13` | Minimum TLS version of the web server |
-| `webhook: tls: cipherSuites:` | `[...string]` | Go defaults | TLS cipher suites (TLS 1.2 and below) |
-| `webhook: tls: certManager: existingIssuer:` | `object` | self-signed issuer | Issue the certificate from an existing `Issuer` or `ClusterIssuer` |
-| `webhook: tls: certManager: duration:` | `string` | cert-manager default | Certificate validity |
-| `webhook: tls: certManager: renewBefore:` | `string` | cert-manager default | Renewal window |
-| `webhook: tls: certManager: annotations:` / `labels:` | `{[string]: string}` | `{}` | Extra metadata for the Issuer and Certificate |
-| `webhook: tls: existingSecret: name:` | `string` | `""` | Existing TLS secret with `tls.crt` and `tls.key` |
-| `webhook: tls: caBundle:` | `string` | `""` | PEM-encoded CA of the serving certificate, required with `existingSecret` |
+| `webhook.enabled` | `bool` | `false` | Enable the PrometheusRule and AlertmanagerConfig admission webhooks and switch the operator web server to TLS |
+| `webhook.port` | `int` | `10250` | Container port of the TLS web server |
+| `webhook.failurePolicy` | `string` | `Fail` | `Fail` rejects admission while the webhook is unreachable, `Ignore` admits |
+| `webhook.timeoutSeconds` | `int` | `10` | Webhook call timeout |
+| `webhook.namespaceSelector` | `LabelSelector` | derived from the watch scope | Namespaces subject to admission |
+| `webhook.objectSelector` | `LabelSelector` | `{}` | Objects subject to admission |
+| `webhook.matchConditions` | `[...MatchCondition]` | `[]` | CEL expressions gating admission (Kubernetes 1.28+, omitted on older clusters) |
+| `webhook.tls.type` | `string` | `cert-manager` | Certificate provisioning: `cert-manager` or `existingSecret` |
+| `webhook.tls.minVersion` | `string` | `VersionTLS13` | Minimum TLS version of the web server |
+| `webhook.tls.cipherSuites` | `[...string]` | Go defaults | TLS cipher suites (TLS 1.2 and below) |
+| `webhook.tls.certManager.existingIssuer` | `object` | self-signed issuer | Issue the certificate from an existing `Issuer` or `ClusterIssuer` |
+| `webhook.tls.certManager.duration` | `string` | cert-manager default | Certificate validity |
+| `webhook.tls.certManager.renewBefore` | `string` | cert-manager default | Renewal window |
+| `webhook.tls.certManager.annotations` / `labels` | `{[string]: string}` | `{}` | Extra metadata for the Issuer and Certificate |
+| `webhook.tls.existingSecret.name` | `string` | `""` | Existing TLS secret with `tls.crt` and `tls.key` |
+| `webhook.tls.caBundle` | `string` | `""` | PEM-encoded CA of the serving certificate, required with `existingSecret` |

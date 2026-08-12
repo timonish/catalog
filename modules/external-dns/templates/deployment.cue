@@ -3,10 +3,19 @@ package templates
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	timoniv1 "timoni.sh/core/v1alpha1"
 )
 
 #Deployment: appsv1.#Deployment & {
-	_config:    #Config
+	_config: #Config
+
+	// The affinity rules generated from the affinity values;
+	// the anti-affinity presets match the instance selector labels.
+	_affinity: timoniv1.#Affinity & {
+		#Values:      _config.affinity
+		#MatchLabels: _config.selector.labels
+	}
+
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
 	metadata:   _config.metadata
@@ -173,11 +182,8 @@ import (
 					volumes: _config.extraVolumes
 				}
 				nodeSelector: _config.nodeSelector
-				if _config.affinity != _|_ {
-					affinity: #AffinityWithDefaultSelector & {
-						_affinity: _config.affinity
-						_labels:   _config.selector.labels
-					}
+				if _affinity.#Enabled {
+					affinity: _affinity
 				}
 				if _config.topologySpreadConstraints != _|_ {
 					// Constraints without an explicit label selector match
@@ -194,67 +200,6 @@ import (
 				if _config.tolerations != _|_ {
 					tolerations: _config.tolerations
 				}
-			}
-		}
-	}
-}
-
-// Pod affinity and anti-affinity terms without an explicit label
-// selector are completed with the instance selector labels.
-#AffinityWithDefaultSelector: {
-	_affinity: corev1.#Affinity
-	_labels: {[string]: string}
-
-	if _affinity.nodeAffinity != _|_ {
-		nodeAffinity: _affinity.nodeAffinity
-	}
-	if _affinity.podAffinity != _|_ {
-		podAffinity: {
-			if _affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution != _|_ {
-				preferredDuringSchedulingIgnoredDuringExecution: [
-					for t in _affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution {
-						weight:          t.weight
-						podAffinityTerm: t.podAffinityTerm
-						if t.podAffinityTerm.labelSelector == _|_ {
-							podAffinityTerm: labelSelector: matchLabels: _labels
-						}
-					},
-				]
-			}
-			if _affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution != _|_ {
-				requiredDuringSchedulingIgnoredDuringExecution: [
-					for t in _affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution {
-						t
-						if t.labelSelector == _|_ {
-							labelSelector: matchLabels: _labels
-						}
-					},
-				]
-			}
-		}
-	}
-	if _affinity.podAntiAffinity != _|_ {
-		podAntiAffinity: {
-			if _affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution != _|_ {
-				preferredDuringSchedulingIgnoredDuringExecution: [
-					for t in _affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution {
-						weight:          t.weight
-						podAffinityTerm: t.podAffinityTerm
-						if t.podAffinityTerm.labelSelector == _|_ {
-							podAffinityTerm: labelSelector: matchLabels: _labels
-						}
-					},
-				]
-			}
-			if _affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution != _|_ {
-				requiredDuringSchedulingIgnoredDuringExecution: [
-					for t in _affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution {
-						t
-						if t.labelSelector == _|_ {
-							labelSelector: matchLabels: _labels
-						}
-					},
-				]
 			}
 		}
 	}

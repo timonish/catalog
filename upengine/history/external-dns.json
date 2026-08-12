@@ -3,8 +3,12 @@
   "repo": "kubernetes-sigs/external-dns",
   "tag": "v0.21.0",
   "commit": "066a11e2158f87689a01f0ff39493037da958171",
-  "moduleVersion": "0.21.0-3",
+  "moduleVersion": "0.21.0-4",
   "moduleReleases": [
+    {
+      "version": "0.21.0-4",
+      "releasedAt": "2026-08-12T13:00:12.696Z"
+    },
     {
       "version": "0.21.0-3",
       "releasedAt": "2026-08-12T06:38:12.000Z"
@@ -30,6 +34,6 @@
     }
   },
   "crdsDigest": "sha256:96f4383d550a04d7c78b3312edc6e0f9dab9777d8195ff4cfdc76a0ca9587bbe",
-  "generatedDigest": "sha256:7cbc35ef27903f998d27b209369da03e8d017103ac191c279699384b7f314719",
-  "updatedAt": "2026-08-11T23:18:09.438Z"
+  "generatedDigest": "sha256:08086cd31259bfdff090d6c9c4b5fc88365f1b6ce13e1e49572878825806e857",
+  "updatedAt": "2026-08-12T13:00:12.696Z"
 }

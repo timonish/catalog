@@ -37,61 +37,6 @@ _monitorMeta: {
 	}
 }
 
-// The canonical scrape endpoint fields shared by both monitors.
-_monitorEndpoint: {
-	#monitor: _
-
-	path:        "/metrics"
-	honorLabels: #monitor.honorLabels
-	if #monitor.interval != "" {
-		interval: #monitor.interval
-	}
-	if #monitor.scrapeTimeout != "" {
-		scrapeTimeout: #monitor.scrapeTimeout
-	}
-	if #monitor.scheme != _|_ {
-		scheme: #monitor.scheme
-	}
-	if #monitor.tlsConfig != _|_ {
-		tlsConfig: #monitor.tlsConfig
-	}
-	if #monitor.bearerTokenFile != _|_ {
-		bearerTokenFile: #monitor.bearerTokenFile
-	}
-	if #monitor.bearerTokenSecret != _|_ {
-		bearerTokenSecret: #monitor.bearerTokenSecret
-	}
-	if #monitor.proxyUrl != _|_ {
-		proxyUrl: #monitor.proxyUrl
-	}
-	if #monitor.metricRelabelings != _|_ {
-		metricRelabelings: #monitor.metricRelabelings
-	}
-	if #monitor.relabelings != _|_ {
-		relabelings: #monitor.relabelings
-	}
-}
-
-_monitorLimits: {
-	#monitor: _
-
-	if #monitor.sampleLimit != _|_ {
-		sampleLimit: #monitor.sampleLimit
-	}
-	if #monitor.targetLimit != _|_ {
-		targetLimit: #monitor.targetLimit
-	}
-	if #monitor.labelLimit != _|_ {
-		labelLimit: #monitor.labelLimit
-	}
-	if #monitor.labelNameLengthLimit != _|_ {
-		labelNameLengthLimit: #monitor.labelNameLengthLimit
-	}
-	if #monitor.labelValueLengthLimit != _|_ {
-		labelValueLengthLimit: #monitor.labelValueLengthLimit
-	}
-}
-
 #ServiceMonitor: promv1.#ServiceMonitor & {
 	#config: config.#Config
 	_config: #config
@@ -101,21 +46,15 @@ _monitorLimits: {
 	apiVersion: "monitoring.coreos.com/v1"
 	kind:       "ServiceMonitor"
 	metadata: _monitorMeta & {#config: cfg, #monitor: _monitor}
+	spec: timoniv1.#MonitorSpec & {#Values: _monitor}
 	spec: {
-		jobLabel: _monitor.jobLabel
 		selector: _monitorSelector & {#config: cfg}
 		namespaceSelector: matchNames: [cfg.metadata.namespace]
-		_monitorLimits & {#monitor: _monitor}
-		if _monitor.targetLabels != _|_ {
-			targetLabels: _monitor.targetLabels
-		}
-		if _monitor.podTargetLabels != _|_ {
-			podTargetLabels: _monitor.podTargetLabels
-		}
 		endpoints: [
-			_monitorEndpoint & {
-				#monitor:   _monitor
+			timoniv1.#MonitorEndpointSpec & {
+				#Values:    _monitor
 				targetPort: "http-metrics"
+				path:       "/metrics"
 			},
 		]
 	}
@@ -130,18 +69,15 @@ _monitorLimits: {
 	apiVersion: "monitoring.coreos.com/v1"
 	kind:       "PodMonitor"
 	metadata: _monitorMeta & {#config: cfg, #monitor: _monitor}
+	spec: timoniv1.#MonitorSpec & {#Values: _monitor}
 	spec: {
-		jobLabel: _monitor.jobLabel
 		selector: _monitorSelector & {#config: cfg}
 		namespaceSelector: matchNames: [cfg.metadata.namespace]
-		_monitorLimits & {#monitor: _monitor}
-		if _monitor.podTargetLabels != _|_ {
-			podTargetLabels: _monitor.podTargetLabels
-		}
 		podMetricsEndpoints: [
-			_monitorEndpoint & {
-				#monitor: _monitor
-				port:     "http-metrics"
+			timoniv1.#MonitorEndpointSpec & {
+				#Values: _monitor
+				port:    "http-metrics"
+				path:    "/metrics"
 			},
 		]
 	}
