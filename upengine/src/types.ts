@@ -80,7 +80,7 @@ export interface E2eConfig {
   ci?: false;
 }
 
-/** One entry of upengine/config/sources.ts — a module's upstream declaration. */
+/** One upengine/config/sources/<name>.ts file — a module's upstream declaration. */
 export interface ModuleSource {
   /** Module name; must match a modules/<name> directory. */
   name: string;

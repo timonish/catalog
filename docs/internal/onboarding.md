@@ -10,8 +10,8 @@ coverage is the floor and the unified catalog surface is the shape.
 ## Module design rules
 
 - **Upstream CRDs ship in the generated `templates/crds.cue`**: a module
-  that installs CRDs declares the upstream manifest as `crds` in
-  `sources.ts` — either a repo `file` fetched at the pinned commit
+  that installs CRDs declares the upstream manifest as `crds` in its
+  module source — either a repo `file` fetched at the pinned commit
   (`modules/external-dns`) or a `releaseAsset` of the resolved release
   (`modules/cert-manager`); every sync normalizes it (packaging labels
   and annotations stripped) and re-imports it with `cue import`. When
@@ -27,14 +27,14 @@ coverage is the floor and the unified catalog surface is the shape.
 - **CRDs-only modules omit `images`** (`modules/gateway-api`): no
   versions.cue is generated and the README version section renders
   without an image table. Such a module can opt out of the GitHub
-  Actions e2e matrix with `e2e: ci: false` in `sources.ts` (vet still
+  Actions e2e matrix with `e2e: ci: false` in its module source (vet still
   gates it in CI; `make e2e` still runs it locally).
 - **Multi-deployment addons use the multi-package layout** (see
   `modules/cert-manager`): one CUE package per component under
   `templates/<component>`, plus `templates/config` holding the values
   schema; component object names and labels come from the Timoni
   `#MetaComponent` convention. The module declares `layout: "packages"`
-  in `sources.ts`, which moves the generated image defaults to
+  in its module source, which moves the generated image defaults to
   `templates/config/versions.cue`.
 - **Prefer upstream component configuration APIs over flag mapping**:
   when the addon supports a `--config` file (e.g. cert-manager's
@@ -55,19 +55,19 @@ coverage is the floor and the unified catalog surface is the shape.
    `cue.mod/gen/k8s.io` and the shared CRD schema groups the templates
    import (see [schemas/README.md](../../schemas/README.md)). When the
    addon ships CRDs, declare the upstream manifest path as `crds` in the
-   `sources.ts` entry added in step 7 — the sync engine generates
+   module source added in step 7 — the sync engine generates
    `templates/crds.cue`, and the curated `#Instance` includes its
    objects behind a `crds.install` value (see `modules/external-dns`).
 2. **Golden rule: the values API must cover every config option offered
-   by the upstream parity target** (the `parityTarget` URL in
-   `sources.ts` — the upstream chart, or the plain manifests when there
+   by the upstream parity target** (the `parityTarget` URL in the
+   module source — the upstream chart, or the plain manifests when there
    is no chart). Clone the upstream repo, read the chart's `values.yaml`
    and every template, and map each option to a typed CUE field.
    Coverage is the floor, not the shape: common settings follow the
    unified surface in [values-standard.md](values-standard.md) even
    where the upstream lacks them, and Helm-only mechanics (lookup,
    generated certs, PSP) are excluded — record each exclusion as a
-   comment on the module's `sources.ts` entry, never in the
+   comment in the module's source file, never in the
    user-facing README.
 3. Image defaults live in the generated `templates/versions.cue`
    (`#defaultImages`), referenced as defaults from `#Config` — never
@@ -97,7 +97,9 @@ coverage is the floor and the unified catalog surface is the shape.
    (`timoni: healthChecks: timoniv1.#HealthCheckLibrary.all` in
    `healthchecks.cue`) and add condition-based checks for any custom
    resources the module creates (e.g. cert-manager Certificate).
-7. Add the module's entry to `upengine/config/sources.ts` (the upstream
+7. Add the module's source declaration as
+   `upengine/config/sources/<name>.ts` exporting `source` — the loader
+   picks up the file automatically, nothing else to edit (the upstream
    repo, `parityTarget` URL, release tag glob, manifests input or
    release image, optional `crds` manifest path, and the `e2e`
    namespace and verify check) plus a `test/bundles/<name>/bundle.cue`

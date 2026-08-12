@@ -33,7 +33,7 @@ export async function lintModules(sources: ModuleSource[]): Promise<void> {
   const declared = new Set(sources.map((s) => s.name));
   for (const dir of dirs) {
     if (!declared.has(dir)) {
-      throw new Error(`modules/${dir} has no entry in upengine/config/sources.ts`);
+      throw new Error(`modules/${dir} has no source in upengine/config/sources/`);
     }
   }
   for (const source of sources) {

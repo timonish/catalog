@@ -30,7 +30,8 @@ idempotent:
 
 ## Upstream parity review
 
-Every `sources.ts` entry declares a `parityTarget`: the URL of the
+Every module source (`upengine/config/sources/<name>.ts`) declares a
+`parityTarget`: the URL of the
 upstream config surface — a Helm chart directory, or the plain
 manifests when there is no chart — the module holds parity with. The
 field is informational and never consumed by the engine; it exists so
@@ -59,6 +60,6 @@ that requires a periodic manual review:
 
 For modules whose parity surface spans more than the chart (cert-manager
 Config APIs), review those sources too — the entry's comment in
-`sources.ts` says what else to read. Automating the review nudge
+the module source says what else to read. Automating the review nudge
 (per-sync content digests of watched upstream paths, changed paths
 flagged in bump PR bodies) is deferred engine work.
