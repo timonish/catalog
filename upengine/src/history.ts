@@ -4,10 +4,26 @@
 import { mkdir, rename } from "node:fs/promises";
 import { join } from "node:path";
 import { HISTORY_DIR } from "./paths.ts";
-import type { HistoryEntry } from "./types.ts";
+import type { HistoryEntry, ModuleRelease } from "./types.ts";
 
 function historyPath(name: string): string {
   return join(HISTORY_DIR, `${name}.json`);
+}
+
+/** The release record with `version` included, sorted newest first (the
+ * build suffix is a semver prerelease, so numeric suffixes order
+ * correctly: 0.9.0-10 > 0.9.0-4). An already-recorded version keeps its
+ * original release time — a forced re-sync is not a new release. */
+export function recordRelease(
+  releases: ModuleRelease[] | undefined,
+  version: string,
+  releasedAt: string,
+): ModuleRelease[] {
+  const all = new Map((releases ?? []).map((r) => [r.version, r] as const));
+  if (!all.has(version)) {
+    all.set(version, { version, releasedAt });
+  }
+  return [...all.values()].sort((a, b) => Bun.semver.order(b.version, a.version));
 }
 
 export async function readHistory(name: string): Promise<HistoryEntry | null> {

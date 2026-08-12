@@ -2,30 +2,27 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Module upstream declarations for `bun upengine/src/main.ts sync`: one file
-// per module under sources/, assembled here in alphabetical order — results
-// and reporting keep this order. Adding a module's automation is a
-// config-only edit (new sources/<name>.ts plus one import below), typechecked
+// per module under sources/, each exporting `source: ModuleSource`, loaded
+// here in filename order. Adding a module's automation is a single new
+// sources/<name>.ts file — nothing else to edit; the files are typechecked
 // by `make lint` and validated by `validateSources` at runtime.
 
+import { readdir } from "node:fs/promises";
+import { basename, join } from "node:path";
 import type { ModuleSource } from "../src/types.ts";
-import { source as certManager } from "./sources/cert-manager.ts";
-import { source as envoyGateway } from "./sources/envoy-gateway.ts";
-import { source as externalDns } from "./sources/external-dns.ts";
-import { source as gatewayApi } from "./sources/gateway-api.ts";
-import { source as kubeStateMetrics } from "./sources/kube-state-metrics.ts";
-import { source as metricsServer } from "./sources/metrics-server.ts";
-import { source as prometheusOperator } from "./sources/prometheus-operator.ts";
-import { source as trustManager } from "./sources/trust-manager.ts";
-import { source as verticalPodAutoscaler } from "./sources/vertical-pod-autoscaler.ts";
 
-export const sources: ModuleSource[] = [
-  certManager,
-  envoyGateway,
-  externalDns,
-  gatewayApi,
-  kubeStateMetrics,
-  metricsServer,
-  prometheusOperator,
-  trustManager,
-  verticalPodAutoscaler,
-];
+const dir = join(import.meta.dir, "sources");
+
+export const sources: ModuleSource[] = [];
+for (const file of (await readdir(dir)).filter((f) => f.endsWith(".ts")).sort()) {
+  const declared = (await import(join(dir, file))) as { source?: ModuleSource };
+  if (declared.source === undefined) {
+    throw new Error(`config/sources/${file} does not export 'source'`);
+  }
+  if (declared.source.name !== basename(file, ".ts")) {
+    throw new Error(
+      `config/sources/${file} declares name '${declared.source.name}'; the filename must match`,
+    );
+  }
+  sources.push(declared.source);
+}

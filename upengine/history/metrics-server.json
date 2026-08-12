@@ -4,6 +4,32 @@
   "tag": "v0.9.0",
   "commit": "2a7c4b2c7d46552ff47f4aeaa3a735c582587ecd",
   "moduleVersion": "0.9.0-4",
+  "moduleReleases": [
+    {
+      "version": "0.9.0-4",
+      "releasedAt": "2026-08-12T05:53:50.000Z"
+    },
+    {
+      "version": "0.9.0-3",
+      "releasedAt": "2026-08-11T13:45:55.000Z"
+    },
+    {
+      "version": "0.9.0-2",
+      "releasedAt": "2026-08-10T07:42:39.000Z"
+    },
+    {
+      "version": "0.9.0-1",
+      "releasedAt": "2026-08-09T21:20:17.000Z"
+    },
+    {
+      "version": "0.9.0-0",
+      "releasedAt": "2026-08-09T18:26:03.000Z"
+    },
+    {
+      "version": "0.8.0-0",
+      "releasedAt": "2026-08-09T17:27:01.000Z"
+    }
+  ],
   "images": {
     "metrics-server": {
       "repository": "registry.k8s.io/metrics-server/metrics-server",

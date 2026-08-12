@@ -4,6 +4,20 @@
   "tag": "v2.19.1",
   "commit": "45e1513e95beaaa2f2df92af9958cd9837bb66ab",
   "moduleVersion": "2.19.1-2",
+  "moduleReleases": [
+    {
+      "version": "2.19.1-2",
+      "releasedAt": "2026-08-12T06:47:03.000Z"
+    },
+    {
+      "version": "2.19.1-1",
+      "releasedAt": "2026-08-11T13:45:55.000Z"
+    },
+    {
+      "version": "2.19.1-0",
+      "releasedAt": "2026-08-10T17:55:48.000Z"
+    }
+  ],
   "images": {
     "kube-state-metrics": {
       "repository": "registry.k8s.io/kube-state-metrics/kube-state-metrics",
