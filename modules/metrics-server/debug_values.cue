@@ -12,7 +12,7 @@ values: {
 	replicas:             2
 	revisionHistoryLimit: 5
 
-	updateStrategy: {
+	strategy: {
 		type: "RollingUpdate"
 		rollingUpdate: maxUnavailable: 1
 	}
@@ -22,7 +22,22 @@ values: {
 	podLabels: "team":                      "platform"
 	podAnnotations: "prometheus.io/scrape": "false"
 
-	args: ["--kubelet-insecure-tls"]
+	extraArgs: ["--kubelet-insecure-tls"]
+
+	env: [{name: "GOMAXPROCS", value: "2"}]
+
+	extraContainers: [{
+		name:  "sidecar"
+		image: "docker.io/library/busybox:latest"
+		command: ["sleep", "infinity"]
+	}]
+	initContainers: [{
+		name:  "init"
+		image: "docker.io/library/busybox:latest"
+		command: ["true"]
+	}]
+
+	terminationGracePeriodSeconds: 30
 
 	hostNetwork: true
 
@@ -31,8 +46,20 @@ values: {
 	serviceMonitor: {
 		enabled: true
 		additionalLabels: prometheus: "platform"
-		interval:      "30s"
+		annotations: "team":          "platform"
+		interval:      "1m30s"
 		scrapeTimeout: "5s"
+		honorLabels:   true
+		tlsConfig: {
+			insecureSkipVerify: false
+			ca: secret: {
+				name: "metrics-server-tls"
+				key:  "ca.crt"
+			}
+			serverName: "metrics-server.monitoring.svc"
+		}
+		sampleLimit: 1000
+		targetLabels: ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
 			action: "drop"
 			sourceLabels: ["__name__"]
@@ -71,6 +98,10 @@ values: {
 		type: "NodePort"
 		port: 4443
 		labels: "kubernetes.io/cluster-service": "true"
+		nodePort: 30443
+		ipFamilies: ["IPv4", "IPv6"]
+		ipFamilyPolicy:        "PreferDualStack"
+		externalTrafficPolicy: "Local"
 	}
 
 	extraVolumes: [{
