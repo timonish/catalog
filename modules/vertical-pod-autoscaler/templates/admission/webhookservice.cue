@@ -20,6 +20,9 @@ import (
 		namespace: _config.metadata.namespace
 		labels:    _config.metadata.labels
 		labels: (timoniv1.#StdLabelComponent): _component
+		if _ac.service.labels != _|_ {
+			labels: _ac.service.labels
+		}
 		if _config.metadata.annotations != _|_ {
 			annotations: _config.metadata.annotations
 		}
@@ -28,8 +31,18 @@ import (
 		}
 	}
 	spec: corev1.#ServiceSpec & {
-		type:  "ClusterIP"
-		ports: _ac.service.ports
+		type: "ClusterIP"
+		if _ac.service.ipFamilies != _|_ {
+			ipFamilies: _ac.service.ipFamilies
+		}
+		if _ac.service.ipFamilyPolicy != _|_ {
+			ipFamilyPolicy: _ac.service.ipFamilyPolicy
+		}
+		ports: [{
+			port:       _ac.service.port
+			protocol:   "TCP"
+			targetPort: _ac.service.targetPort
+		}]
 		selector: #SelectorLabels & {#config: _config}
 	}
 }

@@ -3,7 +3,7 @@
   "repo": "kubernetes/autoscaler",
   "tag": "vertical-pod-autoscaler-1.7.1",
   "commit": "352365899477910018f40d89fa3ea30b2c5d0e78",
-  "moduleVersion": "1.7.1-0",
+  "moduleVersion": "1.7.1-1",
   "images": {
     "recommender": {
       "repository": "registry.k8s.io/autoscaling/vpa-recommender",
@@ -22,6 +22,6 @@
     }
   },
   "crdsDigest": "sha256:92240d0f43a78bc9d64ce70825e84e0cd32d2793b0b605df4772cdcfc36d3fca",
-  "generatedDigest": "sha256:6f682b4395d85e2d6e842085db9df4f1e3421a8b9ca5cc1b2349408a2eed4673",
-  "updatedAt": "2026-08-11T18:41:00.417Z"
+  "generatedDigest": "sha256:796a79bd57423e7bca94e61a34a12c30e042a4a3961a50b7172646622dc6e767",
+  "updatedAt": "2026-08-11T23:11:30.630Z"
 }

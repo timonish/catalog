@@ -21,8 +21,11 @@ import (
 		if _pdb.maxUnavailable != _|_ {
 			maxUnavailable: _pdb.maxUnavailable
 		}
-		if _pdb.minAvailable == _|_ && _pdb.maxUnavailable == _|_ {
-			minAvailable: 1
+
+		// unhealthyPodEvictionPolicy requires Kubernetes 1.27 or newer.
+		if _pdb.unhealthyPodEvictionPolicy != _|_ &&
+			(_config.clusterVersion.major > 1 || _config.clusterVersion.minor >= 27) {
+			unhealthyPodEvictionPolicy: _pdb.unhealthyPodEvictionPolicy
 		}
 	}
 }
