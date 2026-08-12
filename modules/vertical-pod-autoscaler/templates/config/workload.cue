@@ -9,10 +9,6 @@ import (
 // Duration in Go time.ParseDuration format, e.g. "15s" or "1h30m".
 #Duration: string & =~"^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
 
-// Duration in Prometheus format, e.g. "30s" or "1m30s"; a bare "0" is
-// allowed.
-#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
-
 // Workload defines the deployment settings common to the recommender,
 // updater and admission-controller components.
 #Workload: W={
@@ -20,9 +16,9 @@ import (
 	// as the object name suffix and the component label value.
 	#Component: string
 
-	// The security profile wired from the module's securityProfile
+	// The security preset wired from the module's securityContextPreset
 	// value.
-	#Profile: timoniv1.#SecurityProfile
+	#Preset: timoniv1.#SecurityContextPreset
 
 	// Whether to deploy the component.
 	enabled: *true | bool
@@ -52,8 +48,8 @@ import (
 	// The pod security context generated for the security profile; the
 	// upstream images run as the non-root UID 65534.
 	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
-		#Profile: W.#Profile
-		#User:    65534
+		#Preset: W.#Preset
+		#User:   65534
 	}
 
 	// Extra command line arguments appended to the component container.
@@ -99,19 +95,14 @@ import (
 	// Pod scheduling settings; pods are restricted to Linux nodes by
 	// default and prefer spreading the component replicas across nodes.
 	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
-	affinity: *{
-		podAntiAffinity: preferredDuringSchedulingIgnoredDuringExecution: [{
-			weight: 100
-			podAffinityTerm: {
-				labelSelector: matchExpressions: [{
-					key:      "app.kubernetes.io/component"
-					operator: "In"
-					values: [W.#Component]
-				}]
-				topologyKey: "kubernetes.io/hostname"
-			}
-		}]
-	} | corev1.#Affinity
+	// The affinity rules; `podAntiAffinity` accepts the `soft`
+	// (default), `hard` and `none` presets for spreading the component
+	// replicas across nodes, or raw pod anti-affinity rules.
+	affinity: timoniv1.#AffinityValues & {
+		podAntiAffinity: timoniv1.#AffinityPreset | corev1.#PodAntiAffinity
+		nodeAffinity?:   corev1.#NodeAffinity
+		podAffinity?:    corev1.#PodAffinity
+	}
 	tolerations?: [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 

@@ -3,6 +3,7 @@ package admission
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	timoniv1 "timoni.sh/core/v1alpha1"
 	"timoni.sh/vertical-pod-autoscaler/templates/config"
 )
 
@@ -12,6 +13,13 @@ import (
 
 	_ac: _config.admissionController
 	_selectorLabels: #SelectorLabels & {#config: _config}
+
+	// The affinity rules generated from the affinity values;
+	// the anti-affinity presets match the component pods.
+	_affinity: timoniv1.#Affinity & {
+		#Values:      _ac.affinity
+		#MatchLabels: _selectorLabels
+	}
 
 	// The serving certificate files mounted into the container; the
 	// cert-manager Secret keys differ from the pre-provisioned layout.
@@ -142,7 +150,9 @@ import (
 					if !_ac.certManager.enabled if _ac.volumes != _|_ for v in _ac.volumes {v},
 				]
 				nodeSelector: _ac.nodeSelector
-				affinity:     _ac.affinity
+				if _affinity.#Enabled {
+					affinity: _affinity
+				}
 				if _ac.tolerations != _|_ {
 					tolerations: _ac.tolerations
 				}

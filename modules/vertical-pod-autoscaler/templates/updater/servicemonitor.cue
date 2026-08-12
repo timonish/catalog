@@ -2,6 +2,7 @@ package updater
 
 import (
 	promv1 "monitoring.coreos.com/servicemonitor/v1"
+	timoniv1 "timoni.sh/core/v1alpha1"
 	"timoni.sh/vertical-pod-autoscaler/templates/config"
 )
 
@@ -42,37 +43,12 @@ import (
 		if _sm.podTargetLabels != _|_ {
 			podTargetLabels: _sm.podTargetLabels
 		}
-		endpoints: [{
-			port:        "metrics"
-			path:        "/metrics"
-			honorLabels: _sm.honorLabels
-			if _sm.interval != "" {
-				interval: _sm.interval
-			}
-			if _sm.scrapeTimeout != "" {
-				scrapeTimeout: _sm.scrapeTimeout
-			}
-			if _sm.scheme != _|_ {
-				scheme: _sm.scheme
-			}
-			if _sm.tlsConfig != _|_ {
-				tlsConfig: _sm.tlsConfig
-			}
-			if _sm.bearerTokenFile != _|_ {
-				bearerTokenFile: _sm.bearerTokenFile
-			}
-			if _sm.bearerTokenSecret != _|_ {
-				bearerTokenSecret: _sm.bearerTokenSecret
-			}
-			if _sm.proxyUrl != _|_ {
-				proxyUrl: _sm.proxyUrl
-			}
-			if _sm.metricRelabelings != _|_ {
-				metricRelabelings: _sm.metricRelabelings
-			}
-			if _sm.relabelings != _|_ {
-				relabelings: _sm.relabelings
-			}
-		}]
+		endpoints: [
+			timoniv1.#MonitorEndpointSpec & {
+				#Values: _sm
+				port:    "metrics"
+				path:    "/metrics"
+			},
+		]
 	}
 }

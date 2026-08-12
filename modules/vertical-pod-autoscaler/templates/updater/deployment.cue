@@ -3,6 +3,7 @@ package updater
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	timoniv1 "timoni.sh/core/v1alpha1"
 	"timoni.sh/vertical-pod-autoscaler/templates/config"
 )
 
@@ -13,6 +14,13 @@ import (
 	_u:  _config.updater
 	_le: _u.leaderElection
 	_selectorLabels: #SelectorLabels & {#config: _config}
+
+	// The affinity rules generated from the affinity values;
+	// the anti-affinity presets match the component pods.
+	_affinity: timoniv1.#Affinity & {
+		#Values:      _u.affinity
+		#MatchLabels: _selectorLabels
+	}
 
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
@@ -104,7 +112,9 @@ import (
 					volumes: _u.extraVolumes
 				}
 				nodeSelector: _u.nodeSelector
-				affinity:     _u.affinity
+				if _affinity.#Enabled {
+					affinity: _affinity
+				}
 				if _u.tolerations != _|_ {
 					tolerations: _u.tolerations
 				}
