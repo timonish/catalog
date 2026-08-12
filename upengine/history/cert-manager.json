@@ -3,7 +3,7 @@
   "repo": "cert-manager/cert-manager",
   "tag": "v1.21.1",
   "commit": "24e33194fb39488eff2bbf10c6dc640f407cad44",
-  "moduleVersion": "1.21.1-1",
+  "moduleVersion": "1.21.1-2",
   "images": {
     "controller": {
       "repository": "quay.io/jetstack/cert-manager-controller",
@@ -27,6 +27,6 @@
     }
   },
   "crdsDigest": "sha256:a1383be02862dd2802e6810f19dd1f4784550f336ff4eb27788e842302f76977",
-  "generatedDigest": "sha256:8f806ce21783ee7078f6ea11447c0d66f693ac1ab4f109b819859d317edfa953",
-  "updatedAt": "2026-08-11T13:18:24.087Z"
+  "generatedDigest": "sha256:6f634e9a3ab1d3f6ff61e65b67b8474d76efd8e633d9c36661c0e9b6a95e43c3",
+  "updatedAt": "2026-08-12T06:05:06.287Z"
 }

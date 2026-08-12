@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying the [Vertical Pod Autoscaler]
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.7.1-0`, packaging the upstream release
+Latest module version is `1.7.1-1`, packaging the upstream release
 [vertical-pod-autoscaler-1.7.1](https://github.com/kubernetes/autoscaler/releases/tag/vertical-pod-autoscaler-1.7.1)
 with the following container images:
 
@@ -122,10 +122,15 @@ All values are optional.
 | `rbac.create` | `bool` | `true` | Create the roles and bindings |
 | `rbac.extraRules` | `[...rbacv1.#PolicyRule]` | unset | Extra rules appended to the recommender metrics-reader ClusterRole, e.g. for custom metrics |
 | `securityProfile` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins the upstream image's non-root UID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
-| `serviceMonitor.enabled` | `bool` | `false` | Create a metrics Service and a Prometheus Operator ServiceMonitor for every deployed component |
-| `serviceMonitor.interval` / `scrapeTimeout` | `string` | `60s` / `30s` | Scrape settings |
-| `serviceMonitor.labels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata |
-| `serviceMonitor.endpointAdditionalProperties` | `{...}` | unset | Extra properties merged into the scrape endpoints, e.g. `honorLabels` or `relabelings` |
+| `serviceMonitor.enabled` | `bool` | `false` | Create a metrics Service and a Prometheus Operator ServiceMonitor for every deployed component, in the instance namespace |
+| `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
+| `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/component` | Service label used as the Prometheus job name |
+| `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
+| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
+| `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
+| `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 
 ### Component values
 
@@ -149,15 +154,22 @@ The three components are configured through the `recommender`,
 | `recommender.affinity` | `corev1.#Affinity` | soft anti-affinity | Scheduling affinity; defaults to preferring nodes not running the same component |
 | `recommender.tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
 | `recommender.podLabels` / `podAnnotations` | `{[string]: string}` | unset | Extra pod metadata |
-| `recommender.dnsPolicy` | `string` | cluster default | Pod DNS policy |
+| `recommender.dnsPolicy` / `dnsConfig` | | cluster default | Pod DNS settings |
 | `recommender.priorityClassName` | `string` | unset | Pod priority class |
+| `recommender.schedulerName` | `string` | unset | Alternate scheduler |
+| `recommender.terminationGracePeriodSeconds` | `int` | unset | Pod termination grace period |
+| `recommender.automountServiceAccountToken` | `bool` | `true` | Mount the service account token into the pod |
+| `recommender.livenessProbe` / `readinessProbe` | `corev1.#Probe` | `/health-check` on the metrics port | Container probes |
+| `recommender.metricsService.annotations` / `labels` / `ipFamilies` / `ipFamilyPolicy` | — | unset | Metrics Service settings |
+| `recommender.extraVolumes` / `extraVolumeMounts` | `[...]` | unset | Additional volumes for the component container (recommender and updater) |
 | `recommender.deploymentAnnotations` | `{[string]: string}` | unset | Extra Deployment annotations |
 | `recommender.serviceAccount.create` | `bool` | `true` | Create the service account; set to `false` to use an existing one |
 | `recommender.serviceAccount.name` | `string` | `<instance>-recommender` | Service account name |
 | `recommender.serviceAccount.labels` / `annotations` | `{[string]: string}` | unset | Extra service account metadata (e.g. IRSA role annotations) |
-| `recommender.serviceAccount.automountServiceAccountToken` | `bool` | `true` | Automount the API credentials for the service account |
+| `recommender.serviceAccount.automountServiceAccountToken` | `bool` | `false` | Mount the token through the service account (the pod setting mounts it by default) |
 | `recommender.podDisruptionBudget.enabled` | `bool` | `replicas > 1` | Create a PodDisruptionBudget for the component pods |
 | `recommender.podDisruptionBudget.minAvailable` / `maxUnavailable` | `int` or percent | `minAvailable: 1` | Disruption budget; the two are mutually exclusive (schema-enforced) |
+| `recommender.podDisruptionBudget.unhealthyPodEvictionPolicy` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |
 
 ### Leader election values
 
@@ -183,8 +195,9 @@ replicas; the extra replicas are hot standbys (shown for
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `admissionController.service.name` | `string` | `vpa-webhook` | Name of the webhook Service, passed to the admission controller with `--webhook-service` and set as the serving certificate DNS name |
-| `admissionController.service.annotations` | `{[string]: string}` | unset | Extra webhook Service annotations |
-| `admissionController.service.ports` | `[...corev1.#ServicePort]` | `443 -> 8000` | Webhook Service ports; the first port is referenced by the webhook configuration |
+| `admissionController.service.annotations` / `labels` | `{[string]: string}` | unset | Extra webhook Service metadata |
+| `admissionController.service.port` / `targetPort` | `int` | `443` / `8000` | Webhook Service port, referenced by the webhook configuration, and its container target port |
+| `admissionController.service.ipFamilies` / `ipFamilyPolicy` | — | unset | Webhook Service dual-stack settings |
 | `admissionController.hostNetwork` | `bool` | `false` | Run the pod in the host network namespace, for managed clusters with a custom CNI where the control plane cannot reach the pod network |
 | `admissionController.mutatingWebhookConfiguration.failurePolicy` | `Ignore` or `Fail` | `Ignore` | `Ignore` admits pods unmutated when the webhook is unavailable; `Fail` guarantees resource updates at the cost of blocking pod creation during webhook downtime |
 | `admissionController.mutatingWebhookConfiguration.namespaceSelector` / `objectSelector` | `metav1.#LabelSelector` | unset | Restrict the namespaces and objects the webhook mutates |

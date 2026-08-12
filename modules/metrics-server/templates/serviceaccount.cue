@@ -12,6 +12,9 @@ import (
 		name:      _config.serviceAccount.name
 		namespace: _config.metadata.namespace
 		labels:    _config.metadata.labels
+		if _config.serviceAccount.labels != _|_ {
+			labels: _config.serviceAccount.labels
+		}
 		if _config.metadata.annotations != _|_ {
 			annotations: _config.metadata.annotations
 		}
@@ -19,6 +22,7 @@ import (
 			annotations: _config.serviceAccount.annotations
 		}
 	}
+	automountServiceAccountToken: _config.serviceAccount.automountServiceAccountToken
 	if _config.serviceAccount.secrets != _|_ {
 		secrets: _config.serviceAccount.secrets
 	}

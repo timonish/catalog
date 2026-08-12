@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Prometheus Operator](https:/
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.93.1-1`, packaging the upstream release
+Latest module version is `0.93.1-2`, packaging the upstream release
 [v0.93.1](https://github.com/prometheus-operator/prometheus-operator/releases/tag/v0.93.1)
 with the following container images:
 
@@ -256,13 +256,14 @@ timoni bundle apply -f bundle.cue
 | `dnsPolicy:` | `string` | `ClusterFirst` | Pod DNS policy, defaults to `ClusterFirstWithHostNet` with `hostNetwork` |
 | `hostNetwork:` | `bool` | `false` | Run the pods in the host network namespace |
 | `priorityClassName:` | `string` | `""` | Priority class of the pods |
+| `schedulerName:` | `string` | unset | Alternate scheduler |
 | `terminationGracePeriodSeconds:` | `int` | `30` | Pod termination grace period |
 | `automountServiceAccountToken:` | `bool` | `true` | Mount the service account token into the pod |
 | `strategy:` | `DeploymentStrategy` | `RollingUpdate` | Deployment update strategy |
 | `revisionHistoryLimit:` | `int` | `10` | Number of old ReplicaSets to retain |
 | `deploymentAnnotations:` | `{[string]: string}` | `{}` | Annotations added to the Deployment |
 | `podDisruptionBudget: enabled:` | `bool` | `false` | Create a PodDisruptionBudget for the operator pod |
-| `podDisruptionBudget: minAvailable:` | `int or %` | unset | Minimum available pods, mutually exclusive with `maxUnavailable` |
+| `podDisruptionBudget: minAvailable:` | `int or %` | `1` | Minimum available pods, mutually exclusive with `maxUnavailable` |
 | `podDisruptionBudget: maxUnavailable:` | `int or %` | unset | Maximum unavailable pods |
 | `podDisruptionBudget: unhealthyPodEvictionPolicy:` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |
 
@@ -279,9 +280,10 @@ timoni bundle apply -f bundle.cue
 | `service: ipFamilies:` | `[...string]` | `[]` | IP families: `IPv4` and/or `IPv6` |
 | `service: ipFamilyPolicy:` | `string` | `""` | `SingleStack`, `PreferDualStack` or `RequireDualStack` |
 | `service: externalIPs:` | `[...string]` | `[]` | External IPs accepted by the Service |
-| `service: nodePort:` | `int` | `30080` | Node port of the web server with `type: NodePort` |
-| `service: nodePortTls:` | `int` | `30443` | Node port of the TLS web server with `type: NodePort` |
+| `service: nodePort:` | `int` | `0` (auto) | Node port of the web server with `type: NodePort` |
+| `service: nodePortTls:` | `int` | `0` (auto) | Node port of the TLS web server with `type: NodePort` |
 | `service: loadBalancerIP:` | `string` | `""` | Load balancer IP with `type: LoadBalancer` |
+| `service: loadBalancerClass:` | `string` | unset | Load balancer implementation class with `type: LoadBalancer` |
 | `service: loadBalancerSourceRanges:` | `[...string]` | `[]` | CIDRs allowed to reach the load balancer |
 | `service: externalTrafficPolicy:` | `string` | `Cluster` | External traffic policy for `NodePort` and `LoadBalancer` |
 
@@ -291,8 +293,15 @@ timoni bundle apply -f bundle.cue
 |-----|------|---------|-------------|
 | `serviceMonitor: enabled:` | `bool` | `false` | Create a ServiceMonitor scraping the operator's own metrics |
 | `serviceMonitor: additionalLabels:` | `{[string]: string}` | `{}` | Labels added to the ServiceMonitor, e.g. for Prometheus selectors |
-| `serviceMonitor: interval:` | `string` | `1m` | Scrape interval; empty falls back to the Prometheus defaults |
-| `serviceMonitor: scrapeTimeout:` | `string` | `10s` | Scrape timeout; empty falls back to the Prometheus defaults |
+| `serviceMonitor: annotations:` | `{[string]: string}` | `{}` | Annotations added to the ServiceMonitor |
+| `serviceMonitor: jobLabel:` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
+| `serviceMonitor: interval:` | `string` | unset | Scrape interval; defaults to the Prometheus settings |
+| `serviceMonitor: scrapeTimeout:` | `string` | unset | Scrape timeout; defaults to the Prometheus settings |
+| `serviceMonitor: honorLabels:` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor: scheme:` | `string` | `http`; `https` with the webhook | Scrape scheme |
+| `serviceMonitor: tlsConfig:` | `{...}` | `insecureSkipVerify: true` with the webhook | Scrape TLS settings |
+| `serviceMonitor: bearerTokenFile:` / `bearerTokenSecret:` / `proxyUrl:` | | unset | Scrape authentication and proxy settings |
+| `serviceMonitor: targetLabels:` / `podTargetLabels:` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 | `serviceMonitor: sampleLimit:` | `int` | unset | Per-scrape sample limit |
 | `serviceMonitor: targetLimit:` | `int` | unset | Scraped target limit |
 | `serviceMonitor: labelLimit:` | `int` | unset | Per-scrape label limit |

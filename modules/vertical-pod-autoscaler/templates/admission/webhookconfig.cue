@@ -35,7 +35,7 @@ import (
 			service: {
 				name:      _ac.service.name
 				namespace: _config.metadata.namespace
-				port:      _ac.service.ports[0].port
+				port:      _ac.service.port
 			}
 			// The API expects the base64 text in the serialized field;
 			// the schema types it as bytes, so the encoded form is

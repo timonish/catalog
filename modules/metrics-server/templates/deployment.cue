@@ -28,13 +28,13 @@ import (
 		if _config.revisionHistoryLimit != _|_ {
 			revisionHistoryLimit: _config.revisionHistoryLimit
 		}
-		if _config.updateStrategy != _|_ {
-			strategy: _config.updateStrategy
+		if _config.strategy != _|_ {
+			strategy: _config.strategy
 		}
 
 		// With hostNetwork, the default RollingUpdate strategy deadlocks:
 		// the new pod cannot bind the host port while the old one holds it.
-		if _config.updateStrategy == _|_ && _config.hostNetwork {
+		if _config.strategy == _|_ && _config.hostNetwork {
 			strategy: {
 				type: "RollingUpdate"
 				rollingUpdate: maxUnavailable: 1
@@ -52,13 +52,17 @@ import (
 				}
 			}
 			spec: corev1.#PodSpec & {
-				serviceAccountName: _config.serviceAccount.name
-				priorityClassName:  _config.priorityClassName
+				serviceAccountName:           _config.serviceAccount.name
+				automountServiceAccountToken: _config.automountServiceAccountToken
+				priorityClassName:            _config.priorityClassName
 				if _config.hostNetwork {
 					hostNetwork: true
 				}
 				if _config.schedulerName != _|_ {
 					schedulerName: _config.schedulerName
+				}
+				if _config.terminationGracePeriodSeconds != _|_ {
+					terminationGracePeriodSeconds: _config.terminationGracePeriodSeconds
 				}
 				if _config.dnsConfig != _|_ {
 					dnsConfig: _config.dnsConfig
@@ -70,15 +74,18 @@ import (
 					imagePullSecrets: _config.imagePullSecrets
 				}
 				securityContext: _config.podSecurityContext
-				if _config.nodeSelector != _|_ {
-					nodeSelector: _config.nodeSelector
+				nodeSelector:    _config.nodeSelector
+				if _config.affinity != _|_ {
+					affinity: _config.affinity
 				}
-				affinity: _config.affinity
 				if _config.tolerations != _|_ {
 					tolerations: _config.tolerations
 				}
 				if _config.topologySpreadConstraints != _|_ {
 					topologySpreadConstraints: _config.topologySpreadConstraints
+				}
+				if _config.initContainers != _|_ {
+					initContainers: _config.initContainers
 				}
 				containers: [
 					{
@@ -98,8 +105,11 @@ import (
 							if _config.tls.type != "metrics-server" {
 								"--tls-private-key-file=/tmp/tls-certs/tls.key"
 							},
-							for a in _config.args {a},
+							for a in _config.extraArgs {a},
 						]
+						if _config.env != _|_ {
+							env: _config.env
+						}
 						ports: [{
 							name:          "https"
 							protocol:      "TCP"
@@ -162,6 +172,7 @@ import (
 							resources: _config.addonResizer.resources
 						}
 					},
+					if _config.extraContainers != _|_ for c in _config.extraContainers {c},
 				]
 				volumes: [
 					{

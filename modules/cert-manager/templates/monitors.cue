@@ -23,15 +23,11 @@ _monitorMeta: {
 	#config:  config.#Config
 	#monitor: _
 
-	name: #config.metadata.name
-	namespace: [
-		if #monitor.namespace != _|_ {#monitor.namespace},
-		#config.metadata.namespace,
-	][0]
-	labels: #config.metadata.labels
-	labels: prometheus: #monitor.prometheusInstance
-	if #monitor.labels != _|_ {
-		labels: #monitor.labels
+	name:      #config.metadata.name
+	namespace: #config.metadata.namespace
+	labels:    #config.metadata.labels
+	if #monitor.additionalLabels != _|_ {
+		labels: #monitor.additionalLabels
 	}
 	if #config.metadata.annotations != _|_ {
 		annotations: #config.metadata.annotations
@@ -41,32 +37,87 @@ _monitorMeta: {
 	}
 }
 
+// The canonical scrape endpoint fields shared by both monitors.
+_monitorEndpoint: {
+	#monitor: _
+
+	path:        "/metrics"
+	honorLabels: #monitor.honorLabels
+	if #monitor.interval != "" {
+		interval: #monitor.interval
+	}
+	if #monitor.scrapeTimeout != "" {
+		scrapeTimeout: #monitor.scrapeTimeout
+	}
+	if #monitor.scheme != _|_ {
+		scheme: #monitor.scheme
+	}
+	if #monitor.tlsConfig != _|_ {
+		tlsConfig: #monitor.tlsConfig
+	}
+	if #monitor.bearerTokenFile != _|_ {
+		bearerTokenFile: #monitor.bearerTokenFile
+	}
+	if #monitor.bearerTokenSecret != _|_ {
+		bearerTokenSecret: #monitor.bearerTokenSecret
+	}
+	if #monitor.proxyUrl != _|_ {
+		proxyUrl: #monitor.proxyUrl
+	}
+	if #monitor.metricRelabelings != _|_ {
+		metricRelabelings: #monitor.metricRelabelings
+	}
+	if #monitor.relabelings != _|_ {
+		relabelings: #monitor.relabelings
+	}
+}
+
+_monitorLimits: {
+	#monitor: _
+
+	if #monitor.sampleLimit != _|_ {
+		sampleLimit: #monitor.sampleLimit
+	}
+	if #monitor.targetLimit != _|_ {
+		targetLimit: #monitor.targetLimit
+	}
+	if #monitor.labelLimit != _|_ {
+		labelLimit: #monitor.labelLimit
+	}
+	if #monitor.labelNameLengthLimit != _|_ {
+		labelNameLengthLimit: #monitor.labelNameLengthLimit
+	}
+	if #monitor.labelValueLengthLimit != _|_ {
+		labelValueLengthLimit: #monitor.labelValueLengthLimit
+	}
+}
+
 #ServiceMonitor: promv1.#ServiceMonitor & {
 	#config: config.#Config
 	_config: #config
 	let cfg = _config
-	_monitor: _config.prometheus.serviceMonitor
+	_monitor: _config.serviceMonitor
 
 	apiVersion: "monitoring.coreos.com/v1"
 	kind:       "ServiceMonitor"
 	metadata: _monitorMeta & {#config: cfg, #monitor: _monitor}
 	spec: {
-		jobLabel: timoniv1.#StdLabelName
+		jobLabel: _monitor.jobLabel
 		selector: _monitorSelector & {#config: cfg}
-		if _monitor.namespace != _|_ {
-			namespaceSelector: matchNames: [cfg.metadata.namespace]
+		namespaceSelector: matchNames: [cfg.metadata.namespace]
+		_monitorLimits & {#monitor: _monitor}
+		if _monitor.targetLabels != _|_ {
+			targetLabels: _monitor.targetLabels
 		}
-		_extra: {...}
-		if _monitor.endpointAdditionalProperties != _|_ {
-			_extra: _monitor.endpointAdditionalProperties
+		if _monitor.podTargetLabels != _|_ {
+			podTargetLabels: _monitor.podTargetLabels
 		}
-		endpoints: [{
-			targetPort:    "http-metrics"
-			path:          "/metrics"
-			interval:      _monitor.interval
-			scrapeTimeout: _monitor.scrapeTimeout
-			honorLabels:   _monitor.honorLabels
-		} & _extra]
+		endpoints: [
+			_monitorEndpoint & {
+				#monitor:   _monitor
+				targetPort: "http-metrics"
+			},
+		]
 	}
 }
 
@@ -74,27 +125,24 @@ _monitorMeta: {
 	#config: config.#Config
 	_config: #config
 	let cfg = _config
-	_monitor: _config.prometheus.podMonitor
+	_monitor: _config.podMonitor
 
 	apiVersion: "monitoring.coreos.com/v1"
 	kind:       "PodMonitor"
 	metadata: _monitorMeta & {#config: cfg, #monitor: _monitor}
 	spec: {
-		jobLabel: timoniv1.#StdLabelName
+		jobLabel: _monitor.jobLabel
 		selector: _monitorSelector & {#config: cfg}
-		if _monitor.namespace != _|_ {
-			namespaceSelector: matchNames: [cfg.metadata.namespace]
+		namespaceSelector: matchNames: [cfg.metadata.namespace]
+		_monitorLimits & {#monitor: _monitor}
+		if _monitor.podTargetLabels != _|_ {
+			podTargetLabels: _monitor.podTargetLabels
 		}
-		_extra: {...}
-		if _monitor.endpointAdditionalProperties != _|_ {
-			_extra: _monitor.endpointAdditionalProperties
-		}
-		podMetricsEndpoints: [{
-			port:          "http-metrics"
-			path:          "/metrics"
-			interval:      _monitor.interval
-			scrapeTimeout: _monitor.scrapeTimeout
-			honorLabels:   _monitor.honorLabels
-		} & _extra]
+		podMetricsEndpoints: [
+			_monitorEndpoint & {
+				#monitor: _monitor
+				port:     "http-metrics"
+			},
+		]
 	}
 }
