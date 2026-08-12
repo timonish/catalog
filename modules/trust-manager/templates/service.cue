@@ -15,8 +15,14 @@ import (
 		namespace: _config.metadata.namespace
 		labels:    _config.metadata.labels
 		labels: "app.kubernetes.io/component": "metrics"
+		if _config.metrics.service.labels != _|_ {
+			labels: _config.metrics.service.labels
+		}
 		if _config.metadata.annotations != _|_ {
 			annotations: _config.metadata.annotations
+		}
+		if _config.metrics.service.annotations != _|_ {
+			annotations: _config.metrics.service.annotations
 		}
 	}
 	spec: corev1.#ServiceSpec & {

@@ -56,6 +56,9 @@ import (
 				if _config.dnsPolicy != _|_ {
 					dnsPolicy: _config.dnsPolicy
 				}
+				if _config.schedulerName != _|_ {
+					schedulerName: _config.schedulerName
+				}
 				if _config.dnsConfig != _|_ {
 					dnsConfig: _config.dnsConfig
 				}
@@ -162,18 +165,14 @@ import (
 							if _webhook.resources != _|_ {
 								resources: _webhook.resources
 							}
-							if _webhook.securityContext != _|_ {
-								securityContext: _webhook.securityContext
-							}
+							securityContext: _webhook.securityContext
 						}
 					},
 				]
 				if _config.extraVolumes != _|_ {
 					volumes: _config.extraVolumes
 				}
-				if _config.nodeSelector != _|_ {
-					nodeSelector: _config.nodeSelector
-				}
+				nodeSelector: _config.nodeSelector
 				if _config.affinity != _|_ {
 					affinity: #AffinityWithDefaultSelector & {
 						_affinity: _config.affinity

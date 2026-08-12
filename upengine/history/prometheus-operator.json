@@ -3,7 +3,7 @@
   "repo": "prometheus-operator/prometheus-operator",
   "tag": "v0.93.1",
   "commit": "51cc33a31bf3bd83dd22b1ae6efaf26e199194d9",
-  "moduleVersion": "0.93.1-1",
+  "moduleVersion": "0.93.1-2",
   "images": {
     "prometheus-operator": {
       "repository": "quay.io/prometheus-operator/prometheus-operator",
@@ -17,6 +17,6 @@
     }
   },
   "crdsDigest": "sha256:1d38ea4ab904545f3203862c1a793b18fd53ab1e571fdbf47afb4dc9e33a98b8",
-  "generatedDigest": "sha256:b3b384d88932cd75aa159fc3e0152c16a49f4fc61176d47781127cf8c34e5b3e",
-  "updatedAt": "2026-08-11T13:18:53.622Z"
+  "generatedDigest": "sha256:85fe7ccb2019723dcc88810d2af47683cff975ff3be64cc2628f83633c4ad5fa",
+  "updatedAt": "2026-08-11T22:53:13.240Z"
 }

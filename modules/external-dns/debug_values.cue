@@ -29,6 +29,7 @@ values: {
 			image: {
 				repository: "ghcr.io/example/external-dns-webhook"
 				tag:        "v1.0.0"
+				digest:     "sha256:1111111111111111111111111111111111111111111111111111111111111111"
 			}
 			env: [{
 				name:  "LOG_LEVEL"
@@ -50,6 +51,8 @@ values: {
 			serviceMonitor: {
 				interval:      "30s"
 				scrapeTimeout: "5s"
+				honorLabels:   true
+				scheme:        "http"
 			}
 		}
 	}
@@ -168,27 +171,36 @@ values: {
 		automountServiceAccountToken: true
 	}
 
-	rbac: additionalPermissions: [{
+	rbac: extraRules: [{
 		apiGroups: [""]
 		resources: ["endpoints"]
 		verbs: ["get", "watch", "list"]
 	}]
 
+	crds: keep: true
+
 	service: {
-		port: 8080
+		type:     "NodePort"
+		port:     8080
+		nodePort: 30080
 		annotations: "team": "platform"
+		labels: "team":      "platform"
 		ipFamilies: ["IPv4"]
-		ipFamilyPolicy: "SingleStack"
+		ipFamilyPolicy:        "SingleStack"
+		externalTrafficPolicy: "Local"
 	}
 
+	schedulerName: "default-scheduler"
+
 	serviceMonitor: {
-		enabled:   true
-		namespace: "monitoring"
+		enabled: true
 		additionalLabels: prometheus: "platform"
 		annotations: "team":          "platform"
-		interval:      "30s"
+		interval:      "1m30s"
 		scrapeTimeout: "5s"
 		scheme:        "http"
+		honorLabels:   true
+		sampleLimit:   1000
 		metricRelabelings: [{
 			action: "drop"
 			sourceLabels: ["__name__"]

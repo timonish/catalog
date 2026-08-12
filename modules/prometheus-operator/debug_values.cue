@@ -78,6 +78,7 @@ values: {
 	}]
 	dnsConfig: options: [{name: "ndots", value: "2"}]
 	priorityClassName:             "system-cluster-critical"
+	schedulerName:                 "default-scheduler"
 	terminationGracePeriodSeconds: 30
 
 	strategy: {
@@ -115,6 +116,18 @@ values: {
 	serviceMonitor: {
 		enabled: true
 		additionalLabels: "release": "e2e"
+		annotations: "team":         "platform"
+		interval:      "1m30s"
+		scrapeTimeout: "30s"
+		honorLabels:   true
+		tlsConfig: {
+			insecureSkipVerify: false
+			ca: secret: {
+				name: "prometheus-operator-tls"
+				key:  "ca.crt"
+			}
+		}
+		targetLabels: ["app.kubernetes.io/part-of"]
 		sampleLimit:           1000
 		targetLimit:           10
 		labelLimit:            64

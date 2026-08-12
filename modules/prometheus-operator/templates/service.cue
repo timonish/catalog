@@ -32,6 +32,9 @@ import (
 		if _config.service.loadBalancerIP != _|_ {
 			loadBalancerIP: _config.service.loadBalancerIP
 		}
+		if _config.service.loadBalancerClass != _|_ {
+			loadBalancerClass: _config.service.loadBalancerClass
+		}
 		if _config.service.loadBalancerSourceRanges != _|_ {
 			loadBalancerSourceRanges: _config.service.loadBalancerSourceRanges
 		}
@@ -47,7 +50,9 @@ import (
 					targetPort:  "http"
 					appProtocol: "http"
 					if _config.service.type == "NodePort" {
-						nodePort: _config.service.nodePort
+						if _config.service.nodePort > 0 {
+							nodePort: _config.service.nodePort
+						}
 					}
 				}
 			},
@@ -59,7 +64,9 @@ import (
 					targetPort:  "https"
 					appProtocol: "https"
 					if _config.service.type == "NodePort" {
-						nodePort: _config.service.nodePortTls
+						if _config.service.nodePortTls > 0 {
+							nodePort: _config.service.nodePortTls
+						}
 					}
 				}
 			},
