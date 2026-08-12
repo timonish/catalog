@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [cert-manager](https://github
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.21.1-2`, packaging the upstream release
+Latest module version is `1.21.1-3`, packaging the upstream release
 [v1.21.1](https://github.com/cert-manager/cert-manager/releases/tag/v1.21.1)
 with the following container images:
 
@@ -134,7 +134,7 @@ set options ahead of them being added to the typed schemas.
 | `crds.keep` | `bool` | `false` | Keep the CRDs (and all cert-manager custom resources) when the instance is deleted |
 | `rbac.create` | `bool` | `true` | Create the cluster roles, roles and bindings |
 | `rbac.aggregateClusterRoles` | `bool` | `true` | Aggregate the cert-manager view/edit roles into the Kubernetes user-facing roles |
-| `securityProfile` | `hardened` or `platform` | `hardened` | Pod identity defaults of all components; the upstream images pin no UID, so both profiles render runAsNonRoot with the RuntimeDefault seccomp profile |
+| `securityContextPreset` | `hardened` or `platform` | `hardened` | Pod identity defaults of all components; the upstream images pin no UID, so both presets render runAsNonRoot with the RuntimeDefault seccomp profile |
 | `approveSignerNames` | `[...string]` | cert-manager issuers | Signer names the approver controller may approve for |
 | `disableAutoApproval` | `bool` | `false` | Disable the automatic approval of CertificateRequests and skip the approval RBAC |
 | `imagePullSecrets` | `[...timoniv1.#ObjectReference]` | unset | Registry credentials added to all service accounts |
@@ -153,13 +153,15 @@ The following values are available for each component under
 | `strategy` | `appsv1.#DeploymentStrategy` | unset | Deployment rollout strategy |
 | `resources` | `timoniv1.#ResourceRequirements` | unset | Container resource requirements |
 | `securityContext` | `corev1.#SecurityContext` | hardened | Container security context; defaults: no privilege escalation, read-only rootfs, all capabilities dropped |
-| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityProfile` | Pod security context; defaults: runAsNonRoot, RuntimeDefault seccomp profile |
+| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityContextPreset` | Pod security context; defaults: runAsNonRoot, RuntimeDefault seccomp profile |
 | `extraArgs` | `[...string]` | `[]` | Extra command line arguments appended after `--config`; flags override the configuration file |
 | `env` | `[...corev1.#EnvVar]` | unset | Environment variables |
 | `extraVolumes` / `extraVolumeMounts` | `corev1` | unset | Extra pod volumes and container mounts |
 | `extraContainers` | `[...corev1.#Container]` | unset | Extra containers added to the pod |
 | `nodeSelector` | `{[string]: string}` | Linux nodes | Node selection constraints |
-| `affinity` / `tolerations` / `topologySpreadConstraints` | `corev1` | unset | Pod scheduling settings |
+| `affinity.podAntiAffinity` | `soft`, `hard`, `none` or raw rules | `soft` | Spread the component replicas across nodes; raw rules replace the preset |
+| `affinity.nodeAffinity` / `affinity.podAffinity` | raw rules | unset | Node and pod affinity rules |
+| `tolerations` / `topologySpreadConstraints` | `corev1` | unset | Pod scheduling settings |
 | `podLabels` / `podAnnotations` | `{[string]: string}` | unset | Extra pod metadata |
 | `deploymentAnnotations` | `{[string]: string}` | unset | Annotations added to the Deployment |
 | `dnsPolicy` / `dnsConfig` | `corev1` | unset | Pod DNS settings |
@@ -245,4 +247,4 @@ The following values are available for each component under
 | `prometheus.enabled` | `bool` | `true` | Serve metrics on all components and create their metrics Services; without a monitor enabled, the pods carry `prometheus.io` scrape annotations |
 | `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor scraping all components, in the instance namespace |
 | `podMonitor.enabled` | `bool` | `false` | Create a PodMonitor instead of the ServiceMonitor; mutually exclusive (schema-enforced) |
-| `serviceMonitor.*` / `podMonitor.*` | — | unset | `additionalLabels`, `annotations`, `jobLabel`, `interval`, `scrapeTimeout` (defaults to the Prometheus settings), `honorLabels`, `scheme`, `tlsConfig`, `bearerTokenFile`, `bearerTokenSecret`, `proxyUrl`, `metricRelabelings`, `relabelings`, scrape limits, `targetLabels`, `podTargetLabels` |
+| `serviceMonitor.*` / `podMonitor.*` | — | unset | `additionalLabels`, `annotations`, `jobLabel`, `interval`, `scrapeTimeout` (defaults to the Prometheus settings), `honorLabels`, `enableHttp2`, `scheme`, `tlsConfig`, `bearerTokenFile`, `bearerTokenSecret`, `proxyUrl`, `metricRelabelings`, `relabelings`, scrape limits, `targetLabels`, `podTargetLabels` |

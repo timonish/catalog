@@ -3,6 +3,7 @@ package controller
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	timoniv1 "timoni.sh/core/v1alpha1"
 	"timoni.sh/cert-manager/templates/config"
 )
 
@@ -16,6 +17,13 @@ import (
 
 	_controller: _config.controller
 	_selectorLabels: #SelectorLabels & {#config: _config}
+
+	// The affinity rules generated from the affinity values;
+	// the anti-affinity presets match the component pods.
+	_affinity: timoniv1.#Affinity & {
+		#Values:      _controller.affinity
+		#MatchLabels: _selectorLabels
+	}
 	_metricsPort: (#MetricsPort & {#config: _config}).port
 	_healthzPort: (#HealthzPort & {#config: _config}).port
 
@@ -136,8 +144,8 @@ import (
 					if _controller.extraVolumes != _|_ for v in _controller.extraVolumes {v},
 				]
 				nodeSelector: _controller.nodeSelector
-				if _controller.affinity != _|_ {
-					affinity: _controller.affinity
+				if _affinity.#Enabled {
+					affinity: _affinity
 				}
 				if _controller.tolerations != _|_ {
 					tolerations: _controller.tolerations

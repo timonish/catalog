@@ -3,6 +3,7 @@ package cainjector
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	timoniv1 "timoni.sh/core/v1alpha1"
 	"timoni.sh/cert-manager/templates/config"
 )
 
@@ -16,6 +17,13 @@ import (
 
 	_cainjector: _config.cainjector
 	_selectorLabels: #SelectorLabels & {#config: _config}
+
+	// The affinity rules generated from the affinity values;
+	// the anti-affinity presets match the component pods.
+	_affinity: timoniv1.#Affinity & {
+		#Values:      _cainjector.affinity
+		#MatchLabels: _selectorLabels
+	}
 	_metricsPort: (#MetricsPort & {#config: _config}).port
 
 	apiVersion: "apps/v1"
@@ -126,8 +134,8 @@ import (
 					if _cainjector.extraVolumes != _|_ for v in _cainjector.extraVolumes {v},
 				]
 				nodeSelector: _cainjector.nodeSelector
-				if _cainjector.affinity != _|_ {
-					affinity: _cainjector.affinity
+				if _affinity.#Enabled {
+					affinity: _affinity
 				}
 				if _cainjector.tolerations != _|_ {
 					tolerations: _cainjector.tolerations

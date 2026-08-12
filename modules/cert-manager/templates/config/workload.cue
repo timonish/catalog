@@ -10,11 +10,11 @@ import (
 // Workload defines the deployment settings common to the controller,
 // webhook and cainjector components.
 #Workload: W={
-	// The security profile wired from the module's securityProfile
+	// The security preset wired from the module's securityContextPreset
 	// value. The upstream images pin no UID, so the pod identity is
 	// left to the container runtime or the cluster's admission
-	// controller under both profiles.
-	#Profile: timoniv1.#SecurityProfile
+	// controller under both presets.
+	#Preset: timoniv1.#SecurityContextPreset
 
 	// The number of pod replicas.
 	replicas: *1 | int & >=0
@@ -36,9 +36,9 @@ import (
 	// The container security context, hardened by default.
 	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 
-	// The pod security context generated for the security profile.
+	// The pod security context generated for the security preset.
 	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
-		#Profile: W.#Profile
+		#Preset: W.#Preset
 	}
 
 	// Extra command line arguments appended after `--config`. Prefer
@@ -59,7 +59,15 @@ import (
 	// Pod scheduling settings; pods are restricted to Linux nodes by
 	// default.
 	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
-	affinity?: corev1.#Affinity
+	// The affinity rules; Linux placement comes from the nodeSelector
+	// default. `podAntiAffinity` accepts the `soft` (default), `hard`
+	// and `none` presets for spreading the component replicas across
+	// nodes, or raw pod anti-affinity rules.
+	affinity: timoniv1.#AffinityValues & {
+		podAntiAffinity: timoniv1.#AffinityPreset | corev1.#PodAntiAffinity
+		nodeAffinity?:   corev1.#NodeAffinity
+		podAffinity?:    corev1.#PodAffinity
+	}
 	tolerations?: [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 
