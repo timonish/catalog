@@ -11,6 +11,12 @@ import (
 	apiVersion: "v1"
 	kind:       "Service"
 	metadata:   _config.metadata
+	if _config.webhook.service.labels != _|_ {
+		metadata: labels: _config.webhook.service.labels
+	}
+	if _config.webhook.service.annotations != _|_ {
+		metadata: annotations: _config.webhook.service.annotations
+	}
 	spec: corev1.#ServiceSpec & {
 		type: _config.webhook.service.type
 		if _config.webhook.service.ipFamilyPolicy != _|_ {
@@ -24,8 +30,10 @@ import (
 			protocol:   "TCP"
 			port:       443
 			targetPort: "webhook"
-			if _config.webhook.service.nodePort != _|_ {
-				nodePort: _config.webhook.service.nodePort
+			if _config.webhook.service.type == "NodePort" {
+				if _config.webhook.service.nodePort > 0 {
+					nodePort: _config.webhook.service.nodePort
+				}
 			}
 		}]
 		selector: _config.selector.labels
