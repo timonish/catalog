@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [cert-manager](https://github
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.21.1-1`, packaging the upstream release
+Latest module version is `1.21.1-2`, packaging the upstream release
 [v1.21.1](https://github.com/cert-manager/cert-manager/releases/tag/v1.21.1)
 with the following container images:
 
