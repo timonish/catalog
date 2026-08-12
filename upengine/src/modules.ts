@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { CATALOG_REPO, LICENSE, REGISTRY, TIMONI_MIN_VERSION } from "../config/catalog.ts";
 import { crdsCuePaths } from "./codegen.ts";
 import {
+  assertReadmeTable,
   moduleDescription,
   plainDescription,
   validateDescription,
@@ -72,6 +73,7 @@ export async function lintModules(sources: ModuleSource[]): Promise<void> {
     }
     console.log(`${source.name}: metadata valid`);
   }
+  await assertReadmeTable(sources);
 }
 
 /** Vets every module with the debug values (all optional objects enabled). */

@@ -5,7 +5,6 @@ import { join } from "node:path";
 import { CATALOG_REPO } from "../config/catalog.ts";
 import { GENERATED_FILE_RE, crdsCuePaths } from "./codegen.ts";
 import { fetchRetry } from "./github.ts";
-import { renderReadmeTable, writeReadmeTable } from "./readme.ts";
 import { renderChange } from "./summary.ts";
 import { MODULES_DIR, ROOT_DIR } from "./paths.ts";
 import { mustRun, run } from "./proc.ts";
@@ -141,10 +140,9 @@ async function createPullRequest(
       await run(["git", "rm", "-q", "--ignore-unmatch", "--", path]);
     }
   }
-  // The README table is regenerated for this branch's content: this module
-  // at the new version, everything else at the base version.
-  await writeReadmeTable(await renderReadmeTable(sources));
-  await mustRun(["git", "add", "README.md", ...files.keys()]);
+  // The root README is untouched: its modules table carries no versions,
+  // so release branches never overlap on a shared file.
+  await mustRun(["git", "add", ...files.keys()]);
   await mustRun(["git", "commit", "-s", "-m", title]);
   await mustRun(["git", "push", "--force", "origin", branch]);
 
