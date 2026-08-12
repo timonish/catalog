@@ -7,6 +7,10 @@ import (
 	timoniv1 "timoni.sh/core/v1alpha1"
 )
 
+// PromDuration is a Prometheus duration, e.g. "30s", "1m30s"; a bare
+// "0" is allowed.
+#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+
 // Config defines the schema and defaults for the Instance values.
 #Config: {
 	// Runtime version info automatically set at apply-time.
@@ -227,6 +231,7 @@ import (
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 	dnsConfig?:                     corev1.#PodDNSConfig
 	priorityClassName?:             string & =~".+"
+	schedulerName?:                 string & =~".+"
 	terminationGracePeriodSeconds?: int & >=0
 
 	// Run the pods in the host network namespace.
@@ -287,11 +292,13 @@ import (
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 		externalIPs?: [...string]
 		if type == "NodePort" {
-			nodePort:    *30080 | int & >0 & <=65535
-			nodePortTls: *30443 | int & >0 & <=65535
+			// Zero lets the cluster assign the node ports.
+			nodePort:    *0 | int & >=0 & <=32767
+			nodePortTls: *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?: string & =~".+"
+			loadBalancerIP?:    string & =~".+"
+			loadBalancerClass?: string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -301,22 +308,39 @@ import (
 
 	// PodDisruptionBudget (optional). The mutually exclusive
 	// `minAvailable` and `maxUnavailable` accept an absolute number
-	// or a percentage.
+	// or a percentage; `minAvailable: 1` is the default.
 	podDisruptionBudget: {
 		enabled:                     *false | bool
 		unhealthyPodEvictionPolicy?: "IfHealthyBudget" | "AlwaysAllow"
-		*{} | {minAvailable: int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
+		*{minAvailable: *1 | int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
 	}
 
 	// Prometheus Operator ServiceMonitor for the operator's own
-	// metrics endpoint (optional).
+	// metrics endpoint (optional), created in the instance namespace.
 	serviceMonitor: {
 		enabled:           *false | bool
 		additionalLabels?: timoniv1.#Labels
-		// Scrape settings; set to an empty string to omit the field and
-		// fall back to the Prometheus Operator defaults.
-		interval:               *"1m" | "" | =~"^[0-9]+(ms|s|m|h)$"
-		scrapeTimeout:          *"10s" | "" | =~"^[0-9]+(ms|s|m|h)$"
+		annotations?:      timoniv1.#Annotations
+		jobLabel:          *"app.kubernetes.io/name" | string
+		// Scrape settings; the default empty string omits the field and
+		// falls back to the Prometheus defaults.
+		interval:      *"" | #PromDuration
+		scrapeTimeout: *"" | #PromDuration
+		honorLabels:   *false | bool
+		// With the webhook enabled the operator serves everything,
+		// metrics included, over TLS; the certificate is not verified
+		// by default.
+		if webhook.enabled {
+			scheme: *"https" | "http"
+			tlsConfig: *{insecureSkipVerify: true} | {...}
+		}
+		if !webhook.enabled {
+			scheme: *"http" | "https"
+			tlsConfig?: {...}
+		}
+		bearerTokenFile?: string & =~".+"
+		bearerTokenSecret?: {...}
+		proxyUrl?:              string & =~".+"
 		sampleLimit?:           int & >=0
 		targetLimit?:           int & >=0
 		labelLimit?:            int & >=0
@@ -324,6 +348,8 @@ import (
 		labelValueLengthLimit?: int & >=0
 		metricRelabelings?: [...]
 		relabelings?: [...]
+		targetLabels?: [...string & =~".+"]
+		podTargetLabels?: [...string & =~".+"]
 	}
 
 	// NetworkPolicy settings; the default rules allow the operator's
