@@ -191,10 +191,32 @@ export function ciSources(sources: ModuleSource[]): ModuleSource[] {
 }
 
 /**
- * The modules affected by the changes between a base ref and HEAD: a change
- * under modules/<name> selects that module; changes to the shared schemas,
- * the engine, the Makefile or the workflows select all of them.
+ * The modules selected by a list of changed files: per-module data files
+ * (modules/<name>, the module's source declaration, history manifest and
+ * e2e bundle) select only their module; anything else under the engine,
+ * the shared schemas, the Makefile or the workflows is an engine-wide
+ * change and selects all modules.
  */
+export function selectModules(sources: ModuleSource[], files: string[]): string[] {
+  const perModule = [
+    /^modules\/([^/]+)\//,
+    /^upengine\/config\/sources\/([^/]+)\.ts$/,
+    /^upengine\/history\/([^/]+)\.json$/,
+    /^test\/bundles\/([^/]+)\//,
+  ];
+  const names = new Set<string>();
+  for (const file of files) {
+    const match = perModule.map((re) => file.match(re)).find((m) => m != null);
+    if (match) {
+      names.add(match[1]!);
+    } else if (/^(schemas\/|upengine\/|Makefile|\.github\/workflows\/)/.test(file)) {
+      return sources.map((s) => s.name);
+    }
+  }
+  return sources.map((s) => s.name).filter((n) => names.has(n));
+}
+
+/** The modules affected by the changes between a base ref and HEAD. */
 export async function changedModules(sources: ModuleSource[], base: string): Promise<string[]> {
   let diff = await run(["git", "diff", "--name-only", `${base}...HEAD`]);
   if (diff.exitCode !== 0) {
@@ -203,16 +225,5 @@ export async function changedModules(sources: ModuleSource[], base: string): Pro
   if (diff.exitCode !== 0) {
     throw new Error(`git diff against '${base}' failed:\n${diff.stderr}`);
   }
-  const files = diff.stdout.split("\n").filter((l) => l !== "");
-  if (files.some((f) => /^(schemas\/|upengine\/|Makefile|\.github\/workflows\/)/.test(f))) {
-    return sources.map((s) => s.name);
-  }
-  const names = new Set<string>();
-  for (const file of files) {
-    const match = file.match(/^modules\/([^/]+)\//);
-    if (match) {
-      names.add(match[1]!);
-    }
-  }
-  return sources.map((s) => s.name).filter((n) => names.has(n));
+  return selectModules(sources, diff.stdout.split("\n").filter((l) => l !== ""));
 }
