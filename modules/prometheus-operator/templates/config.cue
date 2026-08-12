@@ -7,10 +7,6 @@ import (
 	timoniv1 "timoni.sh/core/v1alpha1"
 )
 
-// PromDuration is a Prometheus duration, e.g. "30s", "1m30s"; a bare
-// "0" is allowed.
-#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
-
 // Config defines the schema and defaults for the Instance values.
 #Config: {
 	// Runtime version info automatically set at apply-time.
@@ -171,19 +167,19 @@ import (
 		}
 	}
 
-	// The security profile applied to the pod identity defaults: the
-	// default "hardened" profile pins the image's non-root UID, while
+	// The security preset applied to the pod identity defaults: the
+	// default "hardened" preset pins the image's non-root UID, while
 	// "platform" leaves the identity to an admission controller
 	// (e.g. an OpenShift SecurityContextConstraint).
-	securityProfile: timoniv1.#SecurityProfile
+	securityContextPreset: timoniv1.#SecurityContextPreset
 
 	// The container security context, hardened by default.
 	securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 
-	// The pod security context generated for the security profile.
+	// The pod security context generated for the security preset.
 	podSecurityContext: corev1.#PodSecurityContext & timoniv1.#PodSecurityContext & {
-		#Profile: securityProfile
-		#User:    65534
+		#Preset: securityContextPreset
+		#User:   65534
 	}
 
 	// The liveness probe of the operator container.
@@ -227,7 +223,15 @@ import (
 	podAnnotations?: timoniv1.#Annotations
 	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
 	tolerations?: [...corev1.#Toleration]
-	affinity?: corev1.#Affinity
+	// The affinity rules; Linux placement comes from the nodeSelector
+	// default. `podAntiAffinity` accepts the `soft` (default), `hard`
+	// and `none` presets for spreading the replicas across nodes, or
+	// raw pod anti-affinity rules.
+	affinity: timoniv1.#AffinityValues & {
+		podAntiAffinity: timoniv1.#AffinityPreset | corev1.#PodAntiAffinity
+		nodeAffinity?:   corev1.#NodeAffinity
+		podAffinity?:    corev1.#PodAffinity
+	}
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 	dnsConfig?:                     corev1.#PodDNSConfig
 	priorityClassName?:             string & =~".+"
@@ -317,16 +321,7 @@ import (
 
 	// Prometheus Operator ServiceMonitor for the operator's own
 	// metrics endpoint (optional), created in the instance namespace.
-	serviceMonitor: {
-		enabled:           *false | bool
-		additionalLabels?: timoniv1.#Labels
-		annotations?:      timoniv1.#Annotations
-		jobLabel:          *"app.kubernetes.io/name" | string
-		// Scrape settings; the default empty string omits the field and
-		// falls back to the Prometheus defaults.
-		interval:      *"" | #PromDuration
-		scrapeTimeout: *"" | #PromDuration
-		honorLabels:   *false | bool
+	serviceMonitor: timoniv1.#MonitorValues & {
 		// With the webhook enabled the operator serves everything,
 		// metrics included, over TLS; the certificate is not verified
 		// by default.
@@ -336,20 +331,7 @@ import (
 		}
 		if !webhook.enabled {
 			scheme: *"http" | "https"
-			tlsConfig?: {...}
 		}
-		bearerTokenFile?: string & =~".+"
-		bearerTokenSecret?: {...}
-		proxyUrl?:              string & =~".+"
-		sampleLimit?:           int & >=0
-		targetLimit?:           int & >=0
-		labelLimit?:            int & >=0
-		labelNameLengthLimit?:  int & >=0
-		labelValueLengthLimit?: int & >=0
-		metricRelabelings?: [...]
-		relabelings?: [...]
-		targetLabels?: [...string & =~".+"]
-		podTargetLabels?: [...string & =~".+"]
 	}
 
 	// NetworkPolicy settings; the default rules allow the operator's
