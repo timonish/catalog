@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Kubernetes Metrics Server](h
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.9.0-3`, packaging the upstream release
+Latest module version is `0.9.0-4`, packaging the upstream release
 [v0.9.0](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.0)
 with the following container images:
 
@@ -41,7 +41,7 @@ To customize the instance, place the configuration in a `values.cue` file:
 values: {
 	// Required on clusters where the kubelet serving certificates
 	// are self-signed (e.g. kind, k3s, minikube).
-	args: ["--kubelet-insecure-tls"]
+	extraArgs: ["--kubelet-insecure-tls"]
 }
 ```
 
@@ -121,10 +121,11 @@ All values are optional.
 | `image` | `timoniv1.#Image` | upstream release | Container image repository, tag, digest and pull policy |
 | `replicas` | `int` | `1` | Number of pod replicas |
 | `revisionHistoryLimit` | `int` | unset | Number of old ReplicaSets to retain |
-| `updateStrategy` | `appsv1.#DeploymentStrategy` | unset | Deployment rollout strategy |
+| `strategy` | `appsv1.#DeploymentStrategy` | unset | Deployment rollout strategy |
 | `containerPort` | `int` | `10250` | HTTPS serving port of the container |
 | `defaultArgs` | `[...string]` | upstream defaults | Base command line arguments; override only when the upstream defaults are unsuitable |
-| `args` | `[...string]` | `[]` | Extra arguments appended after `defaultArgs`, e.g. `--kubelet-insecure-tls` |
+| `extraArgs` | `[...string]` | `[]` | Extra arguments appended after `defaultArgs`, e.g. `--kubelet-insecure-tls` |
+| `env` | `[...corev1.#EnvVar]` | unset | Environment variables for the container |
 | `resources` | `timoniv1.#ResourceRequirements` | `100m` / `200Mi` requests | Container resource requirements; ignored when `addonResizer` is enabled (the nanny owns them) |
 | `securityContext` | `corev1.#SecurityContext` | hardened | Container security context; defaults: no privilege escalation, read-only rootfs, all capabilities dropped (the pod identity comes from `podSecurityContext`) |
 | `livenessProbe` / `readinessProbe` | `corev1.#Probe` | `/livez` / `/readyz` | Container probes |
@@ -132,8 +133,10 @@ All values are optional.
 | `rbac.create` | `bool` | `true` | Create the cluster roles and bindings |
 | `serviceAccount.create` | `bool` | `true` | Create the service account; set to `false` to use an existing one |
 | `serviceAccount.name` | `string` | instance name, or `default` when `create: false` | Service account name |
-| `serviceAccount.annotations` | `{[string]: string}` | unset | Service account annotations (e.g. for IRSA) |
+| `serviceAccount.labels` / `serviceAccount.annotations` | `{[string]: string}` | unset | Service account metadata (e.g. IRSA annotations) |
 | `serviceAccount.secrets` | `[...]` | unset | Secrets mountable by the service account |
+| `serviceAccount.automountServiceAccountToken` | `bool` | `false` | Mount the token through the service account (the pod setting mounts it by default) |
+| `automountServiceAccountToken` | `bool` | `true` | Mount the service account token into the pod |
 
 ### Pod scheduling values
 
@@ -145,14 +148,16 @@ All values are optional.
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries |
 | `priorityClassName` | `string` | `system-cluster-critical` | Pod priority class |
 | `hostNetwork` | `bool` | `false` | Run in the host network namespace; rollouts then default to `maxUnavailable: 1` to free the host port |
-| `affinity` | `corev1.#Affinity` | Linux nodes | Pod affinity; a supplied value replaces the default |
-| `nodeSelector` / `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
+| `nodeSelector` | `{[string]: string}` | Linux nodes | Node selection; a supplied value replaces the default |
+| `affinity` / `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
+| `terminationGracePeriodSeconds` | `int` | unset | Pod termination grace period |
 | `dnsPolicy` | `string` | unset | Pod DNS policy, e.g. `ClusterFirstWithHostNet` for host-network pods |
 | `dnsConfig` | `corev1.#PodDNSConfig` | unset | Pod DNS configuration |
 | `schedulerName` | `string` | unset | Alternate scheduler |
 | `deploymentAnnotations` | `{[string]: string}` | unset | Annotations on the Deployment |
-| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget; `minAvailable` / `maxUnavailable` are mutually exclusive (schema-enforced), `unhealthyPodEvictionPolicy` is applied on Kubernetes 1.27+ only |
+| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget; `minAvailable` (default `1`) and `maxUnavailable` are mutually exclusive (schema-enforced), `unhealthyPodEvictionPolicy` is applied on Kubernetes 1.27+ only |
 | `extraVolumes` / `extraVolumeMounts` | `[...]` | unset | Additional volumes for the metrics-server container |
+| `extraContainers` / `initContainers` | `[...corev1.#Container]` | unset | Additional containers added to the pods |
 | `tmpVolume` | `corev1.#VolumeSource` | `emptyDir` | Volume backing the `/tmp` certificate directory |
 
 ### Service and APIService values
@@ -161,6 +166,12 @@ All values are optional.
 |---|---|---|---|
 | `service.type` | `string` | `ClusterIP` | Service type |
 | `service.port` | `int` | `443` | Service port |
+| `service.clusterIP` | `string` | unset | Explicit cluster IP |
+| `service.ipFamilies` / `service.ipFamilyPolicy` | | unset | Dual-stack settings |
+| `service.externalIPs` | `[...string]` | unset | External IPs accepted by the Service |
+| `service.nodePort` | `int` | `0` (auto) | Node port when `type: NodePort` |
+| `service.loadBalancerIP` / `loadBalancerClass` / `loadBalancerSourceRanges` | | unset | LoadBalancer settings when `type: LoadBalancer` |
+| `service.externalTrafficPolicy` | `Cluster` or `Local` | unset | Traffic policy for non-ClusterIP types |
 | `service.annotations` / `service.labels` | `{[string]: string}` | unset | Extra Service metadata |
 | `apiService.create` | `bool` | `true` | Register the `v1beta1.metrics.k8s.io` APIService |
 | `apiService.annotations` | `{[string]: string}` | unset | Extra APIService annotations |
@@ -184,10 +195,17 @@ All values are optional.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `metrics.enabled` | `bool` | `false` | Allow unauthenticated access to `/metrics` |
-| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor (implies `metrics.enabled`) |
-| `serviceMonitor.additionalLabels` | `{[string]: string}` | unset | Labels for Prometheus discovery |
-| `serviceMonitor.interval` / `scrapeTimeout` | `string` | `1m` / `10s` | Scrape settings; set to `""` to fall back to the Prometheus Operator defaults |
+| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor in the instance namespace (implies `metrics.enabled`) |
+| `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
+| `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
+| `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
+| `serviceMonitor.scheme` | `https` or `http` | `https` | Scrape scheme |
+| `serviceMonitor.tlsConfig` | `{...}` | `insecureSkipVerify: true` | Scrape TLS settings; with `tls.type: cert-manager` set the issued CA here to verify |
+| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape authentication and proxy settings |
 | `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
+| `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
+| `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 
 ### Addon-resizer values
 
