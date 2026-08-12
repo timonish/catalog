@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [kube-state-metrics](https://
 ## Version
 
 <!-- versions:start -->
-Latest module version is `2.19.1-2`, packaging the upstream release
+Latest module version is `2.19.1-3`, packaging the upstream release
 [v2.19.1](https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.19.1)
 with the following container images:
 
@@ -245,11 +245,12 @@ timoni bundle apply -f bundle.cue
 |-----|------|---------|-------------|
 | `podLabels:` | `{[string]: string}` | `{}` | Labels added to the pods |
 | `podAnnotations:` | `{[string]: string}` | `{}` | Annotations added to the pods |
-| `securityProfile:` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
-| `podSecurityContext:` | `PodSecurityContext` | per `securityProfile` | Pod security context |
+| `securityContextPreset:` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext:` | `PodSecurityContext` | per `securityContextPreset` | Pod security context |
 | `nodeSelector:` | `{[string]: string}` | `kubernetes.io/os: linux` | Node selector for pod scheduling |
 | `tolerations:` | `[...Toleration]` | `[]` | Pod tolerations |
-| `affinity:` | `Affinity` | `{}` | Pod affinity rules |
+| `affinity: podAntiAffinity:` | `soft`, `hard`, `none` or raw rules | `soft` | Spread the replicas across nodes; raw rules replace the preset |
+| `affinity: nodeAffinity:` / `affinity: podAffinity:` | raw rules | unset | Node and pod affinity rules |
 | `topologySpreadConstraints:` | `[...TopologySpreadConstraint]` | `[]` | Pod topology spread constraints |
 | `dnsConfig:` | `PodDNSConfig` | `{}` | Pod DNS configuration |
 | `dnsPolicy:` | `string` | `ClusterFirst` | Pod DNS policy, defaults to `ClusterFirstWithHostNet` with `hostNetwork` |
