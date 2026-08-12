@@ -12,10 +12,16 @@ import (
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
 	metadata:   _config.metadata
+	if _config.deploymentAnnotations != _|_ {
+		metadata: annotations: _config.deploymentAnnotations
+	}
 
 	spec: appsv1.#DeploymentSpec & {
 		replicas:             _config.replicas
 		revisionHistoryLimit: _config.revisionHistoryLimit
+		if _config.strategy != _|_ {
+			strategy: _config.strategy
+		}
 		selector: matchLabels: _config.selector.labels
 		template: {
 			metadata: {
@@ -44,9 +50,20 @@ import (
 				if _config.priorityClassName != _|_ {
 					priorityClassName: _config.priorityClassName
 				}
+				if _config.schedulerName != _|_ {
+					schedulerName: _config.schedulerName
+				}
+				if _config.terminationGracePeriodSeconds != _|_ {
+					terminationGracePeriodSeconds: _config.terminationGracePeriodSeconds
+				}
+				if _config.dnsConfig != _|_ {
+					dnsConfig: _config.dnsConfig
+				}
+				if _config.dnsPolicy != _|_ {
+					dnsPolicy: _config.dnsPolicy
+				}
 				if _config.webhook.hostNetwork {
 					hostNetwork: true
-					dnsPolicy:   "ClusterFirstWithHostNet"
 				}
 
 				if _config.defaultPackage.enabled {
@@ -88,13 +105,9 @@ import (
 							containerPort: _config.metrics.port
 						},
 					]
-					readinessProbe: {
-						httpGet: {
-							port: _config.readinessProbe.port
-							path: _config.readinessProbe.path
-						}
-						initialDelaySeconds: 3
-						periodSeconds:       7
+					readinessProbe: _config.readinessProbe
+					if _config.env != _|_ {
+						env: _config.env
 					}
 					args: [
 						if _config.minTLSVersion != _|_ {
@@ -106,8 +119,8 @@ import (
 						"--log-format=\(_config.logFormat)",
 						"--log-level=\(_config.logLevel)",
 						"--metrics-port=\(_config.metrics.port)",
-						"--readiness-probe-port=\(_config.readinessProbe.port)",
-						"--readiness-probe-path=\(_config.readinessProbe.path)",
+						"--readiness-probe-port=\(_config.readinessProbe.httpGet.port)",
+						"--readiness-probe-path=\(_config.readinessProbe.httpGet.path)",
 						"--leader-elect=\(_config.leaderElection.enabled)",
 						"--leader-election-lease-duration=\(_config.leaderElection.leaseDuration)",
 						"--leader-election-renew-deadline=\(_config.leaderElection.renewDeadline)",

@@ -37,7 +37,9 @@ export const sources: ModuleSource[] = [
     url: "https://github.com/cert-manager/cert-manager",
     // In-repo chart; the parity surface also spans the typed component
     // Config APIs under pkg/apis/config/, which the chart values alone
-    // do not cover.
+    // do not cover. Deviation: the chart's detached serviceMonitor
+    // namespace is not reproduced — ServiceMonitors live in the
+    // instance namespace.
     parityTarget: "https://github.com/cert-manager/cert-manager/tree/master/deploy/charts/cert-manager",
     releaseTag: "v*",
     // Multi-package CUE module: one package per component, the image
@@ -133,6 +135,8 @@ export const sources: ModuleSource[] = [
     url: "https://github.com/kubernetes/kube-state-metrics",
     // Cross-repo: the chart lives in prometheus-community/helm-charts
     // while the releases are tracked from the upstream repo.
+    // Deviation: the chart's detached serviceMonitor namespace is not
+    // reproduced — ServiceMonitors live in the instance namespace.
     parityTarget: "https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-state-metrics",
     releaseTag: "v*",
     images: {
@@ -183,7 +187,8 @@ export const sources: ModuleSource[] = [
     name: "external-dns",
     url: "https://github.com/kubernetes-sigs/external-dns",
     // In-repo chart, released on the interleaved external-dns-helm-chart-*
-    // tags.
+    // tags. Deviation: the chart's detached serviceMonitor namespace is
+    // not reproduced — ServiceMonitors live in the instance namespace.
     parityTarget: "https://github.com/kubernetes-sigs/external-dns/tree/master/charts/external-dns",
     releaseTag: "v*",
     crds: { file: "charts/external-dns/crds/dnsendpoints.externaldns.k8s.io.yaml" },
