@@ -68,6 +68,9 @@ import (
 				if _config.hostNetwork {
 					hostNetwork: true
 				}
+				if _config.schedulerName != _|_ {
+					schedulerName: _config.schedulerName
+				}
 				if _config.dnsConfig != _|_ {
 					dnsConfig: _config.dnsConfig
 				}
