@@ -186,7 +186,7 @@ container next to external-dns; its image is required.
 | `provider.webhook.securityContext` | `corev1.#SecurityContext` | hardened | Webhook security context; same hardened defaults as the main container |
 | `provider.webhook.livenessProbe` / `readinessProbe` | `corev1.#Probe` | `/healthz` | Webhook probes |
 | `provider.webhook.service.port` | `int` | `8080` | Service port exposing the webhook |
-| `provider.webhook.serviceMonitor` | | unset | Scrape overrides for the webhook metrics endpoint |
+| `provider.webhook.serviceMonitor` | | unset | Scrape overrides for the webhook metrics endpoint; same endpoint fields as `serviceMonitor` |
 
 ### Pod scheduling values
 
@@ -210,7 +210,7 @@ container next to external-dns; its image is required.
 | `extraVolumes` / `extraVolumeMounts` | `[...]` | unset | Additional volumes, e.g. provider credential files from an existing Secret |
 | `deploymentAnnotations` | `{[string]: string}` | unset | Annotations on the Deployment |
 
-### Service and monitoring values
+### Service values
 
 | Key | Type | Default | Description |
 |---|---|---|---|
@@ -220,10 +220,18 @@ container next to external-dns; its image is required.
 | `service.annotations` / `labels` | `{[string]: string}` | unset | Extra Service metadata |
 | `service.clusterIP` / `externalIPs` / `nodePort` / `loadBalancerIP` / `loadBalancerClass` / `loadBalancerSourceRanges` / `externalTrafficPolicy` | | unset (`nodePort` 0=auto) | Service networking settings per type |
 | `service.ipFamilies` / `ipFamilyPolicy` | | unset | Service IP family settings |
-| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor |
+
+### Monitoring values
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor for the metrics Service, in the instance namespace |
+| `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
 | `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
-| `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata |
-| `serviceMonitor.interval` / `scrapeTimeout` / `honorLabels` / `enableHttp2` / `scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape settings; unset values fall back to the Prometheus defaults |
+| `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
+| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
+| `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
 | `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
-| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
 | `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |

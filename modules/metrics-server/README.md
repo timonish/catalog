@@ -197,16 +197,16 @@ All values are optional.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `metrics.enabled` | `bool` | `false` | Allow unauthenticated access to `/metrics` |
-| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor in the instance namespace (implies `metrics.enabled`) |
+| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor for the metrics endpoint, in the instance namespace (implies `metrics.enabled`) |
 | `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
 | `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
 | `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
-| `serviceMonitor.scheme` | `https` or `http` | `https` | Scrape scheme |
-| `serviceMonitor.tlsConfig` | `{...}` | `insecureSkipVerify: true` | Scrape TLS settings; with `tls.type: cert-manager` set the issued CA here to verify |
 | `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
 | `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
+| `serviceMonitor.scheme` | `https` or `http` | `https` | Scrape scheme |
+| `serviceMonitor.tlsConfig` | `{...}` | `insecureSkipVerify: true` | Scrape TLS settings; with `tls.type: cert-manager` set the issued CA here to verify |
 | `serviceMonitor.bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape authentication and proxy settings |
-| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
 | `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
 | `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 

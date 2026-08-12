@@ -184,6 +184,9 @@ the cainjector keeps the webhook configuration CA in sync.
 | `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls |
 | `automountServiceAccountToken` | `bool` | `true` | Automount the API credentials in the pod |
 | `extraVolumes` / `extraVolumeMounts` | `[...]` | unset | Additional volumes and container mounts |
+| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget for the pods |
+| `podDisruptionBudget.minAvailable` / `maxUnavailable` | `int` or percent | `minAvailable: 1` | Disruption budget; the two are mutually exclusive (schema-enforced) |
+| `podDisruptionBudget.unhealthyPodEvictionPolicy` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |
 
 ### Monitoring values
 
@@ -200,9 +203,6 @@ the cainjector keeps the webhook configuration CA in sync.
 | `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
 | `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
 | `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
-| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
 | `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
 | `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
-| `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget for the pods |
-| `podDisruptionBudget.minAvailable` / `maxUnavailable` | `int` or percent | `minAvailable: 1` | Disruption budget; the two are mutually exclusive (schema-enforced) |
-| `podDisruptionBudget.unhealthyPodEvictionPolicy` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |

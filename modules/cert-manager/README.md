@@ -247,4 +247,18 @@ The following values are available for each component under
 | `prometheus.enabled` | `bool` | `true` | Serve metrics on all components and create their metrics Services; without a monitor enabled, the pods carry `prometheus.io` scrape annotations |
 | `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor scraping all components, in the instance namespace |
 | `podMonitor.enabled` | `bool` | `false` | Create a PodMonitor instead of the ServiceMonitor; mutually exclusive (schema-enforced) |
-| `serviceMonitor.*` / `podMonitor.*` | — | unset | `additionalLabels`, `annotations`, `jobLabel`, `interval`, `scrapeTimeout` (defaults to the Prometheus settings), `honorLabels`, `enableHttp2`, `scheme`, `tlsConfig`, `bearerTokenFile`, `bearerTokenSecret`, `proxyUrl`, `metricRelabelings`, `relabelings`, scrape limits, `targetLabels`, `podTargetLabels` |
+
+Both monitor blocks share the scrape settings below (shown for
+`serviceMonitor`):
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra monitor metadata, e.g. labels for Prometheus discovery |
+| `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
+| `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
+| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
+| `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
+| `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
+| `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics (`targetLabels` is ServiceMonitor-only) |

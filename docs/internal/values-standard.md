@@ -159,6 +159,48 @@ field — that label is set through `additionalLabels`. The upstream
 canonical top-level block; `podMonitor` remains addon-specific where
 upstream offers it.
 
+#### Documenting the monitoring values
+
+Every module README with a monitor documents it in a dedicated
+`### Monitoring values` section — never merged with Service or network
+settings — containing this exact table (dot-style keys, grouped rows;
+the READMEs use dot-style key references everywhere outside CUE
+snippets):
+
+```markdown
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor <what it scrapes>, in the instance namespace |
+| `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
+| `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
+| `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
+| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
+| `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
+| `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
+| `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
+```
+
+Module differences must read as differences, not as a restyled table:
+a module-specific default edits the Default cell in place (VPA
+`jobLabel`); a field whose default or description diverges from its
+grouped row gets its own row in the same position (metrics-server and
+prometheus-operator `scheme`/`tlsConfig`); rows that gate or plumb the
+metrics exposure itself lead the section (cert-manager
+`prometheus.enabled` and the monitor toggles, metrics-server
+`metrics.enabled`, trust-manager `metrics.*`); other module-specific
+fields append rows at the bottom (kube-state-metrics
+`selectorOverride`, `namespaceSelector`), with per-endpoint blocks
+last. The multi-endpoint form keeps the shared metadata rows, drops
+the per-endpoint rows and documents one row per endpoint block
+enumerating the standard endpoint fields (kube-state-metrics
+`http`/`metrics`). cert-manager documents the shared scrape settings
+once, "shown for `serviceMonitor`". A monitor nested in a component
+block (external-dns `provider.webhook.serviceMonitor`) stays
+documented with its component, pointing at the canonical endpoint
+fields.
+
 ### `podDisruptionBudget`
 
 ```cue

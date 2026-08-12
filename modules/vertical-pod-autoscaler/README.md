@@ -122,6 +122,11 @@ All values are optional.
 | `rbac.create` | `bool` | `true` | Create the roles and bindings |
 | `rbac.extraRules` | `[...rbacv1.#PolicyRule]` | unset | Extra rules appended to the recommender metrics-reader ClusterRole, e.g. for custom metrics |
 | `securityContextPreset` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins the upstream image's non-root UID `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+
+### Monitoring values
+
+| Key | Type | Default | Description |
+|---|---|---|---|
 | `serviceMonitor.enabled` | `bool` | `false` | Create a metrics Service and a Prometheus Operator ServiceMonitor for every deployed component, in the instance namespace |
 | `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
 | `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/component` | Service label used as the Prometheus job name |
@@ -129,7 +134,7 @@ All values are optional.
 | `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
 | `serviceMonitor.enableHttp2` | `bool` | unset | Enable HTTP2 for scraping |
 | `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
-| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
+| `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules for the samples and the targets |
 | `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
 | `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 
