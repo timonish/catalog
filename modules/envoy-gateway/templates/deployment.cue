@@ -17,7 +17,7 @@ import (
 			name:  "KUBERNETES_CLUSTER_DOMAIN"
 			value: _config.kubernetesClusterDomain
 		},
-		if _config.extraEnv != _|_ for e in _config.extraEnv {e},
+		if _config.env != _|_ for e in _config.env {e},
 	]
 
 	_volumeMounts: [
@@ -109,6 +109,15 @@ import (
 				}
 				if _config.topologySpreadConstraints != _|_ {
 					topologySpreadConstraints: _config.topologySpreadConstraints
+				}
+				if _config.dnsPolicy != _|_ {
+					dnsPolicy: _config.dnsPolicy
+				}
+				if _config.dnsConfig != _|_ {
+					dnsConfig: _config.dnsConfig
+				}
+				if _config.schedulerName != _|_ {
+					schedulerName: _config.schedulerName
 				}
 				if _config.priorityClassName != _|_ {
 					priorityClassName: _config.priorityClassName

@@ -27,7 +27,7 @@ See each module's README for its values API and configuration examples.
 | Module | Version | Updated | Upstream |
 |---|---|---|---|
 | [cert-manager](modules/cert-manager/README.md) | 1.21.1-2 | 2026.08.12 | [cert-manager/cert-manager](https://github.com/cert-manager/cert-manager) |
-| [envoy-gateway](modules/envoy-gateway/README.md) | 1.8.3-1 | 2026.08.11 | [envoyproxy/gateway](https://github.com/envoyproxy/gateway) |
+| [envoy-gateway](modules/envoy-gateway/README.md) | 1.8.3-2 | 2026.08.11 | [envoyproxy/gateway](https://github.com/envoyproxy/gateway) |
 | [external-dns](modules/external-dns/README.md) | 0.21.0-3 | 2026.08.11 | [kubernetes-sigs/external-dns](https://github.com/kubernetes-sigs/external-dns) |
 | [gateway-api](modules/gateway-api/README.md) | 1.6.1-1 | 2026.08.11 | [kubernetes-sigs/gateway-api](https://github.com/kubernetes-sigs/gateway-api) |
 | [kube-state-metrics](modules/kube-state-metrics/README.md) | 2.19.1-1 | 2026.08.11 | [kubernetes/kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) |
