@@ -11,9 +11,9 @@ package main
 values: {
 	// The default vet covers the hardened profile; flip to platform so
 	// both identity branches validate.
-	securityProfile:      "platform"
-	replicas:             1
-	revisionHistoryLimit: 5
+	securityContextPreset: "platform"
+	replicas:              1
+	revisionHistoryLimit:  5
 
 	strategy: type: "RollingUpdate"
 
@@ -137,14 +137,19 @@ values: {
 				values: ["linux"]
 			}]
 		}]
-		// No label selectors: validates the default selector injection.
+		// Raw rules replace the anti-affinity preset and need explicit
+		// label selectors.
 		podAntiAffinity: {
 			requiredDuringSchedulingIgnoredDuringExecution: [{
+				labelSelector: matchLabels: "app.kubernetes.io/name": "test"
 				topologyKey: "kubernetes.io/hostname"
 			}]
 			preferredDuringSchedulingIgnoredDuringExecution: [{
 				weight: 100
-				podAffinityTerm: topologyKey: "topology.kubernetes.io/zone"
+				podAffinityTerm: {
+					labelSelector: matchLabels: "app.kubernetes.io/name": "test"
+					topologyKey: "topology.kubernetes.io/zone"
+				}
 			}]
 		}
 	}

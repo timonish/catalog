@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [ExternalDNS](https://github.
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.21.0-3`, packaging the upstream release
+Latest module version is `0.21.0-4`, packaging the upstream release
 [v0.21.0](https://github.com/kubernetes-sigs/external-dns/releases/tag/v0.21.0)
 with the following container images:
 
@@ -193,11 +193,12 @@ container next to external-dns; its image is required.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `podLabels` / `podAnnotations` | `{[string]: string}` | unset | Extra pod metadata |
-| `securityProfile` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65532` and fsGroup `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
-| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityProfile` | Pod security context |
+| `securityContextPreset` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65532` and fsGroup `65534`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityContextPreset` | Pod security context |
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries |
 | `priorityClassName` | `string` | unset | Pod priority class |
-| `affinity` | `corev1.#Affinity` | unset | Pod affinity; terms without a label selector match the instance pods |
+| `affinity.podAntiAffinity` | `soft`, `hard`, `none` or raw rules | `soft` | Spread the replicas across nodes; raw rules replace the preset and need explicit label selectors |
+| `affinity.nodeAffinity` / `affinity.podAffinity` | raw rules | unset | Node and pod affinity rules |
 | `nodeSelector` | `{[string]: string}` | Linux nodes | Node selection; a supplied value replaces the default |
 | `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls; spread constraints without a label selector match the instance pods |
 | `schedulerName` | `string` | unset | Alternate scheduler |
@@ -222,7 +223,7 @@ container next to external-dns; its image is required.
 | `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor |
 | `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
 | `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata |
-| `serviceMonitor.interval` / `scrapeTimeout` / `honorLabels` / `scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape settings; unset values fall back to the Prometheus defaults |
+| `serviceMonitor.interval` / `scrapeTimeout` / `honorLabels` / `enableHttp2` / `scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape settings; unset values fall back to the Prometheus defaults |
 | `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
 | `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
 | `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
