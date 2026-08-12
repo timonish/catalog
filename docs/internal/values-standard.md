@@ -272,3 +272,12 @@ crds: {                                   // CRD-shipping modules
   `digest` field, and every container has a `securityContext` with the
   hardened `timoniv1.#ContainerSecurityContext` default. No container
   escapes the standards because it is auxiliary.
+
+### Renaming or removing a value
+
+When a module's values surface changes, grep `test/bundles/` for other
+bundles that install that module as a dependency and update the values
+they pass. Dependency instances pull the *published* module, so the
+module's own PR goes green and the breakage only appears after merge,
+once `push.yaml` publishes the new version — from then on every PR's
+e2e job for the dependent bundle fails with `field not allowed`.
