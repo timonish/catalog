@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.8.3-2`, packaging the upstream release
+Latest module version is `1.8.3-3`, packaging the upstream release
 [v1.8.3](https://github.com/envoyproxy/gateway/releases/tag/v1.8.3)
 with the following container images:
 
@@ -255,8 +255,8 @@ timoni bundle apply -f bundle.cue
 | `hpa: behavior:` | `object` | unset | The autoscaling behavior |
 | `resources:` | `timoniv1.#ResourceRequirements` | `100m/256Mi` requests, `1024Mi` memory limit | The controller container resource requirements |
 | `securityContext:` | `corev1.#SecurityContext` | hardened | The controller container security context |
-| `securityProfile:` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65532`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
-| `podSecurityContext:` | `corev1.#PodSecurityContext` | per `securityProfile` | The controller pod security context |
+| `securityContextPreset:` | `hardened` or `platform` | `hardened` | Pod identity defaults: `hardened` pins UID/GID `65532`, `platform` leaves the identity to the cluster (e.g. OpenShift SCCs) |
+| `podSecurityContext:` | `corev1.#PodSecurityContext` | per `securityContextPreset` | The controller pod security context |
 | `startupProbe:` | `corev1.#Probe` | `/healthz` on `8081` | The startup probe, with a generous failure threshold for cache priming |
 | `livenessProbe:` | `corev1.#Probe` | `/healthz` on `8081` | The liveness probe |
 | `readinessProbe:` | `corev1.#Probe` | `/readyz` on `8081` | The readiness probe |
@@ -268,7 +268,8 @@ timoni bundle apply -f bundle.cue
 | `podLabels:` | `{[string]: string}` | unset | Labels added to the pods |
 | `nodeSelector:` | `{[string]: string}` | `kubernetes.io/os: linux` | The pod node selector |
 | `tolerations:` | `[...corev1.#Toleration]` | unset | The pod tolerations |
-| `affinity:` | `corev1.#Affinity` | unset | The pod affinity rules |
+| `affinity: podAntiAffinity:` | `soft`, `hard`, `none` or raw rules | `soft` | Spread the replicas across nodes; raw rules replace the preset |
+| `affinity: nodeAffinity:` / `affinity: podAffinity:` | raw rules | unset | Node and pod affinity rules |
 | `topologySpreadConstraints:` | `[...corev1.#TopologySpreadConstraint]` | unset | The pod topology spread constraints |
 | `priorityClassName:` | `string` | unset | The priority class of the pods |
 | `terminationGracePeriodSeconds:` | `int` | `10` | Seconds the pods are given to shut down |
@@ -297,7 +298,7 @@ timoni bundle apply -f bundle.cue
 | `serviceMonitor: enabled:` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor for the metrics endpoint |
 | `serviceMonitor: additionalLabels:` / `annotations:` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
 | `serviceMonitor: jobLabel:` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
-| `serviceMonitor: honorLabels:` / `scheme:` / `tlsConfig:` / `bearerTokenFile:` / `bearerTokenSecret:` / `proxyUrl:` | | unset | Scrape endpoint settings |
+| `serviceMonitor: honorLabels:` / `enableHttp2:` / `scheme:` / `tlsConfig:` / `bearerTokenFile:` / `bearerTokenSecret:` / `proxyUrl:` | | unset | Scrape endpoint settings |
 | `serviceMonitor: targetLabels:` / `podTargetLabels:` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 | `serviceMonitor: interval:` | `string` | unset | The metrics scrape interval; defaults to the Prometheus settings |
 | `serviceMonitor: scrapeTimeout:` | `string` | unset | The metrics scrape timeout; defaults to the Prometheus settings |
