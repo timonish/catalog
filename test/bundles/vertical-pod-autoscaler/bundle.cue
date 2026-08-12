@@ -25,7 +25,7 @@ bundle: {
 			namespace: "kube-system"
 			values: {
 				// Kind's kubelet serving certificates are self-signed.
-				args: ["--kubelet-insecure-tls"]
+				extraArgs: ["--kubelet-insecure-tls"]
 			}
 		}
 		"vertical-pod-autoscaler": {

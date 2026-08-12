@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [ExternalDNS](https://github.
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.21.0-2`, packaging the upstream release
+Latest module version is `0.21.0-3`, packaging the upstream release
 [v0.21.0](https://github.com/kubernetes-sigs/external-dns/releases/tag/v0.21.0)
 with the following container images:
 
@@ -140,12 +140,13 @@ All values are optional.
 | `livenessProbe` / `readinessProbe` | `corev1.#Probe` | `/healthz` | Container probes |
 | `commonLabels` | `{[string]: string}` | unset | Extra labels added to all resources |
 | `rbac.create` | `bool` | `true` | Create the roles and bindings derived from `sources` |
-| `rbac.additionalPermissions` | `[...rbacv1.#PolicyRule]` | unset | Extra rules appended to the source-derived ones |
+| `rbac.extraRules` | `[...rbacv1.#PolicyRule]` | unset | Extra rules appended to the source-derived ones |
 | `serviceAccount.create` | `bool` | `true` | Create the service account; set to `false` to use an existing one |
 | `serviceAccount.name` | `string` | instance name, or `default` when `create: false` | Service account name |
 | `serviceAccount.labels` / `annotations` | `{[string]: string}` | unset | Extra service account metadata (e.g. IRSA role annotations) |
-| `serviceAccount.automountServiceAccountToken` | `bool` | `true` | Automount the API credentials for the service account |
+| `serviceAccount.automountServiceAccountToken` | `bool` | `false` | Mount the token through the service account (the pod setting mounts it by default) |
 | `crds.install` | `bool` | `true` | Install the DNSEndpoint CRD; disable on secondary instances so a single one owns it |
+| `crds.keep` | `bool` | `false` | Keep the CRD (and all DNSEndpoints) when the instance is deleted |
 
 ### DNS synchronization values
 
@@ -177,12 +178,12 @@ container next to external-dns; its image is required.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `provider.webhook.image.repository` / `tag` | `string` | required | Webhook container image |
+| `provider.webhook.image.repository` / `tag` / `digest` | `string` | required (digest optional) | Webhook container image, pinnable by digest |
 | `provider.webhook.image.pullPolicy` | `string` | `IfNotPresent` | Webhook image pull policy |
 | `provider.webhook.env` / `args` | `[...]` | unset | Webhook container environment and arguments |
 | `provider.webhook.extraVolumeMounts` | `[...corev1.#VolumeMount]` | unset | Extra webhook volume mounts |
 | `provider.webhook.resources` | `timoniv1.#ResourceRequirements` | unset | Webhook resource requirements |
-| `provider.webhook.securityContext` | `corev1.#SecurityContext` | unset | Webhook security context |
+| `provider.webhook.securityContext` | `corev1.#SecurityContext` | hardened | Webhook security context; same hardened defaults as the main container |
 | `provider.webhook.livenessProbe` / `readinessProbe` | `corev1.#Probe` | `/healthz` | Webhook probes |
 | `provider.webhook.service.port` | `int` | `8080` | Service port exposing the webhook |
 | `provider.webhook.serviceMonitor` | | unset | Scrape overrides for the webhook metrics endpoint |
@@ -197,7 +198,9 @@ container next to external-dns; its image is required.
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries |
 | `priorityClassName` | `string` | unset | Pod priority class |
 | `affinity` | `corev1.#Affinity` | unset | Pod affinity; terms without a label selector match the instance pods |
-| `nodeSelector` / `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls; spread constraints without a label selector match the instance pods |
+| `nodeSelector` | `{[string]: string}` | Linux nodes | Node selection; a supplied value replaces the default |
+| `tolerations` / `topologySpreadConstraints` | | unset | Standard scheduling controls; spread constraints without a label selector match the instance pods |
+| `schedulerName` | `string` | unset | Alternate scheduler |
 | `dnsPolicy` / `dnsConfig` | | unset | Pod DNS settings |
 | `terminationGracePeriodSeconds` | `int` | unset | Pod termination grace period |
 | `automountServiceAccountToken` | `bool` | `true` | Automount the API credentials in the pod |
@@ -212,11 +215,14 @@ container next to external-dns; its image is required.
 |---|---|---|---|
 | `service.enabled` | `bool` | `true` | Create the metrics Service |
 | `service.port` | `int` | `7979` | Service port |
-| `service.annotations` | `{[string]: string}` | unset | Extra Service annotations |
+| `service.type` | `string` | `ClusterIP` | Service type |
+| `service.annotations` / `labels` | `{[string]: string}` | unset | Extra Service metadata |
+| `service.clusterIP` / `externalIPs` / `nodePort` / `loadBalancerIP` / `loadBalancerClass` / `loadBalancerSourceRanges` / `externalTrafficPolicy` | | unset (`nodePort` 0=auto) | Service networking settings per type |
 | `service.ipFamilies` / `ipFamilyPolicy` | | unset | Service IP family settings |
 | `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor |
-| `serviceMonitor.namespace` | `string` | instance namespace | Alternate namespace for the ServiceMonitor |
+| `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
 | `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata |
-| `serviceMonitor.interval` / `scrapeTimeout` / `scheme` / `tlsConfig` / `bearerTokenFile` | | unset | Scrape settings; unset values fall back to the Prometheus defaults |
+| `serviceMonitor.interval` / `scrapeTimeout` / `honorLabels` / `scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape settings; unset values fall back to the Prometheus defaults |
+| `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
 | `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
-| `serviceMonitor.targetLabels` | `[...string]` | unset | Labels transferred to the scraped metrics |
+| `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |

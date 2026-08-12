@@ -3,7 +3,7 @@
   "repo": "envoyproxy/gateway",
   "tag": "v1.8.3",
   "commit": "94850d4323922cba7c67b5b5ad23de9c715f8048",
-  "moduleVersion": "1.8.3-1",
+  "moduleVersion": "1.8.3-2",
   "images": {
     "envoy-gateway": {
       "repository": "docker.io/envoyproxy/gateway",
@@ -12,6 +12,6 @@
     }
   },
   "crdsDigest": "sha256:23f0913f200abd1d7c634c3fb2c3eb6021cc4e84bdd75d3296711b9334472abb",
-  "generatedDigest": "sha256:e1d995a20058d7dc8cf26d49f213ad20602aa97612025188727f795e3b841069",
-  "updatedAt": "2026-08-11T13:18:29.120Z"
+  "generatedDigest": "sha256:d64921f156b7b905508074033320703a3e9db2f2181a1d1497913e9c32aa1c1e",
+  "updatedAt": "2026-08-11T23:22:06.565Z"
 }

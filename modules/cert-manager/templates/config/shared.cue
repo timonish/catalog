@@ -3,6 +3,10 @@ package config
 // Duration is a Go duration string, e.g. `60s`, `5m` or `1h`.
 #Duration: string & =~"^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
 
+// PromDuration is a Prometheus duration, e.g. "30s", "1m30s"; a bare
+// "0" is allowed.
+#PromDuration: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+
 // Logging configures the logging behaviour of a cert-manager component
 // (the Kubernetes component-base LoggingConfiguration).
 #Logging: {

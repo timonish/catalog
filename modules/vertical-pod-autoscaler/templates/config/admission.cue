@@ -15,12 +15,16 @@ import (
 
 	// The webhook Service settings. The service name is passed to the
 	// admission controller through `--webhook-service` and added to the
-	// serving certificate DNS names; the first port is referenced by
-	// the webhook configuration.
+	// serving certificate DNS names; the port is referenced by the
+	// webhook configuration.
 	service: {
 		name:         *"vpa-webhook" | string & =~".+"
+		port:         *443 | int & >0 & <=65535
+		targetPort:   *8000 | int & >0 & <=65535
 		annotations?: timoniv1.#Annotations
-		ports: *[{port: 443, protocol: "TCP", targetPort: 8000}] | [corev1.#ServicePort, ...corev1.#ServicePort]
+		labels?:      timoniv1.#Labels
+		ipFamilies?: [..."IPv4" | "IPv6"]
+		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 	}
 
 	// Run the admission controller on the host network, e.g. on

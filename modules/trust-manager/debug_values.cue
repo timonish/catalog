@@ -53,10 +53,20 @@ values: {
 		renewDeadline: "20s"
 	}
 
-	readinessProbe: {
+	readinessProbe: httpGet: {
 		port: 6061
 		path: "/health/readyz"
 	}
+
+	strategy: type: "Recreate"
+
+	deploymentAnnotations: "team": "platform"
+
+	env: [{name: "GODEBUG", value: "x509sha1=0"}]
+
+	dnsConfig: options: [{name: "ndots", value: "2"}]
+	schedulerName:                 "default-scheduler"
+	terminationGracePeriodSeconds: 30
 
 	webhook: {
 		host:           "::"
@@ -95,11 +105,15 @@ values: {
 	}
 
 	serviceMonitor: {
-		enabled:            true
-		prometheusInstance: "platform"
-		additionalLabels: "team": "platform"
-		interval:      "30s"
+		enabled: true
+		additionalLabels: "team":        "platform"
+		annotations: "example.com/team": "platform"
+		interval:      "1m30s"
 		scrapeTimeout: "10s"
+		honorLabels:   true
+		scheme:        "http"
+		sampleLimit:   1000
+		targetLabels: ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
 			action: "drop"
 			sourceLabels: ["__name__"]
@@ -110,12 +124,12 @@ values: {
 			sourceLabels: ["__meta_kubernetes_pod_node_name"]
 			targetLabel: "instance"
 		}]
-		endpointAdditionalProperties: honorLabels: true
 	}
 
 	podDisruptionBudget: {
-		enabled:        true
-		maxUnavailable: "50%"
+		enabled:                    true
+		maxUnavailable:             "50%"
+		unhealthyPodEvictionPolicy: "AlwaysAllow"
 	}
 
 	_mcpu: 100

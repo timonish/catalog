@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [trust-manager](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.24.0-0`, packaging the upstream release
+Latest module version is `0.24.0-1`, packaging the upstream release
 [v0.24.0](https://github.com/cert-manager/trust-manager/releases/tag/v0.24.0)
 with the following container images:
 
@@ -118,12 +118,15 @@ All values are optional.
 | `cipherSuites` | `string` | Go default | Comma-separated TLS cipher suites of the webhook and metrics servers |
 | `leaderElection.enabled` | `bool` | `true` | Elect a leader among the replicas |
 | `leaderElection.leaseDuration` / `renewDeadline` | `string` | `15s` / `10s` | Leader election timing; raise both on clusters with an overloaded API server |
-| `readinessProbe.port` / `path` | `int` / `string` | `6060` / `/readyz` | Readiness probe endpoint |
+| `readinessProbe` | `corev1.#Probe` | `/readyz` on port `6060` | Readiness probe; `httpGet.port`/`path` are wired into the container arguments |
+| `strategy` | `appsv1.#DeploymentStrategy` | unset | Deployment rollout strategy |
+| `env` | `[...corev1.#EnvVar]` | unset | Environment variables for the container |
+| `deploymentAnnotations` | `{[string]: string}` | unset | Annotations on the Deployment |
 | `extraArgs` | `[...string]` | `[]` | Extra command line arguments appended after the generated ones; flags override the generated configuration |
 | `serviceAccount.create` | `bool` | `true` | Create the service account; set to `false` to use an existing one |
 | `serviceAccount.name` | `string` | instance name, or `default` when `create: false` | Service account name |
 | `serviceAccount.annotations` | `{[string]: string}` | unset | Extra service account annotations (e.g. IRSA role annotations) |
-| `serviceAccount.automountServiceAccountToken` | `bool` | `true` | Automount the API credentials for the service account |
+| `serviceAccount.automountServiceAccountToken` | `bool` | `false` | Mount the token through the service account (the pod setting mounts it by default) |
 | `imagePullSecrets` | `[...]` | unset | Secrets for pulling from private registries, attached to the service account |
 | `rbac.create` | `bool` | `true` | Create the roles and bindings |
 | `rbac.aggregateClusterRoles` | `bool` | `true` | Aggregate Bundle read access into the OpenShift-style `cluster-reader` ClusterRole |
@@ -158,7 +161,9 @@ the cainjector keeps the webhook configuration CA in sync.
 | `webhook.timeoutSeconds` | `int` | `5` | Admission review request timeout |
 | `webhook.hostNetwork` | `bool` | `false` | Run the pod in the host network namespace, for managed clusters with a custom CNI where the control plane cannot reach the pod network |
 | `webhook.service.type` | `string` | `ClusterIP` | Webhook Service type |
-| `webhook.service.nodePort` | `int` | unset | Node port of the webhook Service when the type is `NodePort` |
+| `webhook.service.nodePort` | `int` | `0` (auto) | Node port of the webhook Service when the type is `NodePort` |
+| `webhook.service.annotations` / `labels` | `{[string]: string}` | unset | Extra webhook Service metadata |
+| `metrics.service.annotations` / `labels` | `{[string]: string}` | unset | Extra metrics Service metadata |
 | `webhook.service.ipFamilies` / `ipFamilyPolicy` | | unset | Service IP family settings |
 | `webhook.tls.certificate.duration` | `string` | cert-manager default | Webhook certificate duration, e.g. `8766h` for a year |
 | `webhook.tls.certificate.secretTemplate.labels` / `annotations` | `{[string]: string}` | unset | Extra metadata on the certificate Secret |
@@ -186,11 +191,15 @@ the cainjector keeps the webhook configuration CA in sync.
 | `metrics.service.enabled` | `bool` | `true` | Create the metrics Service |
 | `metrics.service.type` | `string` | `ClusterIP` | Metrics Service type |
 | `metrics.service.ipFamilies` / `ipFamilyPolicy` | | unset | Service IP family settings |
-| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor for the metrics Service |
-| `serviceMonitor.prometheusInstance` | `string` | `default` | Value of the `prometheus` label on the ServiceMonitor, for clusters running multiple Prometheus instances |
-| `serviceMonitor.additionalLabels` | `{[string]: string}` | unset | Extra ServiceMonitor labels |
-| `serviceMonitor.interval` / `scrapeTimeout` | `string` | `10s` / `5s` | Scrape settings; set to `""` to fall back to the Prometheus defaults |
+| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor for the metrics Service, in the instance namespace |
+| `serviceMonitor.additionalLabels` / `annotations` | `{[string]: string}` | unset | Extra ServiceMonitor metadata, e.g. labels for Prometheus discovery |
+| `serviceMonitor.jobLabel` | `string` | `app.kubernetes.io/name` | Service label used as the Prometheus job name |
+| `serviceMonitor.interval` / `scrapeTimeout` | `string` | unset | Scrape cadence; defaults to the Prometheus settings |
+| `serviceMonitor.honorLabels` | `bool` | `false` | Keep scraped label values on collision |
+| `serviceMonitor.scheme` / `tlsConfig` / `bearerTokenFile` / `bearerTokenSecret` / `proxyUrl` | | unset | Scrape scheme, TLS, authentication and proxy settings |
 | `serviceMonitor.metricRelabelings` / `relabelings` | `[...]` | unset | Relabeling rules |
-| `serviceMonitor.endpointAdditionalProperties` | `{...}` | unset | Extra properties merged into the scrape endpoint, e.g. `honorLabels` or `tlsConfig` |
+| `serviceMonitor.sampleLimit` / `targetLimit` / `labelLimit` / `labelNameLengthLimit` / `labelValueLengthLimit` | `int` | unset | Scrape limits |
+| `serviceMonitor.targetLabels` / `podTargetLabels` | `[...string]` | unset | Service/pod labels copied onto the metrics |
 | `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget for the pods |
 | `podDisruptionBudget.minAvailable` / `maxUnavailable` | `int` or percent | `minAvailable: 1` | Disruption budget; the two are mutually exclusive (schema-enforced) |
+| `podDisruptionBudget.unhealthyPodEvictionPolicy` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |
