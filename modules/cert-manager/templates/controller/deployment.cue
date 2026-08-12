@@ -47,7 +47,7 @@ import (
 
 				// Scrape annotations for annotation-based Prometheus
 				// setups without the Prometheus Operator.
-				if _config.prometheus.enabled && !_config.prometheus.serviceMonitor.enabled && !_config.prometheus.podMonitor.enabled {
+				if _config.prometheus.enabled && !_config.serviceMonitor.enabled && !_config.podMonitor.enabled {
 					annotations: {
 						"prometheus.io/path":   "/metrics"
 						"prometheus.io/scrape": "true"
@@ -56,10 +56,8 @@ import (
 				}
 			}
 			spec: corev1.#PodSpec & {
-				serviceAccountName: _controller.serviceAccount.name
-				if _controller.automountServiceAccountToken != _|_ {
-					automountServiceAccountToken: _controller.automountServiceAccountToken
-				}
+				serviceAccountName:           _controller.serviceAccount.name
+				automountServiceAccountToken: _controller.automountServiceAccountToken
 				if !_controller.serviceAccount.create {
 					if _config.imagePullSecrets != _|_ {
 						imagePullSecrets: _config.imagePullSecrets
@@ -122,7 +120,7 @@ import (
 								name:      "config"
 								mountPath: "/var/cert-manager/config"
 							},
-							if _controller.volumeMounts != _|_ for m in _controller.volumeMounts {m},
+							if _controller.extraVolumeMounts != _|_ for m in _controller.extraVolumeMounts {m},
 						]
 						if _controller.resources != _|_ {
 							resources: _controller.resources
@@ -135,7 +133,7 @@ import (
 						name: "config"
 						configMap: name: #cmName
 					},
-					if _controller.volumes != _|_ for v in _controller.volumes {v},
+					if _controller.extraVolumes != _|_ for v in _controller.extraVolumes {v},
 				]
 				nodeSelector: _controller.nodeSelector
 				if _controller.affinity != _|_ {

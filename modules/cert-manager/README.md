@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [cert-manager](https://github
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.21.1-1`, packaging the upstream release
+Latest module version is `1.21.1-2`, packaging the upstream release
 [v1.21.1](https://github.com/cert-manager/cert-manager/releases/tag/v1.21.1)
 with the following container images:
 
@@ -99,7 +99,7 @@ bundle: {
 					replicas: 2
 					podDisruptionBudget: enabled: true
 				}
-				prometheus: serviceMonitor: enabled: true
+				serviceMonitor: enabled: true
 			}
 		}
 	}
@@ -156,7 +156,7 @@ The following values are available for each component under
 | `podSecurityContext` | `corev1.#PodSecurityContext` | per `securityProfile` | Pod security context; defaults: runAsNonRoot, RuntimeDefault seccomp profile |
 | `extraArgs` | `[...string]` | `[]` | Extra command line arguments appended after `--config`; flags override the configuration file |
 | `env` | `[...corev1.#EnvVar]` | unset | Environment variables |
-| `volumes` / `volumeMounts` | `corev1` | unset | Extra pod volumes and container mounts |
+| `extraVolumes` / `extraVolumeMounts` | `corev1` | unset | Extra pod volumes and container mounts |
 | `extraContainers` | `[...corev1.#Container]` | unset | Extra containers added to the pod |
 | `nodeSelector` | `{[string]: string}` | Linux nodes | Node selection constraints |
 | `affinity` / `tolerations` / `topologySpreadConstraints` | `corev1` | unset | Pod scheduling settings |
@@ -166,14 +166,15 @@ The following values are available for each component under
 | `hostAliases` | `[...corev1.#HostAlias]` | unset | Entries added to the pod hosts file |
 | `hostUsers` | `bool` | unset | Run the pod in a user namespace |
 | `priorityClassName` / `runtimeClassName` | `string` | unset | Pod runtime settings |
-| `automountServiceAccountToken` | `bool` | unset | Mount the service account token into the pod |
+| `automountServiceAccountToken` | `bool` | `true` | Mount the service account token into the pod |
 | `enableServiceLinks` | `bool` | `false` | Inject service information into the pod environment |
 | `serviceAccount.create` | `bool` | `true` | Create the service account; set to `false` to use an existing one |
 | `serviceAccount.name` | `string` | component name | Service account name |
 | `serviceAccount.labels` / `annotations` | `{[string]: string}` | unset | Extra service account metadata (e.g. IRSA role annotations for the Route53 solver) |
-| `serviceAccount.automountServiceAccountToken` | `bool` | `true` | Automount the API credentials for the service account |
+| `serviceAccount.automountServiceAccountToken` | `bool` | `false` | Mount the token through the service account (the pod setting mounts it by default) |
 | `podDisruptionBudget.enabled` | `bool` | `false` | Create a PodDisruptionBudget for the component |
-| `podDisruptionBudget.minAvailable` / `maxUnavailable` | `int \| string` | `minAvailable: 1` | Disruption budget; mutually exclusive (schema-enforced) |
+| `podDisruptionBudget.minAvailable` / `maxUnavailable` | `int or %` | `minAvailable: 1` | Disruption budget; mutually exclusive (schema-enforced) |
+| `podDisruptionBudget.unhealthyPodEvictionPolicy` | `string` | unset | `IfHealthyBudget` or `AlwaysAllow` (Kubernetes 1.27+) |
 | `networkPolicy.enabled` | `bool` | `false` | Create ingress and egress NetworkPolicies for the component pods |
 | `networkPolicy.ingress` / `egress` | `netv1` rules | serving ports in; DNS, HTTP(S) and Kubernetes API out | The policy rules |
 
@@ -211,7 +212,7 @@ The following values are available for each component under
 |---|---|---|---|
 | `webhook.config.securePort` | `int` | `10250` | TLS port serving the admission endpoints; `10250` avoids conflicts and is open in GKE private cluster firewalls |
 | `webhook.config.healthzPort` | `int` | `6080` | Plaintext healthz port |
-| `webhook.config.tlsConfig` | `#TLSConfig` | dynamic self-signed CA | Serving certificates: a generated CA in the `<instance>-webhook-ca` Secret, or certificate files provided via `volumes` |
+| `webhook.config.tlsConfig` | `#TLSConfig` | dynamic self-signed CA | Serving certificates: a generated CA in the `<instance>-webhook-ca` Secret, or certificate files provided via `extraVolumes` |
 | `webhook.config.enableClientVerification` | `bool` | unset | Verify the API server client certificates (with `clientCAPath` and `clientCertificateSubjects`) |
 | `webhook.config.logging` / `featureGates` / `metricsListenAddress` / `metricsTLSConfig` | — | as controller | Observability settings |
 | `webhook.hostNetwork` | `bool` | `false` | Run on the host network, for clusters where the control plane cannot reach the pod network |
@@ -242,6 +243,6 @@ The following values are available for each component under
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `prometheus.enabled` | `bool` | `true` | Serve metrics on all components and create their metrics Services; without a monitor enabled, the pods carry `prometheus.io` scrape annotations |
-| `prometheus.serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor scraping all components |
-| `prometheus.podMonitor.enabled` | `bool` | `false` | Create a PodMonitor instead of the ServiceMonitor; mutually exclusive (schema-enforced) |
-| `prometheus.serviceMonitor.*` / `prometheus.podMonitor.*` | — | `60s` / `30s` | `namespace`, `prometheusInstance`, `interval`, `scrapeTimeout`, `honorLabels`, `labels`, `annotations`, `endpointAdditionalProperties` |
+| `serviceMonitor.enabled` | `bool` | `false` | Create a Prometheus Operator ServiceMonitor scraping all components, in the instance namespace |
+| `podMonitor.enabled` | `bool` | `false` | Create a PodMonitor instead of the ServiceMonitor; mutually exclusive (schema-enforced) |
+| `serviceMonitor.*` / `podMonitor.*` | — | unset | `additionalLabels`, `annotations`, `jobLabel`, `interval`, `scrapeTimeout` (defaults to the Prometheus settings), `honorLabels`, `scheme`, `tlsConfig`, `bearerTokenFile`, `bearerTokenSecret`, `proxyUrl`, `metricRelabelings`, `relabelings`, scrape limits, `targetLabels`, `podTargetLabels` |

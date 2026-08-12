@@ -45,7 +45,7 @@ import (
 		if config.controller.serviceAccount.create {
 			"controller-sa": controller.#ServiceAccount & {#config: cfg}
 		}
-		if config.prometheus.enabled && !config.prometheus.podMonitor.enabled {
+		if config.prometheus.enabled && !config.podMonitor.enabled {
 			"controller-svc": controller.#Service & {#config: cfg}
 		}
 		if config.rbac.create {
@@ -96,7 +96,7 @@ import (
 			if config.cainjector.serviceAccount.create {
 				"cainjector-sa": cainjector.#ServiceAccount & {#config: cfg}
 			}
-			if config.prometheus.enabled && !config.prometheus.podMonitor.enabled {
+			if config.prometheus.enabled && !config.podMonitor.enabled {
 				"cainjector-svc": cainjector.#Service & {#config: cfg}
 			}
 			if config.rbac.create {
@@ -114,10 +114,10 @@ import (
 		}
 
 		// Monitoring.
-		if config.prometheus.enabled && config.prometheus.serviceMonitor.enabled {
+		if config.prometheus.enabled && config.serviceMonitor.enabled {
 			"service-monitor": #ServiceMonitor & {#config: cfg}
 		}
-		if config.prometheus.enabled && config.prometheus.podMonitor.enabled {
+		if config.prometheus.enabled && config.podMonitor.enabled {
 			"pod-monitor": #PodMonitor & {#config: cfg}
 		}
 	}

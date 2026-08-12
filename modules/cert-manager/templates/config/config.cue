@@ -70,43 +70,26 @@ _defaultSolverImage: (timoniv1.#Image & {
 	}
 
 	// Prometheus metrics settings. Disabling `prometheus.enabled` turns
-	// off the metrics listeners and services of all components. The
-	// ServiceMonitor and PodMonitor are mutually exclusive.
-	prometheus: {
-		enabled: *true | bool
+	// off the metrics listeners and services of all components.
+	prometheus: enabled: *true | bool
 
-		serviceMonitor: {
-			enabled:            *false | bool
-			namespace?:         string & =~".+"
-			prometheusInstance: *"default" | string & =~".+"
-			interval:           *"60s" | string & =~".+"
-			scrapeTimeout:      *"30s" | string & =~".+"
-			honorLabels:        *false | bool
-			labels?:            timoniv1.#Labels
-			annotations?:       timoniv1.#Annotations
-			endpointAdditionalProperties?: {...}
-		}
+	// Prometheus Operator ServiceMonitor (optional) scraping the
+	// metrics of all deployed components, created in the instance
+	// namespace. Mutually exclusive with `podMonitor`.
+	serviceMonitor: #MonitorValues
 
-		podMonitor: {
-			enabled:            *false | bool
-			namespace?:         string & =~".+"
-			prometheusInstance: *"default" | string & =~".+"
-			interval:           *"60s" | string & =~".+"
-			scrapeTimeout:      *"30s" | string & =~".+"
-			honorLabels:        *false | bool
-			labels?:            timoniv1.#Labels
-			annotations?:       timoniv1.#Annotations
-			endpointAdditionalProperties?: {...}
-		}
+	// Prometheus Operator PodMonitor (optional), scraping the pods
+	// directly instead of through the metrics Services. Mutually
+	// exclusive with `serviceMonitor`.
+	podMonitor: #MonitorValues
 
-		_guard: "valid"
-		_guard: [
-			if serviceMonitor.enabled && podMonitor.enabled {
-				"serviceMonitor and podMonitor are mutually exclusive"
-			},
-			"valid",
-		][0]
-	}
+	_monitorsGuard: "valid"
+	_monitorsGuard: [
+		if serviceMonitor.enabled && podMonitor.enabled {
+			"serviceMonitor and podMonitor are mutually exclusive"
+		},
+		"valid",
+	][0]
 
 	_metricsListenDefault: [
 		if prometheus.enabled {"0.0.0.0:9402"},
@@ -196,6 +179,35 @@ _defaultSolverImage: (timoniv1.#Image & {
 			ports: [{port: "http-metrics", protocol: "TCP"}]
 		}] | [...netv1.#NetworkPolicyIngressRule]
 	}
+}
+
+// MonitorValues defines the canonical scrape settings of the
+// ServiceMonitor and PodMonitor.
+#MonitorValues: {
+	enabled:           *false | bool
+	additionalLabels?: timoniv1.#Labels
+	annotations?:      timoniv1.#Annotations
+	jobLabel:          *"app.kubernetes.io/name" | string
+	// Scrape settings; the default empty string omits the field and
+	// falls back to the Prometheus defaults.
+	interval:      *"" | #PromDuration
+	scrapeTimeout: *"" | #PromDuration
+	honorLabels:   *false | bool
+	scheme?:       "http" | "https"
+	tlsConfig?: {...}
+	bearerTokenFile?: string & =~".+"
+	bearerTokenSecret?: {...}
+	proxyUrl?: string & =~".+"
+	metricRelabelings?: [...]
+	relabelings?: [...]
+	sampleLimit?:           int & >=0
+	targetLimit?:           int & >=0
+	labelLimit?:            int & >=0
+	labelNameLengthLimit?:  int & >=0
+	labelValueLengthLimit?: int & >=0
+	// Service labels copied onto the metrics (ServiceMonitor only).
+	targetLabels?: [...string & =~".+"]
+	podTargetLabels?: [...string & =~".+"]
 }
 
 // ControllerValues defines the controller component settings.
@@ -325,5 +337,7 @@ _defaultSolverImage: (timoniv1.#Image & {
 	service: {
 		annotations?: timoniv1.#Annotations
 		labels?:      timoniv1.#Labels
+		ipFamilies?: [..."IPv4" | "IPv6"]
+		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 	}
 }

@@ -22,6 +22,12 @@ import (
 	}
 	spec: corev1.#ServiceSpec & {
 		type: "ClusterIP"
+		if _config.cainjector.service.ipFamilies != _|_ {
+			ipFamilies: _config.cainjector.service.ipFamilies
+		}
+		if _config.cainjector.service.ipFamilyPolicy != _|_ {
+			ipFamilyPolicy: _config.cainjector.service.ipFamilyPolicy
+		}
 		selector: #SelectorLabels & {#config: _config}
 		ports: [{
 			name:       "http-metrics"
