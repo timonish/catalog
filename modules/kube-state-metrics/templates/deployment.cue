@@ -98,6 +98,9 @@ import (
 			if _config.priorityClassName != _|_ {
 				priorityClassName: _config.priorityClassName
 			}
+			if _config.schedulerName != _|_ {
+				schedulerName: _config.schedulerName
+			}
 			if _config.terminationGracePeriodSeconds != _|_ {
 				terminationGracePeriodSeconds: _config.terminationGracePeriodSeconds
 			}

@@ -5,20 +5,8 @@ import (
 )
 
 #ServiceMonitor: promv1.#ServiceMonitor & {
-	_config: #Config
-	metadata: {
-		name: _config.metadata.name
-		namespace: [
-			if _config.serviceMonitor.namespace != _|_ {
-				_config.serviceMonitor.namespace
-			},
-			_config.metadata.namespace,
-		][0]
-		labels: _config.metadata.labels
-		if _config.metadata.annotations != _|_ {
-			annotations: _config.metadata.annotations
-		}
-	}
+	_config:  #Config
+	metadata: _config.metadata
 	if _config.serviceMonitor.additionalLabels != _|_ {
 		metadata: labels: _config.serviceMonitor.additionalLabels
 	}

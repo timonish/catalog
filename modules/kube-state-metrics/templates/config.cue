@@ -103,8 +103,8 @@ import (
 
 	// The number of pods. With `autosharding` enabled each pod exposes
 	// only its shard of the metrics; without it every replica exposes
-	// the full set.
-	replicas: *1 | int & >0
+	// the full set. Scaling to zero suspends the metrics collection.
+	replicas: *1 | int & >=0
 
 	// Deploy a StatefulSet instead of a Deployment and let the pods
 	// discover their shard number from their ordinal, distributing the
@@ -374,6 +374,7 @@ import (
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 	dnsConfig?:                     corev1.#PodDNSConfig
 	priorityClassName?:             string & =~".+"
+	schedulerName?:                 string & =~".+"
 	terminationGracePeriodSeconds?: int & >=0
 
 	// Run the pods in the host network namespace.
@@ -480,11 +481,11 @@ import (
 
 	// PodDisruptionBudget (optional). The mutually exclusive
 	// `minAvailable` and `maxUnavailable` accept an absolute number
-	// or a percentage.
+	// or a percentage; `minAvailable: 1` is the default.
 	podDisruptionBudget: {
 		enabled:                     *false | bool
 		unhealthyPodEvictionPolicy?: "IfHealthyBudget" | "AlwaysAllow"
-		*{} | {minAvailable: int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
+		*{minAvailable: *1 | int & >=0 | string & =~"^[0-9]+%$"} | {maxUnavailable: int & >=0 | string & =~"^[0-9]+%$"}
 	}
 
 	// Prometheus Operator ServiceMonitor for the metrics endpoint and,
@@ -493,10 +494,7 @@ import (
 		enabled:           *false | bool
 		additionalLabels?: timoniv1.#Labels
 		annotations?:      timoniv1.#Annotations
-		// The namespace the ServiceMonitor is created in; empty means
-		// the instance namespace.
-		namespace?: string & =~".+"
-		jobLabel:   *"app.kubernetes.io/name" | string
+		jobLabel:          *"app.kubernetes.io/name" | string
 		targetLabels?: [...string & =~".+"]
 		podTargetLabels?: [...string & =~".+"]
 		// The namespaces the Service is selected from; empty means its
