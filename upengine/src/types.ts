@@ -80,7 +80,7 @@ export interface E2eConfig {
   ci?: false;
 }
 
-/** One entry of upengine/config/sources.ts — a module's upstream declaration. */
+/** One upengine/config/sources/<name>.ts file — a module's upstream declaration. */
 export interface ModuleSource {
   /** Module name; must match a modules/<name> directory. */
   name: string;
@@ -112,6 +112,12 @@ export interface ModuleSource {
   e2e: E2eConfig;
 }
 
+/** One catalog release of a module. */
+export interface ModuleRelease {
+  version: string;
+  releasedAt: string;
+}
+
 /** Per-module provenance manifest written to upengine/history/<name>.json. */
 export interface HistoryEntry {
   name: string;
@@ -123,6 +129,12 @@ export interface HistoryEntry {
   commit: string;
   /** Module version written to the VERSION file. */
   moduleVersion: string;
+  /** Every version released by the catalog and when, newest first — the
+   * release record, listing tags without querying the registry. Full
+   * details are kept for the latest version only. Publication happens
+   * post-merge, so a failed publish is behind this record until the
+   * idempotent push workflow retries it. */
+  moduleReleases: ModuleRelease[];
   /** Images written to versions.cue. */
   images: Record<string, ImageRef>;
   /** Digest of the raw upstream CRD manifest consumed by the sync;

@@ -4,6 +4,20 @@
   "tag": "v1.21.1",
   "commit": "24e33194fb39488eff2bbf10c6dc640f407cad44",
   "moduleVersion": "1.21.1-2",
+  "moduleReleases": [
+    {
+      "version": "1.21.1-2",
+      "releasedAt": "2026-08-12T06:22:15.000Z"
+    },
+    {
+      "version": "1.21.1-1",
+      "releasedAt": "2026-08-11T13:45:55.000Z"
+    },
+    {
+      "version": "1.21.1-0",
+      "releasedAt": "2026-08-10T10:53:46.000Z"
+    }
+  ],
   "images": {
     "controller": {
       "repository": "quay.io/jetstack/cert-manager-controller",

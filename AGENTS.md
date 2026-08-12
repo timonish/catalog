@@ -23,7 +23,7 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 | `modules/<name>/templates/versions.cue` | **Generated:** image repos/tags (`templates/config/versions.cue` in the packages layout)                                           |
 | `modules/<name>/templates/crds.cue`     | **Generated:** cue-imported upstream CRDs                                                                                          |
 | `schemas/`                              | Shared CUE module: single copy of the vendored `timoni.sh/core` and `k8s.io` schemas ([schemas/README.md](schemas/README.md))      |
-| `upengine/`                             | Bun/TypeScript automation engine; `upengine/config/sources.ts` declares each module's upstream, parity target and e2e test        |
+| `upengine/`                             | Bun/TypeScript automation engine; `upengine/config/sources/<name>.ts` declares each module's upstream, parity target and e2e test |
 | `upengine/history/`                     | **Generated:** per-module provenance manifests                                                                                     |
 | `test/`                                 | kind cluster config; `test/bundles/<name>/bundle.cue` — per-module e2e install bundle                                              |
 | `docs/internal/`                        | Task-scoped guides for maintainers and agents (see [Guides](#guides)); not user-facing                                             |
@@ -93,7 +93,7 @@ credentials.
 | Command | Purpose |
 |---|---|
 | `make fmt` / `make fmt-check` | Format CUE / verify formatting (CI) |
-| `make lint-modules` | Validate module metadata against sources.ts |
+| `make lint-modules` | Validate module metadata against the sources config |
 | `make vet` | Vet every module (validates rendered resources) |
 | `make build MODULE=<m>` | Render a module's manifests for inspection |
 | `make cluster-up` / `make cluster-down` | Create / delete the local `timoni-test` kind cluster for e2e |
@@ -121,7 +121,7 @@ by topic:
   `docs/internal/maintenance.md`;
 - a rule that applies to every session (layout, generated files,
   tooling, commit hygiene) → this file;
-- new engine capabilities used by a module (a `sources.ts` input, an
+- new engine capabilities used by a module (a module source input, an
   e2e mechanism) get mentioned in the guide where a future onboarding
   would need them.
 

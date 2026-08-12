@@ -21,7 +21,7 @@ import {
   verifyModule,
   writeModuleFiles,
 } from "./codegen.ts";
-import { readHistory, writeHistory } from "./history.ts";
+import { readHistory, recordRelease, writeHistory } from "./history.ts";
 import { retryRun } from "./proc.ts";
 import { updateModuleReadme } from "./readme.ts";
 import { MODULES_DIR } from "./paths.ts";
@@ -102,19 +102,21 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
     await restoreModuleFiles(source.name, source.crds, source.layout).catch(() => {});
     throw err;
   }
+  const updatedAt = new Date().toISOString();
   const history = {
     name: source.name,
     repo,
     tag,
     commit,
     moduleVersion,
+    moduleReleases: recordRelease((await readHistory(source.name))?.moduleReleases, moduleVersion, updatedAt),
     images,
     // A single-input module keeps the channel-less crdsDigest field;
     // channel modules record one digest per channel.
     ...(rawDigests[""] !== undefined ? { crdsDigest: rawDigests[""] } : {}),
     ...(source.crds !== undefined && "channels" in source.crds ? { crdsDigests: rawDigests } : {}),
     generatedDigest: await generatedFilesDigest(source.name, source.layout, source.crds),
-    updatedAt: new Date().toISOString(),
+    updatedAt,
   };
   // The README version section renders before the history is recorded, so
   // a failure here (e.g. missing markers) leaves a stale history and the

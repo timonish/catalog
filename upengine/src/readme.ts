@@ -4,7 +4,6 @@
 import { join } from "node:path";
 import { MODULES_DIR, README_PATH } from "./paths.ts";
 import { repoOf } from "./config.ts";
-import { readHistory } from "./history.ts";
 import type { HistoryEntry, ModuleSource } from "./types.ts";
 
 const START_MARKER = "<!-- modules:start -->";
@@ -146,25 +145,19 @@ export async function updateModuleReadme(history: HistoryEntry): Promise<void> {
   }
 }
 
-/** Renders the modules table, ordered by module name, from the
- * worktree's VERSION files and the recorded sync history. */
-export async function renderReadmeTable(sources: ModuleSource[]): Promise<string> {
-  const rows = ["| Module | Version | Updated | Upstream |", "|---|---|---|---|"];
+/** Renders the modules table, ordered by module name, from the sources
+ * alone — versions live in each module's README, so the table changes
+ * only when the catalog membership does and release PRs never touch the
+ * root README. */
+export function renderReadmeTable(sources: ModuleSource[]): string {
+  const rows = ["| Module | Upstream |", "|---|---|"];
   const ordered = [...sources].sort((a, b) => a.name.localeCompare(b.name));
   for (const source of ordered) {
-    const version = (await Bun.file(join(MODULES_DIR, source.name, "VERSION")).text()).trim();
-    const history = await readHistory(source.name);
-    const updated = history === null ? "" : formatTableDate(history.updatedAt);
     rows.push(
-      `| [${source.name}](modules/${source.name}/README.md) | ${version} | ${updated} | [${repoOf(source.url)}](${source.url}) |`,
+      `| [${source.name}](modules/${source.name}/README.md) | [${repoOf(source.url)}](${source.url}) |`,
     );
   }
   return rows.join("\n");
-}
-
-/** The date of a history timestamp in the YYYY.MM.DD table format. */
-export function formatTableDate(timestamp: string): string {
-  return new Date(timestamp).toISOString().slice(0, 10).replaceAll("-", ".");
 }
 
 /** Replaces the modules table between the markers in the root README. */
@@ -184,5 +177,15 @@ export async function writeReadmeTable(table: string): Promise<void> {
 
 /** Regenerates the modules table in place. */
 export async function updateReadme(sources: ModuleSource[]): Promise<void> {
-  await writeReadmeTable(await renderReadmeTable(sources));
+  await writeReadmeTable(renderReadmeTable(sources));
+}
+
+/** Throws when the root README modules table differs from the render;
+ * `make lint-modules` gates this so the table can never drift. */
+export async function assertReadmeTable(sources: ModuleSource[]): Promise<void> {
+  const readme = await Bun.file(README_PATH).text();
+  const table = `${START_MARKER}\n${renderReadmeTable(sources)}\n${END_MARKER}`;
+  if (!readme.includes(table)) {
+    throw new Error("README.md modules table is stale; run 'make sync'");
+  }
 }

@@ -18,7 +18,6 @@ import { GENERATED_FILE_RE, crdsCuePaths, generatedFilesPresent, renderVersionsC
 import { ciSources, parseModuleList } from "./modules.ts";
 import { renderChange } from "./summary.ts";
 import {
-  formatTableDate,
   plainDescription,
   renderModuleVersions,
   renderReadmeTable,
@@ -643,6 +642,10 @@ package templates
       tag: "v1.6.1",
       commit: "abc",
       moduleVersion: "1.6.1-0",
+      moduleReleases: [
+        { version: "1.6.1-0", releasedAt: "2026-08-10T00:00:00.000Z" },
+        { version: "1.6.0-0", releasedAt: "2026-08-01T00:00:00.000Z" },
+      ],
       images: {},
       generatedDigest: "sha256:abc",
       updatedAt: "2026-08-10T00:00:00.000Z",
@@ -653,20 +656,13 @@ package templates
     );
   });
 
-  test("formats history timestamps for the modules table", () => {
-    expect(formatTableDate("2026-08-10T11:49:41.625Z")).toBe("2026.08.10");
-  });
-
-  test("renders the modules table ordered by name with update dates", async () => {
-    const table = await renderReadmeTable(configuredSources);
+  test("renders the modules table ordered by name from the sources alone", () => {
+    const table = renderReadmeTable(configuredSources);
     const lines = table.split("\n");
-    expect(lines[0]).toBe("| Module | Version | Updated | Upstream |");
+    expect(lines[0]).toBe("| Module | Upstream |");
     const names = lines.slice(2).map((l) => l.match(/^\| \[([^\]]+)\]/)![1]);
     expect(names).toEqual([...names].sort());
-    // Every checked-in module has a history, so every row carries a date.
-    for (const line of lines.slice(2)) {
-      expect(line).toMatch(/ \| \d{4}\.\d{2}\.\d{2} \| /);
-    }
+    expect(names).toHaveLength(configuredSources.length);
   });
 
   test("validates the description line shape", () => {
@@ -715,6 +711,10 @@ package templates
       tag: "v0.9.0",
       commit: "2a7c4b2",
       moduleVersion: "0.9.0-1",
+      moduleReleases: [
+        { version: "0.9.0-1", releasedAt: "2026-08-09T00:00:00.000Z" },
+        { version: "0.9.0-0", releasedAt: "2026-08-01T00:00:00.000Z" },
+      ],
       images: {
         "metrics-server": {
           repository: "registry.k8s.io/metrics-server/metrics-server",
