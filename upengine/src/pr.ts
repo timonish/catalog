@@ -62,7 +62,7 @@ export async function createPullRequests(
     const files = new Map<string, string>();
     for (const path of changePaths(sources, change.name)) {
       // crds files only exist for modules that track upstream CRDs, and
-      // versions.cue only for modules with images.
+      // images.cue only for modules with images.
       const file = Bun.file(path);
       if (await file.exists()) {
         files.set(path, await file.text());
@@ -94,13 +94,11 @@ export async function createPullRequests(
 function changePaths(sources: ModuleSource[], name: string): string[] {
   const source = sources.find((s) => s.name === name);
   return [
-    // Whichever versions.cue location the module's layout uses exists;
-    // the caller filters on existence. The channel-less crds.cue stays a
-    // candidate for every module so a layout migration removes the stale
+    // The caller filters on existence. The channel-less crds.cue stays a
+    // candidate for every module so a channel migration removes the stale
     // file from the branch.
     ...new Set([
-      join(MODULES_DIR, name, "templates/versions.cue"),
-      join(MODULES_DIR, name, "templates/config/versions.cue"),
+      join(MODULES_DIR, name, "images.cue"),
       join(MODULES_DIR, name, "templates/crds.cue"),
       ...crdsCuePaths(name, source?.crds),
     ]),
@@ -124,10 +122,9 @@ async function createPullRequest(
     await Bun.write(path, content);
   }
   // Candidate paths absent from the snapshot are removed if the base
-  // still tracks them (e.g. the flat versions.cue of a module that
-  // migrated to the packages layout). Generated files tracked at the
-  // base under names the current declaration no longer produces (a
-  // renamed crds channel, dropped images) are candidates too.
+  // still tracks them. Generated files tracked at the base under names
+  // the current declaration no longer produces (a renamed crds channel,
+  // dropped images) are candidates too.
   // --full-name yields repo-root-relative paths, resolved against
   // ROOT_DIR to match the absolute snapshot keys.
   const tracked = (await mustRun(["git", "ls-files", "--full-name", "--", join(MODULES_DIR, change.name)]))

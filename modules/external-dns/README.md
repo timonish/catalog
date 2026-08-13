@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [ExternalDNS](https://github.
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.21.0-4`, packaging the upstream release
+Latest module version is `0.21.0-5`, packaging the upstream release
 [v0.21.0](https://github.com/kubernetes-sigs/external-dns/releases/tag/v0.21.0)
 with the following container images:
 

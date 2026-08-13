@@ -30,12 +30,8 @@ import (
 
 	// The container image repository, tag, digest and pull policy.
 	// The default repository and tag track the upstream release
-	// and are set in `versions.cue` by upengine.
-	image: timoniv1.#Image & {
-		repository: *#defaultImages."prometheus-operator".repository | string
-		tag:        *#defaultImages."prometheus-operator".tag | string
-		digest:     *#defaultImages."prometheus-operator".digest | string
-	}
+	// and are set in `images.cue` by upengine.
+	image: timoniv1.#Image
 
 	// References to secrets used for pulling images from private registries.
 	imagePullSecrets?: [...timoniv1.#ObjectReference]
@@ -52,14 +48,10 @@ import (
 
 	// The config-reloader sidecar the operator injects into the
 	// Prometheus, Alertmanager and ThanosRuler pods it manages. The
-	// image is tracked in `versions.cue`; the resource requirements
+	// image is tracked in `images.cue`; the resource requirements
 	// are applied to every injected sidecar.
 	configReloader: {
-		image: timoniv1.#Image & {
-			repository: *#defaultImages."prometheus-config-reloader".repository | string
-			tag:        *#defaultImages."prometheus-config-reloader".tag | string
-			digest:     *#defaultImages."prometheus-config-reloader".digest | string
-		}
+		image:      timoniv1.#Image
 		resources?: timoniv1.#ResourceRequirements
 		// Enable the config-reloader sidecar probes.
 		enableProbe: *false | bool

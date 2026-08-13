@@ -1,7 +1,7 @@
 // Copyright 2026 Stefan Prodan.
 // SPDX-License-Identifier: Apache-2.0
 
-/** An OCI image reference split into its parts, as rendered in versions.cue. */
+/** An OCI image reference split into its parts, as rendered in images.cue. */
 export interface ImageRef {
   repository: string;
   tag: string;
@@ -9,7 +9,7 @@ export interface ImageRef {
 }
 
 /**
- * How the tag of one image in a module's versions.cue is resolved:
+ * How the tag of one image in a module's images.cue is resolved:
  * - `container`: extracted from the module source's release manifests by
  *   container name;
  * - `url` + `releaseTag` + `repository`: tracked from another GitHub
@@ -29,6 +29,15 @@ export type ImageSource =
   | { url: string; releaseTag: string; repository: string }
   | { file: string; variable: string; repository: string }
   | { repository: string };
+
+/** One image declaration: its tag resolution plus where the generated
+ * defaults land in the module's values. */
+export type ImageDecl = ImageSource & {
+  /** Dotted values path of the image object the defaults are written to
+   * in the generated images.cue (e.g. `controller.image`). Defaults to
+   * `image`; multi-image modules must declare distinct paths. */
+  path?: string;
+};
 
 /** Where a module source's release manifests are fetched from. */
 export type ManifestsInput = { releaseAsset: string } | { file: string };
@@ -100,14 +109,9 @@ export interface ModuleSource {
   manifests?: ManifestsInput;
   /** The upstream CRD manifests rendered into the generated crds files. */
   crds?: CrdsConfig;
-  /** Template layout: `packages` marks a multi-package module (one CUE
-   * package per component); the generated image defaults then live in
-   * templates/config/versions.cue (package config) instead of
-   * templates/versions.cue. */
-  layout?: "packages";
-  /** versions.cue image key -> tag resolution, in rendering order. Absent
-   * for CRDs-only modules, which generate no versions.cue at all. */
-  images?: Record<string, ImageSource>;
+  /** images.cue image key -> declaration, in rendering order. Absent
+   * for CRDs-only modules, which generate no images.cue at all. */
+  images?: Record<string, ImageDecl>;
   /** The module's end-to-end test definition. */
   e2e: E2eConfig;
 }
@@ -135,7 +139,7 @@ export interface HistoryEntry {
    * post-merge, so a failed publish is behind this record until the
    * idempotent push workflow retries it. */
   moduleReleases: ModuleRelease[];
-  /** Images written to versions.cue. */
+  /** Images written to images.cue. */
   images: Record<string, ImageRef>;
   /** Digest of the raw upstream CRD manifest consumed by the sync;
    * release assets are mutable, so this identifies the exact input. */
@@ -143,7 +147,7 @@ export interface HistoryEntry {
   /** Per-channel digests of the raw upstream CRD manifests, for modules
    * declaring `crds.channels`. */
   crdsDigests?: Record<string, string>;
-  /** Digest of the generated files (versions.cue, VERSION and crds.cue
+  /** Digest of the generated files (images.cue, VERSION and crds.cue
    * when present), used to detect hand edits and corruption so the sync
    * self-heals instead of skipping. */
   generatedDigest: string;

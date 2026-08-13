@@ -45,8 +45,8 @@ Upstream coverage is a **floor**, this standard is the **shape**:
   follows `securityContextPreset` (`hardened` pins the image's non-root
   UID, `platform` defers to an admission controller).
 - **Images pinned by digest**: defaults come from the generated
-  `versions.cue` (`#defaultImages`), maintained by the sync engine.
-  Hand-written CUE never hardcodes tags.
+  `images.cue` at the module root, written into the values by the
+  sync engine. Hand-written CUE never hardcodes tags.
 - **No Helm-generated certificates**: TLS is served by the addon's own
   generation, cert-manager, or an existing Secret — never a
   render-time-generated cert.

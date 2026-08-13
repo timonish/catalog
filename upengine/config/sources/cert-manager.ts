@@ -13,17 +13,14 @@ export const source: ModuleSource = {
   // instance namespace.
   parityTarget: "https://github.com/cert-manager/cert-manager/tree/master/deploy/charts/cert-manager",
   releaseTag: "v*",
-  // Multi-package CUE module: one package per component, the image
-  // defaults live in templates/config/versions.cue.
-  layout: "packages",
   images: {
     // Published by the upstream tagged with the release tag itself.
-    controller: { repository: "quay.io/jetstack/cert-manager-controller" },
-    webhook: { repository: "quay.io/jetstack/cert-manager-webhook" },
-    cainjector: { repository: "quay.io/jetstack/cert-manager-cainjector" },
+    controller: { repository: "quay.io/jetstack/cert-manager-controller", path: "controller.image" },
+    webhook: { repository: "quay.io/jetstack/cert-manager-webhook", path: "webhook.image" },
+    cainjector: { repository: "quay.io/jetstack/cert-manager-cainjector", path: "cainjector.image" },
     // Spawned by the controller for ACME HTTP01 challenges, rendered
     // into the controller configuration file.
-    acmesolver: { repository: "quay.io/jetstack/cert-manager-acmesolver" },
+    acmesolver: { repository: "quay.io/jetstack/cert-manager-acmesolver", path: "acmesolver.image" },
   },
   // The official static CRD manifest published with every release;
   // the in-repo CRD sources are marked non-authoritative upstream.

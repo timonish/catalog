@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [trust-manager](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.24.0-2`, packaging the upstream release
+Latest module version is `0.24.0-3`, packaging the upstream release
 [v0.24.0](https://github.com/cert-manager/trust-manager/releases/tag/v0.24.0)
 with the following container images:
 

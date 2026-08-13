@@ -38,12 +38,8 @@ import (
 
 	// The container image repository, tag, digest and pull policy.
 	// The default repository and tag track the upstream release
-	// and are set in `versions.cue` by upengine.
-	image: timoniv1.#Image & {
-		repository: *#defaultImages."metrics-server".repository | string
-		tag:        *#defaultImages."metrics-server".tag | string
-		digest:     *#defaultImages."metrics-server".digest | string
-	}
+	// and are set in `images.cue` by upengine.
+	image: timoniv1.#Image
 
 	// References to secrets used for pulling images from private registries.
 	imagePullSecrets?: [...timoniv1.#ObjectReference]
@@ -260,12 +256,8 @@ import (
 	// The addon-resizer nanny sidecar (optional), scales the
 	// metrics-server resources with the cluster size.
 	addonResizer: {
-		enabled: *false | bool
-		image: timoniv1.#Image & {
-			repository: *#defaultImages."addon-resizer".repository | string
-			tag:        *#defaultImages."addon-resizer".tag | string
-			digest:     *#defaultImages."addon-resizer".digest | string
-		}
+		enabled:         *false | bool
+		image:           timoniv1.#Image
 		securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 		resources: timoniv1.#ResourceRequirements & {
 			requests: {

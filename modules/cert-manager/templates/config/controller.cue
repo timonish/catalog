@@ -94,11 +94,11 @@ package config
 		extraCertificateAnnotations?: [...string & =~".+"]
 	}
 
-	// The behaviour of the ACME HTTP01 challenge solver. The default
-	// solver image tracks the upstream release and is set in
-	// `versions.cue` by upengine.
+	// The behaviour of the ACME HTTP01 challenge solver. The solver
+	// image default is wired in #Config from the `acmesolver.image`
+	// value tracked in `images.cue` by upengine.
 	acmeHTTP01Config: {
-		solverImage:                  *_defaultSolverImage | string & =~".+"
+		solverImage:                  string & =~".+"
 		solverResourceRequestCPU?:    string & =~".+"
 		solverResourceRequestMemory?: string & =~".+"
 		solverResourceLimitsCPU?:     string & =~".+"

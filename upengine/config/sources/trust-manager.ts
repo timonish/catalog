@@ -23,6 +23,7 @@ export const source: ModuleSource = {
       repository: "quay.io/jetstack/trust-pkg-debian-trixie",
       file: "make/00_debian_trixie_version.mk",
       variable: "DEBIAN_TRIXIE_BUNDLE_VERSION",
+      path: "defaultPackage.image",
     },
   },
   e2e: {

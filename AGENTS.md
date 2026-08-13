@@ -20,7 +20,7 @@ e.g. metrics-server `0.9.0-0`; a module-only fix bumps the suffix
 |-----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
 | `modules/<name>/`                       | One Timoni module per addon                                                                                                        |
 | `modules/<name>/VERSION`                | Version source of truth (`<upstream>-<build>`)                                                                                     |
-| `modules/<name>/templates/versions.cue` | **Generated:** image repos/tags (`templates/config/versions.cue` in the packages layout)                                           |
+| `modules/<name>/images.cue`             | **Generated:** image defaults (repo/tag/digest) written into the values                                                            |
 | `modules/<name>/templates/crds.cue`     | **Generated:** cue-imported upstream CRDs                                                                                          |
 | `schemas/`                              | Shared CUE module: single copy of the vendored `timoni.sh/core` and `k8s.io` schemas ([schemas/README.md](schemas/README.md))      |
 | `upengine/`                             | Bun/TypeScript automation engine; `upengine/config/sources/<name>.ts` declares each module's upstream, parity target and e2e test |
@@ -48,12 +48,14 @@ these tasks, read the matching guide in full:
 
 ## Conventions
 
-- **Never hand-edit generated files**: `templates/versions.cue`,
+- **Never hand-edit generated files**: `images.cue`,
   `templates/crds.cue`, `schemas/cue.mod/gen/**`, `upengine/history/`, the
   catalog README modules table and the version section between the
   `<!-- versions:start -->` markers in each module README are owned by the
-  sync engine / vendoring targets. Hand-written CUE references
-  `versions.cue` for image tags so routine bumps never touch curated files.
+  sync engine / vendoring targets. The generated `images.cue` writes the
+  image defaults into the values at each image's declared path, so
+  routine bumps never touch curated files and hand-written CUE never
+  hardcodes tags.
 - **Shared schemas are symlinked, never copied**: each module's
   `cue.mod/pkg/timoni.sh`, `cue.mod/gen/k8s.io` and the CRD schema groups
   its templates import (`monitoring.coreos.com`, `cert-manager.io`) are

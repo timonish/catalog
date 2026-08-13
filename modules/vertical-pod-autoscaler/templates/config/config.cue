@@ -77,11 +77,6 @@ import (
 	recommender: #RecommenderValues & {
 		#Component: "recommender"
 		#Preset:    securityContextPreset
-		image: {
-			repository: *#defaultImages.recommender.repository | string
-			tag:        *#defaultImages.recommender.tag | string
-			digest:     *#defaultImages.recommender.digest | string
-		}
 		serviceAccount: name:              *"\(metadata.name)-recommender" | string & =~".+"
 		leaderElection: resourceNamespace: *metadata.namespace | string & =~".+"
 	}
@@ -91,11 +86,6 @@ import (
 	updater: #UpdaterValues & {
 		#Component: "updater"
 		#Preset:    securityContextPreset
-		image: {
-			repository: *#defaultImages.updater.repository | string
-			tag:        *#defaultImages.updater.tag | string
-			digest:     *#defaultImages.updater.digest | string
-		}
 		serviceAccount: name:              *"\(metadata.name)-updater" | string & =~".+"
 		leaderElection: resourceNamespace: *metadata.namespace | string & =~".+"
 	}
@@ -105,11 +95,6 @@ import (
 	admissionController: #AdmissionControllerValues & {
 		#Component: "admission-controller"
 		#Preset:    securityContextPreset
-		image: {
-			repository: *#defaultImages."admission-controller".repository | string
-			tag:        *#defaultImages."admission-controller".tag | string
-			digest:     *#defaultImages."admission-controller".digest | string
-		}
 		serviceAccount: name: *"\(metadata.name)-admission-controller" | string & =~".+"
 	}
 }

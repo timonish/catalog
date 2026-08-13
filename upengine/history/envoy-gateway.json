@@ -3,8 +3,12 @@
   "repo": "envoyproxy/gateway",
   "tag": "v1.8.3",
   "commit": "94850d4323922cba7c67b5b5ad23de9c715f8048",
-  "moduleVersion": "1.8.3-3",
+  "moduleVersion": "1.8.3-4",
   "moduleReleases": [
+    {
+      "version": "1.8.3-4",
+      "releasedAt": "2026-08-13T08:37:34.094Z"
+    },
     {
       "version": "1.8.3-3",
       "releasedAt": "2026-08-12T13:00:08.861Z"
@@ -30,6 +34,6 @@
     }
   },
   "crdsDigest": "sha256:23f0913f200abd1d7c634c3fb2c3eb6021cc4e84bdd75d3296711b9334472abb",
-  "generatedDigest": "sha256:baee6f9ed865be34ffbbf103b6228f6c5a97cf39686acff51bd52b96c4d1e5a0",
-  "updatedAt": "2026-08-12T13:00:08.861Z"
+  "generatedDigest": "sha256:0c0d4e5e685450aac0e2cd1b614eeea2993accaf7f6de895e603b00f925b2015",
+  "updatedAt": "2026-08-13T08:37:34.094Z"
 }

@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying the [Vertical Pod Autoscaler]
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.7.1-2`, packaging the upstream release
+Latest module version is `1.7.1-3`, packaging the upstream release
 [vertical-pod-autoscaler-1.7.1](https://github.com/kubernetes/autoscaler/releases/tag/vertical-pod-autoscaler-1.7.1)
 with the following container images:
 

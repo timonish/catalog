@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.8.3-3`, packaging the upstream release
+Latest module version is `1.8.3-4`, packaging the upstream release
 [v1.8.3](https://github.com/envoyproxy/gateway/releases/tag/v1.8.3)
 with the following container images:
 

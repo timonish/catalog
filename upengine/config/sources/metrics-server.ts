@@ -19,6 +19,7 @@ export const source: ModuleSource = {
       url: "https://github.com/kubernetes/autoscaler",
       releaseTag: "addon-resizer-*",
       repository: "registry.k8s.io/autoscaling/addon-resizer",
+      path: "addonResizer.image",
     },
   },
   e2e: {

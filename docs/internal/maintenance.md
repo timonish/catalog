@@ -24,7 +24,7 @@ idempotent:
 2. Run `make sync MODULE=<name> FORCE=1` — the forced re-sync keeps the
    build suffix (while the upstream release is unchanged; a newer
    release resets it to `-0`) and regenerates the generated files
-   (`versions.cue`, `crds.cue`), the history manifest and the module
+   (`images.cue`, `crds.cue`), the history manifest and the module
    README version section. The root README modules table carries no
    versions, so releases never touch it.
 3. Open a PR; after the merge, `push.yaml` publishes the new version.

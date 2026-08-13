@@ -31,13 +31,9 @@ import (
 
 	// The container image repository, tag, digest and pull policy.
 	// The default repository and tag track the upstream release
-	// and are set in `versions.cue` by upengine. The Envoy proxy and
+	// and are set in `images.cue` by upengine. The Envoy proxy and
 	// ratelimit data plane images are compiled into this binary.
-	image: timoniv1.#Image & {
-		repository: *#defaultImages."envoy-gateway".repository | string
-		tag:        *#defaultImages."envoy-gateway".tag | string
-		digest:     *#defaultImages."envoy-gateway".digest | string
-	}
+	image: timoniv1.#Image
 
 	// References to secrets used for pulling images from private registries.
 	imagePullSecrets?: [...timoniv1.#ObjectReference]
