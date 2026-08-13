@@ -1,11 +1,13 @@
 // Copyright 2026 Stefan Prodan.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { CrdInput, CrdsConfig, ImageSource, ModuleSource } from "./types.ts";
+import type { CrdInput, CrdsConfig, ImageDecl, ImageSource, ModuleSource } from "./types.ts";
 
 const NAME_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
 const REPO_URL_RE = /^https:\/\/github\.com\/([\w.-]+\/[\w.-]+)$/;
 const VARIABLE_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
+// Dotted path of camelCase CUE labels, rendered unquoted into images.cue.
+const VALUES_PATH_RE = /^[a-zA-Z][A-Za-z0-9]*(\.[a-zA-Z][A-Za-z0-9]*)*$/;
 
 /** Returns the owner/name part of a GitHub repository URL. */
 export function repoOf(url: string): string {
@@ -33,6 +35,18 @@ export function isFileVariableImage(
   image: ImageSource,
 ): image is { file: string; variable: string; repository: string } {
   return "file" in image;
+}
+
+/** The values path of every image of a module, keyed by image key, as
+ * written to the generated images.cue. */
+export function imagePaths(source: ModuleSource): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(source.images ?? {}).map(([key, image]) => [key, imagePath(image)]),
+  );
+}
+
+function imagePath(image: ImageDecl): string {
+  return image.path ?? "image";
 }
 
 /**
@@ -81,7 +95,20 @@ export function validateSources(sources: ModuleSource[]): ModuleSource[] {
     if (source.images === undefined && source.crds === undefined) {
       throw new Error(`${at}: a module must declare 'images' or 'crds'`);
     }
+    const paths = new Set<string>();
     for (const [key, image] of images) {
+      const path = imagePath(image);
+      if (!VALUES_PATH_RE.test(path)) {
+        throw new Error(`${at}.images['${key}']: invalid values 'path' '${path}'`);
+      }
+      // Equal or nested paths would silently unify two images' defaults
+      // in the generated images.cue.
+      for (const other of paths) {
+        if (path === other || path.startsWith(`${other}.`) || other.startsWith(`${path}.`)) {
+          throw new Error(`${at}.images['${key}']: values path '${path}' collides with '${other}'`);
+        }
+      }
+      paths.add(path);
       // The variants are discriminated by their marker key; an object
       // carrying more than one would silently resolve as the first
       // matching guard.

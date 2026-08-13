@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { join } from "node:path";
-import { crdChannels, isContainerImage, isFileVariableImage, isTrackedImage, repoOf } from "./config.ts";
+import { crdChannels, imagePaths, isContainerImage, isFileVariableImage, isTrackedImage, repoOf } from "./config.ts";
 import { commitSha, downloadText, fetchRepoFile, findReleaseAsset } from "./github.ts";
 import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
 import {
@@ -17,6 +17,8 @@ import {
 import {
   generatedFilesDigest,
   generatedFilesPresent,
+  imagesCuePath,
+  renderImagesCue,
   restoreModuleFiles,
   verifyModule,
   writeModuleFiles,
@@ -35,12 +37,12 @@ export interface SyncResult {
 /**
  * Syncs one module against its upstream: resolves the latest release,
  * compares it to the VERSION file, and on a new release regenerates the
- * module's versions.cue and VERSION, runs the vet/build guards, and records
+ * module's images.cue and VERSION, runs the vet/build guards, and records
  * the provenance manifest. The sync only ever writes generated files.
  *
  * Skip conditions are self-healing: staying at the current version requires
  * the history manifest to exist and its recorded digest to match the
- * generated files on disk — a hand-edited versions.cue or missing history
+ * generated files on disk — a hand-edited images.cue or missing history
  * triggers a re-sync of the same release instead of being skipped forever.
  * An upstream release older than the current version is rejected (release
  * deletion or a config mistake must never downgrade a module unattended).
@@ -96,10 +98,10 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
   }
 
   try {
-    await writeModuleFiles(source.name, images, moduleVersion, crdManifests, source.layout);
+    await writeModuleFiles(source.name, images, moduleVersion, crdManifests, imagePaths(source));
     await verifyModule(source.name);
   } catch (err) {
-    await restoreModuleFiles(source.name, source.crds, source.layout).catch(() => {});
+    await restoreModuleFiles(source.name, source.crds).catch(() => {});
     throw err;
   }
   const updatedAt = new Date().toISOString();
@@ -115,7 +117,7 @@ export async function syncModule(source: ModuleSource, force: boolean): Promise<
     // channel modules record one digest per channel.
     ...(rawDigests[""] !== undefined ? { crdsDigest: rawDigests[""] } : {}),
     ...(source.crds !== undefined && "channels" in source.crds ? { crdsDigests: rawDigests } : {}),
-    generatedDigest: await generatedFilesDigest(source.name, source.layout, source.crds),
+    generatedDigest: await generatedFilesDigest(source.name, source.crds),
     updatedAt,
   };
   // The README version section renders before the history is recorded, so
@@ -147,7 +149,25 @@ async function isIntact(source: ModuleSource): Promise<boolean> {
   if (!(await generatedFilesPresent(source))) {
     return false;
   }
-  return (await generatedFilesDigest(source.name, source.layout, source.crds)) === history.generatedDigest;
+  // The images declaration is part of the fingerprint: an image key
+  // added or removed, or one moved to another values path, at an
+  // unchanged upstream release must re-sync instead of being skipped
+  // with defaults at the old paths.
+  const declared = Object.keys(source.images ?? {});
+  if (
+    declared.length !== Object.keys(history.images).length ||
+    !declared.every((key) => key in history.images)
+  ) {
+    return false;
+  }
+  if (
+    declared.length > 0 &&
+    (await Bun.file(imagesCuePath(source.name)).text()) !==
+      renderImagesCue(history.images, imagePaths(source))
+  ) {
+    return false;
+  }
+  return (await generatedFilesDigest(source.name, source.crds)) === history.generatedDigest;
 }
 
 /** Resolves every image of a module at the given upstream release tag. */
@@ -202,7 +222,7 @@ async function resolveImages(
  * Fills in the registry digest of every image the upstream manifests did not
  * pin, so the rendered pods reference the exact image the release tag pointed
  * at during the sync. A tag missing from the registry fails the bump — a
- * silently unpinned image must never reach versions.cue.
+ * silently unpinned image must never reach images.cue.
  */
 async function resolveImageDigests(images: Record<string, ImageRef>): Promise<void> {
   for (const ref of Object.values(images)) {

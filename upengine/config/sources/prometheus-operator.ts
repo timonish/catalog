@@ -20,7 +20,10 @@ export const source: ModuleSource = {
     "prometheus-operator": { repository: "quay.io/prometheus-operator/prometheus-operator" },
     // Not a container: rendered into the operator's
     // --prometheus-config-reloader argument.
-    "prometheus-config-reloader": { repository: "quay.io/prometheus-operator/prometheus-config-reloader" },
+    "prometheus-config-reloader": {
+      repository: "quay.io/prometheus-operator/prometheus-config-reloader",
+      path: "configReloader.image",
+    },
   },
   e2e: {
     namespace: "monitoring",

@@ -42,12 +42,8 @@ import (
 
 	// The container image repository, tag, digest and pull policy.
 	// The default repository and tag track the upstream release
-	// and are set in `versions.cue` by upengine.
-	image: timoniv1.#Image & {
-		repository: *#defaultImages."trust-manager".repository | string
-		tag:        *#defaultImages."trust-manager".tag | string
-		digest:     *#defaultImages."trust-manager".digest | string
-	}
+	// and are set in `images.cue` by upengine.
+	image: timoniv1.#Image
 
 	// References to secrets used for pulling images from private
 	// registries, attached to the ServiceAccount.
@@ -59,12 +55,8 @@ import (
 	// on Bundles. The package version follows the Debian cadence
 	// independently of the trust-manager releases.
 	defaultPackage: {
-		enabled: *true | bool
-		image: timoniv1.#Image & {
-			repository: *#defaultImages."trust-pkg-debian-trixie".repository | string
-			tag:        *#defaultImages."trust-pkg-debian-trixie".tag | string
-			digest:     *#defaultImages."trust-pkg-debian-trixie".digest | string
-		}
+		enabled:         *true | bool
+		image:           timoniv1.#Image
 		resources?:      timoniv1.#ResourceRequirements
 		securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
 	}

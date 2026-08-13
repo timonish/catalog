@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Kubernetes Metrics Server](h
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.9.0-5`, packaging the upstream release
+Latest module version is `0.9.0-6`, packaging the upstream release
 [v0.9.0](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.0)
 with the following container images:
 

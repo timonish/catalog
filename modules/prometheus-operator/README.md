@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Prometheus Operator](https:/
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.93.1-3`, packaging the upstream release
+Latest module version is `0.93.1-4`, packaging the upstream release
 [v0.93.1](https://github.com/prometheus-operator/prometheus-operator/releases/tag/v0.93.1)
 with the following container images:
 

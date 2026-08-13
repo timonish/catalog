@@ -36,7 +36,7 @@ import (
 
 	// The container image repository, tag, digest and pull policy.
 	// The default repository and tag track the upstream release
-	// and are set in `versions.cue` by upengine.
+	// and are set in `images.cue` by upengine.
 	image: timoniv1.#Image
 
 	// The container resource requirements.

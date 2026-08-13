@@ -25,7 +25,7 @@ coverage is the floor and the unified catalog surface is the shape.
   custom resources — universal ones live in the shared `schemas/`, and
   nothing is vendored per module so far.
 - **CRDs-only modules omit `images`** (`modules/gateway-api`): no
-  versions.cue is generated and the README version section renders
+  images.cue is generated and the README version section renders
   without an image table. Such a module can opt out of the GitHub
   Actions e2e matrix with `e2e: ci: false` in its module source (vet still
   gates it in CI; `make e2e` still runs it locally).
@@ -33,9 +33,7 @@ coverage is the floor and the unified catalog surface is the shape.
   `modules/cert-manager`): one CUE package per component under
   `templates/<component>`, plus `templates/config` holding the values
   schema; component object names and labels come from the Timoni
-  `#MetaComponent` convention. The module declares `layout: "packages"`
-  in its module source, which moves the generated image defaults to
-  `templates/config/versions.cue`.
+  `#MetaComponent` convention.
 - **Prefer upstream component configuration APIs over flag mapping**:
   when the addon supports a `--config` file (e.g. cert-manager's
   ControllerConfiguration), expose it as a typed CUE schema rendered
@@ -69,9 +67,11 @@ coverage is the floor and the unified catalog surface is the shape.
    generated certs, PSP) are excluded — record each exclusion as a
    comment in the module's source file, never in the
    user-facing README.
-3. Image defaults live in the generated `templates/versions.cue`
-   (`#defaultImages`), referenced as defaults from `#Config` — never
-   hardcode tags in hand-written CUE. `values.cue` stays empty.
+3. Image defaults live in the generated `images.cue` at the module
+   root, written into the values at each image's `path` declared in
+   the module source (default `image`) — `#Config` types the field
+   (`timoniv1.#Image`) and never hardcodes tags. `values.cue` stays
+   empty.
 4. `debug_values.cue` must enable every optional object so
    `timoni mod vet --debug` validates all templates against their
    schemas.
@@ -123,8 +123,8 @@ coverage is the floor and the unified catalog surface is the shape.
    RoleBindings, matched by the module name, its dash-stripped form
    and `sweepMatch` (`upengine/src/e2e.ts` is the authoritative list).
 8. Run `make sync MODULE=<name>` — the first sync resolves the upstream
-   release, writes the generated files for the module's layout plus
-   `VERSION`, vets and builds the module, then renders the module
+   release, writes the generated files plus `VERSION`, vets and builds
+   the module, then renders the module
    README version section, writes the history manifest and updates the
    catalog README row. The README markers from step 5 must exist
    before this runs. A vet/build failure rolls back the generated

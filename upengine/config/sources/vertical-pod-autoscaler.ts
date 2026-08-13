@@ -13,9 +13,6 @@ export const source: ModuleSource = {
   // including vertical-pod-autoscaler-chart-* for the separately
   // versioned chart; the glob's digit guard keeps only the app releases.
   releaseTag: "vertical-pod-autoscaler-*",
-  // Multi-package CUE module: one package per component, the image
-  // defaults live in templates/config/versions.cue.
-  layout: "packages",
   images: {
     // The release images are tagged with the bare semver (1.7.1) while
     // the release tag carries the component prefix, so each image is
@@ -25,16 +22,19 @@ export const source: ModuleSource = {
       url: "https://github.com/kubernetes/autoscaler",
       releaseTag: "vertical-pod-autoscaler-*",
       repository: "registry.k8s.io/autoscaling/vpa-recommender",
+      path: "recommender.image",
     },
     updater: {
       url: "https://github.com/kubernetes/autoscaler",
       releaseTag: "vertical-pod-autoscaler-*",
       repository: "registry.k8s.io/autoscaling/vpa-updater",
+      path: "updater.image",
     },
     "admission-controller": {
       url: "https://github.com/kubernetes/autoscaler",
       releaseTag: "vertical-pod-autoscaler-*",
       repository: "registry.k8s.io/autoscaling/vpa-admission-controller",
+      path: "admissionController.image",
     },
   },
   // The generated manifest holding both CRDs (VerticalPodAutoscaler,

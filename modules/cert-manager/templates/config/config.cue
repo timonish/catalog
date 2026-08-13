@@ -7,14 +7,6 @@ import (
 	timoniv1 "timoni.sh/core/v1alpha1"
 )
 
-// The ACME HTTP01 solver image reference tracked from the upstream
-// releases, the default for `controller.config.acmeHTTP01Config.solverImage`.
-_defaultSolverImage: (timoniv1.#Image & {
-	repository: #defaultImages.acmesolver.repository
-	tag:        #defaultImages.acmesolver.tag
-	digest:     #defaultImages.acmesolver.digest
-}).reference
-
 // Config defines the schema and defaults for the Instance values.
 #Config: {
 	// Runtime version info automatically set at apply-time.
@@ -103,18 +95,21 @@ _defaultSolverImage: (timoniv1.#Image & {
 	// SecurityContextConstraint).
 	securityContextPreset: timoniv1.#SecurityContextPreset
 
+	// The ACME HTTP01 challenge solver image spawned by the controller,
+	// rendered into the controller configuration as the default for
+	// `controller.config.acmeHTTP01Config.solverImage`. The default
+	// repository and tag track the upstream release and are set in
+	// `images.cue` by upengine.
+	acmesolver: image: timoniv1.#Image
+
 	// The cert-manager controller settings.
 	controller: #ControllerValues & {
 		#Preset: securityContextPreset
-		image: {
-			repository: *#defaultImages.controller.repository | string
-			tag:        *#defaultImages.controller.tag | string
-			digest:     *#defaultImages.controller.digest | string
-		}
 		serviceAccount: name: *metadata.name | string & =~".+"
 		config: {
 			clusterResourceNamespace: *metadata.namespace | string & =~".+"
 			metricsListenAddress:     *_metricsListenDefault | string & =~".+"
+			acmeHTTP01Config: solverImage: *acmesolver.image.reference | string & =~".+"
 		}
 		networkPolicy: ingress: *[{
 			ports: [
@@ -127,11 +122,6 @@ _defaultSolverImage: (timoniv1.#Image & {
 	// The cert-manager webhook settings.
 	webhook: #WebhookValues & {
 		#Preset: securityContextPreset
-		image: {
-			repository: *#defaultImages.webhook.repository | string
-			tag:        *#defaultImages.webhook.tag | string
-			digest:     *#defaultImages.webhook.digest | string
-		}
 		serviceAccount: name: *"\(metadata.name)-webhook" | string & =~".+"
 		config: {
 			metricsListenAddress: *_metricsListenDefault | string & =~".+"
@@ -168,11 +158,6 @@ _defaultSolverImage: (timoniv1.#Image & {
 	// runs in the cluster.
 	cainjector: #CAInjectorValues & {
 		#Preset: securityContextPreset
-		image: {
-			repository: *#defaultImages.cainjector.repository | string
-			tag:        *#defaultImages.cainjector.tag | string
-			digest:     *#defaultImages.cainjector.digest | string
-		}
 		serviceAccount: name:         *"\(metadata.name)-cainjector" | string & =~".+"
 		config: metricsListenAddress: *_metricsListenDefault | string & =~".+"
 		networkPolicy: ingress: *[{

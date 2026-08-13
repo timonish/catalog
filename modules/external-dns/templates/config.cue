@@ -47,12 +47,8 @@ import (
 
 	// The container image repository, tag, digest and pull policy.
 	// The default repository and tag track the upstream release
-	// and are set in `versions.cue` by upengine.
-	image: timoniv1.#Image & {
-		repository: *#defaultImages."external-dns".repository | string
-		tag:        *#defaultImages."external-dns".tag | string
-		digest:     *#defaultImages."external-dns".digest | string
-	}
+	// and are set in `images.cue` by upengine.
+	image: timoniv1.#Image
 
 	// References to secrets used for pulling images from private registries.
 	imagePullSecrets?: [...timoniv1.#ObjectReference]
