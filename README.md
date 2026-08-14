@@ -28,6 +28,7 @@ configuration examples.
 | Module | Upstream |
 |---|---|
 | [cert-manager](modules/cert-manager/README.md) | [cert-manager/cert-manager](https://github.com/cert-manager/cert-manager) |
+| [dex](modules/dex/README.md) | [dexidp/dex](https://github.com/dexidp/dex) |
 | [envoy-gateway](modules/envoy-gateway/README.md) | [envoyproxy/gateway](https://github.com/envoyproxy/gateway) |
 | [external-dns](modules/external-dns/README.md) | [kubernetes-sigs/external-dns](https://github.com/kubernetes-sigs/external-dns) |
 | [fluent-operator](modules/fluent-operator/README.md) | [fluent/fluent-operator](https://github.com/fluent/fluent-operator) |

@@ -40,6 +40,13 @@ coverage is the floor and the unified catalog surface is the shape.
   into a hash-named immutable ConfigMap so config changes roll the
   pods; the containers get only `--config`, and `extraArgs` remains the
   escape hatch (flags override the file).
+- **The hardened read-only rootfs needs the image's scratch paths
+  mounted**: check the image entrypoint and the binary for writes to
+  /tmp or similar (dex's entrypoint preprocesses the config file into
+  /tmp) and back each such path with an emptyDir exposed as a
+  `corev1.#VolumeSource` value (`tmpVolume` in `modules/metrics-server`
+  and `modules/dex`). The symptom is a crash-looping container that
+  vet cannot catch — only e2e does.
 - **Module README**: H1 title, blank line, then a one-sentence
   description that links Timoni (https://timoni.sh) and the addon's
   upstream repository. That line becomes the OCI description annotation
