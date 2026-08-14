@@ -242,7 +242,19 @@ pattern) but keep the shape.
   defaults when upstream defines them, otherwise `resources?`.
 - Token mounting: pod-level `automountServiceAccountToken: *true |
   bool` plus ServiceAccount-level `*false | bool` (the token reaches
-  the pod through the pod spec, not the SA).
+  the pod through the pod spec, not the SA). An addon that never talks
+  to the Kubernetes API defaults the pod-level field to `false`
+  (node-exporter).
+
+DaemonSet modules (`modules/node-exporter`) adapt the shapes: no
+`replicas` and no `podDisruptionBudget`; `strategy?:
+appsv1.#DaemonSetUpdateStrategy` maps to `spec.updateStrategy` under
+the same `strategy` field name; `daemonsetLabels?` /
+`daemonsetAnnotations?` are the workload-metadata analogues of
+`deploymentAnnotations?`. Upstream scheduling defaults that define the
+addon (tolerating every `NoSchedule` taint so the exporter reaches
+tainted nodes) are kept as value defaults, not dropped for the
+catalog-wide ones.
 
 ### Pod scheduling and metadata
 
@@ -277,7 +289,9 @@ multi-component modules) and renders `affinity` behind
 and need explicit label selectors — there is no selector completion.
 One-shot Jobs (envoy-gateway certgen) keep a raw
 `affinity?: corev1.#Affinity`: with no replicas to spread, the presets
-do not apply. `hostNetwork` (with the dnsPolicy default flip to
+do not apply. The same holds for DaemonSets, which may carry an
+addon-specific default (node-exporter keeps pods off Fargate nodes and
+virtual kubelets) that a user-supplied value replaces wholesale. `hostNetwork` (with the dnsPolicy default flip to
 `ClusterFirstWithHostNet`) extends this. `priorityClassName` gets a
 concrete default only when upstream sets one
 (`system-cluster-critical` for metrics-server).
