@@ -115,6 +115,44 @@ Addon-specific extras (`trafficDistribution`, `httpsPort`,
 `prometheusScrape`, headless `clusterIP: "None"` defaults) extend the
 block.
 
+### `ingress` and `httpRoute`
+
+For addons whose upstream chart exposes HTTP endpoints
+(`modules/dex` is the reference):
+
+```cue
+ingress: {
+	enabled:    *false | bool
+	className?: string & =~".+"
+	if enabled {
+		hosts: [#IngressHost, ...#IngressHost]
+	}
+	tls?: [...networkingv1.#IngressTLS]
+	annotations?: timoniv1.#Annotations
+	labels?:      timoniv1.#Labels
+}
+
+#IngressHost: {
+	host: string & =~".+"
+	paths: *[{path: "/", pathType: "Prefix"}] | [...{
+		path:     string & =~".+"
+		pathType: *"Prefix" | "Exact" | "ImplementationSpecific"
+	}]
+}
+```
+
+GA `networking.k8s.io/v1` only — no legacy apiVersion switches, no
+ingress-class annotations. `hosts` is required when enabled (no
+placeholder-domain defaults). The backend Service and port come from
+the module, never from a value.
+
+The Gateway API analogue is `httpRoute` (typed against the shared
+`gateway.networking.k8s.io/httproute/v1` schema): `enabled: *false |
+bool`, required `parentRefs` when enabled, optional `hostnames`,
+`annotations`, `labels`, and `rules` defaulting to a match-all route —
+the module generates each rule's `backendRefs`, users supply only
+`matches` and `filters`.
+
 ### `serviceMonitor`
 
 One schema, one set of defaults, from the shared `timoni.sh/core`
@@ -231,6 +269,9 @@ pattern) but keep the shape.
   ones; never plain `args` for the append hook.
 - `env?: [...corev1.#EnvVar]` — never `extraEnv`; module-specific
   defaults (prometheus-operator GOGC) use `env: *[...] | [...]`.
+- `envFrom?: [...corev1.#EnvFromSource]` where the addon reads
+  whole-Secret/ConfigMap environments (dex expands `$VAR` references
+  in its config file); omit it when `env` covers the upstream surface.
 - `extraVolumes?` / `extraVolumeMounts?` — never bare
   `volumes`/`volumeMounts`.
 - `extraContainers?` / `initContainers?` where sidecars make sense.

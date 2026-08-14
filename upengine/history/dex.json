@@ -1,0 +1,22 @@
+{
+  "name": "dex",
+  "repo": "dexidp/dex",
+  "tag": "v2.45.1",
+  "commit": "11d2eeb52b42e1980e14cb91e69dd9e3faab2076",
+  "moduleVersion": "2.45.1-0",
+  "moduleReleases": [
+    {
+      "version": "2.45.1-0",
+      "releasedAt": "2026-08-14T15:25:52.241Z"
+    }
+  ],
+  "images": {
+    "dex": {
+      "repository": "ghcr.io/dexidp/dex",
+      "tag": "v2.45.1",
+      "digest": "sha256:8499afd690c437f52301efd2b05b2455da5bd2dfc20332cd697dc9937f808462"
+    }
+  },
+  "generatedDigest": "sha256:16bb07ca3292587052ceb175514d1f53e2739ac9d9142f1e9b076622ad288f56",
+  "updatedAt": "2026-08-14T15:25:52.241Z"
+}
