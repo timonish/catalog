@@ -28,3 +28,13 @@ usually appears far from its cause:
   `admission-controller` lives in `templates/admission` with
   `package admission`; the dashed name stays in labels and object
   names.
+- **A comprehension cannot test the presence of a field it defines**:
+  `if config != _|_ {config: ...}` is a structural cycle and the
+  comprehension silently never fires — gate on a different field.
+  And inside a comprehension body, referencing a sibling field whose
+  schema is a disjunction (`access?: "A" | "B"`) yields the
+  disjunction, not the user's concrete value, so the "injection"
+  unifies with anything instead of conflicting; alias it through a
+  hidden field first (`_access: userActions.access`) and reference
+  the alias. Both failures are invisible to vet — assert the
+  behavior with `timoni build` on crafted values.

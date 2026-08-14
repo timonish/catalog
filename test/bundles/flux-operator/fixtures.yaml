@@ -1,0 +1,20 @@
+# A minimal Flux distribution: the operator reconciling the
+# FluxInstance to Ready proves the CRDs are served and the operator
+# deploys, health-checks and reports on the Flux controllers end to
+# end. The distribution manifests ship inside the operator image, so
+# only the two controller images are pulled from the upstream
+# registry. The fixture teardown deletes the FluxInstance and the
+# operator finalizer uninstalls the distribution, keeping the sweep
+# clean.
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    version: "2.x"
+    registry: "ghcr.io/fluxcd"
+  components:
+    - source-controller
+    - kustomize-controller
