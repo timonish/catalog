@@ -1,0 +1,23 @@
+{
+  "name": "flux-operator",
+  "repo": "controlplaneio-fluxcd/flux-operator",
+  "tag": "v0.58.0",
+  "commit": "a380bb9f2759b4c5138201631e91f4a435c5b7b0",
+  "moduleVersion": "0.58.0-0",
+  "moduleReleases": [
+    {
+      "version": "0.58.0-0",
+      "releasedAt": "2026-08-14T17:26:17.915Z"
+    }
+  ],
+  "images": {
+    "flux-operator": {
+      "repository": "ghcr.io/controlplaneio-fluxcd/flux-operator",
+      "tag": "v0.58.0",
+      "digest": "sha256:1c919ce1e28716f817ded65c06df0b7a8269542387d5a2ce50212450473c6209"
+    }
+  },
+  "crdsDigest": "sha256:51c707087ca7b6d342b71b79270d13416b2a1b24fb30e39ebc8ac07922e1b56a",
+  "generatedDigest": "sha256:bd9cf88714e9001460b6b192e3f0f0f6a6c70eb3f305a271accf02dc9be1b315",
+  "updatedAt": "2026-08-14T17:26:17.915Z"
+}

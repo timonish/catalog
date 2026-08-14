@@ -32,6 +32,7 @@ configuration examples.
 | [envoy-gateway](modules/envoy-gateway/README.md) | [envoyproxy/gateway](https://github.com/envoyproxy/gateway) |
 | [external-dns](modules/external-dns/README.md) | [kubernetes-sigs/external-dns](https://github.com/kubernetes-sigs/external-dns) |
 | [fluent-operator](modules/fluent-operator/README.md) | [fluent/fluent-operator](https://github.com/fluent/fluent-operator) |
+| [flux-operator](modules/flux-operator/README.md) | [controlplaneio-fluxcd/flux-operator](https://github.com/controlplaneio-fluxcd/flux-operator) |
 | [gateway-api](modules/gateway-api/README.md) | [kubernetes-sigs/gateway-api](https://github.com/kubernetes-sigs/gateway-api) |
 | [kube-state-metrics](modules/kube-state-metrics/README.md) | [kubernetes/kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) |
 | [metrics-server](modules/metrics-server/README.md) | [kubernetes-sigs/metrics-server](https://github.com/kubernetes-sigs/metrics-server) |
