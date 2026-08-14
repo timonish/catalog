@@ -122,6 +122,12 @@ coverage is the floor and the unified catalog surface is the shape.
    webhook configurations, admission policies) plus Roles and
    RoleBindings, matched by the module name, its dash-stripped form
    and `sweepMatch` (`upengine/src/e2e.ts` is the authoritative list).
+   When the addon creates cluster-scoped objects at runtime and never
+   garbage-collects them (an operator's per-CR ClusterRole/Binding),
+   pre-create them in `fixtures.yaml` under the exact names the addon
+   uses: the addon reconciles their content, and the fixture teardown
+   deletes them so the sweep stays clean
+   (`test/bundles/fluent-operator`).
 8. Run `make sync MODULE=<name>` — the first sync resolves the upstream
    release, writes the generated files plus `VERSION`, vets and builds
    the module, then renders the module

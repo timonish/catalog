@@ -1,0 +1,23 @@
+{
+  "name": "fluent-operator",
+  "repo": "fluent/fluent-operator",
+  "tag": "v3.9.0",
+  "commit": "d4821ada2099323b25b652d7198207f298695e27",
+  "moduleVersion": "3.9.0-0",
+  "moduleReleases": [
+    {
+      "version": "3.9.0-0",
+      "releasedAt": "2026-08-14T12:04:14.704Z"
+    }
+  ],
+  "images": {
+    "fluent-operator": {
+      "repository": "ghcr.io/fluent/fluent-operator/fluent-operator",
+      "tag": "v3.9.0",
+      "digest": "sha256:705375468232d8d39d47c60d55296b1587501fc1cb4f2f313e7e7b4ad82cc3ed"
+    }
+  },
+  "crdsDigest": "sha256:e5923b76dbd00203e17121db3063100d1277a6b98edf30f105445ffebb2524e4",
+  "generatedDigest": "sha256:7df9c33c84ed979db59eae5154e9be6efd8e1e4dbbc6160ba05b2d6151625677",
+  "updatedAt": "2026-08-14T12:04:14.704Z"
+}
