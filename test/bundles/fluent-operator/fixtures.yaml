@@ -1,0 +1,77 @@
+# A minimal Fluent Bit pipeline: the operator reconciling the FluentBit
+# resource into a ready DaemonSet proves the CRDs are served and the
+# operator works end to end. The dummy input avoids any host log path
+# dependency.
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: FluentBit
+metadata:
+  name: fluent-bit
+  labels:
+    # The operator builds the DaemonSet selector from these labels;
+    # without them the DaemonSet is rejected for an empty selector.
+    app.kubernetes.io/name: fluent-bit
+spec:
+  image: ghcr.io/fluent/fluent-operator/fluent-bit:5.0.6
+  fluentBitConfigName: fluent-bit-config
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterFluentBitConfig
+metadata:
+  name: fluent-bit-config
+  labels:
+    app.kubernetes.io/name: fluent-bit
+spec:
+  service:
+    parsersFile: /fluent-bit/etc/parsers.conf
+  inputSelector:
+    matchLabels:
+      fluentbit.fluent.io/enabled: "true"
+  outputSelector:
+    matchLabels:
+      fluentbit.fluent.io/enabled: "true"
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterInput
+metadata:
+  name: dummy
+  labels:
+    fluentbit.fluent.io/enabled: "true"
+spec:
+  dummy:
+    tag: e2e
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterOutput
+metadata:
+  name: stdout
+  labels:
+    fluentbit.fluent.io/enabled: "true"
+spec:
+  matchRegex: .*
+  stdout: {}
+---
+# The operator creates this ClusterRole and ClusterRoleBinding for the
+# FluentBit workload at runtime and does not garbage-collect them when
+# the FluentBit resource is deleted (upstream TODO in the fluentbit
+# controller finalizer). Pre-creating them here hands their lifecycle
+# to the fixture apply/delete: the operator reconciles their content,
+# and the fixture teardown removes them so the uninstall sweep stays
+# clean.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluent-operator-fluent-bit
+rules: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluent-operator-fluent-bit-fluent-bit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fluent-operator-fluent-bit
+subjects:
+  - kind: ServiceAccount
+    name: fluent-bit
+    namespace: fluent-system
