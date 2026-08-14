@@ -33,6 +33,7 @@ configuration examples.
 | [gateway-api](modules/gateway-api/README.md) | [kubernetes-sigs/gateway-api](https://github.com/kubernetes-sigs/gateway-api) |
 | [kube-state-metrics](modules/kube-state-metrics/README.md) | [kubernetes/kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) |
 | [metrics-server](modules/metrics-server/README.md) | [kubernetes-sigs/metrics-server](https://github.com/kubernetes-sigs/metrics-server) |
+| [node-exporter](modules/node-exporter/README.md) | [prometheus/node_exporter](https://github.com/prometheus/node_exporter) |
 | [prometheus-operator](modules/prometheus-operator/README.md) | [prometheus-operator/prometheus-operator](https://github.com/prometheus-operator/prometheus-operator) |
 | [trust-manager](modules/trust-manager/README.md) | [cert-manager/trust-manager](https://github.com/cert-manager/trust-manager) |
 | [vertical-pod-autoscaler](modules/vertical-pod-autoscaler/README.md) | [kubernetes/autoscaler](https://github.com/kubernetes/autoscaler) |
