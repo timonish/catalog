@@ -462,6 +462,10 @@ import (
 				"\(config.metadata.name)-role-\(ns)": #WatchedNamespaceRole & {_config: config, #namespace: ns}
 				"\(config.metadata.name)-rb-\(ns)": #WatchedNamespaceRoleBinding & {_config: config, #namespace: ns}
 			}
+			if len(config._watchNamespaces) > 0 {
+				"\(config.metadata.name)-ns-role": #ControllerNamespaceRole & {_config: config}
+				"\(config.metadata.name)-ns-rb": #ControllerNamespaceRoleBinding & {_config: config}
+			}
 
 			"\(config.metadata.name)-infra-role": #InfraManagerRole & {_config: config}
 			"\(config.metadata.name)-infra-rb": #InfraManagerRoleBinding & {_config: config}

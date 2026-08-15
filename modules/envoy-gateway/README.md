@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.8.3-4`, packaging the upstream release
-[v1.8.3](https://github.com/envoyproxy/gateway/releases/tag/v1.8.3)
+Latest module version is `1.9.0-1`, packaging the upstream release
+[v1.9.0](https://github.com/envoyproxy/gateway/releases/tag/v1.9.0)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `docker.io/envoyproxy/gateway` | v1.8.3 | `sha256:e7a8c70537628bf996e5dec5c4c835704b4b9f4f715a74cf361bea30608c49ac` |
+| `docker.io/envoyproxy/gateway` | v1.9.0 | `sha256:6f40c7b218b4ff1c4cb481923ed2c9a7634580365913434dd5dda9e954c0114b` |
 <!-- versions:end -->
 
 The Envoy proxy and ratelimit data plane images are managed by the

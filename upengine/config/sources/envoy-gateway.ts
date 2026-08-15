@@ -6,8 +6,6 @@ import type { ModuleSource } from "../../src/types.ts";
 export const source: ModuleSource = {
   name: "envoy-gateway",
   url: "https://github.com/envoyproxy/gateway",
-  // In-repo chart; the onboarding parity baseline was main @ 6ff80b3
-  // with release-pinned artifacts.
   parityTarget: "https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm",
   releaseTag: "v*",
   // The official CRDs-only release asset: exactly the eight

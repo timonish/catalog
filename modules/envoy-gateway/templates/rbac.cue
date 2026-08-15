@@ -155,6 +155,12 @@ _secretsReadRule: rbacv1.#PolicyRule & {
 	verbs: ["get", "list", "watch"]
 }
 
+_endpointSliceReadRule: rbacv1.#PolicyRule & {
+	apiGroups: ["discovery.k8s.io"]
+	resources: ["endpointslices"]
+	verbs: ["get", "list", "watch"]
+}
+
 _tokenReviewRule: rbacv1.#PolicyRule & {
 	apiGroups: ["authentication.k8s.io"]
 	resources: ["tokenreviews"]
@@ -259,9 +265,7 @@ _tokenReviewRule: rbacv1.#PolicyRule & {
 }
 
 // The infrastructure manager Role in the controller namespace, where
-// the Envoy fleet runs by default. In GatewayNamespace deploy mode
-// with watched namespaces, the fleet also reads the control plane
-// certificate secrets from the controller namespace.
+// the Envoy fleet runs by default.
 #InfraManagerRole: rbacv1.#Role & {
 	_config:    #Config
 	apiVersion: "rbac.authorization.k8s.io/v1"
@@ -274,11 +278,56 @@ _tokenReviewRule: rbacv1.#PolicyRule & {
 			annotations: _config.metadata.annotations
 		}
 	}
+	rules: _infraRules
+}
+
+// The controller namespace is never one of the watched namespaces, yet
+// the controller still reads part of it: it caches the Secrets and
+// EndpointSlices of the control plane it manages there, and the
+// topology injector webhook — scoped to the namespace the Envoy fleet
+// runs in — reads the pods it binds. Without watched namespaces these
+// rules are already carried cluster-wide by the ClusterRole.
+#ControllerNamespaceRole: rbacv1.#Role & {
+	_config:    #Config
+	apiVersion: "rbac.authorization.k8s.io/v1"
+	kind:       "Role"
+	metadata: {
+		name:      "\(_config.metadata.name)-controller-namespace"
+		namespace: _config.metadata.namespace
+		labels:    _config.metadata.labels
+		if _config.metadata.annotations != _|_ {
+			annotations: _config.metadata.annotations
+		}
+	}
 	rules: list.Concat([
-		_infraRules,
-		if _config._gatewayNamespaceMode if len(_config._watchNamespaces) > 0 {[_secretsReadRule]},
+		[_secretsReadRule, _endpointSliceReadRule],
+		if _config.topologyInjector.enabled {[_topologyInjectorRule]},
 		[],
 	])
+}
+
+#ControllerNamespaceRoleBinding: rbacv1.#RoleBinding & {
+	_config:    #Config
+	apiVersion: "rbac.authorization.k8s.io/v1"
+	kind:       "RoleBinding"
+	metadata: {
+		name:      "\(_config.metadata.name)-controller-namespace"
+		namespace: _config.metadata.namespace
+		labels:    _config.metadata.labels
+		if _config.metadata.annotations != _|_ {
+			annotations: _config.metadata.annotations
+		}
+	}
+	roleRef: {
+		apiGroup: "rbac.authorization.k8s.io"
+		kind:     "Role"
+		name:     "\(_config.metadata.name)-controller-namespace"
+	}
+	subjects: [{
+		kind:      "ServiceAccount"
+		name:      _config.serviceAccount.name
+		namespace: _config.metadata.namespace
+	}]
 }
 
 #InfraManagerRoleBinding: rbacv1.#RoleBinding & {
