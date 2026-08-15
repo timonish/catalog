@@ -6,7 +6,7 @@ package main
 values: {
 	image: {
 		repository: *"docker.io/envoyproxy/gateway" | string
-		tag:        *"v1.8.3" | string
-		digest:     *"sha256:e7a8c70537628bf996e5dec5c4c835704b4b9f4f715a74cf361bea30608c49ac" | string
+		tag:        *"v1.9.0" | string
+		digest:     *"sha256:6f40c7b218b4ff1c4cb481923ed2c9a7634580365913434dd5dda9e954c0114b" | string
 	}
 }

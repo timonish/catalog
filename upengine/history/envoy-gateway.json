@@ -1,10 +1,14 @@
 {
   "name": "envoy-gateway",
   "repo": "envoyproxy/gateway",
-  "tag": "v1.8.3",
-  "commit": "94850d4323922cba7c67b5b5ad23de9c715f8048",
-  "moduleVersion": "1.8.3-4",
+  "tag": "v1.9.0",
+  "commit": "39763b1c07ec30a5526fe70434a2cfe4181de642",
+  "moduleVersion": "1.9.0-0",
   "moduleReleases": [
+    {
+      "version": "1.9.0-0",
+      "releasedAt": "2026-08-15T16:27:05.888Z"
+    },
     {
       "version": "1.8.3-4",
       "releasedAt": "2026-08-13T08:37:34.094Z"
@@ -29,11 +33,11 @@
   "images": {
     "envoy-gateway": {
       "repository": "docker.io/envoyproxy/gateway",
-      "tag": "v1.8.3",
-      "digest": "sha256:e7a8c70537628bf996e5dec5c4c835704b4b9f4f715a74cf361bea30608c49ac"
+      "tag": "v1.9.0",
+      "digest": "sha256:6f40c7b218b4ff1c4cb481923ed2c9a7634580365913434dd5dda9e954c0114b"
     }
   },
-  "crdsDigest": "sha256:23f0913f200abd1d7c634c3fb2c3eb6021cc4e84bdd75d3296711b9334472abb",
-  "generatedDigest": "sha256:0c0d4e5e685450aac0e2cd1b614eeea2993accaf7f6de895e603b00f925b2015",
-  "updatedAt": "2026-08-13T08:37:34.094Z"
+  "crdsDigest": "sha256:c3fca2a798cc09add33e0be32cbc9442c6f1313b3102e0c46e60bb44e1bec488",
+  "generatedDigest": "sha256:a6534077ee7b97d6de1da4f8b1121d0ad86fd3a4d108e1efaa89f01024e48c75",
+  "updatedAt": "2026-08-15T16:27:05.888Z"
 }
