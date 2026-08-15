@@ -46,7 +46,10 @@ Upstream coverage is a **floor**, this standard is the **shape**:
   UID, `platform` defers to an admission controller).
 - **Images pinned by digest**: defaults come from the generated
   `images.cue` at the module root, written into the values by the
-  sync engine. Hand-written CUE never hardcodes tags.
+  sync engine. Hand-written CUE never hardcodes tags. This covers
+  every image the instance puts on the cluster, including those the
+  addon's own controller deploys rather than the module (see
+  [onboarding.md](onboarding.md)).
 - **No Helm-generated certificates**: TLS is served by the addon's own
   generation, cert-manager, or an existing Secret — never a
   render-time-generated cert.

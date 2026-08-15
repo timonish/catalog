@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { latestReleaseTag, listReleases, matchGlob, type Release } from "./github.ts";
+import { parseImageRef } from "./manifests.ts";
 import type { ImageRef } from "./types.ts";
 
 /**
@@ -70,17 +71,43 @@ export function trackedImageTag(tag: string, pattern: string): string {
 }
 
 /**
- * The tag of an image versioned by a Makefile-style `VARIABLE := value`
- * assignment in a repo file. `+` and `~` are legal in Debian package
- * versions but not in OCI tags; the upstream release tooling maps them to
- * `-` (`tr '+~' '-'`) and the extracted tag mirrors that.
+ * The tag of an image versioned by an assignment in a repo file: a
+ * Makefile-style `VARIABLE := value` or a Go-style `Variable = "value"`
+ * constant. The value is either a bare version or a full image reference —
+ * the reference's repository must then equal the declared one, so an
+ * upstream registry move fails the sync instead of silently retagging a
+ * different image. `+` and `~` are legal in Debian package versions but not
+ * in OCI tags; the upstream release tooling maps them to `-` (`tr '+~' '-'`)
+ * and the extracted tag mirrors that.
  */
-export function fileVariableTag(contents: string, variable: string, file: string): string {
+export function fileVariableTag(
+  contents: string,
+  variable: string,
+  file: string,
+  repository: string,
+): string {
   const match = contents.match(new RegExp(`^\\s*${variable}\\s*:?=\\s*(\\S+)\\s*$`, "m"));
   if (!match) {
     throw new Error(`variable '${variable}' not found in ${file}`);
   }
-  return match[1]!.replace(/[+~]/g, "-");
+  // Go constants quote their value; Makefile assignments do not.
+  const value = match[1]!.replace(/^(["'`])(.*)\1$/, "$2");
+  // A bare version carries neither a repository nor a tag separator; a
+  // registry-less reference (`envoy:v1`) is parsed as one and then fails
+  // the repository check rather than pinning its name as the tag.
+  if (!value.includes("/") && !value.includes(":")) {
+    return value.replace(/[+~]/g, "-");
+  }
+  const ref = parseImageRef(value);
+  if (ref.repository !== repository) {
+    throw new Error(
+      `variable '${variable}' in ${file} references '${ref.repository}', expected '${repository}'`,
+    );
+  }
+  if (ref.tag === "") {
+    throw new Error(`variable '${variable}' in ${file} references '${value}' without a tag`);
+  }
+  return ref.tag.replace(/[+~]/g, "-");
 }
 
 /**

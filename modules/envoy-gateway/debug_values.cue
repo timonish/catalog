@@ -18,6 +18,10 @@ values: {
 
 	crds: keep: true
 
+	// The default vet covers the Deployment fleet; flip to the DaemonSet
+	// one so both data plane branches render.
+	proxy: mode: "DaemonSet"
+
 	config: {
 		logging: level: {
 			default:       "info"
@@ -29,7 +33,27 @@ values: {
 				type: "Namespaces"
 				namespaces: ["apps", "prod"]
 			}
-			envoyDeployment: replicas: 2
+			// The typed image default must not close the deployment
+			// blocks the rest of the settings pass through.
+			rateLimitDeployment: {
+				replicas: 2
+				container: resources: requests: {
+					cpu:    "10m"
+					memory: "32Mi"
+				}
+			}
+		}
+		// The data plane defaults, extending the module's pinned image.
+		envoyProxy: {
+			logging: level: default: "warn"
+			provider: kubernetes: envoyDaemonSet: container: resources: requests: {
+				cpu:    "50m"
+				memory: "64Mi"
+			}
+		}
+		rateLimit: backend: {
+			type: "Redis"
+			redis: url: "redis.redis-system.svc:6379"
 		}
 		telemetry: metrics: prometheus: disable: false
 	}

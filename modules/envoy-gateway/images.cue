@@ -9,4 +9,14 @@ values: {
 		tag:        *"v1.9.0" | string
 		digest:     *"sha256:6f40c7b218b4ff1c4cb481923ed2c9a7634580365913434dd5dda9e954c0114b" | string
 	}
+	proxy: image: {
+		repository: *"docker.io/envoyproxy/envoy" | string
+		tag:        *"distroless-v1.39.0" | string
+		digest:     *"sha256:7877ad87afd7459e1bd2a077ff601fec7c93aeecd62e71664560d96328c62cf4" | string
+	}
+	rateLimit: image: {
+		repository: *"docker.io/envoyproxy/ratelimit" | string
+		tag:        *"17b1956c" | string
+		digest:     *"sha256:871098f54d99ad612abdd455e39632be6d990937be2e46eecf4e39f65d948a94" | string
+	}
 }

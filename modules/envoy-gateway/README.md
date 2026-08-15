@@ -5,20 +5,21 @@ A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.9.0-1`, packaging the upstream release
+Latest module version is `1.9.0-2`, packaging the upstream release
 [v1.9.0](https://github.com/envoyproxy/gateway/releases/tag/v1.9.0)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
 | `docker.io/envoyproxy/gateway` | v1.9.0 | `sha256:6f40c7b218b4ff1c4cb481923ed2c9a7634580365913434dd5dda9e954c0114b` |
+| `docker.io/envoyproxy/envoy` | distroless-v1.39.0 | `sha256:7877ad87afd7459e1bd2a077ff601fec7c93aeecd62e71664560d96328c62cf4` |
+| `docker.io/envoyproxy/ratelimit` | 17b1956c | `sha256:871098f54d99ad612abdd455e39632be6d990937be2e46eecf4e39f65d948a94` |
 <!-- versions:end -->
 
-The Envoy proxy and ratelimit data plane images are managed by the
-Envoy Gateway controller itself and track its compiled-in defaults;
-they can be overridden through the
-[EnvoyProxy](https://gateway.envoyproxy.io/docs/api/extension_types/#envoyproxy)
-custom resource and `config.provider.kubernetes` respectively.
+The `docker.io/envoyproxy/envoy` and `docker.io/envoyproxy/ratelimit`
+images are not run by the module's own pods: the controller deploys
+them for the data plane, and the module pins them through the
+configuration; see [Data plane images](#data-plane-images).
 
 ## Prerequisites
 
@@ -69,7 +70,7 @@ file:
 values: {
 	config: {
 		logging: level: default: "debug"
-		provider: kubernetes: envoyDeployment: replicas: 2
+		envoyProxy: provider: kubernetes: envoyDeployment: replicas: 2
 	}
 }
 ```
@@ -107,7 +108,7 @@ values: {
 ```
 
 The controller then deploys the ratelimit service automatically, with
-its image tracking the compiled-in default.
+the image pinned by the module.
 
 The watched namespaces are configured through
 `config.provider.kubernetes.watch`; when namespaces are enumerated
@@ -116,6 +117,81 @@ with per-namespace roles. The `GatewayNamespace` deploy mode
 (`config.provider.kubernetes.deploy.type`) grants the
 infrastructure manager access in the watched namespaces and enables
 TokenReview-based authentication for the Envoy fleet.
+
+## Data plane images
+
+Besides the controller, the module pins the two images the controller
+deploys, so a cluster runs no unpinned Envoy Gateway image and a
+private-registry install needs no hand-written custom resources:
+
+- `proxy.image` — the managed Envoy fleet, rendered into the cluster-wide
+  EnvoyProxy defaults at
+  `config.envoyProxy.provider.kubernetes.<envoyDeployment|envoyDaemonSet>.container.image`,
+  the block selected by `proxy.mode`;
+- `rateLimit.image` — the ratelimit service, rendered into
+  `config.provider.kubernetes.rateLimitDeployment.container.image`.
+
+Both track the images the upstream controller compiles in and are
+bumped by the catalog together with the controller image.
+
+To relocate them to a mirror, override the repositories. The module's
+`imagePullSecrets` covers the pods the module renders; the fleet and
+ratelimit pods are created by the controller, so their pull secrets are
+set on the same configuration blocks as their images:
+
+```cue
+values: {
+	image: repository: "registry.internal/envoyproxy/gateway"
+	proxy: image: repository: "registry.internal/envoyproxy/envoy"
+	rateLimit: image: repository: "registry.internal/envoyproxy/ratelimit"
+	imagePullSecrets: [{name: "registry-internal"}]
+	config: {
+		envoyProxy: provider: kubernetes: envoyDeployment: pod: imagePullSecrets: [{
+			name: "registry-internal"
+		}]
+		provider: kubernetes: rateLimitDeployment: pod: imagePullSecrets: [{
+			name: "registry-internal"
+		}]
+	}
+}
+```
+
+An [EnvoyProxy](https://gateway.envoyproxy.io/docs/api/extension_types/#envoyproxy)
+resource referenced by a GatewayClass or a Gateway takes precedence
+over the module's defaults and, unless it sets `spec.mergeType`,
+**replaces** them — the fleet then falls back to the image the
+controller compiles in. Keep the pinned image by merging instead:
+
+```yaml
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: custom
+spec:
+  mergeType: StrategicMerge
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: ClusterIP
+```
+
+The module renders the image into the fleet workload selected by
+`proxy.mode`, a Deployment by default. A fleet running as a DaemonSet
+sets the mode instead of the configuration block:
+
+```cue
+values: {
+	proxy: mode: "DaemonSet"
+	config: envoyProxy: provider: kubernetes: envoyDaemonSet: {
+		pod: nodeSelector: "kubernetes.io/os": "linux"
+	}
+}
+```
+
+Setting both workload blocks makes the controller create both a
+Deployment and a DaemonSet for every Gateway; the module rejects that
+combination at build time.
 
 ## Control plane TLS
 
@@ -211,16 +287,21 @@ timoni bundle apply -f bundle.cue
 |---|---|---|---|
 | `crds.install` | `bool` | `true` | Install the `gateway.envoyproxy.io` CRDs; set to `false` when they are managed outside of this module |
 | `crds.keep` | `bool` | `false` | Keep the CRDs (and thereby all Envoy Gateway custom resources) when the instance is deleted |
-| `image.repository` | `string` | `docker.io/envoyproxy/gateway` | Container image repository |
+| `image.repository` | `string` | `docker.io/envoyproxy/gateway` | Controller image repository; also runs the certgen Job and the fleet shutdown manager |
 | `image.tag` | `string` | `<version>` | Container image tag, tracking the upstream release |
 | `image.digest` | `string` | `""` | Container image digest, takes precedence over `tag` when specified |
 | `image.pullPolicy` | `string` | `IfNotPresent` | Kubernetes image pull policy |
-| `imagePullSecrets` | `[...timoniv1.#ObjectReference]` | unset | References to secrets for pulling images from private registries |
+| `proxy.image.repository` / `tag` / `digest` | `string` | `docker.io/envoyproxy/envoy`, tracking the controller default | The [data plane image](#data-plane-images) of the managed Envoy fleet |
+| `proxy.mode` | `string` | `Deployment` | The workload the controller runs the Envoy fleet as: `Deployment` or `DaemonSet` |
+| `rateLimit.image.repository` / `tag` / `digest` | `string` | `docker.io/envoyproxy/ratelimit`, tracking the controller default | The [data plane image](#data-plane-images) of the ratelimit service |
+| `imagePullSecrets` | `[...timoniv1.#ObjectReference]` | unset | References to secrets for pulling images from private registries, for the pods the module renders |
 | `commonLabels` | `{[string]: string}` | unset | Extra labels added to all resources |
 | `metadata.annotations` | `{[string]: string}` | unset | Annotations added to all resources |
 | `config` | `object` | see [above](#envoy-gateway-configuration) | The EnvoyGateway configuration file contents |
 | `config.gateway.controllerName` | `string` | `gateway.envoyproxy.io/gatewayclass-controller` | The controller name GatewayClasses reference |
 | `config.logging.level.default` | `string` | `info` | Log verbosity (`debug`, `info`, `warn`, `error`), overridable per component |
+| `config.envoyProxy` | `object` | the pinned `proxy.image` | The cluster-wide [EnvoyProxy defaults](#data-plane-images) of the managed fleet |
+| `config.provider.kubernetes.rateLimitDeployment` | `object` | the pinned `rateLimit.image` | The ratelimit service deployment settings |
 | `tls.mode` | `string` | `certgen` | Control plane TLS bootstrap: `certgen` or `cert-manager` |
 | `tls.certManager.existingIssuer` | `object` | `enabled: false` | Issue the CA from an existing `Issuer` or `ClusterIssuer` instead of the module's self-signed one |
 | `tls.certManager.caDuration` | `string` | unset | Validity of the CA certificate |

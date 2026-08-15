@@ -29,11 +29,36 @@ import (
 	// Label selector common to all resources.
 	selector: timoniv1.#Selector & {#Name: metadata.name}
 
-	// The container image repository, tag, digest and pull policy.
-	// The default repository and tag track the upstream release
-	// and are set in `images.cue` by upengine. The Envoy proxy and
-	// ratelimit data plane images are compiled into this binary.
+	// The controller container image repository, tag, digest and pull
+	// policy. The default repository and tag track the upstream release
+	// and are set in `images.cue` by upengine. The certgen Job and the
+	// shutdown manager sidecar of the managed Envoy fleet run this image
+	// too.
 	image: timoniv1.#Image
+
+	// The managed Envoy fleet, deployed by the controller for every
+	// Gateway.
+	proxy: {
+		// The workload the controller runs the fleet as; the pinned
+		// image is rendered into the matching EnvoyProxy block. The
+		// controller creates both workloads when both blocks are set,
+		// so the fleet kind is selected here rather than through
+		// `config`.
+		mode: *"Deployment" | "DaemonSet"
+
+		// The container image of the fleet. The default tracks the
+		// image the controller compiles in and is set in `images.cue`
+		// by upengine; the pull policy is not part of the EnvoyProxy
+		// container API.
+		image: timoniv1.#Image
+	}
+
+	// The container image of the ratelimit service, deployed by the
+	// controller when `config.rateLimit` is set. The default tracks the
+	// image the controller compiles in and is set in `images.cue` by
+	// upengine; the pull policy is not part of the ratelimit container
+	// API either.
+	rateLimit: image: timoniv1.#Image
 
 	// References to secrets used for pulling images from private registries.
 	imagePullSecrets?: [...timoniv1.#ObjectReference]
@@ -76,6 +101,63 @@ import (
 				// fleet runs this module's envoy-gateway image.
 				shutdownManager: image: *_shutdownManagerImage | string
 
+				// The ratelimit service deployed when global rate
+				// limiting is configured; the rest of its deployment
+				// settings (replicas, resources, patches) passes
+				// through untyped.
+				rateLimitDeployment: {
+					container: {
+						image: *_rateLimitImage | string
+
+						...
+					}
+
+					...
+				}
+
+				...
+			}
+
+			...
+		}
+
+		// The cluster-wide EnvoyProxy defaults, which the module uses to
+		// pin the data plane image of the fleet workload selected by
+		// `proxy.mode`. An EnvoyProxy referenced by a GatewayClass or a
+		// Gateway takes precedence over these defaults and, unless it
+		// sets `spec.mergeType`, replaces them entirely — the fleet then
+		// falls back to the image the controller compiles in.
+		envoyProxy: {
+			provider: {
+				type: "Kubernetes"
+
+				kubernetes: {
+					if _proxyMode == "Deployment" {
+						envoyDeployment: {
+							container: {
+								image: *_proxyImage | string
+
+								...
+							}
+
+							...
+						}
+					}
+					if _proxyMode == "DaemonSet" {
+						envoyDaemonSet: {
+							container: {
+								image: *_proxyImage | string
+
+								...
+							}
+
+							...
+						}
+					}
+
+					...
+				}
+
 				...
 			}
 
@@ -85,9 +167,31 @@ import (
 		...
 	}
 
-	// The image rendered into the shutdown manager configuration,
-	// tracked together with the controller image.
+	// The images rendered into the configuration: the shutdown manager
+	// runs the controller image, the managed Envoy fleet and the
+	// ratelimit service their own.
 	_shutdownManagerImage: image.reference
+	_proxyImage:           proxy.image.reference
+	_rateLimitImage:       rateLimit.image.reference
+
+	// The fleet workload kind, aliased out of the disjunction so the
+	// comprehensions above see the concrete value.
+	_proxyMode: proxy.mode
+
+	// The controller creates a Deployment and a DaemonSet both when the
+	// merged EnvoyProxy configuration carries both blocks, so the fleet
+	// workload the module does not pin must not be set through `config`
+	// either.
+	_proxyModeGuard: "valid"
+	_proxyModeGuard: [
+		if _proxyMode == "Deployment" if config.envoyProxy.provider.kubernetes.envoyDaemonSet != _|_ {
+			"set proxy.mode to 'DaemonSet' instead of config.envoyProxy...envoyDaemonSet"
+		},
+		if _proxyMode == "DaemonSet" if config.envoyProxy.provider.kubernetes.envoyDeployment != _|_ {
+			"set proxy.mode to 'Deployment' instead of config.envoyProxy...envoyDeployment"
+		},
+		"valid",
+	][0]
 
 	// The topology injector mutating admission webhook, which labels
 	// the Envoy fleet pods with their node's topology zone for
