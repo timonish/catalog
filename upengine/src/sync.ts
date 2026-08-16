@@ -6,7 +6,7 @@ import { crdChannels, imagePaths, isContainerImage, isFileVariableImage, isTrack
 import { commitSha, downloadText, fetchRepoFile, findReleaseAsset } from "./github.ts";
 import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
 import {
-  artifactListArgv,
+  artifactDigestArgv,
   fileVariableTag,
   parseArtifactDigest,
   parseModuleVersion,
@@ -229,10 +229,17 @@ async function resolveImages(
  * at during the sync. A tag missing from the registry fails the bump — a
  * silently unpinned image must never reach images.cue.
  */
+/**
+ * The registry error codes for a repository or tag that does not exist: a
+ * definitive answer, so retrying only delays the failed bump.
+ */
+const MISSING_ARTIFACT_RE = /\b(?:MANIFEST_UNKNOWN|NAME_UNKNOWN)\b/;
+
 async function resolveImageDigests(images: Record<string, ImageRef>): Promise<void> {
   for (const ref of Object.values(images)) {
     if (ref.digest === "") {
-      ref.digest = parseArtifactDigest(await retryRun(artifactListArgv(ref), 3, 5000), ref);
+      const stdout = await retryRun(artifactDigestArgv(ref), 3, 5000, { giveUpOn: MISSING_ARTIFACT_RE });
+      ref.digest = parseArtifactDigest(stdout, ref);
     }
   }
 }

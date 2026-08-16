@@ -6,7 +6,7 @@ import { crdChannels, validateSources } from "./config.ts";
 import { sources as configuredSources } from "../config/sources.ts";
 import { extractImages, normalizeCrdManifest, parseImageRef } from "./manifests.ts";
 import {
-  artifactListArgv,
+  artifactDigestArgv,
   fileVariableTag,
   parseArtifactDigest,
   parseModuleVersion,
@@ -407,29 +407,32 @@ describe("versions", () => {
     expect(() => parseModuleList(`[{"name":""}]`)).toThrow("no version");
   });
 
-  test("anchors and escapes the digest lookup tag filter", () => {
-    const argv = artifactListArgv({
+  test("builds the digest lookup argv", () => {
+    const argv = artifactDigestArgv({
       repository: "registry.k8s.io/metrics-server/metrics-server",
       tag: "v0.9.0",
       digest: "",
     });
     expect(argv).toEqual([
-      "timoni", "artifact", "list", "oci://registry.k8s.io/metrics-server/metrics-server",
-      "--filter-regex", "^v0\\.9\\.0$", "-o", "json",
+      "timoni", "artifact", "digest", "oci://registry.k8s.io/metrics-server/metrics-server:v0.9.0", "-o", "json",
     ]);
   });
 
-  test("parses timoni artifact list JSON output", () => {
+  test("parses timoni artifact digest JSON output", () => {
     const ref = { repository: "registry.k8s.io/autoscaling/addon-resizer", tag: "1.8.24", digest: "" };
     const digest = "sha256:0d97e9dd5adb46a05fb1eebd1e1b73eee3f5741621ed6247131c99672c2b6ab0";
-    const stdout = JSON.stringify([
-      { repository: `oci://${ref.repository}`, tag: "1.8.24", digest },
-    ]);
+    const stdout = JSON.stringify({ repository: `oci://${ref.repository}`, tag: "1.8.24", digest });
     expect(parseArtifactDigest(stdout, ref)).toBe(digest);
-    expect(() => parseArtifactDigest("[]", ref)).toThrow("not found");
-    expect(() => parseArtifactDigest(`{}`, ref)).toThrow("JSON array");
+    expect(() => parseArtifactDigest("[]", ref)).toThrow("JSON object");
+    const repository = `oci://${ref.repository}`;
+    expect(() => parseArtifactDigest(JSON.stringify({ repository, tag: "1.8.25", digest }), ref)).toThrow(
+      "answered for 'oci://registry.k8s.io/autoscaling/addon-resizer:1.8.25'",
+    );
     expect(() =>
-      parseArtifactDigest(JSON.stringify([{ tag: "1.8.24", digest: "" }]), ref),
+      parseArtifactDigest(JSON.stringify({ repository: "oci://docker.io/other/addon-resizer", tag: "1.8.24", digest }), ref),
+    ).toThrow("answered for");
+    expect(() =>
+      parseArtifactDigest(JSON.stringify({ repository, tag: "1.8.24", digest: "" }), ref),
     ).toThrow("no digest resolved");
   });
 });
