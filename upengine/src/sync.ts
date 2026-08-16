@@ -206,7 +206,12 @@ async function resolveImages(
       const contents = await fetchRepoFile(repo, commit, imageSource.file);
       images[key] = {
         repository: imageSource.repository,
-        tag: fileVariableTag(contents, imageSource.variable, imageSource.file),
+        tag: fileVariableTag(
+          contents,
+          imageSource.variable,
+          imageSource.file,
+          imageSource.repository,
+        ),
         digest: "",
       };
     } else {

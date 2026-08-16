@@ -29,6 +29,20 @@ coverage is the floor and the unified catalog surface is the shape.
   without an image table. Such a module can opt out of the GitHub
   Actions e2e matrix with `e2e: ci: false` in its module source (vet still
   gates it in CI; `make e2e` still runs it locally).
+- **Pin the images the addon deploys, not just the ones it runs**: an
+  operator that creates workloads of its own (the Envoy fleet and the
+  ratelimit service of `modules/envoy-gateway`) otherwise leaves
+  unpinned images on the cluster and forces hand-written custom
+  resources for a private-registry install. Track each as its own
+  image in the module source and render it into the addon's
+  configuration API. Their versions live in a constant in the upstream
+  source rather than in a release tag, which the `file` + `variable`
+  image source reads at the pinned commit (`ImageSource` in
+  `upengine/src/types.ts` documents the accepted assignment forms).
+  Check how the addon's configuration hierarchy treats such defaults
+  before promising they hold — a per-workload override may replace them
+  wholesale (an Envoy Gateway `EnvoyProxy` without `spec.mergeType`),
+  which the README must then state.
 - **Multi-deployment addons use the multi-package layout** (see
   `modules/cert-manager`): one CUE package per component under
   `templates/<component>`, plus `templates/config` holding the values

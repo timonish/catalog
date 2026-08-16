@@ -3,8 +3,12 @@
   "repo": "envoyproxy/gateway",
   "tag": "v1.9.0",
   "commit": "39763b1c07ec30a5526fe70434a2cfe4181de642",
-  "moduleVersion": "1.9.0-1",
+  "moduleVersion": "1.9.0-2",
   "moduleReleases": [
+    {
+      "version": "1.9.0-2",
+      "releasedAt": "2026-08-15T21:59:37.187Z"
+    },
     {
       "version": "1.9.0-1",
       "releasedAt": "2026-08-15T16:32:04.142Z"
@@ -35,9 +39,19 @@
       "repository": "docker.io/envoyproxy/gateway",
       "tag": "v1.9.0",
       "digest": "sha256:6f40c7b218b4ff1c4cb481923ed2c9a7634580365913434dd5dda9e954c0114b"
+    },
+    "envoy": {
+      "repository": "docker.io/envoyproxy/envoy",
+      "tag": "distroless-v1.39.0",
+      "digest": "sha256:7877ad87afd7459e1bd2a077ff601fec7c93aeecd62e71664560d96328c62cf4"
+    },
+    "ratelimit": {
+      "repository": "docker.io/envoyproxy/ratelimit",
+      "tag": "17b1956c",
+      "digest": "sha256:871098f54d99ad612abdd455e39632be6d990937be2e46eecf4e39f65d948a94"
     }
   },
   "crdsDigest": "sha256:c3fca2a798cc09add33e0be32cbc9442c6f1313b3102e0c46e60bb44e1bec488",
-  "generatedDigest": "sha256:b5c85889e08d7b6fcdc2fa06182f50c38945c467eb42fed0518f0ba5acbcfbfa",
-  "updatedAt": "2026-08-15T16:40:22.954Z"
+  "generatedDigest": "sha256:79b69adee7a0055ca0de3dacc1caba947e9c14362e793107d875ea8a39861ae2",
+  "updatedAt": "2026-08-15T21:59:37.187Z"
 }

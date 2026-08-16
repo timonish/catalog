@@ -9,6 +9,9 @@ kind: EnvoyProxy
 metadata:
   name: e2e
 spec:
+  # Merge with the EnvoyGateway defaults instead of replacing them, so
+  # the fleet keeps the data plane image the module pins.
+  mergeType: StrategicMerge
   provider:
     type: Kubernetes
     kubernetes:

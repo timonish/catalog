@@ -335,16 +335,49 @@ describe("versions", () => {
       "DEBIAN_TRIXIE_BUNDLE_SOURCE_IMAGE=docker.io/library/debian:13-slim",
       "",
     ].join("\n");
-    expect(fileVariableTag(mk, "DEBIAN_TRIXIE_BUNDLE_VERSION", "v.mk")).toBe("20250419.1");
-    expect(fileVariableTag(mk, "DEBIAN_TRIXIE_BUNDLE_SOURCE_IMAGE", "v.mk")).toBe(
-      "docker.io/library/debian:13-slim",
-    );
+    const pkg = "quay.io/jetstack/trust-pkg-debian-trixie";
+    expect(fileVariableTag(mk, "DEBIAN_TRIXIE_BUNDLE_VERSION", "v.mk", pkg)).toBe("20250419.1");
     // Debian version characters illegal in OCI tags map to '-'.
-    expect(fileVariableTag("V := 20250419+deb13~1\n", "V", "v.mk")).toBe("20250419-deb13-1");
-    expect(() => fileVariableTag(mk, "MISSING", "v.mk")).toThrow("variable 'MISSING' not found in v.mk");
+    expect(fileVariableTag("V := 20250419+deb13~1\n", "V", "v.mk", pkg)).toBe("20250419-deb13-1");
+    expect(() => fileVariableTag(mk, "MISSING", "v.mk", pkg)).toThrow(
+      "variable 'MISSING' not found in v.mk",
+    );
     // The variable name must match the whole identifier, not a prefix of a
     // longer one.
-    expect(() => fileVariableTag("PREFIXED_V := 1\n", "V", "v.mk")).toThrow("not found");
+    expect(() => fileVariableTag("PREFIXED_V := 1\n", "V", "v.mk", pkg)).toThrow("not found");
+  });
+
+  test("extracts the tag of a full-reference file variable", () => {
+    // A Go constant, as the envoy-gateway controller declares the images
+    // it deploys.
+    const go = [
+      "const (",
+      '\t// DefaultEnvoyProxyImage is the default image used by envoyproxy',
+      '\tDefaultEnvoyProxyImage = "docker.io/envoyproxy/envoy:distroless-v1.39.0"',
+      '\tDefaultRateLimitImage = "docker.io/envoyproxy/ratelimit:17b1956c"',
+      ")",
+      "",
+    ].join("\n");
+    expect(
+      fileVariableTag(go, "DefaultEnvoyProxyImage", "shared_types.go", "docker.io/envoyproxy/envoy"),
+    ).toBe("distroless-v1.39.0");
+    expect(
+      fileVariableTag(go, "DefaultRateLimitImage", "shared_types.go", "docker.io/envoyproxy/ratelimit"),
+    ).toBe("17b1956c");
+    // A repository the upstream moved away from must fail the sync instead
+    // of pinning a tag of a different image.
+    expect(() =>
+      fileVariableTag(go, "DefaultEnvoyProxyImage", "shared_types.go", "ghcr.io/envoyproxy/envoy"),
+    ).toThrow("references 'docker.io/envoyproxy/envoy', expected 'ghcr.io/envoyproxy/envoy'");
+    // A reference without a tag carries no version to pin.
+    expect(() =>
+      fileVariableTag('I = "docker.io/envoyproxy/envoy"\n', "I", "t.go", "docker.io/envoyproxy/envoy"),
+    ).toThrow("without a tag");
+    // A registry-less reference is a reference, not a version: its name
+    // must never end up pinned as the tag.
+    expect(() => fileVariableTag('I = "envoy:v1"\n', "I", "t.go", "docker.io/envoyproxy/envoy")).toThrow(
+      "references 'envoy', expected 'docker.io/envoyproxy/envoy'",
+    );
   });
 
   test("picks the highest matching release", () => {

@@ -13,10 +13,28 @@ export const source: ModuleSource = {
   // they come from the catalog's gateway-api module.
   crds: { releaseAsset: "envoy-gateway-crds.yaml" },
   images: {
-    // Published by the upstream tagged with the release tag itself.
-    // The Envoy proxy and ratelimit images are compiled into this
-    // binary and are not tracked by the module.
+    // Published by the upstream tagged with the release tag itself; it
+    // also runs the certgen Job and the shutdown manager sidecar of the
+    // managed Envoy fleet.
     "envoy-gateway": { repository: "docker.io/envoyproxy/gateway" },
+    // The data plane images the controller deploys: the managed Envoy
+    // fleet and, when global rate limiting is configured, the ratelimit
+    // service. Both are versioned independently of the releases by the
+    // constants the controller compiles in, and the module renders them
+    // into the EnvoyGateway configuration so the whole install is
+    // digest-pinned.
+    envoy: {
+      repository: "docker.io/envoyproxy/envoy",
+      file: "api/v1alpha1/shared_types.go",
+      variable: "DefaultEnvoyProxyImage",
+      path: "proxy.image",
+    },
+    ratelimit: {
+      repository: "docker.io/envoyproxy/ratelimit",
+      file: "api/v1alpha1/shared_types.go",
+      variable: "DefaultRateLimitImage",
+      path: "rateLimit.image",
+    },
   },
   e2e: {
     namespace: "envoy-gateway",
