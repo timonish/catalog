@@ -122,29 +122,27 @@ export function parseModuleVersion(value: string): { upstream: string; build: nu
   return { upstream: match[1]!, build: Number(match[2]!) };
 }
 
-/**
- * The argv resolving an image tag to its registry digest. The tag filter is
- * regex-escaped and anchored so an exact tag can never match its siblings
- * (`v1.2.3` must not match `v1.2.30`).
- */
-export function artifactListArgv(ref: ImageRef): string[] {
-  const filter = `^${ref.tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`;
-  return ["timoni", "artifact", "list", `oci://${ref.repository}`, "--filter-regex", filter, "-o", "json"];
+/** The argv resolving an image tag to its registry digest. */
+export function artifactDigestArgv(ref: ImageRef): string[] {
+  return ["timoni", "artifact", "digest", `oci://${ref.repository}:${ref.tag}`, "-o", "json"];
 }
 
-/** The digest of an image tag in a `timoni artifact list -o json` document. */
+/**
+ * The digest in a `timoni artifact digest -o json` document, checked against
+ * the repository and tag it was requested for so an answer for another image
+ * can never pin the wrong digest.
+ */
 export function parseArtifactDigest(stdout: string, ref: ImageRef): string {
-  const entries: unknown = JSON.parse(stdout);
-  if (!Array.isArray(entries)) {
-    throw new Error(`timoni artifact list of ${ref.repository} did not print a JSON array`);
+  const entry: unknown = JSON.parse(stdout);
+  if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+    throw new Error(`timoni artifact digest of ${ref.repository}:${ref.tag} did not print a JSON object`);
   }
-  const digests = entries
-    .filter((entry) => entry?.tag === ref.tag)
-    .map((entry): unknown => entry.digest);
-  if (digests.length !== 1) {
-    throw new Error(`tag '${ref.tag}' not found on ${ref.repository}`);
+  const { repository, tag, digest } = entry as { repository?: unknown; tag?: unknown; digest?: unknown };
+  if (repository !== `oci://${ref.repository}` || tag !== ref.tag) {
+    throw new Error(
+      `timoni artifact digest of ${ref.repository}:${ref.tag} answered for '${String(repository)}:${String(tag)}'`,
+    );
   }
-  const digest = digests[0];
   if (typeof digest !== "string" || digest === "") {
     throw new Error(`no digest resolved for ${ref.repository}:${ref.tag}`);
   }

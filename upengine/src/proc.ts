@@ -53,7 +53,7 @@ export async function retryRun(
   argv: string[],
   attempts: number,
   delayMs: number,
-  opts: { env?: Record<string, string>; retryOn?: RegExp } = {},
+  opts: { env?: Record<string, string>; retryOn?: RegExp; giveUpOn?: RegExp } = {},
 ): Promise<string> {
   let last: RunResult | null = null;
   for (let i = 0; i < attempts; i++) {
@@ -61,7 +61,11 @@ export async function retryRun(
     if (last.exitCode === 0) {
       return last.stdout;
     }
-    if (opts.retryOn !== undefined && !opts.retryOn.test(last.stderr + last.stdout)) {
+    const output = last.stderr + last.stdout;
+    if (opts.retryOn !== undefined && !opts.retryOn.test(output)) {
+      break;
+    }
+    if (opts.giveUpOn !== undefined && opts.giveUpOn.test(output)) {
       break;
     }
     await Bun.sleep(delayMs);
