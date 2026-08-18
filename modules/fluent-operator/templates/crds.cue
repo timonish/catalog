@@ -4824,6 +4824,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -4841,8 +4845,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -4864,9 +4873,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -5567,6 +5603,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -5584,8 +5624,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -5607,9 +5652,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -5909,6 +5981,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -5926,8 +6002,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -5949,9 +6030,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -6198,6 +6306,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -6215,8 +6327,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -6238,9 +6355,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -6512,6 +6656,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -6529,8 +6677,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -6552,9 +6705,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -6806,6 +6986,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -6823,8 +7007,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -6846,9 +7035,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -6977,7 +7193,7 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 										type:        "boolean"
 									}
 									format: {
-										description: "Specify data format, options available: json, msgpack."
+										description: "Specify data format, options available: json, msgpack, raw."
 										type:        "string"
 									}
 									messageKey: {
@@ -7001,6 +7217,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 	"""
 										format: "int64"
 										type:   "integer"
+									}
+									rawLogKey: {
+										description: """
+	When using format: raw, the value of the record field specified by rawLogKey
+	(Fluent Bit option: Raw_Log_Key) is sent to Kafka as the payload.
+	"""
+										type: "string"
 									}
 									rdkafka: {
 										additionalProperties: type: "string"
@@ -7288,6 +7511,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -7305,8 +7532,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -7328,9 +7560,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -7697,6 +7956,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -7714,8 +7977,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -7737,9 +8005,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -7912,6 +8207,12 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 										description: "This allows you to add custom labels to all metrics exposed through the OpenTelemetry exporter. You may have multiple of these fields."
 										type:        "object"
 									}
+									batchSize: {
+										description: "Set the maximum number of log records to be flushed at a time."
+										format:      "int32"
+										minimum:     0
+										type:        "integer"
+									}
 									header: {
 										additionalProperties: type: "string"
 										description: "Add a HTTP header key/value pair. Multiple headers can be set."
@@ -8026,6 +8327,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -8043,8 +8348,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -8066,9 +8376,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -8315,6 +8652,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -8332,8 +8673,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -8355,9 +8701,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -8589,6 +8962,104 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 										description: "Specify number of worker threads to use to output to S3"
 										format:      "int32"
 										type:        "integer"
+									}
+									networking: {
+										description: "Configure Fluent Bit unified networking options for this output plugin."
+										properties: {
+											DNSMode: {
+												description: "Select the primary DNS connection type (TCP or UDP)."
+												enum: [
+													"TCP",
+													"UDP",
+												]
+												type: "string"
+											}
+											DNSPreferIPv4: {
+												description: "Prioritize IPv4 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
+											DNSResolver: {
+												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
+												enum: [
+													"LEGACY",
+													"ASYNC",
+												]
+												type: "string"
+											}
+											connectTimeout: {
+												description: "Set maximum time expressed in seconds to wait for a TCP connection to be established, this include the TLS handshake time."
+												format:      "int32"
+												type:        "integer"
+											}
+											connectTimeoutLogError: {
+												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
+												type:        "boolean"
+											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
+											keepalive: {
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											keepaliveIdleTimeout: {
+												description: "Set maximum time expressed in seconds for an idle keepalive connection."
+												format:      "int32"
+												type:        "integer"
+											}
+											keepaliveMaxRecycle: {
+												description: "Set maximum number of times a keepalive connection can be used before it is retired."
+												format:      "int32"
+												type:        "integer"
+											}
+											maxWorkerConnections: {
+												description: "Set maximum number of TCP connections that can be established per worker."
+												format:      "int32"
+												type:        "integer"
+											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
+											sourceAddress: {
+												description: "Specify network address to bind for data traffic."
+												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
+											}
+										}
+										type: "object"
 									}
 									tls: {
 										description: "Fluent Bit provides integrated support for Transport Layer Security (TLS) and it predecessor Secure Sockets Layer (SSL) respectively."
@@ -8836,6 +9307,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -8853,8 +9328,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -8876,9 +9356,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -9011,6 +9518,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 											}
 										}
 										type: "object"
+									}
+									totalLimitSize: {
+										description: "Limit the maximum number of Chunks in the filesystem for the current output logical destination."
+										type:        "string"
 									}
 								}
 								type: "object"
@@ -9233,6 +9744,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -9250,8 +9765,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -9273,9 +9793,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -9474,6 +10021,10 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -9491,8 +10042,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -9514,9 +10070,36 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -39806,6 +40389,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -39823,8 +40410,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -39846,9 +40438,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -40549,6 +41168,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -40566,8 +41189,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -40589,9 +41217,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -40891,6 +41546,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -40908,8 +41567,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -40931,9 +41595,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -41180,6 +41871,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -41197,8 +41892,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -41220,9 +41920,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -41494,6 +42221,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -41511,8 +42242,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -41534,9 +42270,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -41788,6 +42551,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -41805,8 +42572,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -41828,9 +42600,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -41959,7 +42758,7 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 										type:        "boolean"
 									}
 									format: {
-										description: "Specify data format, options available: json, msgpack."
+										description: "Specify data format, options available: json, msgpack, raw."
 										type:        "string"
 									}
 									messageKey: {
@@ -41983,6 +42782,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 	"""
 										format: "int64"
 										type:   "integer"
+									}
+									rawLogKey: {
+										description: """
+	When using format: raw, the value of the record field specified by rawLogKey
+	(Fluent Bit option: Raw_Log_Key) is sent to Kafka as the payload.
+	"""
+										type: "string"
 									}
 									rdkafka: {
 										additionalProperties: type: "string"
@@ -42270,6 +43076,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -42287,8 +43097,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -42310,9 +43125,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -42679,6 +43521,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -42696,8 +43542,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -42719,9 +43570,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -42894,6 +43772,12 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 										description: "This allows you to add custom labels to all metrics exposed through the OpenTelemetry exporter. You may have multiple of these fields."
 										type:        "object"
 									}
+									batchSize: {
+										description: "Set the maximum number of log records to be flushed at a time."
+										format:      "int32"
+										minimum:     0
+										type:        "integer"
+									}
 									header: {
 										additionalProperties: type: "string"
 										description: "Add a HTTP header key/value pair. Multiple headers can be set."
@@ -43008,6 +43892,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -43025,8 +43913,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -43048,9 +43941,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -43297,6 +44217,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -43314,8 +44238,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -43337,9 +44266,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -43571,6 +44527,104 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 										description: "Specify number of worker threads to use to output to S3"
 										format:      "int32"
 										type:        "integer"
+									}
+									networking: {
+										description: "Configure Fluent Bit unified networking options for this output plugin."
+										properties: {
+											DNSMode: {
+												description: "Select the primary DNS connection type (TCP or UDP)."
+												enum: [
+													"TCP",
+													"UDP",
+												]
+												type: "string"
+											}
+											DNSPreferIPv4: {
+												description: "Prioritize IPv4 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
+											DNSResolver: {
+												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
+												enum: [
+													"LEGACY",
+													"ASYNC",
+												]
+												type: "string"
+											}
+											connectTimeout: {
+												description: "Set maximum time expressed in seconds to wait for a TCP connection to be established, this include the TLS handshake time."
+												format:      "int32"
+												type:        "integer"
+											}
+											connectTimeoutLogError: {
+												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
+												type:        "boolean"
+											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
+											keepalive: {
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											keepaliveIdleTimeout: {
+												description: "Set maximum time expressed in seconds for an idle keepalive connection."
+												format:      "int32"
+												type:        "integer"
+											}
+											keepaliveMaxRecycle: {
+												description: "Set maximum number of times a keepalive connection can be used before it is retired."
+												format:      "int32"
+												type:        "integer"
+											}
+											maxWorkerConnections: {
+												description: "Set maximum number of TCP connections that can be established per worker."
+												format:      "int32"
+												type:        "integer"
+											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
+											sourceAddress: {
+												description: "Specify network address to bind for data traffic."
+												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
+											}
+										}
+										type: "object"
 									}
 									tls: {
 										description: "Fluent Bit provides integrated support for Transport Layer Security (TLS) and it predecessor Secure Sockets Layer (SSL) respectively."
@@ -43818,6 +44872,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -43835,8 +44893,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -43858,9 +44921,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -43993,6 +45083,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 											}
 										}
 										type: "object"
+									}
+									totalLimitSize: {
+										description: "Limit the maximum number of Chunks in the filesystem for the current output logical destination."
+										type:        "string"
 									}
 								}
 								type: "object"
@@ -44215,6 +45309,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -44232,8 +45330,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -44255,9 +45358,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
@@ -44456,6 +45586,10 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "Prioritize IPv4 DNS results when trying to establish a connection."
 												type:        "boolean"
 											}
+											DNSPreferIPv6: {
+												description: "Prioritize IPv6 DNS results when trying to establish a connection."
+												type:        "boolean"
+											}
 											DNSResolver: {
 												description: "Select the primary DNS resolver type (LEGACY or ASYNC)."
 												enum: [
@@ -44473,8 +45607,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												description: "On connection timeout, specify if it should log an error. When disabled, the timeout is logged as a debug message."
 												type:        "boolean"
 											}
+											ioTimeout: {
+												description: "Set maximum time a connection can stay idle while assigned."
+												format:      "int32"
+												type:        "integer"
+											}
 											keepalive: {
-												description: "Enable or disable connection keepalive support. Accepts a boolean value: on / off."
+												description: "Enable or disable connection keepalive support. Accepts string enum values: on / off."
 												enum: [
 													"on",
 													"off",
@@ -44496,9 +45635,36 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 												format:      "int32"
 												type:        "integer"
 											}
+											proxyEnvIgnore: {
+												description: "Ignore the environment variables HTTP_PROXY, HTTPS_PROXY and NO_PROXY when set."
+												type:        "boolean"
+											}
 											sourceAddress: {
 												description: "Specify network address to bind for data traffic."
 												type:        "string"
+											}
+											tcpKeepalive: {
+												description: "Enable or disable Keepalive support. Accepts string enum values: on / off."
+												enum: [
+													"on",
+													"off",
+												]
+												type: "string"
+											}
+											tcpKeepaliveInterval: {
+												description: "Interval between TCP keepalive probes when no response is received on a keepidle probe."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveProbes: {
+												description: "Number of unacknowledged probes to consider a connection dead."
+												format:      "int32"
+												type:        "integer"
+											}
+											tcpKeepaliveTime: {
+												description: "Interval between the last data packet sent and the first TCP keepalive probe."
+												format:      "int32"
+												type:        "integer"
 											}
 										}
 										type: "object"
