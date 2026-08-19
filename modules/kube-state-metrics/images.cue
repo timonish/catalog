@@ -6,7 +6,7 @@ package main
 values: {
 	image: {
 		repository: *"registry.k8s.io/kube-state-metrics/kube-state-metrics" | string
-		tag:        *"v2.19.1" | string
-		digest:     *"sha256:85108987d044b18a098126732f98602df408888c0f7d456241f5abefb9744bc1" | string
+		tag:        *"v2.20.0" | string
+		digest:     *"sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b" | string
 	}
 }
