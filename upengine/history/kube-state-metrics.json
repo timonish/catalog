@@ -1,10 +1,14 @@
 {
   "name": "kube-state-metrics",
   "repo": "kubernetes/kube-state-metrics",
-  "tag": "v2.19.1",
-  "commit": "45e1513e95beaaa2f2df92af9958cd9837bb66ab",
-  "moduleVersion": "2.19.1-4",
+  "tag": "v2.20.0",
+  "commit": "4ffeda2ef866b0fef372849825a803296483b336",
+  "moduleVersion": "2.20.0-0",
   "moduleReleases": [
+    {
+      "version": "2.20.0-0",
+      "releasedAt": "2026-08-19T06:54:59.192Z"
+    },
     {
       "version": "2.19.1-4",
       "releasedAt": "2026-08-13T08:36:59.085Z"
@@ -29,10 +33,10 @@
   "images": {
     "kube-state-metrics": {
       "repository": "registry.k8s.io/kube-state-metrics/kube-state-metrics",
-      "tag": "v2.19.1",
-      "digest": "sha256:85108987d044b18a098126732f98602df408888c0f7d456241f5abefb9744bc1"
+      "tag": "v2.20.0",
+      "digest": "sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b"
     }
   },
-  "generatedDigest": "sha256:96336c59c68651fa91281b4fc4de819c9b7177b85b6c56f2e9830022b86373ff",
-  "updatedAt": "2026-08-13T08:36:59.085Z"
+  "generatedDigest": "sha256:a975045a8fc97dbc10e7a03db22ce34974167cc068976622e29779ec684aeba4",
+  "updatedAt": "2026-08-19T06:54:59.192Z"
 }

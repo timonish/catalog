@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying [kube-state-metrics](https://
 ## Version
 
 <!-- versions:start -->
-Latest module version is `2.19.1-4`, packaging the upstream release
-[v2.19.1](https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.19.1)
+Latest module version is `2.20.0-0`, packaging the upstream release
+[v2.20.0](https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.20.0)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `registry.k8s.io/kube-state-metrics/kube-state-metrics` | v2.19.1 | `sha256:85108987d044b18a098126732f98602df408888c0f7d456241f5abefb9744bc1` |
+| `registry.k8s.io/kube-state-metrics/kube-state-metrics` | v2.20.0 | `sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b` |
 <!-- versions:end -->
 
 ## Prerequisites
