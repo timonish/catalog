@@ -16,7 +16,56 @@ import { readHistory } from "./history.ts";
 import { parseModuleVersion } from "./resolve.ts";
 import { BUNDLES_DIR, MODULES_DIR } from "./paths.ts";
 import { mustRun, run } from "./proc.ts";
-import type { ModuleSource } from "./types.ts";
+import type { HistoryEntry, ImageRef, ModuleSource } from "./types.ts";
+
+/** OCI annotation listing the module's default container images. */
+export const IMAGES_ANNOTATION = "sh.timoni.images";
+
+/**
+ * The value of the `sh.timoni.images` annotation: the images recorded in
+ * the history manifest (the same data that generates images.cue) as pinned
+ * `repository:tag@digest` references (`repository@digest` for digest-only
+ * images), comma-separated and sorted for a stable value. An image without
+ * a digest fails the push — an unpinned list is worse than none.
+ */
+export function imagesAnnotation(images: Record<string, ImageRef>): string {
+  return Object.entries(images)
+    .map(([key, img]) => {
+      if (!img.digest) {
+        throw new Error(`image '${key}' has no digest in the history manifest`);
+      }
+      return `${img.repository}${img.tag ? `:${img.tag}` : ""}@${img.digest}`;
+    })
+    .sort()
+    .join(",");
+}
+
+/**
+ * The `-a key=value` annotations for `timoni mod push`. CRDs-only modules
+ * (empty images map) carry no `sh.timoni.images` annotation — an empty
+ * value would read as one blank image reference to consumers.
+ */
+export function pushAnnotations(
+  name: string,
+  revision: string,
+  description: string,
+  history: HistoryEntry,
+): string[] {
+  if (history.images === undefined) {
+    throw new Error(`history manifest for ${name} has no images map`);
+  }
+  const annotations = [
+    `org.opencontainers.image.source=https://github.com/${CATALOG_REPO}`,
+    `org.opencontainers.image.licenses=${LICENSE}`,
+    `org.opencontainers.image.revision=${revision}`,
+    `org.opencontainers.image.description=${description}`,
+    `org.opencontainers.image.documentation=https://github.com/${CATALOG_REPO}/blob/main/modules/${name}/README.md`,
+  ];
+  if (Object.keys(history.images).length > 0) {
+    annotations.push(`${IMAGES_ANNOTATION}=${imagesAnnotation(history.images)}`);
+  }
+  return annotations.flatMap((a) => ["-a", a]);
+}
 
 /**
  * Lints the module metadata that publishing depends on: every source has a
@@ -160,6 +209,10 @@ export async function publishModules(sources: ModuleSource[], only?: string): Pr
 async function pushModule(name: string, version: string): Promise<void> {
   const revision =
     process.env.GITHUB_SHA ?? (await mustRun(["git", "rev-parse", "HEAD"])).trim();
+  const history = await readHistory(name);
+  if (history === null) {
+    throw new Error(`no history manifest for ${name}`);
+  }
   await mustRun([
     "timoni",
     "mod",
@@ -171,16 +224,7 @@ async function pushModule(name: string, version: string): Promise<void> {
     "--resolve-symlinks",
     "--sign",
     "cosign",
-    "-a",
-    `org.opencontainers.image.source=https://github.com/${CATALOG_REPO}`,
-    "-a",
-    `org.opencontainers.image.licenses=${LICENSE}`,
-    "-a",
-    `org.opencontainers.image.revision=${revision}`,
-    "-a",
-    `org.opencontainers.image.description=${plainDescription(await moduleDescription(name))}`,
-    "-a",
-    `org.opencontainers.image.documentation=https://github.com/${CATALOG_REPO}/blob/main/modules/${name}/README.md`,
+    ...pushAnnotations(name, revision, plainDescription(await moduleDescription(name)), history),
   ]);
 }
 
