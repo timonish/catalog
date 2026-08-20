@@ -38,3 +38,14 @@ usually appears far from its cause:
   hidden field first (`_access: userActions.access`) and reference
   the alias. Both failures are invisible to vet — assert the
   behavior with `timoni build` on crafted values.
+- **Passing `#config` from one helper definition into another yields
+  the schema, not the user values.** In `_rules: {#config: config.#Config,
+  list: (_kinds & {#config: #config}).list}` the inner comprehensions
+  (`if #config.x.enabled`) see the `*true | bool` defaults, so toggles
+  silently never take effect, while the same comprehension written
+  directly against the outer `#config` works. Compute every derived
+  list once in the caller from `let cfg = _config` and pass the
+  results as list parameters (`#kinds: [...string]`), never the config
+  (`modules/external-secrets/templates/controller/rbac.cue`). Vet with
+  debug values passes either way — assert with `timoni build` on values
+  that disable a toggle.

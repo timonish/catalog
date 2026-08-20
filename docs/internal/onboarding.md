@@ -20,7 +20,12 @@ coverage is the floor and the unified catalog surface is the shape.
   `templates/crds_<channel>.cue` under `crds: <channel>:`, selected by
   an instance value (`modules/gateway-api`). Normalization is tunable
   per source: `keepKinds` retains extra document kinds shipped with the
-  CRDs, `keepLabels` preserves semantic upstream labels. CRD *schemas*
+  CRDs, `keepLabels` preserves semantic upstream labels. Before relying
+  on the default label stripping, check whether the addon selects its
+  own CRDs by label: a controller-runtime cache filtered on a CRD label
+  (the external-secrets cert-controller with `enablePartialCache`)
+  never sees unlabeled CRDs, and the symptom is a component that starts
+  cleanly but never reconciles — only e2e catches it. CRD *schemas*
   are a separate concern, only needed when templates create typed
   custom resources — universal ones live in the shared `schemas/`, and
   nothing is vendored per module so far.
