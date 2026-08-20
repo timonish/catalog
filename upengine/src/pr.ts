@@ -71,8 +71,8 @@ export async function createPullRequests(
     staged.set(change.name, files);
   }
   await mustRun(["git", "checkout", "--", "."]);
-  await run(["git", "config", "user.name", "timonish-bot"]);
-  await run(["git", "config", "user.email", "bot@timonish.dev"]);
+  await run(["git", "config", "user.name", "timoni-bot"]);
+  await run(["git", "config", "user.email", "timoni-bot@@users.noreply.github.com"]);
 
   const failures: string[] = [];
   for (const change of changes) {
