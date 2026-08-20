@@ -1,0 +1,30 @@
+# A fake-provider SecretStore and an ExternalSecret reading from it:
+# both pass the validating webhook (failurePolicy Fail), and the
+# ExternalSecret turning Ready proves the controller synced the
+# target Secret.
+apiVersion: external-secrets.io/v1
+kind: SecretStore
+metadata:
+  name: e2e
+spec:
+  provider:
+    fake:
+      data:
+        - key: /e2e/password
+          value: hunter2
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: e2e
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: e2e
+    kind: SecretStore
+  target:
+    name: e2e-synced
+  data:
+    - secretKey: password
+      remoteRef:
+        key: /e2e/password

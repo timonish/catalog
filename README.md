@@ -31,6 +31,7 @@ configuration examples.
 | [dex](modules/dex/README.md) | [dexidp/dex](https://github.com/dexidp/dex) |
 | [envoy-gateway](modules/envoy-gateway/README.md) | [envoyproxy/gateway](https://github.com/envoyproxy/gateway) |
 | [external-dns](modules/external-dns/README.md) | [kubernetes-sigs/external-dns](https://github.com/kubernetes-sigs/external-dns) |
+| [external-secrets](modules/external-secrets/README.md) | [external-secrets/external-secrets](https://github.com/external-secrets/external-secrets) |
 | [fluent-operator](modules/fluent-operator/README.md) | [fluent/fluent-operator](https://github.com/fluent/fluent-operator) |
 | [flux-operator](modules/flux-operator/README.md) | [controlplaneio-fluxcd/flux-operator](https://github.com/controlplaneio-fluxcd/flux-operator) |
 | [gateway-api](modules/gateway-api/README.md) | [kubernetes-sigs/gateway-api](https://github.com/kubernetes-sigs/gateway-api) |
