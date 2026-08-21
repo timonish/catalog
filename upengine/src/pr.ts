@@ -72,7 +72,7 @@ export async function createPullRequests(
   }
   await mustRun(["git", "checkout", "--", "."]);
   await run(["git", "config", "user.name", "timoni-bot"]);
-  await run(["git", "config", "user.email", "timoni-bot@@users.noreply.github.com"]);
+  await run(["git", "config", "user.email", "bot@timoni.sh"]);
 
   const failures: string[] = [];
   for (const change of changes) {
