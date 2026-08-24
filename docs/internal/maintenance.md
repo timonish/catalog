@@ -13,16 +13,16 @@ safe to rerun, failures in one module don't block the others. GHCR
 answers `DENIED` for not-yet-created packages, so first publishes log a
 warning then push.
 
-Every push adds, besides the standard `org.opencontainers.image.*`
-annotations, a `sh.timoni.images` OCI annotation listing the module's
-default container images as pinned `repository:tag@digest` references,
-comma-separated and sorted (versions published before the annotation
-existed keep their original manifest — publishing never rewrites). The list
-comes from the `images` map of the module's history manifest (the same
-data that generates `images.cue`), so it is always in sync with the
-pushed defaults; CRDs-only modules carry no `sh.timoni.images`
-annotation. Pushes fail if any recorded image lacks a digest (see `pushAnnotations` in
-`upengine/src/modules.ts`).
+Every push carries the standard `org.opencontainers.image.*` annotations
+(see `pushAnnotations` in `upengine/src/modules.ts`) plus the
+`sh.timoni.images` annotation that `timoni mod push` records itself from
+the module's generated `images.cue`: the default container images as
+pinned `repository:tag@digest` references, comma-separated and sorted.
+The engine never sets it — the sync resolves every image digest before
+writing `images.cue`, so the annotation is always in sync with the pushed
+defaults; CRDs-only modules have no `images.cue` and carry no
+`sh.timoni.images` annotation. Versions published before the annotation
+existed keep their original manifest — publishing never rewrites.
 
 ## Releasing a module-only fix
 
