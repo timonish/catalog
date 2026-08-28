@@ -166,8 +166,8 @@ customresourcedefinition: "acraccesstokens.generators.external-secrets.io": {
 												audiences: {
 													description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 													items: type: "string"
 													type: "array"
@@ -581,8 +581,8 @@ customresourcedefinition: "cloudsmithaccesstokens.generators.external-secrets.io
 									audiences: {
 										description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 										items: type: "string"
 										type: "array"
@@ -2853,8 +2853,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																audiences: {
 																	description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																	items: type: "string"
 																	type: "array"
@@ -3152,8 +3152,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -3205,8 +3205,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																audiences: {
 																	description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																	items: type: "string"
 																	type: "array"
@@ -3447,8 +3447,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -3607,8 +3607,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -4123,8 +4123,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -4206,8 +4206,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																audiences: {
 																	description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																	items: type: "string"
 																	type: "array"
@@ -4700,8 +4700,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																			audiences: {
 																				description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																				items: type: "string"
 																				type: "array"
@@ -4757,8 +4757,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																					audiences: {
 																						description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																						items: type: "string"
 																						type: "array"
@@ -4810,8 +4810,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																				audiences: {
 																					description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																					items: type: "string"
 																					type: "array"
@@ -5013,8 +5013,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																					audiences: {
 																						description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																						items: type: "string"
 																						type: "array"
@@ -5169,8 +5169,8 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 																			audiences: {
 																				description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																				items: type: "string"
 																				type: "array"
@@ -6979,8 +6979,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -7138,8 +7138,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
@@ -7256,8 +7256,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																audiences: {
 																	description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																	items: type: "string"
 																	type: "array"
@@ -7733,8 +7733,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -8831,8 +8831,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -9038,8 +9038,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
@@ -9438,8 +9438,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -9813,8 +9813,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -9969,8 +9969,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -10026,7 +10026,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 									}
 									github: {
 										description: """
-	Github configures this store to push GitHub Actions secrets using the GitHub API provider.
+	Github configures this store to push GitHub Actions or Dependabot secrets using the GitHub API provider.
 	Note: This provider only supports write operations (PushSecret) and cannot fetch secrets from GitHub
 	"""
 										properties: {
@@ -10106,6 +10106,18 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 												description: "repository will be used to fetch secrets from the Github repository within an organization"
 												type:        "string"
 											}
+											secretType: {
+												default: "Actions"
+												description: """
+	secretType specifies which GitHub secret service to use.
+	Defaults to Actions for backwards compatibility.
+	"""
+												enum: [
+													"Actions",
+													"Dependabot",
+												]
+												type: "string"
+											}
 											uploadURL: {
 												description: "Upload URL for enterprise instances. Default to URL."
 												type:        "string"
@@ -10123,6 +10135,10 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 											"organization",
 										]
 										type: "object"
+										"x-kubernetes-validations": [{
+											message: "Dependabot secrets do not support environments"
+											rule:    "self.secretType != 'Dependabot' || !has(self.environment) || size(self.environment) == 0"
+										}]
 									}
 									gitlab: {
 										description: "GitLab configures this store to sync secrets using GitLab Variables provider"
@@ -11493,8 +11509,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
@@ -11756,11 +11772,68 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 														}
 														type: "object"
 													}
+													workloadIdentity: {
+														description: "WorkloadIdentity defines configuration for workload identity authentication to Nebius IAM."
+														properties: {
+															iamServiceAccountID: {
+																description: """
+	IAMServiceAccountID is the Nebius IAM service account identifier that the
+	federated Kubernetes service account should impersonate during token exchange.
+	"""
+																example:   "serviceaccount-e00example"
+																minLength: 1
+																pattern:   "^serviceaccount-[a-z][a-z0-9]{2}"
+																type:      "string"
+															}
+															serviceAccountRef: {
+																description: """
+	ServiceAccountRef references a Kubernetes ServiceAccount used to request a
+	temporary JWT via the TokenRequest API. The JWT is then exchanged for a
+	Nebius IAM token using workload federation.
+	"""
+																properties: {
+																	audiences: {
+																		description: """
+	Audience specifies the `aud` claim for the service account token
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
+	"""
+																		items: type: "string"
+																		type: "array"
+																	}
+																	name: {
+																		description: "The name of the ServiceAccount resource being referred to."
+																		maxLength:   253
+																		minLength:   1
+																		pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: """
+	Namespace of the resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																required: ["name"]
+																type: "object"
+															}
+														}
+														required: [
+															"iamServiceAccountID",
+															"serviceAccountRef",
+														]
+														type: "object"
+													}
 												}
 												type: "object"
 												"x-kubernetes-validations": [{
-													message: "either serviceAccountCredsSecretRef or tokenSecretRef must be set"
-													rule:    "has(self.serviceAccountCredsSecretRef) || has(self.tokenSecretRef)"
+													message: "exactly one of serviceAccountCredsSecretRef, tokenSecretRef, or workloadIdentity must be set"
+													rule:    "(has(self.serviceAccountCredsSecretRef) && has(self.serviceAccountCredsSecretRef.name) && size(self.serviceAccountCredsSecretRef.name) > 0 ? 1 : 0) + (has(self.tokenSecretRef) && has(self.tokenSecretRef.name) && size(self.tokenSecretRef.name) > 0 ? 1 : 0) + (has(self.workloadIdentity) ? 1 : 0) == 1"
 												}]
 											}
 											caProvider: {
@@ -12275,6 +12348,116 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 															rule:    "[has(self.roleId),has(self.roleRef)].filter(x,x==true).size() == 1"
 														}]
 													}
+													kubernetes: {
+														description: """
+	Kubernetes authenticates with OpenBao by passing a ServiceAccount
+	token to the [Kubernetes auth mechanism].
+
+	[Kubernetes auth mechanism]: https://openbao.org/docs/auth/kubernetes/
+	"""
+														properties: {
+															path: {
+																default: "kubernetes"
+																description: """
+	Path where the Kubernetes authentication backend is mounted in OpenBao, e.g:
+	"kubernetes"
+	"""
+																type: "string"
+															}
+															role: {
+																description: """
+	A required field containing the OpenBao Role to assume. A Role binds a
+	Kubernetes ServiceAccount with a set of OpenBao policies.
+	"""
+																minLength: 1
+																type:      "string"
+															}
+															secretRef: {
+																description: """
+	Optional secret field containing a Kubernetes ServiceAccount JWT used
+	for authenticating with OpenBao. If a name is specified without a key,
+	`token` is the default.
+	"""
+																properties: {
+																	key: {
+																		description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+																		maxLength: 253
+																		minLength: 1
+																		pattern:   "^[-._a-zA-Z0-9]+$"
+																		type:      "string"
+																	}
+																	name: {
+																		description: "The name of the Secret resource being referred to."
+																		maxLength:   253
+																		minLength:   1
+																		pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																type: "object"
+															}
+															serviceAccountRef: {
+																description: """
+	Optional service account field containing the name of a Kubernetes ServiceAccount.
+	If the service account is specified, a token will be requested from the Kubernetes
+	TokenRequest API for authenticating with OpenBao.
+	Any configured audiences will be passed to the TokenRequest as-is.
+	"""
+																properties: {
+																	audiences: {
+																		description: """
+	Audience specifies the `aud` claim for the service account token
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
+	"""
+																		items: type: "string"
+																		type: "array"
+																	}
+																	name: {
+																		description: "The name of the ServiceAccount resource being referred to."
+																		maxLength:   253
+																		minLength:   1
+																		pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: """
+	Namespace of the resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																required: ["name"]
+																type: "object"
+															}
+														}
+														required: [
+															"path",
+															"role",
+														]
+														type: "object"
+														"x-kubernetes-validations": [{
+															message: "exactly one of the fields in [serviceAccountRef secretRef] must be set"
+															rule:    "[has(self.serviceAccountRef),has(self.secretRef)].filter(x,x==true).size() == 1"
+														}]
+													}
 													namespace: {
 														description: """
 	Name of the [OpenBao Namespace] to authenticate to. This can be different
@@ -12389,8 +12572,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 												}
 												type: "object"
 												"x-kubernetes-validations": [{
-													message: "exactly one of the fields in [appRole tokenSecretRef userPass] must be set"
-													rule:    "[has(self.appRole),has(self.tokenSecretRef),has(self.userPass)].filter(x,x==true).size() == 1"
+													message: "exactly one of the fields in [appRole tokenSecretRef userPass kubernetes] must be set"
+													rule:    "[has(self.appRole),has(self.tokenSecretRef),has(self.userPass),has(self.kubernetes)].filter(x,x==true).size() == 1"
 												}]
 											}
 											caBundle: {
@@ -12633,8 +12816,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -13255,8 +13438,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -13495,6 +13678,13 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 												]
 												type: "object"
 											}
+											disableSiteIDValidation: {
+												description: """
+	DisableSiteIDValidation permits a missing site ID for new secrets.
+	The provider sends 0 if no site ID is set.
+	"""
+												type: "boolean"
+											}
 											domain: {
 												description: "Domain is the secret server domain."
 												type:        "string"
@@ -13556,6 +13746,15 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 	URL to your secret server installation
 	"""
 												type: "string"
+											}
+											siteId: {
+												description: """
+	SiteID is the ID of the Secret Server site for new secrets.
+	PushSecret metadata can override this value for one secret.
+	The provider uses 1 if this field is not set.
+	"""
+												minimum: 1
+												type:    "integer"
 											}
 											token: {
 												description: """
@@ -14008,8 +14207,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -14065,8 +14264,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																			audiences: {
 																				description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																				items: type: "string"
 																				type: "array"
@@ -14118,8 +14317,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																		audiences: {
 																			description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																			items: type: "string"
 																			type: "array"
@@ -14321,8 +14520,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																			audiences: {
 																				description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																				items: type: "string"
 																				type: "array"
@@ -14477,8 +14676,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -15758,8 +15957,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -16102,8 +16301,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																audiences: {
 																	description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																	items: type: "string"
 																	type: "array"
@@ -16510,8 +16709,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -17232,8 +17431,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -17734,8 +17933,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -18328,8 +18527,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
@@ -18811,8 +19010,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -19621,8 +19820,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																		audiences: {
 																			description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																			items: type: "string"
 																			type: "array"
@@ -19824,8 +20023,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																			audiences: {
 																				description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																				items: type: "string"
 																				type: "array"
@@ -19980,8 +20179,8 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -20926,8 +21125,8 @@ customresourcedefinition: "ecrauthorizationtokens.generators.external-secrets.io
 												audiences: {
 													description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 													items: type: "string"
 													type: "array"
@@ -23055,8 +23254,8 @@ customresourcedefinition: "gcraccesstokens.generators.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -23215,8 +23414,8 @@ customresourcedefinition: "gcraccesstokens.generators.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -25009,8 +25208,8 @@ customresourcedefinition: "quayaccesstokens.generators.external-secrets.io": {
 									audiences: {
 										description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 										items: type: "string"
 										type: "array"
@@ -25289,8 +25488,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -25448,8 +25647,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
@@ -25566,8 +25765,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																audiences: {
 																	description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																	items: type: "string"
 																	type: "array"
@@ -26043,8 +26242,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -27141,8 +27340,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -27348,8 +27547,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
@@ -27748,8 +27947,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -28123,8 +28322,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -28279,8 +28478,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -28336,7 +28535,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 									}
 									github: {
 										description: """
-	Github configures this store to push GitHub Actions secrets using the GitHub API provider.
+	Github configures this store to push GitHub Actions or Dependabot secrets using the GitHub API provider.
 	Note: This provider only supports write operations (PushSecret) and cannot fetch secrets from GitHub
 	"""
 										properties: {
@@ -28416,6 +28615,18 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 												description: "repository will be used to fetch secrets from the Github repository within an organization"
 												type:        "string"
 											}
+											secretType: {
+												default: "Actions"
+												description: """
+	secretType specifies which GitHub secret service to use.
+	Defaults to Actions for backwards compatibility.
+	"""
+												enum: [
+													"Actions",
+													"Dependabot",
+												]
+												type: "string"
+											}
 											uploadURL: {
 												description: "Upload URL for enterprise instances. Default to URL."
 												type:        "string"
@@ -28433,6 +28644,10 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 											"organization",
 										]
 										type: "object"
+										"x-kubernetes-validations": [{
+											message: "Dependabot secrets do not support environments"
+											rule:    "self.secretType != 'Dependabot' || !has(self.environment) || size(self.environment) == 0"
+										}]
 									}
 									gitlab: {
 										description: "GitLab configures this store to sync secrets using GitLab Variables provider"
@@ -29803,8 +30018,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
@@ -30066,11 +30281,68 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 														}
 														type: "object"
 													}
+													workloadIdentity: {
+														description: "WorkloadIdentity defines configuration for workload identity authentication to Nebius IAM."
+														properties: {
+															iamServiceAccountID: {
+																description: """
+	IAMServiceAccountID is the Nebius IAM service account identifier that the
+	federated Kubernetes service account should impersonate during token exchange.
+	"""
+																example:   "serviceaccount-e00example"
+																minLength: 1
+																pattern:   "^serviceaccount-[a-z][a-z0-9]{2}"
+																type:      "string"
+															}
+															serviceAccountRef: {
+																description: """
+	ServiceAccountRef references a Kubernetes ServiceAccount used to request a
+	temporary JWT via the TokenRequest API. The JWT is then exchanged for a
+	Nebius IAM token using workload federation.
+	"""
+																properties: {
+																	audiences: {
+																		description: """
+	Audience specifies the `aud` claim for the service account token
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
+	"""
+																		items: type: "string"
+																		type: "array"
+																	}
+																	name: {
+																		description: "The name of the ServiceAccount resource being referred to."
+																		maxLength:   253
+																		minLength:   1
+																		pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: """
+	Namespace of the resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																required: ["name"]
+																type: "object"
+															}
+														}
+														required: [
+															"iamServiceAccountID",
+															"serviceAccountRef",
+														]
+														type: "object"
+													}
 												}
 												type: "object"
 												"x-kubernetes-validations": [{
-													message: "either serviceAccountCredsSecretRef or tokenSecretRef must be set"
-													rule:    "has(self.serviceAccountCredsSecretRef) || has(self.tokenSecretRef)"
+													message: "exactly one of serviceAccountCredsSecretRef, tokenSecretRef, or workloadIdentity must be set"
+													rule:    "(has(self.serviceAccountCredsSecretRef) && has(self.serviceAccountCredsSecretRef.name) && size(self.serviceAccountCredsSecretRef.name) > 0 ? 1 : 0) + (has(self.tokenSecretRef) && has(self.tokenSecretRef.name) && size(self.tokenSecretRef.name) > 0 ? 1 : 0) + (has(self.workloadIdentity) ? 1 : 0) == 1"
 												}]
 											}
 											caProvider: {
@@ -30585,6 +30857,116 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 															rule:    "[has(self.roleId),has(self.roleRef)].filter(x,x==true).size() == 1"
 														}]
 													}
+													kubernetes: {
+														description: """
+	Kubernetes authenticates with OpenBao by passing a ServiceAccount
+	token to the [Kubernetes auth mechanism].
+
+	[Kubernetes auth mechanism]: https://openbao.org/docs/auth/kubernetes/
+	"""
+														properties: {
+															path: {
+																default: "kubernetes"
+																description: """
+	Path where the Kubernetes authentication backend is mounted in OpenBao, e.g:
+	"kubernetes"
+	"""
+																type: "string"
+															}
+															role: {
+																description: """
+	A required field containing the OpenBao Role to assume. A Role binds a
+	Kubernetes ServiceAccount with a set of OpenBao policies.
+	"""
+																minLength: 1
+																type:      "string"
+															}
+															secretRef: {
+																description: """
+	Optional secret field containing a Kubernetes ServiceAccount JWT used
+	for authenticating with OpenBao. If a name is specified without a key,
+	`token` is the default.
+	"""
+																properties: {
+																	key: {
+																		description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+																		maxLength: 253
+																		minLength: 1
+																		pattern:   "^[-._a-zA-Z0-9]+$"
+																		type:      "string"
+																	}
+																	name: {
+																		description: "The name of the Secret resource being referred to."
+																		maxLength:   253
+																		minLength:   1
+																		pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																type: "object"
+															}
+															serviceAccountRef: {
+																description: """
+	Optional service account field containing the name of a Kubernetes ServiceAccount.
+	If the service account is specified, a token will be requested from the Kubernetes
+	TokenRequest API for authenticating with OpenBao.
+	Any configured audiences will be passed to the TokenRequest as-is.
+	"""
+																properties: {
+																	audiences: {
+																		description: """
+	Audience specifies the `aud` claim for the service account token
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
+	"""
+																		items: type: "string"
+																		type: "array"
+																	}
+																	name: {
+																		description: "The name of the ServiceAccount resource being referred to."
+																		maxLength:   253
+																		minLength:   1
+																		pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: """
+	Namespace of the resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																required: ["name"]
+																type: "object"
+															}
+														}
+														required: [
+															"path",
+															"role",
+														]
+														type: "object"
+														"x-kubernetes-validations": [{
+															message: "exactly one of the fields in [serviceAccountRef secretRef] must be set"
+															rule:    "[has(self.serviceAccountRef),has(self.secretRef)].filter(x,x==true).size() == 1"
+														}]
+													}
 													namespace: {
 														description: """
 	Name of the [OpenBao Namespace] to authenticate to. This can be different
@@ -30699,8 +31081,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 												}
 												type: "object"
 												"x-kubernetes-validations": [{
-													message: "exactly one of the fields in [appRole tokenSecretRef userPass] must be set"
-													rule:    "[has(self.appRole),has(self.tokenSecretRef),has(self.userPass)].filter(x,x==true).size() == 1"
+													message: "exactly one of the fields in [appRole tokenSecretRef userPass kubernetes] must be set"
+													rule:    "[has(self.appRole),has(self.tokenSecretRef),has(self.userPass),has(self.kubernetes)].filter(x,x==true).size() == 1"
 												}]
 											}
 											caBundle: {
@@ -30943,8 +31325,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -31565,8 +31947,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -31805,6 +32187,13 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 												]
 												type: "object"
 											}
+											disableSiteIDValidation: {
+												description: """
+	DisableSiteIDValidation permits a missing site ID for new secrets.
+	The provider sends 0 if no site ID is set.
+	"""
+												type: "boolean"
+											}
 											domain: {
 												description: "Domain is the secret server domain."
 												type:        "string"
@@ -31866,6 +32255,15 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 	URL to your secret server installation
 	"""
 												type: "string"
+											}
+											siteId: {
+												description: """
+	SiteID is the ID of the Secret Server site for new secrets.
+	PushSecret metadata can override this value for one secret.
+	The provider uses 1 if this field is not set.
+	"""
+												minimum: 1
+												type:    "integer"
 											}
 											token: {
 												description: """
@@ -32318,8 +32716,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -32375,8 +32773,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																			audiences: {
 																				description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																				items: type: "string"
 																				type: "array"
@@ -32428,8 +32826,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																		audiences: {
 																			description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																			items: type: "string"
 																			type: "array"
@@ -32631,8 +33029,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																			audiences: {
 																				description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																				items: type: "string"
 																				type: "array"
@@ -32787,8 +33185,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -34068,8 +34466,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -34412,8 +34810,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																audiences: {
 																	description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																	items: type: "string"
 																	type: "array"
@@ -34820,8 +35218,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -35542,8 +35940,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -36044,8 +36442,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -36638,8 +37036,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
@@ -37121,8 +37519,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 													audiences: {
 														description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 														items: type: "string"
 														type: "array"
@@ -37931,8 +38329,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																		audiences: {
 																			description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																			items: type: "string"
 																			type: "array"
@@ -38134,8 +38532,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																			audiences: {
 																				description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																				items: type: "string"
 																				type: "array"
@@ -38290,8 +38688,8 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -39321,8 +39719,8 @@ customresourcedefinition: "stssessiontokens.generators.external-secrets.io": {
 												audiences: {
 													description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 													items: type: "string"
 													type: "array"
@@ -39925,8 +40323,8 @@ customresourcedefinition: "vaultdynamicsecrets.generators.external-secrets.io": 
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
@@ -39982,8 +40380,8 @@ customresourcedefinition: "vaultdynamicsecrets.generators.external-secrets.io": 
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -40035,8 +40433,8 @@ customresourcedefinition: "vaultdynamicsecrets.generators.external-secrets.io": 
 																audiences: {
 																	description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																	items: type: "string"
 																	type: "array"
@@ -40238,8 +40636,8 @@ customresourcedefinition: "vaultdynamicsecrets.generators.external-secrets.io": 
 																	audiences: {
 																		description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																		items: type: "string"
 																		type: "array"
@@ -40394,8 +40792,8 @@ customresourcedefinition: "vaultdynamicsecrets.generators.external-secrets.io": 
 															audiences: {
 																description: """
 	Audience specifies the `aud` claim for the service account token
-	If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-	then this audiences will be appended to the list
+	Some providers automatically extend the audience field based on well-known annotations for workload
+	identity (e.g. IRSA or GCP Workload Identity)
 	"""
 																items: type: "string"
 																type: "array"
