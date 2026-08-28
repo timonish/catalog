@@ -16,7 +16,7 @@ import {
 } from "./resolve.ts";
 import { GENERATED_FILE_RE, crdsCuePaths, generatedFilesPresent, renderImagesCue } from "./codegen.ts";
 import { ciSources, parseModuleList } from "./modules.ts";
-import { renderChange } from "./summary.ts";
+import { renderChange, renderSyncSummary } from "./summary.ts";
 import {
   plainDescription,
   renderModuleVersions,
@@ -57,6 +57,27 @@ describe("validateSources", () => {
 
   test("rejects duplicate names", () => {
     expect(() => validateSources([VALID[0]!, VALID[0]!])).toThrow("duplicate name");
+  });
+
+  test("renders the sync summary with failures and the totals line", () => {
+    const change = {
+      name: "gateway-api",
+      repo: "kubernetes-sigs/gateway-api",
+      tag: "v1.6.1",
+      prevModuleVersion: "1.6.0-0",
+      moduleVersion: "1.6.1-0",
+      images: {},
+    };
+    const failure = { name: "envoy-gateway", message: "digest lookup failed" };
+    const summary = renderSyncSummary([change], [failure], 12);
+    expect(summary).toContain(renderChange(change));
+    expect(summary).toContain("## Failures\n\n- **envoy-gateway**: digest lookup failed\n");
+    expect(summary.endsWith("1 module(s) updated, 1 failed, 12 up to date.")).toBe(true);
+  });
+
+  test("renders a summary without changes or failures as the totals line only", () => {
+    expect(renderSyncSummary([], [], 14)).toBe("0 module(s) updated, 0 failed, 14 up to date.");
+    expect(renderSyncSummary([], [], 14)).not.toContain("## Failures");
   });
 
   test("rejects container images without manifests", () => {
@@ -434,6 +455,13 @@ describe("versions", () => {
     expect(() =>
       parseArtifactDigest(JSON.stringify({ repository, tag: "1.8.24", digest: "" }), ref),
     ).toThrow("no digest resolved");
+    const hub = { repository: "docker.io/envoyproxy/gateway", tag: "v1.9.1", digest: "" };
+    const answered = { repository: "oci://index.docker.io/envoyproxy/gateway", tag: "v1.9.1", digest };
+    expect(parseArtifactDigest(JSON.stringify(answered), hub)).toBe(digest);
+    expect(parseArtifactDigest(JSON.stringify({ ...answered, repository: "oci://docker.io/envoyproxy/gateway" }), hub)).toBe(digest);
+    expect(() =>
+      parseArtifactDigest(JSON.stringify({ ...answered, repository: "oci://ghcr.io/envoyproxy/gateway" }), hub),
+    ).toThrow("answered for");
   });
 });
 

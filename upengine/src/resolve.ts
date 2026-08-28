@@ -127,10 +127,16 @@ export function artifactDigestArgv(ref: ImageRef): string[] {
   return ["timoni", "artifact", "digest", `oci://${ref.repository}:${ref.tag}`, "-o", "json"];
 }
 
+/** A repository with the Docker Hub alias timoni answers for `docker.io`. */
+function canonicalRepository(repository: string): string {
+  return repository.replace(/^(oci:\/\/)?docker\.io\//, "$1index.docker.io/");
+}
+
 /**
  * The digest in a `timoni artifact digest -o json` document, checked against
  * the repository and tag it was requested for so an answer for another image
- * can never pin the wrong digest.
+ * can never pin the wrong digest. Docker Hub references are compared by
+ * their canonical `index.docker.io` name, which is how timoni echoes them.
  */
 export function parseArtifactDigest(stdout: string, ref: ImageRef): string {
   const entry: unknown = JSON.parse(stdout);
@@ -138,7 +144,8 @@ export function parseArtifactDigest(stdout: string, ref: ImageRef): string {
     throw new Error(`timoni artifact digest of ${ref.repository}:${ref.tag} did not print a JSON object`);
   }
   const { repository, tag, digest } = entry as { repository?: unknown; tag?: unknown; digest?: unknown };
-  if (repository !== `oci://${ref.repository}` || tag !== ref.tag) {
+  const answered = typeof repository === "string" ? canonicalRepository(repository) : "";
+  if (answered !== `oci://${canonicalRepository(ref.repository)}` || tag !== ref.tag) {
     throw new Error(
       `timoni artifact digest of ${ref.repository}:${ref.tag} answered for '${String(repository)}:${String(tag)}'`,
     );
