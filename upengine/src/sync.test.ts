@@ -434,6 +434,13 @@ describe("versions", () => {
     expect(() =>
       parseArtifactDigest(JSON.stringify({ repository, tag: "1.8.24", digest: "" }), ref),
     ).toThrow("no digest resolved");
+    const hub = { repository: "docker.io/envoyproxy/gateway", tag: "v1.9.1", digest: "" };
+    const answered = { repository: "oci://index.docker.io/envoyproxy/gateway", tag: "v1.9.1", digest };
+    expect(parseArtifactDigest(JSON.stringify(answered), hub)).toBe(digest);
+    expect(parseArtifactDigest(JSON.stringify({ ...answered, repository: "oci://docker.io/envoyproxy/gateway" }), hub)).toBe(digest);
+    expect(() =>
+      parseArtifactDigest(JSON.stringify({ ...answered, repository: "oci://ghcr.io/envoyproxy/gateway" }), hub),
+    ).toThrow("answered for");
   });
 });
 
