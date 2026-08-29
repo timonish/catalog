@@ -6,17 +6,17 @@ package main
 values: {
 	image: {
 		repository: *"docker.io/envoyproxy/gateway" | string
-		tag:        *"v1.9.0" | string
-		digest:     *"sha256:6f40c7b218b4ff1c4cb481923ed2c9a7634580365913434dd5dda9e954c0114b" | string
+		tag:        *"v1.9.1" | string
+		digest:     *"sha256:0049bcb384c591c6a6dd043fe5c9929ef6e74f230e12dd678d2d3701df9b301e" | string
 	}
 	proxy: image: {
 		repository: *"docker.io/envoyproxy/envoy" | string
-		tag:        *"distroless-v1.39.0" | string
-		digest:     *"sha256:7877ad87afd7459e1bd2a077ff601fec7c93aeecd62e71664560d96328c62cf4" | string
+		tag:        *"distroless-v1.39.1" | string
+		digest:     *"sha256:eb2c01c13125d1629637cb4e4cce7207009fb7cc2c8027f9742758549d15b6f4" | string
 	}
 	rateLimit: image: {
 		repository: *"docker.io/envoyproxy/ratelimit" | string
-		tag:        *"17b1956c" | string
-		digest:     *"sha256:871098f54d99ad612abdd455e39632be6d990937be2e46eecf4e39f65d948a94" | string
+		tag:        *"8fe6ea42" | string
+		digest:     *"sha256:a61547259607d40aff153050c2a87873ca1676d1d9f5f06937d412000dcc2df1" | string
 	}
 }

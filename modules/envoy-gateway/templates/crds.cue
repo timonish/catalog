@@ -4754,8 +4754,8 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 											}
 											streamIdleTimeout: {
 												description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:    "string"
@@ -6780,8 +6780,8 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 											}
 											streamIdleTimeout: {
 												description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	Default: 5 minutes.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 Default: 5 minutes.
 	"""
 												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:    "string"
@@ -9609,8 +9609,8 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 																}
 																streamIdleTimeout: {
 																	description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																	type:    "string"
@@ -10276,7 +10276,10 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 															type: "string"
 														}
 														tls: {
-															description: "TLS configuration when connecting to the Wasm code source."
+															description: """
+	TLS configuration when connecting to the Wasm code source.
+	If unset, system trust store is used for HTTPS url.
+	"""
 															properties: caCertificateRef: {
 																description: """
 	CACertificateRef contains a reference to
@@ -10415,7 +10418,10 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 															type: "string"
 														}
 														tls: {
-															description: "TLS configuration when connecting to the Wasm code source."
+															description: """
+	TLS configuration when connecting to the Wasm code source.
+	If unset, system trust store is used.
+	"""
 															properties: caCertificateRef: {
 																description: """
 	CACertificateRef contains a reference to
@@ -26736,8 +26742,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																									}
 																									streamIdleTimeout: {
 																										description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 																										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:    "string"
@@ -28532,8 +28538,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																									}
 																									streamIdleTimeout: {
 																										description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 																										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:    "string"
@@ -30643,8 +30649,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																						}
 																						streamIdleTimeout: {
 																							description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 																							pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																							type:    "string"
@@ -32656,8 +32662,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																			}
 																			streamIdleTimeout: {
 																				description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 																				pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																				type:    "string"
@@ -36574,8 +36580,8 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	}
 																	streamIdleTimeout: {
 																		description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 																		pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:    "string"
@@ -38336,8 +38342,8 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	}
 																	streamIdleTimeout: {
 																		description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 																		pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:    "string"
@@ -40432,8 +40438,8 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																				}
 																				streamIdleTimeout: {
 																					description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 																					pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																					type:    "string"
@@ -42577,8 +42583,8 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	}
 																	streamIdleTimeout: {
 																		description: """
-	The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
-	If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
 	"""
 																		pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:    "string"
@@ -42624,8 +42630,8 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	be https, a host component, and optionally, port and path components and
 	no query or fragment components.
 	"""
-												minLength: 1
-												type:      "string"
+												pattern: "^https://[^/?#@]+(/[^?#]*)?$"
+												type:    "string"
 											}
 											tokenEndpoint: {
 												description: """
