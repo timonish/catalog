@@ -23,7 +23,9 @@ import (
 		}
 	}
 	spec: {
-		parentRefs: _config.web.httpRoute.parentRefs
+		if _config.web.httpRoute.parentRefs != _|_ {
+			parentRefs: _config.web.httpRoute.parentRefs
+		}
 		if _config.web.httpRoute.hostnames != _|_ {
 			hostnames: _config.web.httpRoute.hostnames
 		}

@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [External Secrets Operator](h
 ## Version
 
 <!-- versions:start -->
-Latest module version is `2.10.0-0`, packaging the upstream release
+Latest module version is `2.10.0-1`, packaging the upstream release
 [v2.10.0](https://github.com/external-secrets/external-secrets/releases/tag/v2.10.0)
 with the following container images:
 
@@ -23,7 +23,7 @@ timoni mod list oci://ghcr.io/timonish/modules/external-secrets
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 
 ## Install
 

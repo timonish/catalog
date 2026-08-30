@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [cert-manager](https://github
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.21.1-4`, packaging the upstream release
+Latest module version is `1.21.1-5`, packaging the upstream release
 [v1.21.1](https://github.com/cert-manager/cert-manager/releases/tag/v1.21.1)
 with the following container images:
 
@@ -26,7 +26,7 @@ timoni mod list oci://ghcr.io/timonish/modules/cert-manager
 ## Prerequisites
 
 - Kubernetes 1.22+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 
 ## Install
 

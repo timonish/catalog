@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [node-exporter](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.12.1-0`, packaging the upstream release
+Latest module version is `1.12.1-1`, packaging the upstream release
 [v1.12.1](https://github.com/prometheus/node_exporter/releases/tag/v1.12.1)
 with the following container images:
 
@@ -17,7 +17,7 @@ with the following container images:
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 
 ## Install
 

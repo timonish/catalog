@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Dex](https://github.com/dexi
 ## Version
 
 <!-- versions:start -->
-Latest module version is `2.45.1-0`, packaging the upstream release
+Latest module version is `2.45.1-1`, packaging the upstream release
 [v2.45.1](https://github.com/dexidp/dex/releases/tag/v2.45.1)
 with the following container images:
 
@@ -23,7 +23,7 @@ timoni mod list oci://ghcr.io/timonish/modules/dex
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 
 ## Install
 

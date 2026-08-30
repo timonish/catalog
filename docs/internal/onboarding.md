@@ -109,7 +109,7 @@ coverage is the floor and the unified catalog surface is the shape.
    (extra words may sit between the link and the comma), and the
    `## Prerequisites` section must start with the bullets
    `- Kubernetes <major>.<minor>+` and
-   `- [Timoni](https://timoni.sh/install/) 0.31+`, in that order.
+   `- [Timoni](https://timoni.sh/install/) 0.34+`, in that order.
    Place a `## Version` heading with `<!-- versions:start -->` /
    `<!-- versions:end -->` markers after the description — the sync in
    step 8 renders the module version and container images between the

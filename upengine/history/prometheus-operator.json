@@ -3,8 +3,12 @@
   "repo": "prometheus-operator/prometheus-operator",
   "tag": "v0.93.1",
   "commit": "51cc33a31bf3bd83dd22b1ae6efaf26e199194d9",
-  "moduleVersion": "0.93.1-4",
+  "moduleVersion": "0.93.1-5",
   "moduleReleases": [
+    {
+      "version": "0.93.1-5",
+      "releasedAt": "2026-08-30T09:57:16.228Z"
+    },
     {
       "version": "0.93.1-4",
       "releasedAt": "2026-08-13T08:37:43.189Z"
@@ -43,6 +47,6 @@
     }
   },
   "crdsDigest": "sha256:1d38ea4ab904545f3203862c1a793b18fd53ab1e571fdbf47afb4dc9e33a98b8",
-  "generatedDigest": "sha256:a5140270eafed27e2bf9491802b4b8dd625ad83aee96ca9d5a22efc05153f73a",
-  "updatedAt": "2026-08-13T08:37:43.189Z"
+  "generatedDigest": "sha256:79331c7075fbc41a9d9253c008139b068bb6b5be4dac672f5877e115e51f7c20",
+  "updatedAt": "2026-08-30T09:57:16.228Z"
 }

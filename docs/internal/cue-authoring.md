@@ -49,3 +49,12 @@ usually appears far from its cause:
   (`modules/external-secrets/templates/controller/rbac.cue`). Vet with
   debug values passes either way — assert with `timoni build` on values
   that disable a toggle.
+- **Template definitions must not reference `#Config` fields declared
+  under a conditional.** `timoni mod vet` (0.34+) compiles every
+  imported package standalone (`ModuleBuilder.GetImports`) to collect
+  the vendored CRD schemas, so with `_config: #Config` at its defaults
+  a bare `spec.parentRefs: _config.httpRoute.parentRefs`, where
+  `#Config` declares `parentRefs` inside `if enabled {…}`, is a hard
+  "undefined field" error — `build` and `apply` never evaluate the
+  unused definition, so only vet fails. Guard the reference like the
+  optional fields (`if _config.httpRoute.parentRefs != _|_ {…}`).

@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying the [Flux Operator](https://g
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.58.1-0`, packaging the upstream release
+Latest module version is `0.58.1-1`, packaging the upstream release
 [v0.58.1](https://github.com/controlplaneio-fluxcd/flux-operator/releases/tag/v0.58.1)
 with the following container images:
 
@@ -23,7 +23,7 @@ timoni mod list oci://ghcr.io/timonish/modules/flux-operator
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 
 ## Install
 

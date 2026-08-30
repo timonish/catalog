@@ -3,8 +3,12 @@
   "repo": "cert-manager/trust-manager",
   "tag": "v0.24.0",
   "commit": "75590d07c8b52b29cafd7b01bac6a1adbfa591cd",
-  "moduleVersion": "0.24.0-3",
+  "moduleVersion": "0.24.0-4",
   "moduleReleases": [
+    {
+      "version": "0.24.0-4",
+      "releasedAt": "2026-08-30T09:57:21.810Z"
+    },
     {
       "version": "0.24.0-3",
       "releasedAt": "2026-08-13T08:37:48.688Z"
@@ -35,6 +39,6 @@
     }
   },
   "crdsDigest": "sha256:712b2ede1c7cd9c9b86c3eef4d1c894b3b0913b3467cf96981dd35ac166bf334",
-  "generatedDigest": "sha256:6ef99280ad8232b6bf44cd74fef78318e3d809013b44a0891a6f515f613d46ae",
-  "updatedAt": "2026-08-13T08:37:48.688Z"
+  "generatedDigest": "sha256:59834214906abc4c087c53cd0ea1350618a793b6daebb80b80c8bd11724a77e4",
+  "updatedAt": "2026-08-30T09:57:21.810Z"
 }

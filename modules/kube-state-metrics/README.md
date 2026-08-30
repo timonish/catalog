@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [kube-state-metrics](https://
 ## Version
 
 <!-- versions:start -->
-Latest module version is `2.20.0-0`, packaging the upstream release
+Latest module version is `2.20.0-1`, packaging the upstream release
 [v2.20.0](https://github.com/kubernetes/kube-state-metrics/releases/tag/v2.20.0)
 with the following container images:
 
@@ -17,7 +17,7 @@ with the following container images:
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 
 ## Install
 

@@ -34,7 +34,7 @@ jobs:
           # credential makes the loop fully hands-free.
           token: ${{ secrets.BOT_GH_TOKEN || github.token }}
       - name: Setup Timoni
-        uses: stefanprodan/timoni/actions/setup@74ab9cc2fbee3459505706f5fb7c2742ecffbf5d # v0.33.0
+        uses: stefanprodan/timoni/actions/setup@bb0f07cc4f586e91d5076e63e632cab8398fef41 # v0.34.0
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
         with:
