@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying the [Vertical Pod Autoscaler]
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.7.1-3`, packaging the upstream release
+Latest module version is `1.7.1-4`, packaging the upstream release
 [vertical-pod-autoscaler-1.7.1](https://github.com/kubernetes/autoscaler/releases/tag/vertical-pod-autoscaler-1.7.1)
 with the following container images:
 
@@ -25,7 +25,7 @@ timoni mod list oci://ghcr.io/timonish/modules/vertical-pod-autoscaler
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 - [cert-manager](https://github.com/timonish/catalog/tree/main/modules/cert-manager) running in the cluster
 - The resource Metrics API, e.g. from the
   [metrics-server](https://github.com/timonish/catalog/tree/main/modules/metrics-server) module

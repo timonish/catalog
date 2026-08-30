@@ -3,8 +3,12 @@
   "repo": "kubernetes/kube-state-metrics",
   "tag": "v2.20.0",
   "commit": "4ffeda2ef866b0fef372849825a803296483b336",
-  "moduleVersion": "2.20.0-0",
+  "moduleVersion": "2.20.0-1",
   "moduleReleases": [
+    {
+      "version": "2.20.0-1",
+      "releasedAt": "2026-08-30T09:57:02.497Z"
+    },
     {
       "version": "2.20.0-0",
       "releasedAt": "2026-08-19T06:54:59.192Z"
@@ -37,6 +41,6 @@
       "digest": "sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b"
     }
   },
-  "generatedDigest": "sha256:a975045a8fc97dbc10e7a03db22ce34974167cc068976622e29779ec684aeba4",
-  "updatedAt": "2026-08-19T06:54:59.192Z"
+  "generatedDigest": "sha256:64e258180970e3674a020c2a14013faf6bec91c0e2d62f463d3c8143fe3f2611",
+  "updatedAt": "2026-08-30T09:57:02.497Z"
 }

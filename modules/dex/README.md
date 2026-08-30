@@ -23,7 +23,7 @@ timoni mod list oci://ghcr.io/timonish/modules/dex
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 
 ## Install
 

@@ -3,8 +3,12 @@
   "repo": "prometheus/node_exporter",
   "tag": "v1.12.1",
   "commit": "6044da783597cc3b57aef7580ddcdcff58a4ee99",
-  "moduleVersion": "1.12.1-0",
+  "moduleVersion": "1.12.1-1",
   "moduleReleases": [
+    {
+      "version": "1.12.1-1",
+      "releasedAt": "2026-08-30T09:57:10.346Z"
+    },
     {
       "version": "1.12.1-0",
       "releasedAt": "2026-08-14T10:18:12.062Z"
@@ -17,6 +21,6 @@
       "digest": "sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0"
     }
   },
-  "generatedDigest": "sha256:0931b5bfdfdaf706b728b4b3741c886a65715980aa0188205c649c6fdeafd609",
-  "updatedAt": "2026-08-14T10:18:12.062Z"
+  "generatedDigest": "sha256:3dd922d48c060bca5923646168c15a70a88af32004a72fbd9fab888446f263c6",
+  "updatedAt": "2026-08-30T09:57:10.346Z"
 }

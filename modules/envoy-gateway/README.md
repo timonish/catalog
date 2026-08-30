@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.9.1-0`, packaging the upstream release
+Latest module version is `1.9.1-1`, packaging the upstream release
 [v1.9.1](https://github.com/envoyproxy/gateway/releases/tag/v1.9.1)
 with the following container images:
 
@@ -24,7 +24,7 @@ configuration; see [Data plane images](#data-plane-images).
 ## Prerequisites
 
 - Kubernetes 1.29+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 - The [Gateway API](https://gateway-api.sigs.k8s.io) CRDs, e.g. from
   the [gateway-api module](https://github.com/timonish/catalog/tree/main/modules/gateway-api)
 

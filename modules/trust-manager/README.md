@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [trust-manager](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.24.0-3`, packaging the upstream release
+Latest module version is `0.24.0-4`, packaging the upstream release
 [v0.24.0](https://github.com/cert-manager/trust-manager/releases/tag/v0.24.0)
 with the following container images:
 
@@ -24,7 +24,7 @@ timoni mod list oci://ghcr.io/timonish/modules/trust-manager
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.31+
+- [Timoni](https://timoni.sh/install/) 0.34+
 - [cert-manager](https://github.com/timonish/catalog/tree/main/modules/cert-manager) running in the cluster
 
 trust-manager serves a validating webhook whose certificate is issued
