@@ -1852,6 +1852,10 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 										"name",
 									]
 									type: "object"
+									"x-kubernetes-validations": [{
+										message: "ready must be set when readyExpr is set"
+										rule:    "!has(self.readyExpr) || has(self.ready)"
+									}]
 								}
 								type: "array"
 							}
