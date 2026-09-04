@@ -1,10 +1,14 @@
 {
   "name": "gateway-api",
   "repo": "kubernetes-sigs/gateway-api",
-  "tag": "v1.6.1",
-  "commit": "8bb74df00e56ec8f944d48c25e6c1c9c2f6848e3",
-  "moduleVersion": "1.6.1-2",
+  "tag": "v1.6.2",
+  "commit": "ca6c2a65454737236fb7a937bd9b17e42b07e9de",
+  "moduleVersion": "1.6.2-0",
   "moduleReleases": [
+    {
+      "version": "1.6.2-0",
+      "releasedAt": "2026-09-04T11:02:27.725Z"
+    },
     {
       "version": "1.6.1-2",
       "releasedAt": "2026-08-30T09:57:00.338Z"
@@ -20,9 +24,9 @@
   ],
   "images": {},
   "crdsDigests": {
-    "standard": "sha256:24d931f22abd8e40c973264319ead7cfa09d0fb7716b7ab1ee2ff174cb063a73",
-    "experimental": "sha256:d7fa77650e4ef28fca0411536fcb5e237deb4d50301cfded3be49d9a1b7bbd02"
+    "standard": "sha256:faede450fa178126aba41337737b97d351ebe87d93c910237ce1e072d1ca40d9",
+    "experimental": "sha256:fb03263a4a720cc7abe9b36ede6e308b558d2d725a39595d664f34fe37f9c503"
   },
-  "generatedDigest": "sha256:a7d14aa226b6fb338bc3a81de3754bd200c5c326ba3840237fe9f3390e344114",
-  "updatedAt": "2026-08-30T09:57:00.338Z"
+  "generatedDigest": "sha256:614d81fa781678051e279cc1101eab3babe2ffbfd6efc34c76baae43e6bd541e",
+  "updatedAt": "2026-09-04T11:02:27.725Z"
 }

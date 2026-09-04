@@ -8,7 +8,7 @@ crds: standard: customresourcedefinition: "backendtlspolicies.gateway.networking
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		labels: "gateway.networking.k8s.io/policy": "Direct"
@@ -1517,7 +1517,7 @@ crds: standard: customresourcedefinition: "gatewayclasses.gateway.networking.k8s
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "gatewayclasses.gateway.networking.k8s.io"
@@ -2117,7 +2117,7 @@ crds: standard: customresourcedefinition: "gateways.gateway.networking.k8s.io": 
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "gateways.gateway.networking.k8s.io"
@@ -5798,7 +5798,7 @@ crds: standard: customresourcedefinition: "grpcroutes.gateway.networking.k8s.io"
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "grpcroutes.gateway.networking.k8s.io"
@@ -8055,7 +8055,7 @@ crds: standard: customresourcedefinition: "httproutes.gateway.networking.k8s.io"
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "httproutes.gateway.networking.k8s.io"
@@ -9332,7 +9332,7 @@ crds: standard: customresourcedefinition: "httproutes.gateway.networking.k8s.io"
 	Accepted Condition for the Route to `status: False`, with a
 	Reason of `UnsupportedValue`.
 
-	Support: Core
+	Support: statusCode 301 and 302 are Core; all others are Extended.
 	"""
 																			enum: [
 																				301,
@@ -10703,7 +10703,7 @@ crds: standard: customresourcedefinition: "httproutes.gateway.networking.k8s.io"
 	Accepted Condition for the Route to `status: False`, with a
 	Reason of `UnsupportedValue`.
 
-	Support: Core
+	Support: statusCode 301 and 302 are Core; all others are Extended.
 	"""
 																enum: [
 																	301,
@@ -13073,7 +13073,7 @@ crds: standard: customresourcedefinition: "httproutes.gateway.networking.k8s.io"
 	Accepted Condition for the Route to `status: False`, with a
 	Reason of `UnsupportedValue`.
 
-	Support: Core
+	Support: statusCode 301 and 302 are Core; all others are Extended.
 	"""
 																			enum: [
 																				301,
@@ -14444,7 +14444,7 @@ crds: standard: customresourcedefinition: "httproutes.gateway.networking.k8s.io"
 	Accepted Condition for the Route to `status: False`, with a
 	Reason of `UnsupportedValue`.
 
-	Support: Core
+	Support: statusCode 301 and 302 are Core; all others are Extended.
 	"""
 																enum: [
 																	301,
@@ -15561,7 +15561,7 @@ crds: standard: customresourcedefinition: "listenersets.gateway.networking.k8s.i
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "listenersets.gateway.networking.k8s.io"
@@ -16438,7 +16438,7 @@ crds: standard: customresourcedefinition: "referencegrants.gateway.networking.k8
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "referencegrants.gateway.networking.k8s.io"
@@ -16855,7 +16855,7 @@ crds: standard: customresourcedefinition: "tcproutes.gateway.networking.k8s.io":
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "tcproutes.gateway.networking.k8s.io"
@@ -18271,7 +18271,7 @@ crds: standard: customresourcedefinition: "tlsroutes.gateway.networking.k8s.io":
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "tlsroutes.gateway.networking.k8s.io"
@@ -20591,7 +20591,7 @@ crds: standard: customresourcedefinition: "udproutes.gateway.networking.k8s.io":
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "udproutes.gateway.networking.k8s.io"
@@ -22006,7 +22006,7 @@ crds: standard: validatingadmissionpolicy: "safe-upgrades.gateway.networking.k8s
 	kind:       "ValidatingAdmissionPolicy"
 	metadata: {
 		annotations: {
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "safe-upgrades.gateway.networking.k8s.io"
@@ -22038,7 +22038,7 @@ crds: standard: validatingadmissionpolicybinding: "safe-upgrades.gateway.network
 	kind:       "ValidatingAdmissionPolicyBinding"
 	metadata: {
 		annotations: {
-			"gateway.networking.k8s.io/bundle-version": "v1.6.1"
+			"gateway.networking.k8s.io/bundle-version": "v1.6.2"
 			"gateway.networking.k8s.io/channel":        "standard"
 		}
 		name: "safe-upgrades.gateway.networking.k8s.io"
