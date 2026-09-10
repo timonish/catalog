@@ -6,12 +6,12 @@ package main
 values: {
 	image: {
 		repository: *"quay.io/prometheus-operator/prometheus-operator" | string
-		tag:        *"v0.93.1" | string
-		digest:     *"sha256:e52bb28fd41c98dd407c7a8cba8bdcfe7eabd7447e250afaf1fe7bb816dedbff" | string
+		tag:        *"v0.94.0" | string
+		digest:     *"sha256:cf153f64d6c38113fceb2cda7642365ea887f71edd7888f054e43e54cf177e55" | string
 	}
 	configReloader: image: {
 		repository: *"quay.io/prometheus-operator/prometheus-config-reloader" | string
-		tag:        *"v0.93.1" | string
-		digest:     *"sha256:428f088fe6fe07ab138bda92113664b04848a1dc408e4d3680a60ecdb55d1a65" | string
+		tag:        *"v0.94.0" | string
+		digest:     *"sha256:142a1f11df8dd165f00375b0b1826aecb9c9adeb05c39855893138d7c7575ff7" | string
 	}
 }

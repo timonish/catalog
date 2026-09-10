@@ -7,8 +7,8 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "alertmanagerconfigs.monitoring.coreos.com"
 	}
@@ -533,8 +533,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -705,8 +708,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -765,8 +771,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -970,8 +979,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -1030,8 +1042,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -1385,8 +1400,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																		description: "configMap defines the ConfigMap containing data to use for the targets."
 																		properties: {
 																			key: {
-																				description: "The key to select."
-																				type:        "string"
+																				description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																				type: "string"
 																			}
 																			name: {
 																				default: ""
@@ -1445,8 +1463,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																		description: "configMap defines the ConfigMap containing data to use for the targets."
 																		properties: {
 																			key: {
-																				description: "The key to select."
-																				type:        "string"
+																				description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																				type: "string"
 																			}
 																			name: {
 																				default: ""
@@ -1776,8 +1797,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -1948,8 +1972,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -2008,8 +2035,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -2213,8 +2243,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -2273,8 +2306,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -2657,8 +2693,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -2829,8 +2868,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -2889,8 +2931,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -3094,8 +3139,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -3154,8 +3202,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -3628,8 +3679,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -3800,8 +3854,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -3860,8 +3917,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -4065,8 +4125,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -4125,8 +4188,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -4616,8 +4682,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -4788,8 +4857,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -4848,8 +4920,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -5053,8 +5128,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -5113,8 +5191,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -5597,8 +5678,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -5769,8 +5853,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -5829,8 +5916,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -6034,8 +6124,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -6094,8 +6187,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -6686,8 +6782,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -6858,8 +6957,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -6918,8 +7020,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -7123,8 +7228,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -7183,8 +7291,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -7851,8 +7962,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -8023,8 +8137,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -8083,8 +8200,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -8288,8 +8408,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -8348,8 +8471,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -8787,8 +8913,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -8959,8 +9088,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -9019,8 +9151,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -9224,8 +9359,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -9284,8 +9422,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -9465,7 +9606,7 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 															externalId: {
 																description: """
 	externalId defines the external ID used when assuming an AWS role. Can only be used with roleArn.
-	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.33.0. Currently not supported by Thanos.
+	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.34.0. Currently not supported by Thanos.
 	"""
 																minLength: 1
 																type:      "string"
@@ -9825,8 +9966,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -9997,8 +10141,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -10057,8 +10204,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -10262,8 +10412,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -10322,8 +10475,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -10759,8 +10915,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -10931,8 +11090,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -10991,8 +11153,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -11196,8 +11361,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -11256,8 +11424,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -11621,8 +11792,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -11793,8 +11967,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -11853,8 +12030,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -12058,8 +12238,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -12118,8 +12301,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -12455,8 +12641,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -12627,8 +12816,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -12687,8 +12879,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -12892,8 +13087,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -12952,8 +13150,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -13401,8 +13602,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -13573,8 +13777,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -13633,8 +13840,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																						description: "configMap defines the ConfigMap containing data to use for the targets."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -13838,8 +14048,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -13898,8 +14111,11 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -14344,8 +14560,8 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "alertmanagers.monitoring.coreos.com"
 	}
@@ -15889,8 +16105,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																		description: "configMap defines the ConfigMap containing data to use for the targets."
 																		properties: {
 																			key: {
-																				description: "The key to select."
-																				type:        "string"
+																				description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																				type: "string"
 																			}
 																			name: {
 																				default: ""
@@ -16061,8 +16280,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -16121,8 +16343,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																				description: "configMap defines the ConfigMap containing data to use for the targets."
 																				properties: {
 																					key: {
-																						description: "The key to select."
-																						type:        "string"
+																						description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																						type: "string"
 																					}
 																					name: {
 																						default: ""
@@ -16316,8 +16541,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																		description: "configMap defines the ConfigMap containing data to use for the targets."
 																		properties: {
 																			key: {
-																				description: "The key to select."
-																				type:        "string"
+																				description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																				type: "string"
 																			}
 																			name: {
 																				default: ""
@@ -16376,8 +16604,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																		description: "configMap defines the ConfigMap containing data to use for the targets."
 																		properties: {
 																			key: {
-																				description: "The key to select."
-																				type:        "string"
+																				description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																				type: "string"
 																			}
 																			name: {
 																				default: ""
@@ -16838,8 +17069,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																		description: "configMap defines the ConfigMap containing data to use for the targets."
 																		properties: {
 																			key: {
-																				description: "The key to select."
-																				type:        "string"
+																				description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																				type: "string"
 																			}
 																			name: {
 																				default: ""
@@ -16898,8 +17132,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																		description: "configMap defines the ConfigMap containing data to use for the targets."
 																		properties: {
 																			key: {
-																				description: "The key to select."
-																				type:        "string"
+																				description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																				type: "string"
 																			}
 																			name: {
 																				default: ""
@@ -17151,8 +17388,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 													description: "configMap defines the ConfigMap containing data to use for the targets."
 													properties: {
 														key: {
-															description: "The key to select."
-															type:        "string"
+															description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+															type: "string"
 														}
 														name: {
 															default: ""
@@ -17243,6 +17483,23 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	"""
 								type: "string"
 							}
+							clusterPeerName: {
+								description: """
+	clusterPeerName defines the name that this Alertmanager instance uses to
+	advertise itself to other cluster peers (the `--cluster.peer-name` flag,
+	available since Alertmanager v0.30.0).
+
+	If not set, the operator defaults to the pod's name (`$(POD_NAME)`),
+	which is injected via the Kubernetes downward API. Setting this field
+	lets you override that default with either a literal value or a string
+	referencing environment variables that are already available in the
+	Alertmanager container (for example `$(POD_NAME).$(NAMESPACE)`).
+
+	/ It requires Alertmanager >= 0.30.0.
+	"""
+								minLength: 1
+								type:      "string"
+							}
 							clusterPeerTimeout: {
 								description: "clusterPeerTimeout defines the timeout for cluster peering."
 								pattern:     "^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
@@ -17270,8 +17527,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -17330,8 +17590,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -17465,8 +17728,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -17551,8 +17817,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -17817,8 +18086,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																description: "Selects a key of a ConfigMap."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -18144,6 +18416,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -18278,6 +18557,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -18376,6 +18662,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -18447,6 +18742,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -18640,6 +18942,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -18711,6 +19022,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -19272,6 +19590,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -19343,6 +19670,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -19514,12 +19848,22 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 											items: {
 												description: "VolumeMount describes a mounting of a Volume within a container."
 												properties: {
-													mountPath: {
+													bindMountOptions: {
 														description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-														type: "string"
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+													}
+													mountPath: {
+														description: "Path within the container at which the volume should be mounted."
+														type:        "string"
 													}
 													mountPropagation: {
 														description: """
@@ -19892,8 +20236,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																description: "Selects a key of a ConfigMap."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -20219,6 +20566,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -20353,6 +20707,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -20451,6 +20812,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -20522,6 +20892,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -20715,6 +21092,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -20786,6 +21172,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -21347,6 +21740,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -21418,6 +21820,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -21589,12 +21998,22 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 											items: {
 												description: "VolumeMount describes a mounting of a Volume within a container."
 												properties: {
-													mountPath: {
+													bindMountOptions: {
 														description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-														type: "string"
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+													}
+													mountPath: {
+														description: "Path within the container at which the volume should be mounted."
+														type:        "string"
 													}
 													mountPropagation: {
 														description: """
@@ -22104,11 +22523,8 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 	whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 	CSIDriver instance. Other volumes are always re-labelled recursively.
-	"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-	If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-	and "Recursive" for all other volumes.
+	If not specified, "MountOption" is used.
 
 	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -22329,6 +22745,20 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	"""
 												type: "string"
 											}
+											mode: {
+												description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+												format: "int32"
+												type:   "integer"
+											}
 											sizeLimit: {
 												anyOf: [{
 													type: "integer"
@@ -22413,8 +22843,8 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 															properties: {
@@ -22465,7 +22895,6 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 															properties: {
@@ -22729,8 +23158,8 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 														properties: {
@@ -22781,7 +23210,6 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 														properties: {
@@ -23122,6 +23550,73 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	When unset, there is no VolumeAttributeClass applied to this PersistentVolumeClaim
 	"""
 														type: "string"
+													}
+													healthStatus: {
+														description: """
+	healthStatus contains the latest controller-reported health information
+	for the volume bound to this claim.
+	"""
+														properties: {
+															healthConditions: {
+																description: """
+	conditions is the set of adverse conditions reported by
+	the CSI controller plugin. An empty list means no adverse condition.
+	At most 16 conditions may be reported.
+	"""
+																items: {
+																	description: "VolumeHealthCondition represents an adverse health condition reported for a volume."
+																	properties: {
+																		message: {
+																			description: """
+	message is a human-readable description.
+	Maximum permitted length of a message is 1024 bytes.
+	"""
+																			type: "string"
+																		}
+																		reason: {
+																			description: """
+	reason is a brief CamelCase machine-parseable reason.
+	Together with status it forms the unique identity of a condition entry.
+	Maximum permitted length of a reason is 256 bytes.
+	"""
+																			type: "string"
+																		}
+																		status: {
+																			description: """
+	status is the machine-parseable health category.
+	Possible values:
+	- "Inaccessible": the volume cannot be accessed.
+	- "DataLoss": data loss has been detected on the volume.
+	- "Degraded": the volume is functioning with reduced capability.
+	"""
+																			enum: [
+																				"DataLoss",
+																				"Degraded",
+																				"Inaccessible",
+																			]
+																			type: "string"
+																		}
+																	}
+																	required: [
+																		"reason",
+																		"status",
+																	]
+																	type: "object"
+																}
+																type: "array"
+																"x-kubernetes-list-map-keys": [
+																	"status",
+																	"reason",
+																]
+																"x-kubernetes-list-type": "map"
+															}
+															lastTransitionTime: {
+																description: "lastTransitionTime is when the current set of conditions first appeared."
+																format:      "date-time"
+																type:        "string"
+															}
+														}
+														type: "object"
 													}
 													modifyVolumeStatus: {
 														description: """
@@ -23504,12 +23999,22 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 								items: {
 									description: "VolumeMount describes a mounting of a Volume within a container."
 									properties: {
-										mountPath: {
+										bindMountOptions: {
 											description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-											type: "string"
+											items: type: "string"
+											type:                     "array"
+											"x-kubernetes-list-type": "set"
+										}
+										mountPath: {
+											description: "Path within the container at which the volume should be mounted."
+											type:        "string"
 										}
 										mountPropagation: {
 											description: """
@@ -23845,6 +24350,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -23882,6 +24396,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -23988,6 +24511,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: "Items is a list of downward API volume file"
 													items: {
@@ -24054,6 +24586,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
+															}
 														}
 														required: ["path"]
 														type: "object"
@@ -24078,6 +24619,20 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 													type: "string"
+												}
+												mode: {
+													description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+													format: "int32"
+													type:   "integer"
 												}
 												sizeLimit: {
 													anyOf: [{
@@ -24183,8 +24738,8 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 																properties: {
@@ -24235,7 +24790,6 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 																properties: {
@@ -24943,6 +25497,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												sources: {
 													description: """
 	sources is the list of volume projections. Each entry in this list
@@ -25061,6 +25624,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	"""
 																		type: "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																}
 																required: ["path"]
 																type: "object"
@@ -25105,6 +25677,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																					type: "string"
+																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
 																				}
 																			}
 																			required: [
@@ -25202,6 +25783,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																				required: ["resource"]
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
+																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
 																			}
 																		}
 																		required: ["path"]
@@ -25324,6 +25914,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																		description: "Kubelet's generated CSRs will be addressed to this signer."
 																		type:        "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																	userAnnotations: {
 																		additionalProperties: type: "string"
 																		description: """
@@ -25391,6 +25990,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	"""
 																					type: "string"
 																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																			}
 																			required: [
 																				"key",
@@ -25450,6 +26058,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	token into.
 	"""
 																		type: "string"
+																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
 																	}
 																}
 																required: ["path"]
@@ -25715,6 +26332,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -25752,6 +26378,15 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -25983,8 +26618,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -26069,8 +26707,11 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -26347,8 +26988,8 @@ customresourcedefinition: "podmonitors.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "podmonitors.monitoring.coreos.com"
 	}
@@ -26901,8 +27542,11 @@ customresourcedefinition: "podmonitors.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -27073,8 +27717,11 @@ customresourcedefinition: "podmonitors.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -27133,8 +27780,11 @@ customresourcedefinition: "podmonitors.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -27528,8 +28178,11 @@ customresourcedefinition: "podmonitors.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -27588,8 +28241,11 @@ customresourcedefinition: "podmonitors.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -28003,8 +28659,8 @@ customresourcedefinition: "probes.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "probes.monitoring.coreos.com"
 	}
@@ -28449,8 +29105,11 @@ customresourcedefinition: "probes.monitoring.coreos.com": {
 												description: "configMap defines the ConfigMap containing data to use for the targets."
 												properties: {
 													key: {
-														description: "The key to select."
-														type:        "string"
+														description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+														type: "string"
 													}
 													name: {
 														default: ""
@@ -28621,8 +29280,11 @@ customresourcedefinition: "probes.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -28681,8 +29343,11 @@ customresourcedefinition: "probes.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -29363,8 +30028,11 @@ customresourcedefinition: "probes.monitoring.coreos.com": {
 												description: "configMap defines the ConfigMap containing data to use for the targets."
 												properties: {
 													key: {
-														description: "The key to select."
-														type:        "string"
+														description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+														type: "string"
 													}
 													name: {
 														default: ""
@@ -29423,8 +30091,11 @@ customresourcedefinition: "probes.monitoring.coreos.com": {
 												description: "configMap defines the ConfigMap containing data to use for the targets."
 												properties: {
 													key: {
-														description: "The key to select."
-														type:        "string"
+														description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+														type: "string"
 													}
 													name: {
 														default: ""
@@ -29673,8 +30344,8 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "prometheusagents.monitoring.coreos.com"
 	}
@@ -31136,8 +31807,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -31200,8 +31874,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -31472,8 +32149,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 																description: "Selects a key of a ConfigMap."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -31799,6 +32479,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -31933,6 +32620,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -32031,6 +32725,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -32102,6 +32805,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -32295,6 +33005,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -32366,6 +33085,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -32927,6 +33653,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -32998,6 +33733,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -33169,12 +33911,22 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 											items: {
 												description: "VolumeMount describes a mounting of a Volume within a container."
 												properties: {
-													mountPath: {
+													bindMountOptions: {
 														description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-														type: "string"
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+													}
+													mountPath: {
+														description: "Path within the container at which the volume should be mounted."
+														type:        "string"
 													}
 													mountPropagation: {
 														description: """
@@ -33807,8 +34559,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 																description: "Selects a key of a ConfigMap."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -34134,6 +34889,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -34268,6 +35030,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -34366,6 +35135,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -34437,6 +35215,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -34630,6 +35415,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -34701,6 +35495,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -35262,6 +36063,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -35333,6 +36143,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -35504,12 +36321,22 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 											items: {
 												description: "VolumeMount describes a mounting of a Volume within a container."
 												properties: {
-													mountPath: {
+													bindMountOptions: {
 														description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-														type: "string"
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+													}
+													mountPath: {
+														description: "Path within the container at which the volume should be mounted."
+														type:        "string"
 													}
 													mountPropagation: {
 														description: """
@@ -36666,8 +37493,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -36838,8 +37668,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -36898,8 +37731,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -37229,7 +38065,7 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 												externalId: {
 													description: """
 	externalId defines the external ID used when assuming an AWS role. Can only be used with roleArn.
-	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.33.0. Currently not supported by Thanos.
+	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.34.0. Currently not supported by Thanos.
 	"""
 													minLength: 1
 													type:      "string"
@@ -37300,8 +38136,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -37364,8 +38203,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -38123,8 +38965,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -38187,8 +39032,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -38662,11 +39510,8 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 	whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 	CSIDriver instance. Other volumes are always re-labelled recursively.
-	"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-	If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-	and "Recursive" for all other volumes.
+	If not specified, "MountOption" is used.
 
 	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -39114,6 +39959,20 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	"""
 												type: "string"
 											}
+											mode: {
+												description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+												format: "int32"
+												type:   "integer"
+											}
 											sizeLimit: {
 												anyOf: [{
 													type: "integer"
@@ -39198,8 +40057,8 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 															properties: {
@@ -39250,7 +40109,6 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 															properties: {
@@ -39514,8 +40372,8 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 														properties: {
@@ -39566,7 +40424,6 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 														properties: {
@@ -39907,6 +40764,73 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	When unset, there is no VolumeAttributeClass applied to this PersistentVolumeClaim
 	"""
 														type: "string"
+													}
+													healthStatus: {
+														description: """
+	healthStatus contains the latest controller-reported health information
+	for the volume bound to this claim.
+	"""
+														properties: {
+															healthConditions: {
+																description: """
+	conditions is the set of adverse conditions reported by
+	the CSI controller plugin. An empty list means no adverse condition.
+	At most 16 conditions may be reported.
+	"""
+																items: {
+																	description: "VolumeHealthCondition represents an adverse health condition reported for a volume."
+																	properties: {
+																		message: {
+																			description: """
+	message is a human-readable description.
+	Maximum permitted length of a message is 1024 bytes.
+	"""
+																			type: "string"
+																		}
+																		reason: {
+																			description: """
+	reason is a brief CamelCase machine-parseable reason.
+	Together with status it forms the unique identity of a condition entry.
+	Maximum permitted length of a reason is 256 bytes.
+	"""
+																			type: "string"
+																		}
+																		status: {
+																			description: """
+	status is the machine-parseable health category.
+	Possible values:
+	- "Inaccessible": the volume cannot be accessed.
+	- "DataLoss": data loss has been detected on the volume.
+	- "Degraded": the volume is functioning with reduced capability.
+	"""
+																			enum: [
+																				"DataLoss",
+																				"Degraded",
+																				"Inaccessible",
+																			]
+																			type: "string"
+																		}
+																	}
+																	required: [
+																		"reason",
+																		"status",
+																	]
+																	type: "object"
+																}
+																type: "array"
+																"x-kubernetes-list-map-keys": [
+																	"status",
+																	"reason",
+																]
+																"x-kubernetes-list-type": "map"
+															}
+															lastTransitionTime: {
+																description: "lastTransitionTime is when the current set of conditions first appeared."
+																format:      "date-time"
+																type:        "string"
+															}
+														}
+														type: "object"
 													}
 													modifyVolumeStatus: {
 														description: """
@@ -40301,8 +41225,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -40365,8 +41292,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -40646,12 +41576,22 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 								items: {
 									description: "VolumeMount describes a mounting of a Volume within a container."
 									properties: {
-										mountPath: {
+										bindMountOptions: {
 											description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-											type: "string"
+											items: type: "string"
+											type:                     "array"
+											"x-kubernetes-list-type": "set"
+										}
+										mountPath: {
+											description: "Path within the container at which the volume should be mounted."
+											type:        "string"
 										}
 										mountPropagation: {
 											description: """
@@ -40987,6 +41927,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -41024,6 +41973,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -41130,6 +42088,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: "Items is a list of downward API volume file"
 													items: {
@@ -41196,6 +42163,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
+															}
 														}
 														required: ["path"]
 														type: "object"
@@ -41220,6 +42196,20 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 													type: "string"
+												}
+												mode: {
+													description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+													format: "int32"
+													type:   "integer"
 												}
 												sizeLimit: {
 													anyOf: [{
@@ -41325,8 +42315,8 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 																properties: {
@@ -41377,7 +42367,6 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 																properties: {
@@ -42085,6 +43074,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												sources: {
 													description: """
 	sources is the list of volume projections. Each entry in this list
@@ -42203,6 +43201,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	"""
 																		type: "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																}
 																required: ["path"]
 																type: "object"
@@ -42247,6 +43254,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																					type: "string"
+																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
 																				}
 																			}
 																			required: [
@@ -42344,6 +43360,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 																				required: ["resource"]
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
+																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
 																			}
 																		}
 																		required: ["path"]
@@ -42466,6 +43491,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 																		description: "Kubelet's generated CSRs will be addressed to this signer."
 																		type:        "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																	userAnnotations: {
 																		additionalProperties: type: "string"
 																		description: """
@@ -42533,6 +43567,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	"""
 																					type: "string"
 																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																			}
 																			required: [
 																				"key",
@@ -42592,6 +43635,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	token into.
 	"""
 																		type: "string"
+																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
 																	}
 																}
 																required: ["path"]
@@ -42857,6 +43909,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -42894,6 +43955,15 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -43130,8 +44200,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -43216,8 +44289,11 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -43587,8 +44663,8 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "prometheuses.monitoring.coreos.com"
 	}
@@ -45420,7 +46496,7 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 													externalId: {
 														description: """
 	externalId defines the external ID used when assuming an AWS role. Can only be used with roleArn.
-	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.33.0. Currently not supported by Thanos.
+	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.34.0. Currently not supported by Thanos.
 	"""
 														minLength: 1
 														type:      "string"
@@ -45496,8 +46572,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																description: "configMap defines the ConfigMap containing data to use for the targets."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -45560,8 +46639,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																description: "configMap defines the ConfigMap containing data to use for the targets."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -45938,8 +47020,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -46002,8 +47087,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -46278,8 +47366,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																description: "Selects a key of a ConfigMap."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -46605,6 +47696,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -46739,6 +47837,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -46837,6 +47942,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -46908,6 +48022,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -47101,6 +48222,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -47172,6 +48302,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -47733,6 +48870,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -47804,6 +48950,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -47975,12 +49128,22 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 											items: {
 												description: "VolumeMount describes a mounting of a Volume within a container."
 												properties: {
-													mountPath: {
+													bindMountOptions: {
 														description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-														type: "string"
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+													}
+													mountPath: {
+														description: "Path within the container at which the volume should be mounted."
+														type:        "string"
 													}
 													mountPropagation: {
 														description: """
@@ -48082,9 +49245,9 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 
 	When `spec.thanos.objectStorageConfig` or `spec.thanos.objectStorageConfigFile` are defined, the operator's
 	default handling depends on the Prometheus and Thanos sidecar versions:
-	  - With Prometheus < v3.9.0 or a Thanos sidecar < v0.41.0, block compaction is disabled to avoid race
+	  - With Prometheus < v3.9.0 or a Thanos sidecar < v0.42.0, block compaction is disabled to avoid race
 	    conditions during block uploads (as the Thanos documentation recommends).
-	  - With Prometheus >= v3.9.0 and a Thanos sidecar >= v0.41.0, local compaction is kept enabled and coordinated
+	  - With Prometheus >= v3.9.0 and a Thanos sidecar >= v0.42.0, local compaction is kept enabled and coordinated
 	    with the sidecar through the shipper meta file (`--storage.tsdb.delay-compact-file.path`), so blocks are only
 	    compacted after they have been uploaded.
 	Setting this field to true always disables local compaction regardless of the versions.
@@ -48671,8 +49834,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																description: "Selects a key of a ConfigMap."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -48998,6 +50164,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -49132,6 +50305,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -49230,6 +50410,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -49301,6 +50490,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -49494,6 +50690,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -49565,6 +50770,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -50126,6 +51338,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -50197,6 +51418,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -50368,12 +51596,22 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 											items: {
 												description: "VolumeMount describes a mounting of a Volume within a container."
 												properties: {
-													mountPath: {
+													bindMountOptions: {
 														description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-														type: "string"
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+													}
+													mountPath: {
+														description: "Path within the container at which the volume should be mounted."
+														type:        "string"
 													}
 													mountPropagation: {
 														description: """
@@ -51405,8 +52643,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -51577,8 +52818,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -51637,8 +52881,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -51852,8 +53099,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -51916,8 +53166,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -52459,8 +53712,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -52631,8 +53887,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -52691,8 +53950,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -53022,7 +54284,7 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 												externalId: {
 													description: """
 	externalId defines the external ID used when assuming an AWS role. Can only be used with roleArn.
-	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.33.0. Currently not supported by Thanos.
+	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.34.0. Currently not supported by Thanos.
 	"""
 													minLength: 1
 													type:      "string"
@@ -53093,8 +54355,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -53157,8 +54422,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -53524,10 +54792,29 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 								description: """
 	retention defines how long to retain the Prometheus data.
 
-	Default: "24h" if `spec.retention` and `spec.retentionSize` are empty.
+	Default: "24h" if `spec.retention`, `spec.retentionSize` and
+	`spec.retentionPercentage` are empty.
 	"""
 								pattern: "^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
 								type:    "string"
+							}
+							retentionPercentage: {
+								anyOf: [{
+									type: "integer"
+								}, {
+									type: "string"
+								}]
+								description: """
+	retentionPercentage defines the maximum percentage of the data volume's
+	capacity used by the Prometheus data.
+
+	The value is a number between 0 and 100. If set to 0, percentage-based
+	retention is disabled.
+
+	It requires Prometheus >= v3.11.0 and is ignored by older versions.
+	"""
+								pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+								"x-kubernetes-int-or-string": true
 							}
 							retentionSize: {
 								description: "retentionSize defines the maximum number of bytes used by the Prometheus data."
@@ -54095,8 +55382,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -54159,8 +55449,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -54634,11 +55927,8 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 	whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 	CSIDriver instance. Other volumes are always re-labelled recursively.
-	"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-	If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-	and "Recursive" for all other volumes.
+	If not specified, "MountOption" is used.
 
 	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -55134,6 +56424,20 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	"""
 												type: "string"
 											}
+											mode: {
+												description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+												format: "int32"
+												type:   "integer"
+											}
 											sizeLimit: {
 												anyOf: [{
 													type: "integer"
@@ -55218,8 +56522,8 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 															properties: {
@@ -55270,7 +56574,6 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 															properties: {
@@ -55534,8 +56837,8 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 														properties: {
@@ -55586,7 +56889,6 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 														properties: {
@@ -55928,6 +57230,73 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	"""
 														type: "string"
 													}
+													healthStatus: {
+														description: """
+	healthStatus contains the latest controller-reported health information
+	for the volume bound to this claim.
+	"""
+														properties: {
+															healthConditions: {
+																description: """
+	conditions is the set of adverse conditions reported by
+	the CSI controller plugin. An empty list means no adverse condition.
+	At most 16 conditions may be reported.
+	"""
+																items: {
+																	description: "VolumeHealthCondition represents an adverse health condition reported for a volume."
+																	properties: {
+																		message: {
+																			description: """
+	message is a human-readable description.
+	Maximum permitted length of a message is 1024 bytes.
+	"""
+																			type: "string"
+																		}
+																		reason: {
+																			description: """
+	reason is a brief CamelCase machine-parseable reason.
+	Together with status it forms the unique identity of a condition entry.
+	Maximum permitted length of a reason is 256 bytes.
+	"""
+																			type: "string"
+																		}
+																		status: {
+																			description: """
+	status is the machine-parseable health category.
+	Possible values:
+	- "Inaccessible": the volume cannot be accessed.
+	- "DataLoss": data loss has been detected on the volume.
+	- "Degraded": the volume is functioning with reduced capability.
+	"""
+																			enum: [
+																				"DataLoss",
+																				"Degraded",
+																				"Inaccessible",
+																			]
+																			type: "string"
+																		}
+																	}
+																	required: [
+																		"reason",
+																		"status",
+																	]
+																	type: "object"
+																}
+																type: "array"
+																"x-kubernetes-list-map-keys": [
+																	"status",
+																	"reason",
+																]
+																"x-kubernetes-list-type": "map"
+															}
+															lastTransitionTime: {
+																description: "lastTransitionTime is when the current set of conditions first appeared."
+																format:      "date-time"
+																type:        "string"
+															}
+														}
+														type: "object"
+													}
 													modifyVolumeStatus: {
 														description: """
 	ModifyVolumeStatus represents the status object of ControllerModifyVolume operation.
@@ -56080,8 +57449,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -56144,8 +57516,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -56567,12 +57942,22 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 										items: {
 											description: "VolumeMount describes a mounting of a Volume within a container."
 											properties: {
-												mountPath: {
+												bindMountOptions: {
 													description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-													type: "string"
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "set"
+												}
+												mountPath: {
+													description: "Path within the container at which the volume should be mounted."
+													type:        "string"
 												}
 												mountPropagation: {
 													description: """
@@ -56972,8 +58357,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -57036,8 +58424,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -57317,12 +58708,22 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 								items: {
 									description: "VolumeMount describes a mounting of a Volume within a container."
 									properties: {
-										mountPath: {
+										bindMountOptions: {
 											description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-											type: "string"
+											items: type: "string"
+											type:                     "array"
+											"x-kubernetes-list-type": "set"
+										}
+										mountPath: {
+											description: "Path within the container at which the volume should be mounted."
+											type:        "string"
 										}
 										mountPropagation: {
 											description: """
@@ -57658,6 +59059,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -57695,6 +59105,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -57801,6 +59220,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: "Items is a list of downward API volume file"
 													items: {
@@ -57867,6 +59295,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
+															}
 														}
 														required: ["path"]
 														type: "object"
@@ -57891,6 +59328,20 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 													type: "string"
+												}
+												mode: {
+													description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+													format: "int32"
+													type:   "integer"
 												}
 												sizeLimit: {
 													anyOf: [{
@@ -57996,8 +59447,8 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 																properties: {
@@ -58048,7 +59499,6 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 																properties: {
@@ -58756,6 +60206,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												sources: {
 													description: """
 	sources is the list of volume projections. Each entry in this list
@@ -58874,6 +60333,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	"""
 																		type: "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																}
 																required: ["path"]
 																type: "object"
@@ -58918,6 +60386,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																					type: "string"
+																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
 																				}
 																			}
 																			required: [
@@ -59015,6 +60492,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																				required: ["resource"]
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
+																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
 																			}
 																		}
 																		required: ["path"]
@@ -59137,6 +60623,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																		description: "Kubelet's generated CSRs will be addressed to this signer."
 																		type:        "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																	userAnnotations: {
 																		additionalProperties: type: "string"
 																		description: """
@@ -59204,6 +60699,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	"""
 																					type: "string"
 																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																			}
 																			required: [
 																				"key",
@@ -59263,6 +60767,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	token into.
 	"""
 																		type: "string"
+																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
 																	}
 																}
 																required: ["path"]
@@ -59528,6 +61041,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -59565,6 +61087,15 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -59801,8 +61332,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -59887,8 +61421,11 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -60222,8 +61759,8 @@ customresourcedefinition: "prometheusrules.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "prometheusrules.monitoring.coreos.com"
 	}
@@ -60521,8 +62058,8 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "scrapeconfigs.monitoring.coreos.com"
 	}
@@ -60818,8 +62355,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -60990,8 +62530,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -61050,8 +62593,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -61281,8 +62827,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -61341,8 +62890,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -61749,8 +63301,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -61921,8 +63476,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -61981,8 +63539,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -62205,7 +63766,10 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 										}
 										services: {
 											description: "services defines a list of services for which targets are retrieved. If omitted, all services are scraped."
-											items: type: "string"
+											items: {
+												minLength: 1
+												type:      "string"
+											}
 											type:                     "array"
 											"x-kubernetes-list-type": "set"
 										}
@@ -62222,7 +63786,10 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 	tags defines an optional list of tags used to filter nodes for a given service. Services must contain all tags in the list.
 	Starting with Consul 1.14, it is recommended to use `filter` with the `ServiceTags` selector instead.
 	"""
-											items: type: "string"
+											items: {
+												minLength: 1
+												type:      "string"
+											}
 											type:                     "array"
 											"x-kubernetes-list-type": "set"
 										}
@@ -62236,8 +63803,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -62296,8 +63866,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -62541,8 +64114,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -62713,8 +64289,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -62773,8 +64352,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -62983,8 +64565,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -63043,8 +64628,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -63389,7 +64977,6 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 										}
 										host: {
 											description: "host defines the address of the docker daemon."
-											minLength:   1
 											pattern:     "^[a-zA-Z][a-zA-Z0-9+.-]*://.+$"
 											type:        "string"
 										}
@@ -63429,8 +65016,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -63601,8 +65191,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -63661,8 +65254,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -63871,8 +65467,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -63931,8 +65530,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -64253,8 +65855,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -64425,8 +66030,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -64485,8 +66093,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -64707,8 +66318,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -64767,8 +66381,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -65117,8 +66734,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -65177,8 +66797,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -65467,8 +67090,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -65639,8 +67265,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -65699,8 +67328,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -65907,8 +67539,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -65967,8 +67602,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -66375,8 +68013,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -66547,8 +68188,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -66607,8 +68251,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -66810,9 +68457,7 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 										role: {
 											description: "role defines the Hetzner role of entities that should be discovered."
 											enum: [
-												"hcloud",
 												"Hcloud",
-												"robot",
 												"Robot",
 											]
 											type: "string"
@@ -66827,8 +68472,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -66887,8 +68535,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -67184,8 +68835,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -67356,8 +69010,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -67416,8 +69073,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -67619,8 +69279,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -67679,8 +69342,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -67899,8 +69565,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -68071,8 +69740,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -68131,8 +69803,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -68341,8 +70016,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -68401,8 +70079,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -68718,7 +70399,10 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 	names defines a list of namespaces where to watch for resources.
 	If empty and `ownNamespace` isn't true, Prometheus watches for resources in all namespaces.
 	"""
-													items: type: "string"
+													items: {
+														minLength: 1
+														type:      "string"
+													}
 													type:                     "array"
 													"x-kubernetes-list-type": "set"
 												}
@@ -68755,8 +70439,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -68927,8 +70614,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -68987,8 +70677,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -69244,8 +70937,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -69304,8 +71000,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -69593,8 +71292,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -69765,8 +71467,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -69825,8 +71530,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -70033,8 +71741,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -70093,8 +71804,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -70434,8 +72148,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -70606,8 +72323,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -70666,8 +72386,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -70913,8 +72636,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -70973,8 +72699,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -71185,8 +72914,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -71357,8 +73089,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -71417,8 +73152,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -71637,8 +73375,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -71697,8 +73438,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -72158,8 +73902,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -72330,8 +74077,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -72390,8 +74140,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -72617,8 +74370,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -72677,8 +74433,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -72815,8 +74574,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 												description: "configMap defines the ConfigMap containing data to use for the targets."
 												properties: {
 													key: {
-														description: "The key to select."
-														type:        "string"
+														description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+														type: "string"
 													}
 													name: {
 														default: ""
@@ -72987,8 +74749,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -73047,8 +74812,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -73243,11 +75011,8 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 											description: "availability defines the availability of the endpoint to connect to."
 											enum: [
 												"Public",
-												"public",
 												"Admin",
-												"admin",
 												"Internal",
-												"internal",
 											]
 											type: "string"
 										}
@@ -73363,8 +75128,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -73423,8 +75191,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -73907,8 +75678,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -74079,8 +75853,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -74139,8 +75916,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -74357,8 +76137,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -74417,8 +76200,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -74839,8 +76625,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -74899,8 +76688,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -75157,8 +76949,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 												description: "configMap defines the ConfigMap containing data to use for the targets."
 												properties: {
 													key: {
-														description: "The key to select."
-														type:        "string"
+														description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+														type: "string"
 													}
 													name: {
 														default: ""
@@ -75217,8 +77012,11 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 												description: "configMap defines the ConfigMap containing data to use for the targets."
 												properties: {
 													key: {
-														description: "The key to select."
-														type:        "string"
+														description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+														type: "string"
 													}
 													name: {
 														default: ""
@@ -75480,8 +77278,8 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "servicemonitors.monitoring.coreos.com"
 	}
@@ -75933,8 +77731,11 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -76105,8 +77906,11 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -76165,8 +77969,11 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -76534,8 +78341,11 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -76598,8 +78408,11 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -77162,8 +78975,8 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.21.0"
-			"operator.prometheus.io/version":        "0.93.1"
+			"controller-gen.kubebuilder.io/version": "v0.22.0"
+			"operator.prometheus.io/version":        "0.94.0"
 		}
 		name: "thanosrulers.monitoring.coreos.com"
 	}
@@ -78558,8 +80371,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 																description: "Selects a key of a ConfigMap."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -78885,6 +80701,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -79019,6 +80842,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -79117,6 +80947,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -79188,6 +81027,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -79381,6 +81227,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -79452,6 +81307,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -80013,6 +81875,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -80084,6 +81955,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -80255,12 +82133,22 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 											items: {
 												description: "VolumeMount describes a mounting of a Volume within a container."
 												properties: {
-													mountPath: {
+													bindMountOptions: {
 														description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-														type: "string"
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+													}
+													mountPath: {
+														description: "Path within the container at which the volume should be mounted."
+														type:        "string"
 													}
 													mountPropagation: {
 														description: """
@@ -80521,8 +82409,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 												description: "configMap defines the ConfigMap containing data to use for the targets."
 												properties: {
 													key: {
-														description: "The key to select."
-														type:        "string"
+														description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+														type: "string"
 													}
 													name: {
 														default: ""
@@ -80585,8 +82476,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 												description: "configMap defines the ConfigMap containing data to use for the targets."
 												properties: {
 													key: {
-														description: "The key to select."
-														type:        "string"
+														description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+														type: "string"
 													}
 													name: {
 														default: ""
@@ -80906,8 +82800,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 																description: "Selects a key of a ConfigMap."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -81233,6 +83130,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -81367,6 +83271,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -81465,6 +83376,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -81536,6 +83456,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -81729,6 +83656,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -81800,6 +83736,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -82361,6 +84304,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -82432,6 +84384,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -82603,12 +84562,22 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 											items: {
 												description: "VolumeMount describes a mounting of a Volume within a container."
 												properties: {
-													mountPath: {
+													bindMountOptions: {
 														description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-														type: "string"
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+													}
+													mountPath: {
+														description: "Path within the container at which the volume should be mounted."
+														type:        "string"
 													}
 													mountPropagation: {
 														description: """
@@ -83362,8 +85331,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -83534,8 +85506,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -83594,8 +85569,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 																	description: "configMap defines the ConfigMap containing data to use for the targets."
 																	properties: {
 																		key: {
-																			description: "The key to select."
-																			type:        "string"
+																			description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																			type: "string"
 																		}
 																		name: {
 																			default: ""
@@ -83925,7 +85903,7 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 												externalId: {
 													description: """
 	externalId defines the external ID used when assuming an AWS role. Can only be used with roleArn.
-	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.33.0. Currently not supported by Thanos.
+	It requires Prometheus >= v3.11.0 or Alertmanager >= v0.34.0. Currently not supported by Thanos.
 	"""
 													minLength: 1
 													type:      "string"
@@ -83996,8 +85974,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -84060,8 +86041,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 															description: "configMap defines the ConfigMap containing data to use for the targets."
 															properties: {
 																key: {
-																	description: "The key to select."
-																	type:        "string"
+																	description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																	type: "string"
 																}
 																name: {
 																	default: ""
@@ -84685,11 +86669,8 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 	whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 	CSIDriver instance. Other volumes are always re-labelled recursively.
-	"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-	If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-	and "Recursive" for all other volumes.
+	If not specified, "MountOption" is used.
 
 	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -84898,6 +86879,20 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	"""
 												type: "string"
 											}
+											mode: {
+												description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+												format: "int32"
+												type:   "integer"
+											}
 											sizeLimit: {
 												anyOf: [{
 													type: "integer"
@@ -84982,8 +86977,8 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 															properties: {
@@ -85034,7 +87029,6 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 															properties: {
@@ -85298,8 +87292,8 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 														properties: {
@@ -85350,7 +87344,6 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 														properties: {
@@ -85691,6 +87684,73 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	When unset, there is no VolumeAttributeClass applied to this PersistentVolumeClaim
 	"""
 														type: "string"
+													}
+													healthStatus: {
+														description: """
+	healthStatus contains the latest controller-reported health information
+	for the volume bound to this claim.
+	"""
+														properties: {
+															healthConditions: {
+																description: """
+	conditions is the set of adverse conditions reported by
+	the CSI controller plugin. An empty list means no adverse condition.
+	At most 16 conditions may be reported.
+	"""
+																items: {
+																	description: "VolumeHealthCondition represents an adverse health condition reported for a volume."
+																	properties: {
+																		message: {
+																			description: """
+	message is a human-readable description.
+	Maximum permitted length of a message is 1024 bytes.
+	"""
+																			type: "string"
+																		}
+																		reason: {
+																			description: """
+	reason is a brief CamelCase machine-parseable reason.
+	Together with status it forms the unique identity of a condition entry.
+	Maximum permitted length of a reason is 256 bytes.
+	"""
+																			type: "string"
+																		}
+																		status: {
+																			description: """
+	status is the machine-parseable health category.
+	Possible values:
+	- "Inaccessible": the volume cannot be accessed.
+	- "DataLoss": data loss has been detected on the volume.
+	- "Degraded": the volume is functioning with reduced capability.
+	"""
+																			enum: [
+																				"DataLoss",
+																				"Degraded",
+																				"Inaccessible",
+																			]
+																			type: "string"
+																		}
+																	}
+																	required: [
+																		"reason",
+																		"status",
+																	]
+																	type: "object"
+																}
+																type: "array"
+																"x-kubernetes-list-map-keys": [
+																	"status",
+																	"reason",
+																]
+																"x-kubernetes-list-type": "map"
+															}
+															lastTransitionTime: {
+																description: "lastTransitionTime is when the current set of conditions first appeared."
+																format:      "date-time"
+																type:        "string"
+															}
+														}
+														type: "object"
 													}
 													modifyVolumeStatus: {
 														description: """
@@ -86118,12 +88178,22 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 								items: {
 									description: "VolumeMount describes a mounting of a Volume within a container."
 									properties: {
-										mountPath: {
+										bindMountOptions: {
 											description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-											type: "string"
+											items: type: "string"
+											type:                     "array"
+											"x-kubernetes-list-type": "set"
+										}
+										mountPath: {
+											description: "Path within the container at which the volume should be mounted."
+											type:        "string"
 										}
 										mountPropagation: {
 											description: """
@@ -86458,6 +88528,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -86495,6 +88574,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -86601,6 +88689,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: "Items is a list of downward API volume file"
 													items: {
@@ -86667,6 +88764,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
+															}
 														}
 														required: ["path"]
 														type: "object"
@@ -86691,6 +88797,20 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 													type: "string"
+												}
+												mode: {
+													description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+													format: "int32"
+													type:   "integer"
 												}
 												sizeLimit: {
 													anyOf: [{
@@ -86796,8 +88916,8 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 																properties: {
@@ -86848,7 +88968,6 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 																properties: {
@@ -87556,6 +89675,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												sources: {
 													description: """
 	sources is the list of volume projections. Each entry in this list
@@ -87674,6 +89802,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	"""
 																		type: "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																}
 																required: ["path"]
 																type: "object"
@@ -87718,6 +89855,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																					type: "string"
+																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
 																				}
 																			}
 																			required: [
@@ -87815,6 +89961,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 																				required: ["resource"]
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
+																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
 																			}
 																		}
 																		required: ["path"]
@@ -87937,6 +90092,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 																		description: "Kubelet's generated CSRs will be addressed to this signer."
 																		type:        "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																	userAnnotations: {
 																		additionalProperties: type: "string"
 																		description: """
@@ -88004,6 +90168,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	"""
 																					type: "string"
 																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																			}
 																			required: [
 																				"key",
@@ -88063,6 +90236,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	token into.
 	"""
 																		type: "string"
+																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
 																	}
 																}
 																required: ["path"]
@@ -88328,6 +90510,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -88365,6 +90556,15 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -88578,8 +90778,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
@@ -88664,8 +90867,11 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 														description: "configMap defines the ConfigMap containing data to use for the targets."
 														properties: {
 															key: {
-																description: "The key to select."
-																type:        "string"
+																description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																type: "string"
 															}
 															name: {
 																default: ""
