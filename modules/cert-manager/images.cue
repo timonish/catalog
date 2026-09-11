@@ -6,22 +6,22 @@ package main
 values: {
 	controller: image: {
 		repository: *"quay.io/jetstack/cert-manager-controller" | string
-		tag:        *"v1.21.1" | string
-		digest:     *"sha256:416a2d76870d996460e62bd7f521bf14fa017be9e3e904aab92163a331fcb61a" | string
+		tag:        *"v1.21.2" | string
+		digest:     *"sha256:70f532fd9cfde0b09d55687200942399d89838bc2d5d5b45152eb799a15912b8" | string
 	}
 	webhook: image: {
 		repository: *"quay.io/jetstack/cert-manager-webhook" | string
-		tag:        *"v1.21.1" | string
-		digest:     *"sha256:d8b3961b51c8c7320633f8208dc46bf88aa13804d0f7cbe48a096b2c523cee42" | string
+		tag:        *"v1.21.2" | string
+		digest:     *"sha256:a60e2dac46dbb8a7f3df95c54ce941012f54c2fe022f0ee55aaa1ab40ed957ae" | string
 	}
 	cainjector: image: {
 		repository: *"quay.io/jetstack/cert-manager-cainjector" | string
-		tag:        *"v1.21.1" | string
-		digest:     *"sha256:ccf6b919ec0500745a47a910118f834f9636d0aac1ff221245cd2557ed8c7c98" | string
+		tag:        *"v1.21.2" | string
+		digest:     *"sha256:c85268c64f2e0e76684bf5fe8906caff34b82523561c6affe0fae3546bd87562" | string
 	}
 	acmesolver: image: {
 		repository: *"quay.io/jetstack/cert-manager-acmesolver" | string
-		tag:        *"v1.21.1" | string
-		digest:     *"sha256:dbc7cc1354f603918e7c5af7f55a0a620537394452c93a565bde75c6f48e8837" | string
+		tag:        *"v1.21.2" | string
+		digest:     *"sha256:699b40d622211ab7accad8a21b04c5fbaa1841ef7a12621e8de492dbe27b2503" | string
 	}
 }
