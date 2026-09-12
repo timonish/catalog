@@ -1,10 +1,14 @@
 {
   "name": "flux-operator",
   "repo": "controlplaneio-fluxcd/flux-operator",
-  "tag": "v0.59.0",
-  "commit": "e0f71db839116724c84caf8e06ab8423e7d9b174",
-  "moduleVersion": "0.59.0-0",
+  "tag": "v0.60.0",
+  "commit": "483d170eabe66118fa9959730396b634a9268717",
+  "moduleVersion": "0.60.0-0",
   "moduleReleases": [
+    {
+      "version": "0.60.0-0",
+      "releasedAt": "2026-09-12T10:30:32.109Z"
+    },
     {
       "version": "0.59.0-0",
       "releasedAt": "2026-09-01T11:29:31.718Z"
@@ -25,11 +29,11 @@
   "images": {
     "flux-operator": {
       "repository": "ghcr.io/controlplaneio-fluxcd/flux-operator",
-      "tag": "v0.59.0",
-      "digest": "sha256:29421fe9a49a533ac99a5b7779e1a5fffa3227b16ddfcefe1e3b14e5c20a1767"
+      "tag": "v0.60.0",
+      "digest": "sha256:954176b87a0a9726cd2d5750b2782ccb3f0258dd2a41fcf6173629320cdb88f9"
     }
   },
-  "crdsDigest": "sha256:a9b05589e5f23ae4cdc8e61aeb3e394cda11388037ef380b1d3ae70fabe06ded",
-  "generatedDigest": "sha256:de20014ecc382cf910e5b9f9c0c6c5803e4386423f0ba2b9a16271bd0f0ede39",
-  "updatedAt": "2026-09-01T11:29:31.718Z"
+  "crdsDigest": "sha256:ef5f7c2ae52810d886f6bccc66a0fed3b436f3a7797e79a59c0443f191ddd02e",
+  "generatedDigest": "sha256:b1e27a1fe25174ffed814a22ee0ed52806ca0f9d8f32b98257ffab67cb6771bb",
+  "updatedAt": "2026-09-12T10:30:32.109Z"
 }
