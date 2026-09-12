@@ -1,10 +1,14 @@
 {
   "name": "trust-manager",
   "repo": "cert-manager/trust-manager",
-  "tag": "v0.24.0",
-  "commit": "75590d07c8b52b29cafd7b01bac6a1adbfa591cd",
-  "moduleVersion": "0.24.0-4",
+  "tag": "v0.25.0",
+  "commit": "ddeb17c70923c4c6ec44b34c36f4103a0bb798a1",
+  "moduleVersion": "0.25.0-0",
   "moduleReleases": [
+    {
+      "version": "0.25.0-0",
+      "releasedAt": "2026-09-12T10:30:37.341Z"
+    },
     {
       "version": "0.24.0-4",
       "releasedAt": "2026-08-30T09:57:21.810Z"
@@ -29,16 +33,16 @@
   "images": {
     "trust-manager": {
       "repository": "quay.io/jetstack/trust-manager",
-      "tag": "v0.24.0",
-      "digest": "sha256:a7c1d71cad37b404738192213e3801dbf89fe797e72664b0ff0d498db35cea74"
+      "tag": "v0.25.0",
+      "digest": "sha256:0521921c2a46d14d0417336b20bcde69215ef3164f2977cc939d53c6e5224a17"
     },
     "trust-pkg-debian-trixie": {
       "repository": "quay.io/jetstack/trust-pkg-debian-trixie",
-      "tag": "20250419.1",
-      "digest": "sha256:17084a794d1e75065c9047438e2a6167907771fe78d7e4b5d4373a4b1d4e0494"
+      "tag": "20250419.2",
+      "digest": "sha256:3093d4f6634fbd9eaf6a70a06d809132850d7cae30da82396d3b1f884c1135e7"
     }
   },
-  "crdsDigest": "sha256:712b2ede1c7cd9c9b86c3eef4d1c894b3b0913b3467cf96981dd35ac166bf334",
-  "generatedDigest": "sha256:59834214906abc4c087c53cd0ea1350618a793b6daebb80b80c8bd11724a77e4",
-  "updatedAt": "2026-08-30T09:57:21.810Z"
+  "crdsDigest": "sha256:7e6165e8b9a1cb42c622aa39ff2a11c87f98c2b7087ef0ceb9281af826c5a120",
+  "generatedDigest": "sha256:c3a4def1712e12035f30779ed28bd73ea888f40909be8626f86b84817e6d1a75",
+  "updatedAt": "2026-09-12T10:30:37.341Z"
 }
