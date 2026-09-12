@@ -6,7 +6,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.21.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.22.0"
 		name: "bundles.trust.cert-manager.io"
 	}
 	spec: {
@@ -171,7 +171,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 											"x-kubernetes-map-type": "atomic"
 											"x-kubernetes-validations": [{
 												message: "exactly one of the fields in [name selector] must be set"
-												rule:    "[has(self.name),has(self.selector)].filter(x,x==true).size() == 1"
+												rule:    "(has(self.name)?1:0)+(has(self.selector)?1:0) == 1"
 											}]
 										}
 										inLine: {
@@ -272,7 +272,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 											"x-kubernetes-map-type": "atomic"
 											"x-kubernetes-validations": [{
 												message: "exactly one of the fields in [name selector] must be set"
-												rule:    "[has(self.name),has(self.selector)].filter(x,x==true).size() == 1"
+												rule:    "(has(self.name)?1:0)+(has(self.selector)?1:0) == 1"
 											}]
 										}
 										useDefaultCAs: {
@@ -293,7 +293,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 									"x-kubernetes-map-type": "atomic"
 									"x-kubernetes-validations": [{
 										message: "exactly one of the fields in [configMap secret inLine useDefaultCAs] must be set"
-										rule:    "[has(self.configMap),has(self.secret),has(self.inLine),has(self.useDefaultCAs)].filter(x,x==true).size() == 1"
+										rule:    "(has(self.configMap)?1:0)+(has(self.secret)?1:0)+(has(self.inLine)?1:0)+(has(self.useDefaultCAs)?1:0) == 1"
 									}]
 								}
 								maxItems:                 100
@@ -385,7 +385,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 										type: "object"
 										"x-kubernetes-validations": [{
 											message: "at least one of the fields in [jks pkcs12] must be set"
-											rule:    "[has(self.jks),has(self.pkcs12)].filter(x,x==true).size() >= 1"
+											rule:    "has(self.jks)||has(self.pkcs12)"
 										}]
 									}
 									configMap: {
@@ -522,7 +522,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 								type: "object"
 								"x-kubernetes-validations": [{
 									message: "at least one of the fields in [configMap secret] must be set"
-									rule:    "[has(self.configMap),has(self.secret)].filter(x,x==true).size() >= 1"
+									rule:    "has(self.configMap)||has(self.secret)"
 								}]
 							}
 						}

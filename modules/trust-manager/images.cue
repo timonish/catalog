@@ -6,12 +6,12 @@ package main
 values: {
 	image: {
 		repository: *"quay.io/jetstack/trust-manager" | string
-		tag:        *"v0.24.0" | string
-		digest:     *"sha256:a7c1d71cad37b404738192213e3801dbf89fe797e72664b0ff0d498db35cea74" | string
+		tag:        *"v0.25.0" | string
+		digest:     *"sha256:0521921c2a46d14d0417336b20bcde69215ef3164f2977cc939d53c6e5224a17" | string
 	}
 	defaultPackage: image: {
 		repository: *"quay.io/jetstack/trust-pkg-debian-trixie" | string
-		tag:        *"20250419.1" | string
-		digest:     *"sha256:17084a794d1e75065c9047438e2a6167907771fe78d7e4b5d4373a4b1d4e0494" | string
+		tag:        *"20250419.2" | string
+		digest:     *"sha256:3093d4f6634fbd9eaf6a70a06d809132850d7cae30da82396d3b1f884c1135e7" | string
 	}
 }
