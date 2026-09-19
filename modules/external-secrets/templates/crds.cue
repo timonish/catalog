@@ -7786,6 +7786,109 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 											auth: {
 												description: "BarbicanAuth contains the authentication information for Barbican."
 												properties: {
+													applicationCredentialID: {
+														description:   "ID of the application credential used for authentication."
+														maxProperties: 1
+														minProperties: 1
+														properties: {
+															secretRef: {
+																description: """
+	SecretKeySelector is a reference to a specific 'key' within a Secret resource.
+	In some instances, `key` is a required field.
+	"""
+																properties: {
+																	key: {
+																		description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+																		maxLength: 253
+																		minLength: 1
+																		pattern:   "^[-._a-zA-Z0-9]+$"
+																		type:      "string"
+																	}
+																	name: {
+																		description: "The name of the Secret resource being referred to."
+																		maxLength:   253
+																		minLength:   1
+																		pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																type: "object"
+															}
+															value: {
+																minLength: 1
+																type:      "string"
+															}
+														}
+														type: "object"
+													}
+													applicationCredentialSecret: {
+														description: "BarbicanProviderAppCredSecretRef defines a reference to an Application Credential Secret."
+														properties: secretRef: {
+															description: """
+	SecretKeySelector is a reference to a specific 'key' within a Secret resource.
+	In some instances, `key` is a required field.
+	"""
+															properties: {
+																key: {
+																	description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+																	maxLength: 253
+																	minLength: 1
+																	pattern:   "^[-._a-zA-Z0-9]+$"
+																	type:      "string"
+																}
+																name: {
+																	description: "The name of the Secret resource being referred to."
+																	maxLength:   253
+																	minLength:   1
+																	pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																	type:        "string"
+																}
+																namespace: {
+																	description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																	maxLength: 63
+																	minLength: 1
+																	pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																	type:      "string"
+																}
+															}
+															type: "object"
+														}
+														required: ["secretRef"]
+														type: "object"
+													}
+													authType: {
+														default: "password"
+														description: """
+	AuthType selects how Barbican authenticates.
+	- "password": use username and password.
+	- "applicationCredential": use application credential ID and secret.
+	Defaults to "password".
+	"""
+														enum: [
+															"password",
+															"applicationCredential",
+														]
+														type: "string"
+													}
 													password: {
 														description: "BarbicanProviderPasswordRef defines a reference to a secret containing password for the Barbican provider."
 														properties: secretRef: {
@@ -7828,7 +7931,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 														type: "object"
 													}
 													username: {
-														description:   "BarbicanProviderUsernameRef defines a reference to a secret containing username for the Barbican provider."
+														description:   "Username / Password authentication fields."
 														maxProperties: 1
 														minProperties: 1
 														properties: {
@@ -7868,16 +7971,28 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 																}
 																type: "object"
 															}
-															value: type: "string"
+															value: {
+																minLength: 1
+																type:      "string"
+															}
 														}
 														type: "object"
 													}
 												}
-												required: [
-													"password",
-													"username",
-												]
 												type: "object"
+												"x-kubernetes-validations": [{
+													message: "password auth requires both username and password"
+													rule:    "(has(self.authType) && self.authType == 'applicationCredential') || (has(self.username) && has(self.password))"
+												}, {
+													message: "applicationCredential auth requires both applicationCredentialID and applicationCredentialSecret"
+													rule:    "self.authType != 'applicationCredential' || (has(self.applicationCredentialID) && has(self.applicationCredentialSecret))"
+												}, {
+													message: "password auth should not include applicationCredential fields"
+													rule:    "(has(self.authType) && self.authType == 'applicationCredential') || (!has(self.applicationCredentialID) && !has(self.applicationCredentialSecret))"
+												}, {
+													message: "applicationCredential auth should not include password fields"
+													rule:    "self.authType != 'applicationCredential' || (!has(self.username) && !has(self.password))"
+												}]
 											}
 											authURL: type:    "string"
 											domainName: type: "string"
@@ -11407,10 +11522,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 											folderID: type:           "string"
 											getByTitleFallback: type: "boolean"
 										}
-										required: [
-											"authRef",
-											"folderID",
-										]
+										required: ["authRef"]
 										type: "object"
 									}
 									kubernetes: {
@@ -26295,6 +26407,109 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 											auth: {
 												description: "BarbicanAuth contains the authentication information for Barbican."
 												properties: {
+													applicationCredentialID: {
+														description:   "ID of the application credential used for authentication."
+														maxProperties: 1
+														minProperties: 1
+														properties: {
+															secretRef: {
+																description: """
+	SecretKeySelector is a reference to a specific 'key' within a Secret resource.
+	In some instances, `key` is a required field.
+	"""
+																properties: {
+																	key: {
+																		description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+																		maxLength: 253
+																		minLength: 1
+																		pattern:   "^[-._a-zA-Z0-9]+$"
+																		type:      "string"
+																	}
+																	name: {
+																		description: "The name of the Secret resource being referred to."
+																		maxLength:   253
+																		minLength:   1
+																		pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																type: "object"
+															}
+															value: {
+																minLength: 1
+																type:      "string"
+															}
+														}
+														type: "object"
+													}
+													applicationCredentialSecret: {
+														description: "BarbicanProviderAppCredSecretRef defines a reference to an Application Credential Secret."
+														properties: secretRef: {
+															description: """
+	SecretKeySelector is a reference to a specific 'key' within a Secret resource.
+	In some instances, `key` is a required field.
+	"""
+															properties: {
+																key: {
+																	description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+																	maxLength: 253
+																	minLength: 1
+																	pattern:   "^[-._a-zA-Z0-9]+$"
+																	type:      "string"
+																}
+																name: {
+																	description: "The name of the Secret resource being referred to."
+																	maxLength:   253
+																	minLength:   1
+																	pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																	type:        "string"
+																}
+																namespace: {
+																	description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+																	maxLength: 63
+																	minLength: 1
+																	pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																	type:      "string"
+																}
+															}
+															type: "object"
+														}
+														required: ["secretRef"]
+														type: "object"
+													}
+													authType: {
+														default: "password"
+														description: """
+	AuthType selects how Barbican authenticates.
+	- "password": use username and password.
+	- "applicationCredential": use application credential ID and secret.
+	Defaults to "password".
+	"""
+														enum: [
+															"password",
+															"applicationCredential",
+														]
+														type: "string"
+													}
 													password: {
 														description: "BarbicanProviderPasswordRef defines a reference to a secret containing password for the Barbican provider."
 														properties: secretRef: {
@@ -26337,7 +26552,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 														type: "object"
 													}
 													username: {
-														description:   "BarbicanProviderUsernameRef defines a reference to a secret containing username for the Barbican provider."
+														description:   "Username / Password authentication fields."
 														maxProperties: 1
 														minProperties: 1
 														properties: {
@@ -26377,16 +26592,28 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 																}
 																type: "object"
 															}
-															value: type: "string"
+															value: {
+																minLength: 1
+																type:      "string"
+															}
 														}
 														type: "object"
 													}
 												}
-												required: [
-													"password",
-													"username",
-												]
 												type: "object"
+												"x-kubernetes-validations": [{
+													message: "password auth requires both username and password"
+													rule:    "(has(self.authType) && self.authType == 'applicationCredential') || (has(self.username) && has(self.password))"
+												}, {
+													message: "applicationCredential auth requires both applicationCredentialID and applicationCredentialSecret"
+													rule:    "self.authType != 'applicationCredential' || (has(self.applicationCredentialID) && has(self.applicationCredentialSecret))"
+												}, {
+													message: "password auth should not include applicationCredential fields"
+													rule:    "(has(self.authType) && self.authType == 'applicationCredential') || (!has(self.applicationCredentialID) && !has(self.applicationCredentialSecret))"
+												}, {
+													message: "applicationCredential auth should not include password fields"
+													rule:    "self.authType != 'applicationCredential' || (!has(self.username) && !has(self.password))"
+												}]
 											}
 											authURL: type:    "string"
 											domainName: type: "string"
@@ -29916,10 +30143,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 											folderID: type:           "string"
 											getByTitleFallback: type: "boolean"
 										}
-										required: [
-											"authRef",
-											"folderID",
-										]
+										required: ["authRef"]
 										type: "object"
 									}
 									kubernetes: {
