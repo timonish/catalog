@@ -6,7 +6,7 @@ package main
 values: {
 	image: {
 		repository: *"ghcr.io/fluent/fluent-operator/fluent-operator" | string
-		tag:        *"v3.10.0" | string
-		digest:     *"sha256:3108194a4ecc063f55371476775ddb8a36a1c7613fd03cfd13d05141e1b0bd0e" | string
+		tag:        *"v3.10.1" | string
+		digest:     *"sha256:be978534f9fc1b998dc822c5eaa95b4e88e6a853a9739fd84fe10b44fcb9a97b" | string
 	}
 }
