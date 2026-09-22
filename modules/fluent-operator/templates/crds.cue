@@ -511,8 +511,11 @@ customresourcedefinition: "clusterfilters.fluentbit.fluent.io": {
 													description: "Path to the Lua script that will be used."
 													properties: {
 														key: {
-															description: "The key to select."
-															type:        "string"
+															description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+															type: "string"
 														}
 														name: {
 															default: ""
@@ -14463,8 +14466,8 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 												properties: {
@@ -14515,7 +14518,6 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 												properties: {
@@ -14861,6 +14863,68 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	"""
 												type: "string"
 											}
+											healthStatus: {
+												description: """
+	healthStatus contains the latest controller-reported health information
+	for the volume bound to this claim.
+	"""
+												properties: {
+													healthConditions: {
+														description: """
+	conditions is the set of adverse conditions reported by
+	the CSI controller plugin. An empty list means no adverse condition.
+	At most 16 conditions may be reported.
+	"""
+														items: {
+															description: "VolumeHealthCondition represents an adverse health condition reported for a volume."
+															properties: {
+																message: {
+																	description: """
+	message is a human-readable description.
+	Maximum permitted length of a message is 1024 bytes.
+	"""
+																	type: "string"
+																}
+																reason: {
+																	description: """
+	reason is a brief CamelCase machine-parseable reason.
+	Together with status it forms the unique identity of a condition entry.
+	Maximum permitted length of a reason is 256 bytes.
+	"""
+																	type: "string"
+																}
+																status: {
+																	description: """
+	status is the machine-parseable health category.
+	Possible values:
+	- "Inaccessible": the volume cannot be accessed.
+	- "DataLoss": data loss has been detected on the volume.
+	- "Degraded": the volume is functioning with reduced capability.
+	"""
+																	type: "string"
+																}
+															}
+															required: [
+																"reason",
+																"status",
+															]
+															type: "object"
+														}
+														type: "array"
+														"x-kubernetes-list-map-keys": [
+															"status",
+															"reason",
+														]
+														"x-kubernetes-list-type": "map"
+													}
+													lastTransitionTime: {
+														description: "lastTransitionTime is when the current set of conditions first appeared."
+														format:      "date-time"
+														type:        "string"
+													}
+												}
+												type: "object"
+											}
 											modifyVolumeStatus: {
 												description: """
 	ModifyVolumeStatus represents the status object of ControllerModifyVolume operation.
@@ -14910,7 +14974,7 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 									properties: {
 										apiGroups: {
 											description: """
-	APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+	apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 	the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
 	"""
 											items: type: "string"
@@ -14919,7 +14983,7 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 										}
 										nonResourceURLs: {
 											description: """
-	NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+	nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
 	Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
 	Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
 	"""
@@ -14928,19 +14992,19 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 											"x-kubernetes-list-type": "atomic"
 										}
 										resourceNames: {
-											description: "ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed."
+											description: "resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed."
 											items: type: "string"
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
 										}
 										resources: {
-											description: "Resources is a list of resources this rule applies to. '*' represents all resources."
+											description: "resources is a list of resources this rule applies to. '*' represents all resources."
 											items: type: "string"
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
 										}
 										verbs: {
-											description: "Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs."
+											description: "verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs."
 											items: type: "string"
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
@@ -15156,11 +15220,8 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 	whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 	CSIDriver instance. Other volumes are always re-labelled recursively.
-	"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-	If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-	and "Recursive" for all other volumes.
+	If not specified, "MountOption" is used.
 
 	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -15669,6 +15730,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -15706,6 +15776,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -15812,6 +15891,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: "Items is a list of downward API volume file"
 													items: {
@@ -15878,6 +15966,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
+															}
 														}
 														required: ["path"]
 														type: "object"
@@ -15902,6 +15999,20 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 													type: "string"
+												}
+												mode: {
+													description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+													format: "int32"
+													type:   "integer"
 												}
 												sizeLimit: {
 													anyOf: [{
@@ -16023,8 +16134,8 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 																properties: {
@@ -16075,7 +16186,6 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 																properties: {
@@ -16783,6 +16893,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												sources: {
 													description: """
 	sources is the list of volume projections. Each entry in this list
@@ -16901,6 +17020,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	"""
 																		type: "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																}
 																required: ["path"]
 																type: "object"
@@ -16945,6 +17073,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	May not start with the string '..'.
 	"""
 																					type: "string"
+																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
 																				}
 																			}
 																			required: [
@@ -17042,6 +17179,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 																				required: ["resource"]
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
+																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
 																			}
 																		}
 																		required: ["path"]
@@ -17164,6 +17310,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 																		description: "Kubelet's generated CSRs will be addressed to this signer."
 																		type:        "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																	userAnnotations: {
 																		additionalProperties: type: "string"
 																		description: """
@@ -17231,6 +17386,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	"""
 																					type: "string"
 																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																			}
 																			required: [
 																				"key",
@@ -17290,6 +17454,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	token into.
 	"""
 																		type: "string"
+																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
 																	}
 																}
 																required: ["path"]
@@ -17555,6 +17728,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -17592,6 +17774,15 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -17720,12 +17911,22 @@ customresourcedefinition: "collectors.fluentbit.fluent.io": {
 								items: {
 									description: "VolumeMount describes a mounting of a Volume within a container."
 									properties: {
-										mountPath: {
+										bindMountOptions: {
 											description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-											type: "string"
+											items: type: "string"
+											type:                     "array"
+											"x-kubernetes-list-type": "set"
+										}
+										mountPath: {
+											description: "Path within the container at which the volume should be mounted."
+											type:        "string"
 										}
 										mountPropagation: {
 											description: """
@@ -18319,8 +18520,11 @@ customresourcedefinition: "filters.fluentbit.fluent.io": {
 													description: "Path to the Lua script that will be used."
 													properties: {
 														key: {
-															description: "The key to select."
-															type:        "string"
+															description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+															type: "string"
 														}
 														name: {
 															default: ""
@@ -21400,8 +21604,11 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 													description: "Selects a key of a ConfigMap."
 													properties: {
 														key: {
-															description: "The key to select."
-															type:        "string"
+															description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+															type: "string"
 														}
 														name: {
 															default: ""
@@ -21688,8 +21895,11 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 																description: "Selects a key of a ConfigMap."
 																properties: {
 																	key: {
-																		description: "The key to select."
-																		type:        "string"
+																		description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																		type: "string"
 																	}
 																	name: {
 																		default: ""
@@ -22015,6 +22225,13 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -22149,6 +22366,13 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	"""
 																	"x-kubernetes-int-or-string": true
 																}
+																protocol: {
+																	description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																	type: "string"
+																}
 																scheme: {
 																	description: """
 	Scheme to use for connecting to the host.
@@ -22247,6 +22471,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -22318,6 +22551,13 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -22511,6 +22751,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -22582,6 +22831,13 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -23143,6 +23399,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 												grpc: {
 													description: "GRPC specifies a GRPC HealthCheckRequest."
 													properties: {
+														mode: {
+															description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+															type: "string"
+														}
 														port: {
 															description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 															format:      "int32"
@@ -23214,6 +23479,13 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 															"x-kubernetes-int-or-string": true
+														}
+														protocol: {
+															description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+															type: "string"
 														}
 														scheme: {
 															description: """
@@ -23385,12 +23657,22 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 											items: {
 												description: "VolumeMount describes a mounting of a Volume within a container."
 												properties: {
-													mountPath: {
+													bindMountOptions: {
 														description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-														type: "string"
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+													}
+													mountPath: {
+														description: "Path within the container at which the volume should be mounted."
+														type:        "string"
 													}
 													mountPropagation: {
 														description: """
@@ -23521,6 +23803,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 									grpc: {
 										description: "GRPC specifies a GRPC HealthCheckRequest."
 										properties: {
+											mode: {
+												description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+												type: "string"
+											}
 											port: {
 												description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 												format:      "int32"
@@ -23592,6 +23883,13 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 												"x-kubernetes-int-or-string": true
+											}
+											protocol: {
+												description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+												type: "string"
 											}
 											scheme: {
 												description: """
@@ -24055,6 +24353,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 												format: "int32"
 												type:   "integer"
 											}
+											defaultUser: {
+												description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+												format: "int64"
+												type:   "integer"
+											}
 											items: {
 												description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -24092,6 +24399,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	May not start with the string '..'.
 	"""
 															type: "string"
+														}
+														user: {
+															description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+															format: "int64"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -24198,6 +24514,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 												format: "int32"
 												type:   "integer"
 											}
+											defaultUser: {
+												description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+												format: "int64"
+												type:   "integer"
+											}
 											items: {
 												description: "Items is a list of downward API volume file"
 												items: {
@@ -24264,6 +24589,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
+														user: {
+															description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+															format: "int64"
+															type:   "integer"
+														}
 													}
 													required: ["path"]
 													type: "object"
@@ -24288,6 +24622,20 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 												type: "string"
+											}
+											mode: {
+												description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+												format: "int32"
+												type:   "integer"
 											}
 											sizeLimit: {
 												anyOf: [{
@@ -24409,8 +24757,8 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 															properties: {
@@ -24461,7 +24809,6 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 															properties: {
@@ -25161,6 +25508,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 												format: "int32"
 												type:   "integer"
 											}
+											defaultUser: {
+												description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+												format: "int64"
+												type:   "integer"
+											}
 											sources: {
 												description: """
 	sources is the list of volume projections. Each entry in this list
@@ -25279,6 +25635,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	"""
 																	type: "string"
 																}
+																user: {
+																	description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																	format: "int64"
+																	type:   "integer"
+																}
 															}
 															required: ["path"]
 															type: "object"
@@ -25323,6 +25688,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	May not start with the string '..'.
 	"""
 																				type: "string"
+																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
 																			}
 																		}
 																		required: [
@@ -25420,6 +25794,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 																			required: ["resource"]
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
+																		}
+																		user: {
+																			description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																			format: "int64"
+																			type:   "integer"
 																		}
 																	}
 																	required: ["path"]
@@ -25542,6 +25925,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 																	description: "Kubelet's generated CSRs will be addressed to this signer."
 																	type:        "string"
 																}
+																user: {
+																	description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																	format: "int64"
+																	type:   "integer"
+																}
 																userAnnotations: {
 																	additionalProperties: type: "string"
 																	description: """
@@ -25609,6 +26001,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	"""
 																				type: "string"
 																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
+																			}
 																		}
 																		required: [
 																			"key",
@@ -25668,6 +26069,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	token into.
 	"""
 																	type: "string"
+																}
+																user: {
+																	description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																	format: "int64"
+																	type:   "integer"
 																}
 															}
 															required: ["path"]
@@ -25933,6 +26343,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 												format: "int32"
 												type:   "integer"
 											}
+											defaultUser: {
+												description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+												format: "int64"
+												type:   "integer"
+											}
 											items: {
 												description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -25970,6 +26389,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	May not start with the string '..'.
 	"""
 															type: "string"
+														}
+														user: {
+															description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+															format: "int64"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -26104,7 +26532,7 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 									properties: {
 										apiGroups: {
 											description: """
-	APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+	apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 	the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
 	"""
 											items: type: "string"
@@ -26113,7 +26541,7 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 										}
 										nonResourceURLs: {
 											description: """
-	NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+	nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
 	Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
 	Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
 	"""
@@ -26122,19 +26550,19 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 											"x-kubernetes-list-type": "atomic"
 										}
 										resourceNames: {
-											description: "ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed."
+											description: "resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed."
 											items: type: "string"
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
 										}
 										resources: {
-											description: "Resources is a list of resources this rule applies to. '*' represents all resources."
+											description: "resources is a list of resources this rule applies to. '*' represents all resources."
 											items: type: "string"
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
 										}
 										verbs: {
-											description: "Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs."
+											description: "verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs."
 											items: type: "string"
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
@@ -26175,6 +26603,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 									grpc: {
 										description: "GRPC specifies a GRPC HealthCheckRequest."
 										properties: {
+											mode: {
+												description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+												type: "string"
+											}
 											port: {
 												description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 												format:      "int32"
@@ -26246,6 +26683,13 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 												"x-kubernetes-int-or-string": true
+											}
+											protocol: {
+												description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+												type: "string"
 											}
 											scheme: {
 												description: """
@@ -26534,11 +26978,8 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 	whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 	CSIDriver instance. Other volumes are always re-labelled recursively.
-	"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-	If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-	and "Recursive" for all other volumes.
+	If not specified, "MountOption" is used.
 
 	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -27052,6 +27493,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -27089,6 +27539,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -27195,6 +27654,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: "Items is a list of downward API volume file"
 													items: {
@@ -27261,6 +27729,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
+															}
 														}
 														required: ["path"]
 														type: "object"
@@ -27285,6 +27762,20 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 													type: "string"
+												}
+												mode: {
+													description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+													format: "int32"
+													type:   "integer"
 												}
 												sizeLimit: {
 													anyOf: [{
@@ -27406,8 +27897,8 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 																properties: {
@@ -27458,7 +27949,6 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 																properties: {
@@ -28166,6 +28656,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												sources: {
 													description: """
 	sources is the list of volume projections. Each entry in this list
@@ -28284,6 +28783,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	"""
 																		type: "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																}
 																required: ["path"]
 																type: "object"
@@ -28328,6 +28836,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	May not start with the string '..'.
 	"""
 																					type: "string"
+																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
 																				}
 																			}
 																			required: [
@@ -28425,6 +28942,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 																				required: ["resource"]
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
+																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
 																			}
 																		}
 																		required: ["path"]
@@ -28547,6 +29073,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 																		description: "Kubelet's generated CSRs will be addressed to this signer."
 																		type:        "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																	userAnnotations: {
 																		additionalProperties: type: "string"
 																		description: """
@@ -28614,6 +29149,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	"""
 																					type: "string"
 																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																			}
 																			required: [
 																				"key",
@@ -28673,6 +29217,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	token into.
 	"""
 																		type: "string"
+																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
 																	}
 																}
 																required: ["path"]
@@ -28938,6 +29491,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -28975,6 +29537,15 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -29103,12 +29674,22 @@ customresourcedefinition: "fluentbits.fluentbit.fluent.io": {
 								items: {
 									description: "VolumeMount describes a mounting of a Volume within a container."
 									properties: {
-										mountPath: {
+										bindMountOptions: {
 											description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-											type: "string"
+											items: type: "string"
+											type:                     "array"
+											"x-kubernetes-list-type": "set"
+										}
+										mountPath: {
+											description: "Path within the container at which the volume should be mounted."
+											type:        "string"
 										}
 										mountPropagation: {
 											description: """
@@ -30803,6 +31384,20 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	"""
 												type: "string"
 											}
+											mode: {
+												description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+												format: "int32"
+												type:   "integer"
+											}
 											sizeLimit: {
 												anyOf: [{
 													type: "integer"
@@ -30913,8 +31508,8 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 														properties: {
@@ -30965,7 +31560,6 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 														properties: {
@@ -31310,6 +31904,68 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	When unset, there is no VolumeAttributeClass applied to this PersistentVolumeClaim
 	"""
 														type: "string"
+													}
+													healthStatus: {
+														description: """
+	healthStatus contains the latest controller-reported health information
+	for the volume bound to this claim.
+	"""
+														properties: {
+															healthConditions: {
+																description: """
+	conditions is the set of adverse conditions reported by
+	the CSI controller plugin. An empty list means no adverse condition.
+	At most 16 conditions may be reported.
+	"""
+																items: {
+																	description: "VolumeHealthCondition represents an adverse health condition reported for a volume."
+																	properties: {
+																		message: {
+																			description: """
+	message is a human-readable description.
+	Maximum permitted length of a message is 1024 bytes.
+	"""
+																			type: "string"
+																		}
+																		reason: {
+																			description: """
+	reason is a brief CamelCase machine-parseable reason.
+	Together with status it forms the unique identity of a condition entry.
+	Maximum permitted length of a reason is 256 bytes.
+	"""
+																			type: "string"
+																		}
+																		status: {
+																			description: """
+	status is the machine-parseable health category.
+	Possible values:
+	- "Inaccessible": the volume cannot be accessed.
+	- "DataLoss": data loss has been detected on the volume.
+	- "Degraded": the volume is functioning with reduced capability.
+	"""
+																			type: "string"
+																		}
+																	}
+																	required: [
+																		"reason",
+																		"status",
+																	]
+																	type: "object"
+																}
+																type: "array"
+																"x-kubernetes-list-map-keys": [
+																	"status",
+																	"reason",
+																]
+																"x-kubernetes-list-type": "map"
+															}
+															lastTransitionTime: {
+																description: "lastTransitionTime is when the current set of conditions first appeared."
+																format:      "date-time"
+																type:        "string"
+															}
+														}
+														type: "object"
 													}
 													modifyVolumeStatus: {
 														description: """
@@ -31855,8 +32511,11 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 													description: "Selects a key of a ConfigMap."
 													properties: {
 														key: {
-															description: "The key to select."
-															type:        "string"
+															description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+															type: "string"
 														}
 														name: {
 															default: ""
@@ -33073,6 +33732,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 									grpc: {
 										description: "GRPC specifies a GRPC HealthCheckRequest."
 										properties: {
+											mode: {
+												description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+												type: "string"
+											}
 											port: {
 												description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 												format:      "int32"
@@ -33144,6 +33812,13 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 												"x-kubernetes-int-or-string": true
+											}
+											protocol: {
+												description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+												type: "string"
 											}
 											scheme: {
 												description: """
@@ -33522,6 +34197,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 												format: "int32"
 												type:   "integer"
 											}
+											defaultUser: {
+												description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+												format: "int64"
+												type:   "integer"
+											}
 											items: {
 												description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -33559,6 +34243,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	May not start with the string '..'.
 	"""
 															type: "string"
+														}
+														user: {
+															description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+															format: "int64"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -33665,6 +34358,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 												format: "int32"
 												type:   "integer"
 											}
+											defaultUser: {
+												description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+												format: "int64"
+												type:   "integer"
+											}
 											items: {
 												description: "Items is a list of downward API volume file"
 												items: {
@@ -33731,6 +34433,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
+														user: {
+															description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+															format: "int64"
+															type:   "integer"
+														}
 													}
 													required: ["path"]
 													type: "object"
@@ -33755,6 +34466,20 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 												type: "string"
+											}
+											mode: {
+												description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+												format: "int32"
+												type:   "integer"
 											}
 											sizeLimit: {
 												anyOf: [{
@@ -33876,8 +34601,8 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 															properties: {
@@ -33928,7 +34653,6 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 															properties: {
@@ -34628,6 +35352,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 												format: "int32"
 												type:   "integer"
 											}
+											defaultUser: {
+												description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+												format: "int64"
+												type:   "integer"
+											}
 											sources: {
 												description: """
 	sources is the list of volume projections. Each entry in this list
@@ -34746,6 +35479,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	"""
 																	type: "string"
 																}
+																user: {
+																	description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																	format: "int64"
+																	type:   "integer"
+																}
 															}
 															required: ["path"]
 															type: "object"
@@ -34790,6 +35532,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	May not start with the string '..'.
 	"""
 																				type: "string"
+																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
 																			}
 																		}
 																		required: [
@@ -34887,6 +35638,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 																			required: ["resource"]
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
+																		}
+																		user: {
+																			description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																			format: "int64"
+																			type:   "integer"
 																		}
 																	}
 																	required: ["path"]
@@ -35009,6 +35769,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 																	description: "Kubelet's generated CSRs will be addressed to this signer."
 																	type:        "string"
 																}
+																user: {
+																	description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																	format: "int64"
+																	type:   "integer"
+																}
 																userAnnotations: {
 																	additionalProperties: type: "string"
 																	description: """
@@ -35076,6 +35845,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	"""
 																				type: "string"
 																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
+																			}
 																		}
 																		required: [
 																			"key",
@@ -35135,6 +35913,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	token into.
 	"""
 																	type: "string"
+																}
+																user: {
+																	description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																	format: "int64"
+																	type:   "integer"
 																}
 															}
 															required: ["path"]
@@ -35400,6 +36187,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 												format: "int32"
 												type:   "integer"
 											}
+											defaultUser: {
+												description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+												format: "int64"
+												type:   "integer"
+											}
 											items: {
 												description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -35437,6 +36233,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	May not start with the string '..'.
 	"""
 															type: "string"
+														}
+														user: {
+															description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+															format: "int64"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -35571,7 +36376,7 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 									properties: {
 										apiGroups: {
 											description: """
-	APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+	apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 	the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
 	"""
 											items: type: "string"
@@ -35580,7 +36385,7 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 										}
 										nonResourceURLs: {
 											description: """
-	NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+	nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
 	Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
 	Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
 	"""
@@ -35589,19 +36394,19 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 											"x-kubernetes-list-type": "atomic"
 										}
 										resourceNames: {
-											description: "ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed."
+											description: "resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed."
 											items: type: "string"
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
 										}
 										resources: {
-											description: "Resources is a list of resources this rule applies to. '*' represents all resources."
+											description: "resources is a list of resources this rule applies to. '*' represents all resources."
 											items: type: "string"
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
 										}
 										verbs: {
-											description: "Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs."
+											description: "verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs."
 											items: type: "string"
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
@@ -35642,6 +36447,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 									grpc: {
 										description: "GRPC specifies a GRPC HealthCheckRequest."
 										properties: {
+											mode: {
+												description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+												type: "string"
+											}
 											port: {
 												description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 												format:      "int32"
@@ -35713,6 +36527,13 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 												"x-kubernetes-int-or-string": true
+											}
+											protocol: {
+												description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+												type: "string"
 											}
 											scheme: {
 												description: """
@@ -36004,11 +36825,8 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 	whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 	CSIDriver instance. Other volumes are always re-labelled recursively.
-	"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-	If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-	and "Recursive" for all other volumes.
+	If not specified, "MountOption" is used.
 
 	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -36341,8 +37159,8 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 													properties: {
@@ -36393,7 +37211,6 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 													properties: {
@@ -36739,6 +37556,68 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	"""
 													type: "string"
 												}
+												healthStatus: {
+													description: """
+	healthStatus contains the latest controller-reported health information
+	for the volume bound to this claim.
+	"""
+													properties: {
+														healthConditions: {
+															description: """
+	conditions is the set of adverse conditions reported by
+	the CSI controller plugin. An empty list means no adverse condition.
+	At most 16 conditions may be reported.
+	"""
+															items: {
+																description: "VolumeHealthCondition represents an adverse health condition reported for a volume."
+																properties: {
+																	message: {
+																		description: """
+	message is a human-readable description.
+	Maximum permitted length of a message is 1024 bytes.
+	"""
+																		type: "string"
+																	}
+																	reason: {
+																		description: """
+	reason is a brief CamelCase machine-parseable reason.
+	Together with status it forms the unique identity of a condition entry.
+	Maximum permitted length of a reason is 256 bytes.
+	"""
+																		type: "string"
+																	}
+																	status: {
+																		description: """
+	status is the machine-parseable health category.
+	Possible values:
+	- "Inaccessible": the volume cannot be accessed.
+	- "DataLoss": data loss has been detected on the volume.
+	- "Degraded": the volume is functioning with reduced capability.
+	"""
+																		type: "string"
+																	}
+																}
+																required: [
+																	"reason",
+																	"status",
+																]
+																type: "object"
+															}
+															type: "array"
+															"x-kubernetes-list-map-keys": [
+																"status",
+																"reason",
+															]
+															"x-kubernetes-list-type": "map"
+														}
+														lastTransitionTime: {
+															description: "lastTransitionTime is when the current set of conditions first appeared."
+															format:      "date-time"
+															type:        "string"
+														}
+													}
+													type: "object"
+												}
 												modifyVolumeStatus: {
 													description: """
 	ModifyVolumeStatus represents the status object of ControllerModifyVolume operation.
@@ -36785,12 +37664,22 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 								items: {
 									description: "VolumeMount describes a mounting of a Volume within a container."
 									properties: {
-										mountPath: {
+										bindMountOptions: {
 											description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-											type: "string"
+											items: type: "string"
+											type:                     "array"
+											"x-kubernetes-list-type": "set"
+										}
+										mountPath: {
+											description: "Path within the container at which the volume should be mounted."
+											type:        "string"
 										}
 										mountPropagation: {
 											description: """
@@ -37122,6 +38011,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -37159,6 +38057,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -37265,6 +38172,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: "Items is a list of downward API volume file"
 													items: {
@@ -37331,6 +38247,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
+															}
 														}
 														required: ["path"]
 														type: "object"
@@ -37355,6 +38280,20 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 													type: "string"
+												}
+												mode: {
+													description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+													format: "int32"
+													type:   "integer"
 												}
 												sizeLimit: {
 													anyOf: [{
@@ -37476,8 +38415,8 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 																properties: {
@@ -37528,7 +38467,6 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 																properties: {
@@ -38236,6 +39174,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												sources: {
 													description: """
 	sources is the list of volume projections. Each entry in this list
@@ -38354,6 +39301,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	"""
 																		type: "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																}
 																required: ["path"]
 																type: "object"
@@ -38398,6 +39354,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	May not start with the string '..'.
 	"""
 																					type: "string"
+																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
 																				}
 																			}
 																			required: [
@@ -38495,6 +39460,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 																				required: ["resource"]
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
+																			}
+																			user: {
+																				description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																				format: "int64"
+																				type:   "integer"
 																			}
 																		}
 																		required: ["path"]
@@ -38617,6 +39591,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 																		description: "Kubelet's generated CSRs will be addressed to this signer."
 																		type:        "string"
 																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
+																	}
 																	userAnnotations: {
 																		additionalProperties: type: "string"
 																		description: """
@@ -38684,6 +39667,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	"""
 																					type: "string"
 																				}
+																				user: {
+																					description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																			}
 																			required: [
 																				"key",
@@ -38743,6 +39735,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	token into.
 	"""
 																		type: "string"
+																	}
+																	user: {
+																		description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																		format: "int64"
+																		type:   "integer"
 																	}
 																}
 																required: ["path"]
@@ -39008,6 +40009,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 													format: "int32"
 													type:   "integer"
 												}
+												defaultUser: {
+													description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+													format: "int64"
+													type:   "integer"
+												}
 												items: {
 													description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -39045,6 +40055,15 @@ customresourcedefinition: "fluentds.fluentd.fluent.io": {
 	May not start with the string '..'.
 	"""
 																type: "string"
+															}
+															user: {
+																description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																format: "int64"
+																type:   "integer"
 															}
 														}
 														required: [

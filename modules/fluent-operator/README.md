@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying [Fluent Operator](https://git
 ## Version
 
 <!-- versions:start -->
-Latest module version is `3.10.0-1`, packaging the upstream release
-[v3.10.0](https://github.com/fluent/fluent-operator/releases/tag/v3.10.0)
+Latest module version is `3.10.1-0`, packaging the upstream release
+[v3.10.1](https://github.com/fluent/fluent-operator/releases/tag/v3.10.1)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `ghcr.io/fluent/fluent-operator/fluent-operator` | v3.10.0 | `sha256:3108194a4ecc063f55371476775ddb8a36a1c7613fd03cfd13d05141e1b0bd0e` |
+| `ghcr.io/fluent/fluent-operator/fluent-operator` | v3.10.1 | `sha256:be978534f9fc1b998dc822c5eaa95b4e88e6a853a9739fd84fe10b44fcb9a97b` |
 <!-- versions:end -->
 
 ## Prerequisites
