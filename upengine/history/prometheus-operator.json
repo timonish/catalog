@@ -1,10 +1,14 @@
 {
   "name": "prometheus-operator",
   "repo": "prometheus-operator/prometheus-operator",
-  "tag": "v0.94.0",
-  "commit": "2e4af1d7d8f0ae634fcf0ac967a76fb381a65542",
-  "moduleVersion": "0.94.0-0",
+  "tag": "v0.94.1",
+  "commit": "24929ab3b4c91b39d43d5f020833296654c627fd",
+  "moduleVersion": "0.94.1-0",
   "moduleReleases": [
+    {
+      "version": "0.94.1-0",
+      "releasedAt": "2026-09-24T11:31:37.889Z"
+    },
     {
       "version": "0.94.0-0",
       "releasedAt": "2026-09-10T11:03:41.083Z"
@@ -41,16 +45,16 @@
   "images": {
     "prometheus-operator": {
       "repository": "quay.io/prometheus-operator/prometheus-operator",
-      "tag": "v0.94.0",
-      "digest": "sha256:cf153f64d6c38113fceb2cda7642365ea887f71edd7888f054e43e54cf177e55"
+      "tag": "v0.94.1",
+      "digest": "sha256:7c88d4e7bae63bd8d0f8da986054337c23b4472fa8d3c6817f5bc4b8407a2d6a"
     },
     "prometheus-config-reloader": {
       "repository": "quay.io/prometheus-operator/prometheus-config-reloader",
-      "tag": "v0.94.0",
-      "digest": "sha256:142a1f11df8dd165f00375b0b1826aecb9c9adeb05c39855893138d7c7575ff7"
+      "tag": "v0.94.1",
+      "digest": "sha256:06b52bd4dbe3ed6dd5905aadaf8b9987d9da4c31d37bb86deaadae68cee2d26b"
     }
   },
-  "crdsDigest": "sha256:14948e73145f1543a675acfd32f2bfbce2a261588da949bd9f4baef214d73161",
-  "generatedDigest": "sha256:4c06a15c66dfbba751b036f3a1d73060690b60cc124657530765c7a3f9d1fb10",
-  "updatedAt": "2026-09-10T11:03:41.083Z"
+  "crdsDigest": "sha256:7ab177610b271c70c57c7d6fc550a1e934eff4f707a5d8b61dfaa3845d52deea",
+  "generatedDigest": "sha256:074755a272033ae4a07a27dd85b2304dbfc09ae1a598326df46731fe1c174a9c",
+  "updatedAt": "2026-09-24T11:31:37.889Z"
 }

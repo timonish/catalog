@@ -5,14 +5,14 @@ A [Timoni](https://timoni.sh) module for deploying [Prometheus Operator](https:/
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.94.0-0`, packaging the upstream release
-[v0.94.0](https://github.com/prometheus-operator/prometheus-operator/releases/tag/v0.94.0)
+Latest module version is `0.94.1-0`, packaging the upstream release
+[v0.94.1](https://github.com/prometheus-operator/prometheus-operator/releases/tag/v0.94.1)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `quay.io/prometheus-operator/prometheus-operator` | v0.94.0 | `sha256:cf153f64d6c38113fceb2cda7642365ea887f71edd7888f054e43e54cf177e55` |
-| `quay.io/prometheus-operator/prometheus-config-reloader` | v0.94.0 | `sha256:142a1f11df8dd165f00375b0b1826aecb9c9adeb05c39855893138d7c7575ff7` |
+| `quay.io/prometheus-operator/prometheus-operator` | v0.94.1 | `sha256:7c88d4e7bae63bd8d0f8da986054337c23b4472fa8d3c6817f5bc4b8407a2d6a` |
+| `quay.io/prometheus-operator/prometheus-config-reloader` | v0.94.1 | `sha256:06b52bd4dbe3ed6dd5905aadaf8b9987d9da4c31d37bb86deaadae68cee2d26b` |
 <!-- versions:end -->
 
 ## Prerequisites
