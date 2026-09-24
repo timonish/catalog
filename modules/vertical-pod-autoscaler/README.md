@@ -5,15 +5,15 @@ A [Timoni](https://timoni.sh) module for deploying the [Vertical Pod Autoscaler]
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.7.1-4`, packaging the upstream release
-[vertical-pod-autoscaler-1.7.1](https://github.com/kubernetes/autoscaler/releases/tag/vertical-pod-autoscaler-1.7.1)
+Latest module version is `1.8.0-0`, packaging the upstream release
+[vertical-pod-autoscaler-1.8.0](https://github.com/kubernetes/autoscaler/releases/tag/vertical-pod-autoscaler-1.8.0)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `registry.k8s.io/autoscaling/vpa-recommender` | 1.7.1 | `sha256:89cea705535f9d8df6e62d5084916ec447e85d64369cfff2f7c6ac9d1cc5cd1e` |
-| `registry.k8s.io/autoscaling/vpa-updater` | 1.7.1 | `sha256:feb42a5269708d065d5a43c5379d0e4700c3eca333231723d6a7c24f222ab446` |
-| `registry.k8s.io/autoscaling/vpa-admission-controller` | 1.7.1 | `sha256:be29624f7f12a0b6f7fe18e2e042195eb6e39ae37d4490000f2643a480873572` |
+| `registry.k8s.io/autoscaling/vpa-recommender` | 1.8.0 | `sha256:e743e3a7e58a614f850063dba5df88eec5a19cf4cc43edb2050248df2d7dd8d3` |
+| `registry.k8s.io/autoscaling/vpa-updater` | 1.8.0 | `sha256:1d0229e52f90f645f1ee2e86ddfac8f451d166777c2aab066b9c5ab5e8bc5d5c` |
+| `registry.k8s.io/autoscaling/vpa-admission-controller` | 1.8.0 | `sha256:3d94f53e4c5a6891b8b32af545dda975e45842486432b69475afaf8df278d23d` |
 <!-- versions:end -->
 
 To list all available versions and their digests:

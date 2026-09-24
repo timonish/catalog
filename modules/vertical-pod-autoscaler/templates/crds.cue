@@ -8,7 +8,7 @@ customresourcedefinition: "verticalpodautoscalercheckpoints.autoscaling.k8s.io":
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":            "https://github.com/kubernetes/kubernetes/pull/63797"
-			"controller-gen.kubebuilder.io/version": "v0.16.5"
+			"controller-gen.kubebuilder.io/version": "v0.21.0"
 		}
 		name: "verticalpodautoscalercheckpoints.autoscaling.k8s.io"
 	}
@@ -279,7 +279,7 @@ customresourcedefinition: "verticalpodautoscalers.autoscaling.k8s.io": {
 	metadata: {
 		annotations: {
 			"api-approved.kubernetes.io":            "https://github.com/kubernetes/kubernetes/pull/63797"
-			"controller-gen.kubebuilder.io/version": "v0.16.5"
+			"controller-gen.kubebuilder.io/version": "v0.21.0"
 		}
 		name: "verticalpodautoscalers.autoscaling.k8s.io"
 	}
@@ -409,7 +409,7 @@ customresourcedefinition: "verticalpodautoscalers.autoscaling.k8s.io": {
 												description: """
 	Specifies the type of recommendations that will be computed
 	(and possibly applied) by VPA.
-	If not specified, the default of [ResourceCPU, ResourceMemory] will be used.
+	If not specified, the default of [cpu, memory] will be used.
 	"""
 												items: {
 													description: "ResourceName is the name identifying various resources in a ResourceList."
