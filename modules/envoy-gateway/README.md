@@ -5,15 +5,15 @@ A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.9.1-1`, packaging the upstream release
-[v1.9.1](https://github.com/envoyproxy/gateway/releases/tag/v1.9.1)
+Latest module version is `1.9.2-0`, packaging the upstream release
+[v1.9.2](https://github.com/envoyproxy/gateway/releases/tag/v1.9.2)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `docker.io/envoyproxy/gateway` | v1.9.1 | `sha256:0049bcb384c591c6a6dd043fe5c9929ef6e74f230e12dd678d2d3701df9b301e` |
+| `docker.io/envoyproxy/gateway` | v1.9.2 | `sha256:9d67017c442a70e6ae9f1a358e6c80eb653c67c2e40823d9a991e0daf37ba926` |
 | `docker.io/envoyproxy/envoy` | distroless-v1.39.1 | `sha256:eb2c01c13125d1629637cb4e4cce7207009fb7cc2c8027f9742758549d15b6f4` |
-| `docker.io/envoyproxy/ratelimit` | 8fe6ea42 | `sha256:a61547259607d40aff153050c2a87873ca1676d1d9f5f06937d412000dcc2df1` |
+| `docker.io/envoyproxy/ratelimit` | 0482748e | `sha256:5fdd8e3ae335ab6d64316f8d2fd9a886830075cbbb40a1d8065c869275909162` |
 <!-- versions:end -->
 
 The `docker.io/envoyproxy/envoy` and `docker.io/envoyproxy/ratelimit`
