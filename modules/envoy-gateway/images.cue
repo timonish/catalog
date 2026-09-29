@@ -6,8 +6,8 @@ package main
 values: {
 	image: {
 		repository: *"docker.io/envoyproxy/gateway" | string
-		tag:        *"v1.9.1" | string
-		digest:     *"sha256:0049bcb384c591c6a6dd043fe5c9929ef6e74f230e12dd678d2d3701df9b301e" | string
+		tag:        *"v1.9.2" | string
+		digest:     *"sha256:9d67017c442a70e6ae9f1a358e6c80eb653c67c2e40823d9a991e0daf37ba926" | string
 	}
 	proxy: image: {
 		repository: *"docker.io/envoyproxy/envoy" | string
@@ -16,7 +16,7 @@ values: {
 	}
 	rateLimit: image: {
 		repository: *"docker.io/envoyproxy/ratelimit" | string
-		tag:        *"8fe6ea42" | string
-		digest:     *"sha256:a61547259607d40aff153050c2a87873ca1676d1d9f5f06937d412000dcc2df1" | string
+		tag:        *"0482748e" | string
+		digest:     *"sha256:5fdd8e3ae335ab6d64316f8d2fd9a886830075cbbb40a1d8065c869275909162" | string
 	}
 }

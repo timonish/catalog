@@ -1,10 +1,14 @@
 {
   "name": "envoy-gateway",
   "repo": "envoyproxy/gateway",
-  "tag": "v1.9.1",
-  "commit": "0260554fd4f33b787aad77a129fc0ffeb00c1f29",
-  "moduleVersion": "1.9.1-1",
+  "tag": "v1.9.2",
+  "commit": "f9f92a112a4033abed5c8d43a5f7e37da257403c",
+  "moduleVersion": "1.9.2-0",
   "moduleReleases": [
+    {
+      "version": "1.9.2-0",
+      "releasedAt": "2026-09-29T12:35:03.829Z"
+    },
     {
       "version": "1.9.1-1",
       "releasedAt": "2026-08-30T09:56:43.302Z"
@@ -45,8 +49,8 @@
   "images": {
     "envoy-gateway": {
       "repository": "docker.io/envoyproxy/gateway",
-      "tag": "v1.9.1",
-      "digest": "sha256:0049bcb384c591c6a6dd043fe5c9929ef6e74f230e12dd678d2d3701df9b301e"
+      "tag": "v1.9.2",
+      "digest": "sha256:9d67017c442a70e6ae9f1a358e6c80eb653c67c2e40823d9a991e0daf37ba926"
     },
     "envoy": {
       "repository": "docker.io/envoyproxy/envoy",
@@ -55,11 +59,11 @@
     },
     "ratelimit": {
       "repository": "docker.io/envoyproxy/ratelimit",
-      "tag": "8fe6ea42",
-      "digest": "sha256:a61547259607d40aff153050c2a87873ca1676d1d9f5f06937d412000dcc2df1"
+      "tag": "0482748e",
+      "digest": "sha256:5fdd8e3ae335ab6d64316f8d2fd9a886830075cbbb40a1d8065c869275909162"
     }
   },
-  "crdsDigest": "sha256:613fac22b8673735e97fd2523098974bd74cb0cc78e444602b3383d1217b8aab",
-  "generatedDigest": "sha256:51689be453cb70b223a7934510a31f0b0fc550a2efee1477d5fcef85e214fda9",
-  "updatedAt": "2026-08-30T09:56:43.302Z"
+  "crdsDigest": "sha256:b339119f8f3a4046688fc96837b4129553f42c9998976913ef9dff25694d85cc",
+  "generatedDigest": "sha256:140debf15f106314bad19643c36b3b0f78116a41e1a457ae9bd1b2ebd172ebef",
+  "updatedAt": "2026-09-29T12:35:03.829Z"
 }

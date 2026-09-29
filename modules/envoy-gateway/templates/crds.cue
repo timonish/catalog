@@ -12605,8 +12605,11 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					description: "Selects a key of a ConfigMap."
 																					properties: {
 																						key: {
-																							description: "The key to select."
-																							type:        "string"
+																							description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																							type: "string"
 																						}
 																						name: {
 																							default: ""
@@ -13110,12 +13113,22 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																items: {
 																	description: "VolumeMount describes a mounting of a Volume within a container."
 																	properties: {
-																		mountPath: {
+																		bindMountOptions: {
 																			description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-																			type: "string"
+																			items: type: "string"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "set"
+																		}
+																		mountPath: {
+																			description: "Path within the container at which the volume should be mounted."
+																			type:        "string"
 																		}
 																		mountPropagation: {
 																			description: """
@@ -14473,11 +14486,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 	whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 	CSIDriver instance. Other volumes are always re-labelled recursively.
-	"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-	If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-	and "Recursive" for all other volumes.
+	If not specified, "MountOption" is used.
 
 	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -15169,6 +15179,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -15206,6 +15225,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	May not start with the string '..'.
 	"""
 																								type: "string"
+																							}
+																							user: {
+																								description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: [
@@ -15312,6 +15340,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: "Items is a list of downward API volume file"
 																					items: {
@@ -15378,6 +15415,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
+																							user: {
+																								description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																								format: "int64"
+																								type:   "integer"
+																							}
 																						}
 																						required: ["path"]
 																						type: "object"
@@ -15402,6 +15448,20 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 																					type: "string"
+																				}
+																				mode: {
+																					description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				sizeLimit: {
 																					anyOf: [{
@@ -15507,8 +15567,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 																								properties: {
@@ -15559,7 +15619,6 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 																								properties: {
@@ -16267,6 +16326,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				sources: {
 																					description: """
 	sources is the list of volume projections. Each entry in this list
@@ -16385,6 +16453,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																										type: "string"
 																									}
+																									user: {
+																										description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																										format: "int64"
+																										type:   "integer"
+																									}
 																								}
 																								required: ["path"]
 																								type: "object"
@@ -16429,6 +16506,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	May not start with the string '..'.
 	"""
 																													type: "string"
+																												}
+																												user: {
+																													description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																													format: "int64"
+																													type:   "integer"
 																												}
 																											}
 																											required: [
@@ -16526,6 +16612,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																												required: ["resource"]
 																												type:                    "object"
 																												"x-kubernetes-map-type": "atomic"
+																											}
+																											user: {
+																												description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																												format: "int64"
+																												type:   "integer"
 																											}
 																										}
 																										required: ["path"]
@@ -16648,6 +16743,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "Kubelet's generated CSRs will be addressed to this signer."
 																										type:        "string"
 																									}
+																									user: {
+																										description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																										format: "int64"
+																										type:   "integer"
+																									}
 																									userAnnotations: {
 																										additionalProperties: type: "string"
 																										description: """
@@ -16715,6 +16819,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																													type: "string"
 																												}
+																												user: {
+																													description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																													format: "int64"
+																													type:   "integer"
+																												}
 																											}
 																											required: [
 																												"key",
@@ -16774,6 +16887,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	token into.
 	"""
 																										type: "string"
+																									}
+																									user: {
+																										description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																										format: "int64"
+																										type:   "integer"
 																									}
 																								}
 																								required: ["path"]
@@ -17039,6 +17161,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -17076,6 +17207,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	May not start with the string '..'.
 	"""
 																								type: "string"
+																							}
+																							user: {
+																								description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: [
@@ -17316,8 +17456,11 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					description: "Selects a key of a ConfigMap."
 																					properties: {
 																						key: {
-																							description: "The key to select."
-																							type:        "string"
+																							description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																							type: "string"
 																						}
 																						name: {
 																							default: ""
@@ -17821,12 +17964,22 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																items: {
 																	description: "VolumeMount describes a mounting of a Volume within a container."
 																	properties: {
-																		mountPath: {
+																		bindMountOptions: {
 																			description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-																			type: "string"
+																			items: type: "string"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "set"
+																		}
+																		mountPath: {
+																			description: "Path within the container at which the volume should be mounted."
+																			type:        "string"
 																		}
 																		mountPropagation: {
 																			description: """
@@ -17977,8 +18130,11 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																						description: "Selects a key of a ConfigMap."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+	The key to select from the ConfigMap's Data field.
+	Keys in the BinaryData field are not currently propagated to container env vars.
+	"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -18304,6 +18460,13 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																							"x-kubernetes-int-or-string": true
 																						}
+																						protocol: {
+																							description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																							type: "string"
+																						}
 																						scheme: {
 																							description: """
 	Scheme to use for connecting to the host.
@@ -18438,6 +18601,13 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																							"x-kubernetes-int-or-string": true
 																						}
+																						protocol: {
+																							description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																							type: "string"
+																						}
 																						scheme: {
 																							description: """
 	Scheme to use for connecting to the host.
@@ -18536,6 +18706,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																		grpc: {
 																			description: "GRPC specifies a GRPC HealthCheckRequest."
 																			properties: {
+																				mode: {
+																					description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+																					type: "string"
+																				}
 																				port: {
 																					description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 																					format:      "int32"
@@ -18607,6 +18786,13 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 																					"x-kubernetes-int-or-string": true
+																				}
+																				protocol: {
+																					description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																					type: "string"
 																				}
 																				scheme: {
 																					description: """
@@ -18800,6 +18986,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																		grpc: {
 																			description: "GRPC specifies a GRPC HealthCheckRequest."
 																			properties: {
+																				mode: {
+																					description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+																					type: "string"
+																				}
 																				port: {
 																					description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 																					format:      "int32"
@@ -18871,6 +19066,13 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 																					"x-kubernetes-int-or-string": true
+																				}
+																				protocol: {
+																					description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																					type: "string"
 																				}
 																				scheme: {
 																					description: """
@@ -19432,6 +19634,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																		grpc: {
 																			description: "GRPC specifies a GRPC HealthCheckRequest."
 																			properties: {
+																				mode: {
+																					description: """
+	mode specifies the connection mode for the gRPC health probe.
+	Set to "TLS" to use TLS without certificate verification.
+	Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+	If not specified, the probe uses a plaintext (insecure) connection.
+	"""
+																					type: "string"
+																				}
 																				port: {
 																					description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 																					format:      "int32"
@@ -19503,6 +19714,13 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	Name must be an IANA_SVC_NAME.
 	"""
 																					"x-kubernetes-int-or-string": true
+																				}
+																				protocol: {
+																					description: """
+	Protocol selects the wire protocol for the probe connection.
+	Nil defaults to HTTP/1.1.
+	"""
+																					type: "string"
 																				}
 																				scheme: {
 																					description: """
@@ -19674,12 +19892,22 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																	items: {
 																		description: "VolumeMount describes a mounting of a Volume within a container."
 																		properties: {
-																			mountPath: {
+																			bindMountOptions: {
 																				description: """
-	Path within the container at which the volume should be mounted.  Must
-	not contain ':'.
+	bindMountOptions is the list of additional bind mount options to apply when
+	mounting this volume into the container. Allowed values are noexec,
+	nodev, and nosuid. These are Linux mount options and have no effect on
+	Windows nodes.
+	This field is not supported with image volumes.
+	This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 	"""
-																				type: "string"
+																				items: type: "string"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																			}
+																			mountPath: {
+																				description: "Path within the container at which the volume should be mounted."
+																				type:        "string"
 																			}
 																			mountPropagation: {
 																				description: """
@@ -21047,11 +21275,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 	whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 	CSIDriver instance. Other volumes are always re-labelled recursively.
-	"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-	If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-	and "Recursive" for all other volumes.
+	If not specified, "MountOption" is used.
 
 	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -21743,6 +21968,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: """
 	items if unspecified, each key-value pair in the Data field of the referenced
@@ -21780,6 +22014,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	May not start with the string '..'.
 	"""
 																								type: "string"
+																							}
+																							user: {
+																								description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: [
@@ -21886,6 +22129,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: "Items is a list of downward API volume file"
 																					items: {
@@ -21952,6 +22204,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
+																							user: {
+																								description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																								format: "int64"
+																								type:   "integer"
+																							}
 																						}
 																						required: ["path"]
 																						type: "object"
@@ -21976,6 +22237,20 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	"""
 																					type: "string"
+																				}
+																				mode: {
+																					description: """
+	mode specifies the permission bits for the emptyDir directory, in numeric
+	notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+	If not specified, defaults to 0777.
+	This might be in conflict with other options that affect the file
+	mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+	will override the mode specified here.
+	This field has no effect on Windows.
+	This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+	"""
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				sizeLimit: {
 																					anyOf: [{
@@ -22081,8 +22356,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	* An existing PVC (PersistentVolumeClaim)
 	If the provisioner or an external controller can support the specified data source,
 	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+	copied to dataSource when dataSourceRef.namespace is not specified.
 	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 	"""
 																								properties: {
@@ -22133,7 +22408,6 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	  specified.
 	* While dataSource only allows local objects, dataSourceRef allows objects
 	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 	"""
 																								properties: {
@@ -22841,6 +23115,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				sources: {
 																					description: """
 	sources is the list of volume projections. Each entry in this list
@@ -22959,6 +23242,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																										type: "string"
 																									}
+																									user: {
+																										description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																										format: "int64"
+																										type:   "integer"
+																									}
 																								}
 																								required: ["path"]
 																								type: "object"
@@ -23003,6 +23295,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	May not start with the string '..'.
 	"""
 																													type: "string"
+																												}
+																												user: {
+																													description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																													format: "int64"
+																													type:   "integer"
 																												}
 																											}
 																											required: [
@@ -23100,6 +23401,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																												required: ["resource"]
 																												type:                    "object"
 																												"x-kubernetes-map-type": "atomic"
+																											}
+																											user: {
+																												description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																												format: "int64"
+																												type:   "integer"
 																											}
 																										}
 																										required: ["path"]
@@ -23222,6 +23532,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "Kubelet's generated CSRs will be addressed to this signer."
 																										type:        "string"
 																									}
+																									user: {
+																										description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																										format: "int64"
+																										type:   "integer"
+																									}
 																									userAnnotations: {
 																										additionalProperties: type: "string"
 																										description: """
@@ -23289,6 +23608,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																													type: "string"
 																												}
+																												user: {
+																													description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																													format: "int64"
+																													type:   "integer"
+																												}
 																											}
 																											required: [
 																												"key",
@@ -23348,6 +23676,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	token into.
 	"""
 																										type: "string"
+																									}
+																									user: {
+																										description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																										format: "int64"
+																										type:   "integer"
 																									}
 																								}
 																								required: ["path"]
@@ -23613,6 +23950,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+	defaultUser is Optional: The owner UID of the created files by default.
+	The defaultUser field is only used as a fallback when the item-level user field is unset.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: """
 	items If unspecified, each key-value pair in the Data field of the referenced
@@ -23650,6 +23996,15 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	May not start with the string '..'.
 	"""
 																								type: "string"
+																							}
+																							user: {
+																								description: """
+	user is Optional: The owner UID of the created file.
+	If specified, the item-level user field takes precedence over defaultUser.
+	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+	"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: [
@@ -23943,9 +24298,6 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	For example, if autoscaling is configured with a memory consumption target of 100Mi,
 	and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
 	triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
-
-	This is an beta field and requires the HPAConfigurableTolerance feature
-	gate to be enabled.
 	"""
 																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																		"x-kubernetes-int-or-string": true
@@ -24037,9 +24389,6 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	For example, if autoscaling is configured with a memory consumption target of 100Mi,
 	and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
 	triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
-
-	This is an beta field and requires the HPAConfigurableTolerance feature
-	gate to be enabled.
 	"""
 																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																		"x-kubernetes-int-or-string": true
