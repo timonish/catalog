@@ -6,7 +6,7 @@ package main
 values: {
 	image: {
 		repository: *"ghcr.io/controlplaneio-fluxcd/flux-operator" | string
-		tag:        *"v0.60.0" | string
-		digest:     *"sha256:954176b87a0a9726cd2d5750b2782ccb3f0258dd2a41fcf6173629320cdb88f9" | string
+		tag:        *"v0.61.0" | string
+		digest:     *"sha256:71041d9fff7f7b05f1a8123ebe73c73b7b156f4aacfe1e8e19b5aa953a98892c" | string
 	}
 }
