@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying [Dex](https://github.com/dexi
 ## Version
 
 <!-- versions:start -->
-Latest module version is `2.45.1-1`, packaging the upstream release
-[v2.45.1](https://github.com/dexidp/dex/releases/tag/v2.45.1)
+Latest module version is `2.46.0-0`, packaging the upstream release
+[v2.46.0](https://github.com/dexidp/dex/releases/tag/v2.46.0)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `ghcr.io/dexidp/dex` | v2.45.1 | `sha256:8499afd690c437f52301efd2b05b2455da5bd2dfc20332cd697dc9937f808462` |
+| `ghcr.io/dexidp/dex` | v2.46.0 | `sha256:933fcd3f523338c847b88ef84a7145fb2fcb7b9917f08418612afeaaa2001777` |
 <!-- versions:end -->
 
 To list all available versions and their digests:
