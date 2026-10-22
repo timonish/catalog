@@ -6,17 +6,17 @@ package main
 values: {
 	recommender: image: {
 		repository: *"registry.k8s.io/autoscaling/vpa-recommender" | string
-		tag:        *"1.8.0" | string
-		digest:     *"sha256:e743e3a7e58a614f850063dba5df88eec5a19cf4cc43edb2050248df2d7dd8d3" | string
+		tag:        *"1.8.1" | string
+		digest:     *"sha256:edf874b830984d1df9d60f839874eba42de3465051922b929754edc42ea0f69b" | string
 	}
 	updater: image: {
 		repository: *"registry.k8s.io/autoscaling/vpa-updater" | string
-		tag:        *"1.8.0" | string
-		digest:     *"sha256:1d0229e52f90f645f1ee2e86ddfac8f451d166777c2aab066b9c5ab5e8bc5d5c" | string
+		tag:        *"1.8.1" | string
+		digest:     *"sha256:b4a03d56131cc6f6c44cd91982b6db5961496f18b9bc24abe1c4b6160aefe04a" | string
 	}
 	admissionController: image: {
 		repository: *"registry.k8s.io/autoscaling/vpa-admission-controller" | string
-		tag:        *"1.8.0" | string
-		digest:     *"sha256:3d94f53e4c5a6891b8b32af545dda975e45842486432b69475afaf8df278d23d" | string
+		tag:        *"1.8.1" | string
+		digest:     *"sha256:13304735dbffe3bdf4bc3865f093690a32d0048f61b5e4be7f634ed51cb9ff2b" | string
 	}
 }
