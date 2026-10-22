@@ -1,10 +1,14 @@
 {
   "name": "vertical-pod-autoscaler",
   "repo": "kubernetes/autoscaler",
-  "tag": "vertical-pod-autoscaler-1.8.0",
-  "commit": "238579734e73e4a263d1ab75a44353e58eeee3ea",
-  "moduleVersion": "1.8.0-0",
+  "tag": "vertical-pod-autoscaler-1.8.1",
+  "commit": "de59752fd24e25cca63e8e779561b97c9240623a",
+  "moduleVersion": "1.8.1-0",
   "moduleReleases": [
+    {
+      "version": "1.8.1-0",
+      "releasedAt": "2026-10-22T11:34:47.039Z"
+    },
     {
       "version": "1.8.0-0",
       "releasedAt": "2026-09-24T11:31:46.529Z"
@@ -33,21 +37,21 @@
   "images": {
     "recommender": {
       "repository": "registry.k8s.io/autoscaling/vpa-recommender",
-      "tag": "1.8.0",
-      "digest": "sha256:e743e3a7e58a614f850063dba5df88eec5a19cf4cc43edb2050248df2d7dd8d3"
+      "tag": "1.8.1",
+      "digest": "sha256:edf874b830984d1df9d60f839874eba42de3465051922b929754edc42ea0f69b"
     },
     "updater": {
       "repository": "registry.k8s.io/autoscaling/vpa-updater",
-      "tag": "1.8.0",
-      "digest": "sha256:1d0229e52f90f645f1ee2e86ddfac8f451d166777c2aab066b9c5ab5e8bc5d5c"
+      "tag": "1.8.1",
+      "digest": "sha256:b4a03d56131cc6f6c44cd91982b6db5961496f18b9bc24abe1c4b6160aefe04a"
     },
     "admission-controller": {
       "repository": "registry.k8s.io/autoscaling/vpa-admission-controller",
-      "tag": "1.8.0",
-      "digest": "sha256:3d94f53e4c5a6891b8b32af545dda975e45842486432b69475afaf8df278d23d"
+      "tag": "1.8.1",
+      "digest": "sha256:13304735dbffe3bdf4bc3865f093690a32d0048f61b5e4be7f634ed51cb9ff2b"
     }
   },
   "crdsDigest": "sha256:2916e9b8e0699375ed8eca8af81e00c5a8cf9d68a70b4796e24d43794838d623",
-  "generatedDigest": "sha256:8f2c473532896d8fdf159d7b1f7bd268881960759de0debb7310a0ef4f9f255b",
-  "updatedAt": "2026-09-24T11:31:46.529Z"
+  "generatedDigest": "sha256:6814fcb366d66d00e7ac06e86032b4bba2fc4d24c501e06decf7ddf318cc340d",
+  "updatedAt": "2026-10-22T11:34:47.039Z"
 }
