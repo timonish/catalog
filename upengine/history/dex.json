@@ -1,10 +1,14 @@
 {
   "name": "dex",
   "repo": "dexidp/dex",
-  "tag": "v2.46.0",
-  "commit": "05a275057112ba93e17db21f600b756f000f1c21",
-  "moduleVersion": "2.46.0-0",
+  "tag": "v2.46.1",
+  "commit": "75eb19238e10fc4750e7efb05a4031b254b04029",
+  "moduleVersion": "2.46.1-0",
   "moduleReleases": [
+    {
+      "version": "2.46.1-0",
+      "releasedAt": "2026-10-22T11:34:25.043Z"
+    },
     {
       "version": "2.46.0-0",
       "releasedAt": "2026-10-08T13:13:20.885Z"
@@ -21,10 +25,10 @@
   "images": {
     "dex": {
       "repository": "ghcr.io/dexidp/dex",
-      "tag": "v2.46.0",
-      "digest": "sha256:933fcd3f523338c847b88ef84a7145fb2fcb7b9917f08418612afeaaa2001777"
+      "tag": "v2.46.1",
+      "digest": "sha256:65b72ca0f4b0bf6d4ada84ec21da8851782563404ac7b8f926923d27ceced9ab"
     }
   },
-  "generatedDigest": "sha256:6bd7acda56200aba9e502f826e362dbc9a317bf971a411c0bbc0246eeae30e46",
-  "updatedAt": "2026-10-08T13:13:20.885Z"
+  "generatedDigest": "sha256:86a3490c642b8194476615b50c6afbf2132d9801fcffa6b234539409ea34ecb8",
+  "updatedAt": "2026-10-22T11:34:25.043Z"
 }

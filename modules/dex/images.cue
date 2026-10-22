@@ -6,7 +6,7 @@ package main
 values: {
 	image: {
 		repository: *"ghcr.io/dexidp/dex" | string
-		tag:        *"v2.46.0" | string
-		digest:     *"sha256:933fcd3f523338c847b88ef84a7145fb2fcb7b9917f08418612afeaaa2001777" | string
+		tag:        *"v2.46.1" | string
+		digest:     *"sha256:65b72ca0f4b0bf6d4ada84ec21da8851782563404ac7b8f926923d27ceced9ab" | string
 	}
 }
