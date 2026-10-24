@@ -6,7 +6,7 @@ customresourcedefinition: "acraccesstokens.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "acraccesstokens.generators.external-secrets.io"
 	}
@@ -260,7 +260,7 @@ customresourcedefinition: "beyondtrustworkloadcredentialsdynamicsecrets.generato
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "beyondtrustworkloadcredentialsdynamicsecrets.generators.external-secrets.io"
 	}
@@ -522,7 +522,7 @@ customresourcedefinition: "cloudsmithaccesstokens.generators.external-secrets.io
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "cloudsmithaccesstokens.generators.external-secrets.io"
 	}
@@ -633,7 +633,7 @@ customresourcedefinition: "clusterexternalsecrets.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "clusterexternalsecrets.external-secrets.io"
 	}
@@ -2694,7 +2694,7 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "clustergenerators.generators.external-secrets.io"
 	}
@@ -3654,7 +3654,43 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 									githubAccessTokenSpec: {
 										description: "GithubAccessTokenSpec defines the desired state to generate a GitHub access token."
 										properties: {
-											appID: type: "string"
+											appID: {
+												description: "AppID is the GitHub App ID. Exactly one of AppID or AppIDRef must be set."
+												type:        "string"
+											}
+											appIDRef: {
+												description: "AppIDRef references a secret key containing the GitHub App ID. Exactly one of AppID or AppIDRef must be set."
+												properties: {
+													key: {
+														description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+														maxLength: 253
+														minLength: 1
+														pattern:   "^[-._a-zA-Z0-9]+$"
+														type:      "string"
+													}
+													name: {
+														description: "The name of the Secret resource being referred to."
+														maxLength:   253
+														minLength:   1
+														pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+														type:        "string"
+													}
+													namespace: {
+														description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+														maxLength: 63
+														minLength: 1
+														pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+														type:      "string"
+													}
+												}
+												type: "object"
+											}
 											auth: {
 												description: "Auth configures how ESO authenticates with a Github instance."
 												properties: privateKey: {
@@ -3701,7 +3737,46 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 												required: ["privateKey"]
 												type: "object"
 											}
-											installID: type: "string"
+											installID: {
+												description: "InstallID is the GitHub App installation ID. Exactly one of InstallID or InstallIDRef must be set."
+												type:        "string"
+											}
+											installIDRef: {
+												description: """
+	InstallIDRef references a secret key containing the GitHub App installation ID. Exactly one of InstallID or
+	InstallIDRef must be set.
+	"""
+												properties: {
+													key: {
+														description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+														maxLength: 253
+														minLength: 1
+														pattern:   "^[-._a-zA-Z0-9]+$"
+														type:      "string"
+													}
+													name: {
+														description: "The name of the Secret resource being referred to."
+														maxLength:   253
+														minLength:   1
+														pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+														type:        "string"
+													}
+													namespace: {
+														description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+														maxLength: 63
+														minLength: 1
+														pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+														type:      "string"
+													}
+												}
+												type: "object"
+											}
 											permissions: {
 												additionalProperties: type: "string"
 												description: "Map of permissions the token will have. If omitted, defaults to all permissions the GitHub App has."
@@ -3720,12 +3795,15 @@ customresourcedefinition: "clustergenerators.generators.external-secrets.io": {
 												type:        "string"
 											}
 										}
-										required: [
-											"appID",
-											"auth",
-											"installID",
-										]
+										required: ["auth"]
 										type: "object"
+										"x-kubernetes-validations": [{
+											message: "exactly one of the fields in [appID appIDRef] must be set"
+											rule:    "(has(self.appID)?1:0)+(has(self.appIDRef)?1:0) == 1"
+										}, {
+											message: "exactly one of the fields in [installID installIDRef] must be set"
+											rule:    "(has(self.installID)?1:0)+(has(self.installIDRef)?1:0) == 1"
+										}]
 									}
 									gitlabDeployTokenSpec: {
 										description: "GitlabDeployTokenSpec defines the desired state to generate a GitLab deploy token."
@@ -5901,7 +5979,7 @@ customresourcedefinition: "clusterpushsecrets.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "clusterpushsecrets.external-secrets.io"
 	}
@@ -6764,7 +6842,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "clustersecretstores.external-secrets.io"
 	}
@@ -9709,7 +9787,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 											rule:    "has(self.auth) || has(self.authRef)"
 										}, {
 											message: "at most one of the fields in [auth authRef] may be set"
-											rule:    "[has(self.auth),has(self.authRef)].filter(x,x==true).size() <= 1"
+											rule:    "(has(self.auth)?1:0)+(has(self.authRef)?1:0) <= 1"
 										}]
 									}
 									delinea: {
@@ -12645,7 +12723,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 										type: "object"
 										"x-kubernetes-validations": [{
 											message: "at most one of the fields in [vault environment] may be set"
-											rule:    "[has(self.vault),has(self.environment)].filter(x,x==true).size() <= 1"
+											rule:    "(has(self.vault)?1:0)+(has(self.environment)?1:0) <= 1"
 										}]
 									}
 									openBao: {
@@ -12762,7 +12840,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 														type: "object"
 														"x-kubernetes-validations": [{
 															message: "exactly one of the fields in [roleId roleRef] must be set"
-															rule:    "[has(self.roleId),has(self.roleRef)].filter(x,x==true).size() == 1"
+															rule:    "(has(self.roleId)?1:0)+(has(self.roleRef)?1:0) == 1"
 														}]
 													}
 													kubernetes: {
@@ -12872,7 +12950,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 														type: "object"
 														"x-kubernetes-validations": [{
 															message: "exactly one of the fields in [serviceAccountRef secretRef] must be set"
-															rule:    "[has(self.serviceAccountRef),has(self.secretRef)].filter(x,x==true).size() == 1"
+															rule:    "(has(self.serviceAccountRef)?1:0)+(has(self.secretRef)?1:0) == 1"
 														}]
 													}
 													namespace: {
@@ -12990,7 +13068,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 												type: "object"
 												"x-kubernetes-validations": [{
 													message: "exactly one of the fields in [appRole tokenSecretRef userPass kubernetes] must be set"
-													rule:    "[has(self.appRole),has(self.tokenSecretRef),has(self.userPass),has(self.kubernetes)].filter(x,x==true).size() == 1"
+													rule:    "(has(self.appRole)?1:0)+(has(self.tokenSecretRef)?1:0)+(has(self.userPass)?1:0)+(has(self.kubernetes)?1:0) == 1"
 												}]
 											}
 											caBundle: {
@@ -13088,7 +13166,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 										type: "object"
 										"x-kubernetes-validations": [{
 											message: "at most one of the fields in [caBundle caProvider] may be set"
-											rule:    "[has(self.caBundle),has(self.caProvider)].filter(x,x==true).size() <= 1"
+											rule:    "(has(self.caBundle)?1:0)+(has(self.caProvider)?1:0) <= 1"
 										}]
 									}
 									oracle: {
@@ -21480,7 +21558,7 @@ customresourcedefinition: "ecrauthorizationtokens.generators.external-secrets.io
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "ecrauthorizationtokens.generators.external-secrets.io"
 	}
@@ -21721,7 +21799,7 @@ customresourcedefinition: "externalsecrets.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "externalsecrets.external-secrets.io"
 	}
@@ -23492,7 +23570,7 @@ customresourcedefinition: "fakes.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "fakes.generators.external-secrets.io"
 	}
@@ -23571,7 +23649,7 @@ customresourcedefinition: "gcraccesstokens.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "gcraccesstokens.generators.external-secrets.io"
 	}
@@ -23888,7 +23966,7 @@ customresourcedefinition: "generatorstates.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "generatorstates.generators.external-secrets.io"
 	}
@@ -24016,7 +24094,7 @@ customresourcedefinition: "githubaccesstokens.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "githubaccesstokens.generators.external-secrets.io"
 	}
@@ -24061,7 +24139,43 @@ customresourcedefinition: "githubaccesstokens.generators.external-secrets.io": {
 					spec: {
 						description: "GithubAccessTokenSpec defines the desired state to generate a GitHub access token."
 						properties: {
-							appID: type: "string"
+							appID: {
+								description: "AppID is the GitHub App ID. Exactly one of AppID or AppIDRef must be set."
+								type:        "string"
+							}
+							appIDRef: {
+								description: "AppIDRef references a secret key containing the GitHub App ID. Exactly one of AppID or AppIDRef must be set."
+								properties: {
+									key: {
+										description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+										maxLength: 253
+										minLength: 1
+										pattern:   "^[-._a-zA-Z0-9]+$"
+										type:      "string"
+									}
+									name: {
+										description: "The name of the Secret resource being referred to."
+										maxLength:   253
+										minLength:   1
+										pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+										type:        "string"
+									}
+									namespace: {
+										description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+										maxLength: 63
+										minLength: 1
+										pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+										type:      "string"
+									}
+								}
+								type: "object"
+							}
 							auth: {
 								description: "Auth configures how ESO authenticates with a Github instance."
 								properties: privateKey: {
@@ -24108,7 +24222,46 @@ customresourcedefinition: "githubaccesstokens.generators.external-secrets.io": {
 								required: ["privateKey"]
 								type: "object"
 							}
-							installID: type: "string"
+							installID: {
+								description: "InstallID is the GitHub App installation ID. Exactly one of InstallID or InstallIDRef must be set."
+								type:        "string"
+							}
+							installIDRef: {
+								description: """
+	InstallIDRef references a secret key containing the GitHub App installation ID. Exactly one of InstallID or
+	InstallIDRef must be set.
+	"""
+								properties: {
+									key: {
+										description: """
+	A key in the referenced Secret.
+	Some instances of this field may be defaulted, in others it may be required.
+	"""
+										maxLength: 253
+										minLength: 1
+										pattern:   "^[-._a-zA-Z0-9]+$"
+										type:      "string"
+									}
+									name: {
+										description: "The name of the Secret resource being referred to."
+										maxLength:   253
+										minLength:   1
+										pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+										type:        "string"
+									}
+									namespace: {
+										description: """
+	The namespace of the Secret resource being referred to.
+	Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+	"""
+										maxLength: 63
+										minLength: 1
+										pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+										type:      "string"
+									}
+								}
+								type: "object"
+							}
 							permissions: {
 								additionalProperties: type: "string"
 								description: "Map of permissions the token will have. If omitted, defaults to all permissions the GitHub App has."
@@ -24127,12 +24280,15 @@ customresourcedefinition: "githubaccesstokens.generators.external-secrets.io": {
 								type:        "string"
 							}
 						}
-						required: [
-							"appID",
-							"auth",
-							"installID",
-						]
+						required: ["auth"]
 						type: "object"
+						"x-kubernetes-validations": [{
+							message: "exactly one of the fields in [appID appIDRef] must be set"
+							rule:    "(has(self.appID)?1:0)+(has(self.appIDRef)?1:0) == 1"
+						}, {
+							message: "exactly one of the fields in [installID installIDRef] must be set"
+							rule:    "(has(self.installID)?1:0)+(has(self.installIDRef)?1:0) == 1"
+						}]
 					}
 				}
 				type: "object"
@@ -24147,7 +24303,7 @@ customresourcedefinition: "gitlabdeploytokens.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "gitlabdeploytokens.generators.external-secrets.io"
 	}
@@ -24327,7 +24483,7 @@ customresourcedefinition: "grafanas.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "grafanas.generators.external-secrets.io"
 	}
@@ -24504,7 +24660,7 @@ customresourcedefinition: "mfas.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "mfas.generators.external-secrets.io"
 	}
@@ -24616,7 +24772,7 @@ customresourcedefinition: "passwords.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "passwords.generators.external-secrets.io"
 	}
@@ -24768,7 +24924,7 @@ customresourcedefinition: "pushsecrets.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "pushsecrets.external-secrets.io"
 	}
@@ -25584,7 +25740,7 @@ customresourcedefinition: "quayaccesstokens.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "quayaccesstokens.generators.external-secrets.io"
 	}
@@ -25690,7 +25846,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "secretstores.external-secrets.io"
 	}
@@ -28635,7 +28791,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 											rule:    "has(self.auth) || has(self.authRef)"
 										}, {
 											message: "at most one of the fields in [auth authRef] may be set"
-											rule:    "[has(self.auth),has(self.authRef)].filter(x,x==true).size() <= 1"
+											rule:    "(has(self.auth)?1:0)+(has(self.authRef)?1:0) <= 1"
 										}]
 									}
 									delinea: {
@@ -31571,7 +31727,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 										type: "object"
 										"x-kubernetes-validations": [{
 											message: "at most one of the fields in [vault environment] may be set"
-											rule:    "[has(self.vault),has(self.environment)].filter(x,x==true).size() <= 1"
+											rule:    "(has(self.vault)?1:0)+(has(self.environment)?1:0) <= 1"
 										}]
 									}
 									openBao: {
@@ -31688,7 +31844,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 														type: "object"
 														"x-kubernetes-validations": [{
 															message: "exactly one of the fields in [roleId roleRef] must be set"
-															rule:    "[has(self.roleId),has(self.roleRef)].filter(x,x==true).size() == 1"
+															rule:    "(has(self.roleId)?1:0)+(has(self.roleRef)?1:0) == 1"
 														}]
 													}
 													kubernetes: {
@@ -31798,7 +31954,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 														type: "object"
 														"x-kubernetes-validations": [{
 															message: "exactly one of the fields in [serviceAccountRef secretRef] must be set"
-															rule:    "[has(self.serviceAccountRef),has(self.secretRef)].filter(x,x==true).size() == 1"
+															rule:    "(has(self.serviceAccountRef)?1:0)+(has(self.secretRef)?1:0) == 1"
 														}]
 													}
 													namespace: {
@@ -31916,7 +32072,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 												type: "object"
 												"x-kubernetes-validations": [{
 													message: "exactly one of the fields in [appRole tokenSecretRef userPass kubernetes] must be set"
-													rule:    "[has(self.appRole),has(self.tokenSecretRef),has(self.userPass),has(self.kubernetes)].filter(x,x==true).size() == 1"
+													rule:    "(has(self.appRole)?1:0)+(has(self.tokenSecretRef)?1:0)+(has(self.userPass)?1:0)+(has(self.kubernetes)?1:0) == 1"
 												}]
 											}
 											caBundle: {
@@ -32014,7 +32170,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 										type: "object"
 										"x-kubernetes-validations": [{
 											message: "at most one of the fields in [caBundle caProvider] may be set"
-											rule:    "[has(self.caBundle),has(self.caProvider)].filter(x,x==true).size() <= 1"
+											rule:    "(has(self.caBundle)?1:0)+(has(self.caProvider)?1:0) <= 1"
 										}]
 									}
 									oracle: {
@@ -40406,7 +40562,7 @@ customresourcedefinition: "sshkeys.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "sshkeys.generators.external-secrets.io"
 	}
@@ -40492,7 +40648,7 @@ customresourcedefinition: "stssessiontokens.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "stssessiontokens.generators.external-secrets.io"
 	}
@@ -40748,7 +40904,7 @@ customresourcedefinition: "uuids.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "uuids.generators.external-secrets.io"
 	}
@@ -40807,7 +40963,7 @@ customresourcedefinition: "vaultdynamicsecrets.generators.external-secrets.io": 
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "vaultdynamicsecrets.generators.external-secrets.io"
 	}
@@ -42094,7 +42250,7 @@ customresourcedefinition: "webhooks.generators.external-secrets.io": {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinition"
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.19.0"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.23.0"
 		labels: "external-secrets.io/component":              "controller"
 		name: "webhooks.generators.external-secrets.io"
 	}

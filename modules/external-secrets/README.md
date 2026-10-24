@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying [External Secrets Operator](h
 ## Version
 
 <!-- versions:start -->
-Latest module version is `2.13.0-0`, packaging the upstream release
-[v2.13.0](https://github.com/external-secrets/external-secrets/releases/tag/v2.13.0)
+Latest module version is `2.14.0-0`, packaging the upstream release
+[v2.14.0](https://github.com/external-secrets/external-secrets/releases/tag/v2.14.0)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `ghcr.io/external-secrets/external-secrets` | v2.13.0 | `sha256:f799d87a6a959e597a4ba7a8d2379886292c3fcfbee678f7dc2d3566051bcb96` |
+| `ghcr.io/external-secrets/external-secrets` | v2.14.0 | `sha256:10608eb53e636e744903d5f3657a4d9c44e28d9d9c181b73e07bc7dd2e6884dc` |
 <!-- versions:end -->
 
 To list all available versions and their digests:
