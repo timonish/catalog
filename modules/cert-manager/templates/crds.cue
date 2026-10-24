@@ -5758,6 +5758,14 @@ customresourcedefinition: "certificates.cert-manager.io": {
 	in accordance with RFC 9773. This is only populated if the ARI feature gate is enabled.
 	"""
 									properties: {
+										certID: {
+											description: """
+	CertID is the ARI CertID (RFC 9773) of the certificate this renewal information was
+	fetched for. This is used to determine if we need to re-fetch the renewal information
+	as changed cert id means that ARI fetched before is stale.
+	"""
+											type: "string"
+										}
 										explanationURL: {
 											description: """
 	ExplanationURL is a human-readable URL that may explain why the suggested window
