@@ -6,7 +6,7 @@ package main
 values: {
 	image: {
 		repository: *"ghcr.io/external-secrets/external-secrets" | string
-		tag:        *"v2.13.0" | string
-		digest:     *"sha256:f799d87a6a959e597a4ba7a8d2379886292c3fcfbee678f7dc2d3566051bcb96" | string
+		tag:        *"v2.14.0" | string
+		digest:     *"sha256:10608eb53e636e744903d5f3657a4d9c44e28d9d9c181b73e07bc7dd2e6884dc" | string
 	}
 }
