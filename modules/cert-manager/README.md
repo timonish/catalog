@@ -5,16 +5,16 @@ A [Timoni](https://timoni.sh) module for deploying [cert-manager](https://github
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.21.2-0`, packaging the upstream release
-[v1.21.2](https://github.com/cert-manager/cert-manager/releases/tag/v1.21.2)
+Latest module version is `1.21.3-0`, packaging the upstream release
+[v1.21.3](https://github.com/cert-manager/cert-manager/releases/tag/v1.21.3)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `quay.io/jetstack/cert-manager-controller` | v1.21.2 | `sha256:70f532fd9cfde0b09d55687200942399d89838bc2d5d5b45152eb799a15912b8` |
-| `quay.io/jetstack/cert-manager-webhook` | v1.21.2 | `sha256:a60e2dac46dbb8a7f3df95c54ce941012f54c2fe022f0ee55aaa1ab40ed957ae` |
-| `quay.io/jetstack/cert-manager-cainjector` | v1.21.2 | `sha256:c85268c64f2e0e76684bf5fe8906caff34b82523561c6affe0fae3546bd87562` |
-| `quay.io/jetstack/cert-manager-acmesolver` | v1.21.2 | `sha256:699b40d622211ab7accad8a21b04c5fbaa1841ef7a12621e8de492dbe27b2503` |
+| `quay.io/jetstack/cert-manager-controller` | v1.21.3 | `sha256:9f4f96a33c7774cef24466fcd85031997531a03a8d117f151126baa8d1290dcc` |
+| `quay.io/jetstack/cert-manager-webhook` | v1.21.3 | `sha256:055ac8e9de6a0ba6763794838fe38944acc650f68ebe1b01dd8be079e580f458` |
+| `quay.io/jetstack/cert-manager-cainjector` | v1.21.3 | `sha256:083d0e906f8eb44e255fe4ff817ae54e49f9ed82e22f1011bb4e9e4f4b8a641f` |
+| `quay.io/jetstack/cert-manager-acmesolver` | v1.21.3 | `sha256:c8c1225bb2fe8ab37a330b77f0d8c2ee6a41210fcb54fc07ca606ab9a022b8b7` |
 <!-- versions:end -->
 
 To list all available versions and their digests:
