@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying [ExternalDNS](https://github.
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.23.0-0`, packaging the upstream release
-[v0.23.0](https://github.com/kubernetes-sigs/external-dns/releases/tag/v0.23.0)
+Latest module version is `0.24.0-0`, packaging the upstream release
+[v0.24.0](https://github.com/kubernetes-sigs/external-dns/releases/tag/v0.24.0)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `registry.k8s.io/external-dns/external-dns` | v0.23.0 | `sha256:1854499e2b08cee47c40a08e356bff20dcb192dbcfde8378fc3f900f12cad5a3` |
+| `registry.k8s.io/external-dns/external-dns` | v0.24.0 | `sha256:a80a146d2540fa138565e404f0625157271071a06093021f27ae19d8316d10f9` |
 <!-- versions:end -->
 
 To list all available versions and their digests:

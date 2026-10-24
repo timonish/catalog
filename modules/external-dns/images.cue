@@ -6,7 +6,7 @@ package main
 values: {
 	image: {
 		repository: *"registry.k8s.io/external-dns/external-dns" | string
-		tag:        *"v0.23.0" | string
-		digest:     *"sha256:1854499e2b08cee47c40a08e356bff20dcb192dbcfde8378fc3f900f12cad5a3" | string
+		tag:        *"v0.24.0" | string
+		digest:     *"sha256:a80a146d2540fa138565e404f0625157271071a06093021f27ae19d8316d10f9" | string
 	}
 }
