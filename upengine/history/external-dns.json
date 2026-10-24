@@ -1,10 +1,14 @@
 {
   "name": "external-dns",
   "repo": "kubernetes-sigs/external-dns",
-  "tag": "v0.23.0",
-  "commit": "a10c5665a5bc30e7163eb17e853e317964500e99",
-  "moduleVersion": "0.23.0-0",
+  "tag": "v0.24.0",
+  "commit": "c40894ac060e0920b2b49035df18005954f83a7a",
+  "moduleVersion": "0.24.0-0",
   "moduleReleases": [
+    {
+      "version": "0.24.0-0",
+      "releasedAt": "2026-10-24T10:42:42.344Z"
+    },
     {
       "version": "0.23.0-0",
       "releasedAt": "2026-09-19T10:43:22.129Z"
@@ -45,11 +49,11 @@
   "images": {
     "external-dns": {
       "repository": "registry.k8s.io/external-dns/external-dns",
-      "tag": "v0.23.0",
-      "digest": "sha256:1854499e2b08cee47c40a08e356bff20dcb192dbcfde8378fc3f900f12cad5a3"
+      "tag": "v0.24.0",
+      "digest": "sha256:a80a146d2540fa138565e404f0625157271071a06093021f27ae19d8316d10f9"
     }
   },
-  "crdsDigest": "sha256:96f4383d550a04d7c78b3312edc6e0f9dab9777d8195ff4cfdc76a0ca9587bbe",
-  "generatedDigest": "sha256:a403389009b6901db7a2a13166da39e45965653193d5769fc74272bbde2a8c07",
-  "updatedAt": "2026-09-19T10:43:22.129Z"
+  "crdsDigest": "sha256:b1805c07df61f04a730e413f733b646158f196c9582eacc1b7411aa5f18dc12e",
+  "generatedDigest": "sha256:b893682612fab7847a826f4661d46e4beae54a4f17f7740fbcc9b0508a59e389",
+  "updatedAt": "2026-10-24T10:42:42.344Z"
 }
