@@ -5,14 +5,14 @@ A [Timoni](https://timoni.sh) module for deploying [trust-manager](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.25.0-0`, packaging the upstream release
-[v0.25.0](https://github.com/cert-manager/trust-manager/releases/tag/v0.25.0)
+Latest module version is `0.26.0-0`, packaging the upstream release
+[v0.26.0](https://github.com/cert-manager/trust-manager/releases/tag/v0.26.0)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `quay.io/jetstack/trust-manager` | v0.25.0 | `sha256:0521921c2a46d14d0417336b20bcde69215ef3164f2977cc939d53c6e5224a17` |
-| `quay.io/jetstack/trust-pkg-debian-trixie` | 20250419.2 | `sha256:3093d4f6634fbd9eaf6a70a06d809132850d7cae30da82396d3b1f884c1135e7` |
+| `quay.io/jetstack/trust-manager` | v0.26.0 | `sha256:783afe31d39f122a811b96ac3aedab9f358488088df21622ae5b057b4a38b5c2` |
+| `quay.io/jetstack/trust-pkg-debian-trixie` | 20250419-deb13u1.1 | `sha256:477cc69ef6a026b90a6d67d4ac7114735c5f66edf1cc97e68b9da599adf231af` |
 <!-- versions:end -->
 
 To list all available versions and their digests:
