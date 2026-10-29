@@ -6847,6 +6847,11 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 										description: "Specify an optional HTTP URI for the target web server, e.g: /something"
 										type:        "string"
 									}
+									workers: {
+										description: "Enables dedicated thread(s) for this output. Default value is set since version 1.8.13. For previous versions is 0."
+										format:      "int32"
+										type:        "integer"
+									}
 								}
 								type: "object"
 							}
@@ -9158,6 +9163,13 @@ customresourcedefinition: "clusteroutputs.fluentbit.fluent.io": {
 										description: "Enables dedicated thread(s) for this output. Default value `2` is set since version 1.8.13. For previous versions is 0."
 										format:      "int32"
 										type:        "integer"
+									}
+									autoExtractTimestamp: {
+										description: """
+	Ask Splunk to extract the timestamp from the event data by setting auto_extract_timestamp=true
+	in the HTTP Event Collector URL and omitting the time field from the event envelope.
+	"""
+										type: "boolean"
 									}
 									channel: {
 										description: "Specify X-Splunk-Request-Channel Header for the HTTP Event Collector interface."
@@ -13082,6 +13094,10 @@ customresourcedefinition: "clusterparsers.fluentbit.fluent.io": {
 										description: "Time_Key"
 										type:        "string"
 									}
+									timeStrict: {
+										description: "Time_Strict"
+										type:        "boolean"
+									}
 								}
 								type: "object"
 							}
@@ -13099,6 +13115,10 @@ customresourcedefinition: "clusterparsers.fluentbit.fluent.io": {
 									timeKey: {
 										description: "Time_Key"
 										type:        "string"
+									}
+									timeStrict: {
+										description: "Time_Strict"
+										type:        "boolean"
 									}
 								}
 								type: "object"
@@ -13121,6 +13141,10 @@ customresourcedefinition: "clusterparsers.fluentbit.fluent.io": {
 									timeKey: {
 										description: "Time_Key"
 										type:        "string"
+									}
+									timeStrict: {
+										description: "Time_Strict"
+										type:        "boolean"
 									}
 									types: type: "string"
 								}
@@ -13145,6 +13169,10 @@ customresourcedefinition: "clusterparsers.fluentbit.fluent.io": {
 									timeOffset: {
 										description: "Time_Offset, eg. +0200"
 										type:        "string"
+									}
+									timeStrict: {
+										description: "Time_Strict"
+										type:        "boolean"
 									}
 									types: type: "string"
 								}
@@ -43428,6 +43456,11 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 										description: "Specify an optional HTTP URI for the target web server, e.g: /something"
 										type:        "string"
 									}
+									workers: {
+										description: "Enables dedicated thread(s) for this output. Default value is set since version 1.8.13. For previous versions is 0."
+										format:      "int32"
+										type:        "integer"
+									}
 								}
 								type: "object"
 							}
@@ -45739,6 +45772,13 @@ customresourcedefinition: "outputs.fluentbit.fluent.io": {
 										description: "Enables dedicated thread(s) for this output. Default value `2` is set since version 1.8.13. For previous versions is 0."
 										format:      "int32"
 										type:        "integer"
+									}
+									autoExtractTimestamp: {
+										description: """
+	Ask Splunk to extract the timestamp from the event data by setting auto_extract_timestamp=true
+	in the HTTP Event Collector URL and omitting the time field from the event envelope.
+	"""
+										type: "boolean"
 									}
 									channel: {
 										description: "Specify X-Splunk-Request-Channel Header for the HTTP Event Collector interface."
@@ -49663,6 +49703,10 @@ customresourcedefinition: "parsers.fluentbit.fluent.io": {
 										description: "Time_Key"
 										type:        "string"
 									}
+									timeStrict: {
+										description: "Time_Strict"
+										type:        "boolean"
+									}
 								}
 								type: "object"
 							}
@@ -49680,6 +49724,10 @@ customresourcedefinition: "parsers.fluentbit.fluent.io": {
 									timeKey: {
 										description: "Time_Key"
 										type:        "string"
+									}
+									timeStrict: {
+										description: "Time_Strict"
+										type:        "boolean"
 									}
 								}
 								type: "object"
@@ -49702,6 +49750,10 @@ customresourcedefinition: "parsers.fluentbit.fluent.io": {
 									timeKey: {
 										description: "Time_Key"
 										type:        "string"
+									}
+									timeStrict: {
+										description: "Time_Strict"
+										type:        "boolean"
 									}
 									types: type: "string"
 								}
@@ -49726,6 +49778,10 @@ customresourcedefinition: "parsers.fluentbit.fluent.io": {
 									timeOffset: {
 										description: "Time_Offset, eg. +0200"
 										type:        "string"
+									}
+									timeStrict: {
+										description: "Time_Strict"
+										type:        "boolean"
 									}
 									types: type: "string"
 								}
