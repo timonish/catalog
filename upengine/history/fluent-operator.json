@@ -1,10 +1,14 @@
 {
   "name": "fluent-operator",
   "repo": "fluent/fluent-operator",
-  "tag": "v3.10.1",
-  "commit": "352f22c9458ccfcfcebd80541f1c4d026cc9b665",
-  "moduleVersion": "3.10.1-0",
+  "tag": "v3.11.0",
+  "commit": "4b98e755cf513f42e5ff8f50a084c0f1ff9feec7",
+  "moduleVersion": "3.11.0-0",
   "moduleReleases": [
+    {
+      "version": "3.11.0-0",
+      "releasedAt": "2026-10-29T12:44:49.132Z"
+    },
     {
       "version": "3.10.1-0",
       "releasedAt": "2026-09-22T11:21:57.652Z"
@@ -25,11 +29,11 @@
   "images": {
     "fluent-operator": {
       "repository": "ghcr.io/fluent/fluent-operator/fluent-operator",
-      "tag": "v3.10.1",
-      "digest": "sha256:be978534f9fc1b998dc822c5eaa95b4e88e6a853a9739fd84fe10b44fcb9a97b"
+      "tag": "v3.11.0",
+      "digest": "sha256:13af2f68887c442fcca787ad86d066d7403d43744dcebcc9dfd65830fdb8b55a"
     }
   },
-  "crdsDigest": "sha256:d9d4018bff0df29203823c5de41e1eec90c6125138b7d41f4633e93631a2deed",
-  "generatedDigest": "sha256:4b8d5fd0e5d6297763aa95608af9f57be6333d54180f2f8da9490069ce707c4c",
-  "updatedAt": "2026-09-22T11:21:57.652Z"
+  "crdsDigest": "sha256:db27125f5da7d1a4b08c4e397b0594132e1cb15fcb894c885378325aec02c3f2",
+  "generatedDigest": "sha256:71e4a667ba3a70c71beb7185c721b153968f1d634f20d7c94bc8e04511016856",
+  "updatedAt": "2026-10-29T12:44:49.132Z"
 }
