@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying [Kubernetes Metrics Server](h
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.9.0-7`, packaging the upstream release
-[v0.9.0](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.0)
+Latest module version is `0.9.1-0`, packaging the upstream release
+[v0.9.1](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.1)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `registry.k8s.io/metrics-server/metrics-server` | v0.9.0 | `sha256:d9862115e7c7881280d3d75ca26bda8ffc0fc213315979575bf23ce9826205c0` |
+| `registry.k8s.io/metrics-server/metrics-server` | v0.9.1 | `sha256:9b0ba1926e1d3089673f45461c3c1416109dea33b3ba3434048defd380df329b` |
 | `registry.k8s.io/autoscaling/addon-resizer` | 1.8.24 | `sha256:bcf3d19331e8cb1adf7e834aac0c7a98653bb27604d36482a2fa888dc566463a` |
 <!-- versions:end -->
 
