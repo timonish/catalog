@@ -6,8 +6,8 @@ package main
 values: {
 	image: {
 		repository: *"registry.k8s.io/metrics-server/metrics-server" | string
-		tag:        *"v0.9.0" | string
-		digest:     *"sha256:d9862115e7c7881280d3d75ca26bda8ffc0fc213315979575bf23ce9826205c0" | string
+		tag:        *"v0.9.1" | string
+		digest:     *"sha256:9b0ba1926e1d3089673f45461c3c1416109dea33b3ba3434048defd380df329b" | string
 	}
 	addonResizer: image: {
 		repository: *"registry.k8s.io/autoscaling/addon-resizer" | string
