@@ -5,8 +5,8 @@ A [Timoni](https://timoni.sh) module for deploying the [Kubernetes Gateway API](
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.6.3-0`, packaging the upstream release
-[v1.6.3](https://github.com/kubernetes-sigs/gateway-api/releases/tag/v1.6.3).
+Latest module version is `1.7.0-0`, packaging the upstream release
+[v1.7.0](https://github.com/kubernetes-sigs/gateway-api/releases/tag/v1.7.0).
 <!-- versions:end -->
 
 To list all available versions and their digests:
