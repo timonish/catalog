@@ -7,8 +7,8 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "alertmanagerconfigs.monitoring.coreos.com"
 	}
@@ -12442,6 +12442,10 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 												}
 												required: ["roomID"]
 												type: "object"
+												"x-kubernetes-validations": [{
+													message: "httpConfig.authorization or httpConfig.bearerTokenSecret is required"
+													rule:    "has(self.httpConfig) && (has(self.httpConfig.authorization) || has(self.httpConfig.bearerTokenSecret))"
+												}]
 											}
 											type:                     "array"
 											"x-kubernetes-list-type": "atomic"
@@ -14344,6 +14348,43 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 										pattern:   "^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
 										type:      "string"
 									}
+									labels: {
+										description: """
+	labels defines the list of labels that will be attached to the alerts matching this route.
+	They can be inherited by child routes and can be overridden by child routes.
+	The values support template expressions.
+
+	It requires Alertmanager >= 0.34.0.
+	"""
+										items: {
+											description: "KeyValue defines a (key, value) tuple."
+											properties: {
+												key: {
+													description: """
+	key defines the key of the tuple.
+	This is the identifier or name part of the key-value pair.
+	"""
+													minLength: 1
+													type:      "string"
+												}
+												value: {
+													description: """
+	value defines the value of the tuple.
+	This is the data or content associated with the key.
+	"""
+													type: "string"
+												}
+											}
+											required: [
+												"key",
+												"value",
+											]
+											type: "object"
+										}
+										type: "array"
+										"x-kubernetes-list-map-keys": ["key"]
+										"x-kubernetes-list-type": "map"
+									}
 									matchers: {
 										description: """
 	matchers defines the list of matchers that the alert's labels should match. For the first
@@ -14560,8 +14601,8 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "alertmanagers.monitoring.coreos.com"
 	}
@@ -15755,6 +15796,33 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 									}
 								}
 								type: "object"
+							}
+							alertmanagerConfigFileSystemMode: {
+								description: """
+	alertmanagerConfigFileSystemMode defines how the operator handles
+	AlertmanagerConfig resources which have references to the Alertmanager
+	container's filesystem (as opposed to secret key references). Users
+	controlling the receiver's service may create an AlertmanagerConfig
+	resource with a reference to a container's file (for instance using
+	`botTokenFile` for the Telegram receiver) and exfiltrate sensitive
+	content from files located in the Alertmanager container.
+
+	Supported values are:
+	- "DenyAll" denies any AlertmanagerConfig resource referencing files from the container's filesystem, non-compliant resources are rejected.
+	- "FromAlertmanagerConfigMatcherStrategy" uses the `alertmanagerConfigNamespaceSelector` field to make a decision
+	  - When `alertmanagerConfigNamespaceSelector` is "None", it is equivalent to "AllowAll"
+	  - When `alertmanagerConfigNamespaceSelector` is "OnNamespaceExceptForAlertmanagerNamespace", it is equivalent to "AllowAll" for the AlertmanagerConfig resources located in the Alertmanager's namespace and "DenyAll" for all other resources.
+	  - When `alertmanagerConfigNamespaceSelector` is "OnNamespace", it is equivalent to "AllowAll" for the main AlertmanagerConfig resource (defined in `.spec.alertmanagerConfig.name`) and "DenyAll" for all other resources.
+	- "AllowAll" allows any AlertmanagerConfig resource to reference files from the container's filesystem (use with caution).
+
+	By default, the operator uses the "FromAlertmanagerConfigMatcherStrategy" mode.
+	"""
+								enum: [
+									"AllowAll",
+									"FromAlertmanagerConfigMatcherStrategy",
+									"DenyAll",
+								]
+								type: "string"
 							}
 							alertmanagerConfigMatcherStrategy: {
 								description: """
@@ -17259,16 +17327,62 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 											}
 											telegram: {
 												description: "telegram defines the default Telegram config"
-												properties: apiURL: {
-													description: """
+												properties: {
+													apiURL: {
+														description: """
 	apiURL defines he default Telegram API URL.
 
 	It requires Alertmanager >= v0.24.0.
 	"""
-													pattern: "^(http|https)://.+$"
-													type:    "string"
+														pattern: "^(http|https)://.+$"
+														type:    "string"
+													}
+													botToken: {
+														description: """
+	botToken represents the bot token configuration for Telegram.
+	It is mutually exclusive with `botTokenFile`.
+	It requires Alertmanager >= v0.31.0.
+	"""
+														properties: {
+															key: {
+																description: "The key of the secret to select from.  Must be a valid secret key."
+																type:        "string"
+															}
+															name: {
+																default: ""
+																description: """
+	Name of the referent.
+	This field is effectively required, but due to backwards compatibility is
+	allowed to be empty. Instances of this type with an empty value here are
+	almost certainly wrong.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	"""
+																type: "string"
+															}
+															optional: {
+																description: "Specify whether the Secret or its key must be defined"
+																type:        "boolean"
+															}
+														}
+														required: ["key"]
+														type:                    "object"
+														"x-kubernetes-map-type": "atomic"
+													}
+													botTokenFile: {
+														description: """
+	botTokenFile defines the file to read the Telegram bot token from.
+	It is mutually exclusive with `botToken`.
+	It requires Alertmanager >= v0.31.0.
+	"""
+														minLength: 1
+														type:      "string"
+													}
 												}
 												type: "object"
+												"x-kubernetes-validations": [{
+													message: "botToken and botTokenFile are mutually exclusive."
+													rule:    "!has(self.botToken) || !has(self.botTokenFile)"
+												}]
 											}
 											victorops: {
 												description: "victorops defines the default configuration for VictorOps."
@@ -17880,6 +17994,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	For more detail on clientAuth options:
 	https://golang.org/pkg/crypto/tls/#ClientAuthType
 	"""
+												enum: [
+													"NoClientCert",
+													"RequestClientCert",
+													"RequireAnyClientCert",
+													"VerifyClientCertIfGiven",
+													"RequireAndVerifyClientCert",
+												]
 												type: "string"
 											}
 											clientCAFile: {
@@ -23579,7 +23700,8 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	Together with status it forms the unique identity of a condition entry.
 	Maximum permitted length of a reason is 256 bytes.
 	"""
-																			type: "string"
+																			minLength: 1
+																			type:      "string"
 																		}
 																		status: {
 																			description: """
@@ -23594,7 +23716,8 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																				"Degraded",
 																				"Inaccessible",
 																			]
-																			type: "string"
+																			minLength: 1
+																			type:      "string"
 																		}
 																	}
 																	required: [
@@ -23603,7 +23726,8 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 																	]
 																	type: "object"
 																}
-																type: "array"
+																maxItems: 16
+																type:     "array"
 																"x-kubernetes-list-map-keys": [
 																	"status",
 																	"reason",
@@ -26770,6 +26894,13 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	For more detail on clientAuth options:
 	https://golang.org/pkg/crypto/tls/#ClientAuthType
 	"""
+												enum: [
+													"NoClientCert",
+													"RequestClientCert",
+													"RequireAnyClientCert",
+													"VerifyClientCertIfGiven",
+													"RequireAndVerifyClientCert",
+												]
 												type: "string"
 											}
 											clientCAFile: {
@@ -26988,8 +27119,8 @@ customresourcedefinition: "podmonitors.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "podmonitors.monitoring.coreos.com"
 	}
@@ -27078,6 +27209,16 @@ customresourcedefinition: "podmonitors.monitoring.coreos.com": {
 								description: """
 	convertClassicHistogramsToNHCB defines whether to convert all scraped classic histograms into a native histogram with custom buckets.
 	It requires Prometheus >= v3.0.0.
+	"""
+								type: "boolean"
+							}
+							extraScrapeMetrics: {
+								description: """
+	extraScrapeMetrics defines whether to store additional time series for each scrape:
+	`scrape_timeout_seconds`, `scrape_sample_limit` and `scrape_body_size_bytes`.
+	These metrics help monitor how close targets are to their configured limits.
+
+	It requires Prometheus >= v3.10.0.
 	"""
 								type: "boolean"
 							}
@@ -28659,8 +28800,8 @@ customresourcedefinition: "probes.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "probes.monitoring.coreos.com"
 	}
@@ -28876,6 +29017,16 @@ customresourcedefinition: "probes.monitoring.coreos.com": {
 							enableHttp2: {
 								description: "enableHttp2 can be used to disable HTTP2."
 								type:        "boolean"
+							}
+							extraScrapeMetrics: {
+								description: """
+	extraScrapeMetrics defines whether to store additional time series for each scrape:
+	`scrape_timeout_seconds`, `scrape_sample_limit` and `scrape_body_size_bytes`.
+	These metrics help monitor how close targets are to their configured limits.
+
+	It requires Prometheus >= v3.10.0.
+	"""
+								type: "boolean"
 							}
 							fallbackScrapeProtocol: {
 								description: """
@@ -30344,8 +30495,8 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "prometheusagents.monitoring.coreos.com"
 	}
@@ -34353,6 +34504,16 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	Prometheus is accessible behind an Ingress resource).
 	"""
 								type: "string"
+							}
+							extraScrapeMetrics: {
+								description: """
+	extraScrapeMetrics defines whether to store additional time series for each scrape:
+	`scrape_timeout_seconds`, `scrape_sample_limit` and `scrape_body_size_bytes`.
+	These metrics help monitor how close targets are to their configured limits.
+
+	It requires Prometheus >= v2.32.0.
+	"""
+								type: "boolean"
 							}
 							hostAliases: {
 								description: """
@@ -40793,7 +40954,8 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	Together with status it forms the unique identity of a condition entry.
 	Maximum permitted length of a reason is 256 bytes.
 	"""
-																			type: "string"
+																			minLength: 1
+																			type:      "string"
 																		}
 																		status: {
 																			description: """
@@ -40808,7 +40970,8 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 																				"Degraded",
 																				"Inaccessible",
 																			]
-																			type: "string"
+																			minLength: 1
+																			type:      "string"
 																		}
 																	}
 																	required: [
@@ -40817,7 +40980,8 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 																	]
 																	type: "object"
 																}
-																type: "array"
+																maxItems: 16
+																type:     "array"
 																"x-kubernetes-list-map-keys": [
 																	"status",
 																	"reason",
@@ -44352,6 +44516,13 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	For more detail on clientAuth options:
 	https://golang.org/pkg/crypto/tls/#ClientAuthType
 	"""
+												enum: [
+													"NoClientCert",
+													"RequestClientCert",
+													"RequireAnyClientCert",
+													"VerifyClientCertIfGiven",
+													"RequireAndVerifyClientCert",
+												]
 												type: "string"
 											}
 											clientCAFile: {
@@ -44663,8 +44834,8 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "prometheuses.monitoring.coreos.com"
 	}
@@ -49628,6 +49799,16 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	Prometheus is accessible behind an Ingress resource).
 	"""
 								type: "string"
+							}
+							extraScrapeMetrics: {
+								description: """
+	extraScrapeMetrics defines whether to store additional time series for each scrape:
+	`scrape_timeout_seconds`, `scrape_sample_limit` and `scrape_body_size_bytes`.
+	These metrics help monitor how close targets are to their configured limits.
+
+	It requires Prometheus >= v2.32.0.
+	"""
+								type: "boolean"
 							}
 							hostAliases: {
 								description: """
@@ -57258,7 +57439,8 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	Together with status it forms the unique identity of a condition entry.
 	Maximum permitted length of a reason is 256 bytes.
 	"""
-																			type: "string"
+																			minLength: 1
+																			type:      "string"
 																		}
 																		status: {
 																			description: """
@@ -57273,7 +57455,8 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																				"Degraded",
 																				"Inaccessible",
 																			]
-																			type: "string"
+																			minLength: 1
+																			type:      "string"
 																		}
 																	}
 																	required: [
@@ -57282,7 +57465,8 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 																	]
 																	type: "object"
 																}
-																type: "array"
+																maxItems: 16
+																type:     "array"
 																"x-kubernetes-list-map-keys": [
 																	"status",
 																	"reason",
@@ -61484,6 +61668,13 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	For more detail on clientAuth options:
 	https://golang.org/pkg/crypto/tls/#ClientAuthType
 	"""
+												enum: [
+													"NoClientCert",
+													"RequestClientCert",
+													"RequireAnyClientCert",
+													"VerifyClientCertIfGiven",
+													"RequireAndVerifyClientCert",
+												]
 												type: "string"
 											}
 											clientCAFile: {
@@ -61759,8 +61950,8 @@ customresourcedefinition: "prometheusrules.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "prometheusrules.monitoring.coreos.com"
 	}
@@ -62058,8 +62249,8 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "scrapeconfigs.monitoring.coreos.com"
 	}
@@ -67729,6 +67920,16 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 									type: "object"
 								}
 								type: "array"
+							}
+							extraScrapeMetrics: {
+								description: """
+	extraScrapeMetrics defines whether to store additional time series for each scrape:
+	`scrape_timeout_seconds`, `scrape_sample_limit` and `scrape_body_size_bytes`.
+	These metrics help monitor how close targets are to their configured limits.
+
+	It requires Prometheus >= v3.10.0.
+	"""
+								type: "boolean"
 							}
 							fallbackScrapeProtocol: {
 								description: """
@@ -77278,8 +77479,8 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "servicemonitors.monitoring.coreos.com"
 	}
@@ -77306,6 +77507,14 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 					* Target and metric relabeling.
 
 					`Prometheus` and `PrometheusAgent` objects select `ServiceMonitor` objects using label and namespace selectors.
+
+					Service targets that aren't backed by Pods (for instance manually managed
+					Endpoints or EndpointSlices) can only be scraped when the endpoint selects
+					the service port with `port` instead of `targetPort` and `filterRunning` is
+					set to `false`. Manually created Pods have no such restriction.
+
+					For targets that aren't backed by Pods, you can also consider using the
+					`ScrapeConfig` CRD.
 					"""
 				properties: {
 					apiVersion: {
@@ -78328,6 +78537,9 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 	by the Service.
 	If a name, it matches against `.spec.containers[].ports[].name` of the Pods.
 	If a number, it matches against `.spec.containers[].ports[].containerPort` of the Pods.
+
+	Because it relies on Pod metadata, endpoints which aren't backed by Pods
+	are never scraped when `targetPort` is used.
 	"""
 											"x-kubernetes-int-or-string": true
 										}
@@ -78552,6 +78764,16 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 									type: "object"
 								}
 								type: "array"
+							}
+							extraScrapeMetrics: {
+								description: """
+	extraScrapeMetrics defines whether to store additional time series for each scrape:
+	`scrape_timeout_seconds`, `scrape_sample_limit` and `scrape_body_size_bytes`.
+	These metrics help monitor how close targets are to their configured limits.
+
+	It requires Prometheus >= v3.10.0.
+	"""
+								type: "boolean"
 							}
 							fallbackScrapeProtocol: {
 								description: """
@@ -78975,8 +79197,8 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	kind:       "CustomResourceDefinition"
 	metadata: {
 		annotations: {
-			"controller-gen.kubebuilder.io/version": "v0.22.0"
-			"operator.prometheus.io/version":        "0.94.2"
+			"controller-gen.kubebuilder.io/version": "v0.23.0"
+			"operator.prometheus.io/version":        "0.95.1"
 		}
 		name: "thanosrulers.monitoring.coreos.com"
 	}
@@ -87713,7 +87935,8 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	Together with status it forms the unique identity of a condition entry.
 	Maximum permitted length of a reason is 256 bytes.
 	"""
-																			type: "string"
+																			minLength: 1
+																			type:      "string"
 																		}
 																		status: {
 																			description: """
@@ -87728,7 +87951,8 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 																				"Degraded",
 																				"Inaccessible",
 																			]
-																			type: "string"
+																			minLength: 1
+																			type:      "string"
 																		}
 																	}
 																	required: [
@@ -87737,7 +87961,8 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 																	]
 																	type: "object"
 																}
-																type: "array"
+																maxItems: 16
+																type:     "array"
 																"x-kubernetes-list-map-keys": [
 																	"status",
 																	"reason",
@@ -90930,6 +91155,13 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	For more detail on clientAuth options:
 	https://golang.org/pkg/crypto/tls/#ClientAuthType
 	"""
+												enum: [
+													"NoClientCert",
+													"RequestClientCert",
+													"RequireAnyClientCert",
+													"VerifyClientCertIfGiven",
+													"RequireAndVerifyClientCert",
+												]
 												type: "string"
 											}
 											clientCAFile: {
