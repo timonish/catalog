@@ -5,14 +5,14 @@ A [Timoni](https://timoni.sh) module for deploying [Envoy Gateway](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.9.3-0`, packaging the upstream release
-[v1.9.3](https://github.com/envoyproxy/gateway/releases/tag/v1.9.3)
+Latest module version is `1.10.0-0`, packaging the upstream release
+[v1.10.0](https://github.com/envoyproxy/gateway/releases/tag/v1.10.0)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `docker.io/envoyproxy/gateway` | v1.9.3 | `sha256:192fc9bdadb6d2462e8cf7bd702ce3dd9648f3310c6038787448a1f509b7cd9f` |
-| `docker.io/envoyproxy/envoy` | distroless-v1.39.5 | `sha256:9d84a586119a27b50437dbb01eccd4722832741539b1ed53c8e9d6da6067a6e0` |
+| `docker.io/envoyproxy/gateway` | v1.10.0 | `sha256:c2243d43518bed91d3ed8c2db849a4b7a14ac9b96eb019f2ab104bb1ca8572b1` |
+| `docker.io/envoyproxy/envoy` | distroless-v1.40.2 | `sha256:09ca6f2140a61ad8df11779a4a30d52b48433d444466328494f9188c9c35eded` |
 | `docker.io/envoyproxy/ratelimit` | 5ae0682e | `sha256:b95206e32b1a5f824fb06062fbb85bbdfb7f5de54135e92afe8462f22c979681` |
 <!-- versions:end -->
 

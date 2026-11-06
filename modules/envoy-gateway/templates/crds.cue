@@ -61,7 +61,10 @@ customresourcedefinition: "backends.gateway.envoyproxy.io": {
 						description: "Spec defines the desired state of Backend."
 						properties: {
 							appProtocols: {
-								description: "AppProtocols defines the application protocols to be supported when connecting to the backend."
+								description: """
+	AppProtocols defines the application protocols to be supported when connecting to the backend.
+	For a KubernetesService backend, this takes precedence over the appProtocol of the Service port.
+	"""
 								items: {
 									description: "AppProtocolType defines various backend applications protocols supported by Envoy Gateway"
 									enum: [
@@ -186,6 +189,36 @@ customresourcedefinition: "backends.gateway.envoyproxy.io": {
 	the health of the active backends falls below 72%.
 	"""
 								type: "boolean"
+							}
+							kubernetesService: {
+								description: """
+	KubernetesService defines the Kubernetes Service to be used when connecting to the backend.
+	It must be set when Type is KubernetesService, and must not be set otherwise.
+
+	The endpoints of the Service are discovered from its EndpointSlices, exactly as they
+	are for a Service backendRef, so the resulting cluster keeps pod-level load balancing,
+	health checking, session persistence, endpoint draining and zone awareness.
+	"""
+								properties: {
+									name: {
+										description: "Name is the name of the Kubernetes Service."
+										maxLength:   253
+										minLength:   1
+										type:        "string"
+									}
+									port: {
+										description: "Port is the port of the Kubernetes Service."
+										format:      "int32"
+										maximum:     65535
+										minimum:     1
+										type:        "integer"
+									}
+								}
+								required: [
+									"name",
+									"port",
+								]
+								type: "object"
 							}
 							tls: {
 								description: """
@@ -344,7 +377,11 @@ customresourcedefinition: "backends.gateway.envoyproxy.io": {
 	ClientCertificateRef defines the reference to a Kubernetes Secret that contains
 	the client certificate and private key for Envoy to use when connecting to
 	backend services and external services, such as ExtAuth, ALS, OpenTelemetry, etc.
-	This secret should be located within the same namespace as the Envoy proxy resource that references it.
+	The Secret must be in the same namespace as the EnvoyProxy or Backend resource
+	that references it.
+	Cross-namespace references are not supported, even with a ReferenceGrant.
+	The ReferenceGrant requirement in the namespace field's description is inherited
+	from the Gateway API SecretObjectReference type and does not apply to this field.
 	"""
 										properties: {
 											group: {
@@ -529,6 +566,7 @@ customresourcedefinition: "backends.gateway.envoyproxy.io": {
 								enum: [
 									"Endpoints",
 									"DynamicResolver",
+									"KubernetesService",
 								]
 								type: "string"
 							}
@@ -538,8 +576,20 @@ customresourcedefinition: "backends.gateway.envoyproxy.io": {
 							message: "DynamicResolver type cannot have endpoints specified"
 							rule:    "self.type != 'DynamicResolver' || !has(self.endpoints)"
 						}, {
+							message: "endpoints must be specified when type is Endpoints"
+							rule:    "self.type != 'Endpoints' || has(self.endpoints)"
+						}, {
 							message: "DynamicResolver type cannot use autoSNIFromEndpointHostname"
 							rule:    "self.type != 'DynamicResolver' || !has(self.tls) || !(has(self.tls.autoSNIFromEndpointHostname) && self.tls.autoSNIFromEndpointHostname)"
+						}, {
+							message: "KubernetesService type cannot have endpoints specified"
+							rule:    "self.type != 'KubernetesService' || !has(self.endpoints)"
+						}, {
+							message: "KubernetesService type cannot use autoSNIFromEndpointHostname"
+							rule:    "self.type != 'KubernetesService' || !has(self.tls) || !(has(self.tls.autoSNIFromEndpointHostname) && self.tls.autoSNIFromEndpointHostname)"
+						}, {
+							message: "kubernetesService must be specified if and only if type is KubernetesService"
+							rule:    "self.type == 'KubernetesService' ? has(self.kubernetesService) : !has(self.kubernetesService)"
 						}, {
 							message: "when autoSNIFromEndpointHostname is enabled, IP and Unix endpoints must define a hostname"
 							rule:    "!has(self.tls) || !(has(self.tls.autoSNIFromEndpointHostname) && self.tls.autoSNIFromEndpointHostname) || self.endpoints.all(e, (!has(e.ip) && !has(e.unix)) || has(e.hostname))"
@@ -1046,7 +1096,7 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 								description: """
 	The compression config for the http streams.
 
-	Deprecated: Use Compressor instead.
+	Deprecated: Use Compressor instead. This field will be removed in v1.11.
 	"""
 								items: {
 									description: """
@@ -1056,11 +1106,136 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 									properties: {
 										brotli: {
 											description: "The configuration for Brotli compressor."
-											type:        "object"
+											properties: {
+												chunkSize: {
+													description: """
+	ChunkSize is the size in bytes of the compressor's next output buffer, from
+	4096 to 65536. If not set, defaults to 4096.
+	"""
+													format:  "int32"
+													maximum: 65536
+													minimum: 4096
+													type:    "integer"
+												}
+												disableLiteralContextModeling: {
+													description: """
+	DisableLiteralContextModeling disables the "literal context modeling" format
+	feature. This flag is a "decoding-speed vs compression ratio" trade-off.
+	If not set, defaults to false.
+	"""
+													type: "boolean"
+												}
+												encoderMode: {
+													description: """
+	EncoderMode tunes the encoder for a specific input.
+	If not set, defaults to Default.
+	"""
+													enum: [
+														"Default",
+														"Generic",
+														"Text",
+														"Font",
+													]
+													type: "string"
+												}
+												inputBlockBits: {
+													description: """
+	InputBlockBits represents the base two logarithm of the compressor's input block
+	size, from 16 to 24. Larger input block results in better compression at the
+	expense of memory usage. If not set, defaults to 24.
+	"""
+													format:  "int32"
+													maximum: 24
+													minimum: 16
+													type:    "integer"
+												}
+												quality: {
+													description: """
+	Quality controls the main compression speed-density lever, from 0 to 11.
+	The higher the quality, the slower the compression. If not set, defaults to 3.
+	"""
+													format:  "int32"
+													maximum: 11
+													minimum: 0
+													type:    "integer"
+												}
+												windowBits: {
+													description: """
+	WindowBits represents the base two logarithm of the compressor's window size,
+	from 10 to 24. Larger window results in better compression at the expense of
+	memory usage. If not set, defaults to 18.
+	"""
+													format:  "int32"
+													maximum: 24
+													minimum: 10
+													type:    "integer"
+												}
+											}
+											type: "object"
 										}
 										gzip: {
 											description: "The configuration for GZIP compressor."
-											type:        "object"
+											properties: {
+												chunkSize: {
+													description: """
+	ChunkSize is the size in bytes of zlib's next output buffer, from 4096 to 65536.
+	If not set, defaults to 4096.
+	"""
+													format:  "int32"
+													maximum: 65536
+													minimum: 4096
+													type:    "integer"
+												}
+												compressionLevel: {
+													description: """
+	CompressionLevel sets the zlib compression level, from 1 (fastest compression,
+	lowest compression ratio) to 9 (slowest compression, best compression ratio).
+	If not set, Envoy uses the zlib default level, which is equivalent to level 6.
+	"""
+													format:  "int32"
+													maximum: 9
+													minimum: 1
+													type:    "integer"
+												}
+												compressionStrategy: {
+													description: """
+	CompressionStrategy selects the zlib compression strategy, which is directly
+	related to the characteristics of the content. Most of the time "Default" is
+	the best choice. If not set, defaults to Default.
+	"""
+													enum: [
+														"Default",
+														"Filtered",
+														"HuffmanOnly",
+														"RLE",
+														"Fixed",
+													]
+													type: "string"
+												}
+												memoryLevel: {
+													description: """
+	MemoryLevel controls the amount of internal memory used by zlib, from 1 to 9.
+	Higher values use more memory, but are faster and produce better compression
+	results. If not set, defaults to 5.
+	"""
+													format:  "int32"
+													maximum: 9
+													minimum: 1
+													type:    "integer"
+												}
+												windowBits: {
+													description: """
+	WindowBits represents the base two logarithm of the compressor's window size,
+	from 9 to 15. Larger window results in better compression at the expense of
+	memory usage. If not set, defaults to 12, which will produce a 4096 bytes window.
+	"""
+													format:  "int32"
+													maximum: 15
+													minimum: 9
+													type:    "integer"
+												}
+											}
+											type: "object"
 										}
 										minContentLength: {
 											allOf: [{
@@ -1093,13 +1268,79 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 										}
 										zstd: {
 											description: "The configuration for Zstd compressor."
-											type:        "object"
+											properties: {
+												chunkSize: {
+													description: """
+	ChunkSize is the size in bytes of the compressor's next output buffer, from
+	4096 to 65536. If not set, defaults to 4096.
+	"""
+													format:  "int32"
+													maximum: 65536
+													minimum: 4096
+													type:    "integer"
+												}
+												compressionLevel: {
+													description: """
+	CompressionLevel sets the compression parameters according to the pre-defined
+	zstd compression level table, from 1 to 22. Note that the exact compression
+	parameters are dynamically determined, depending on both compression level and
+	source content size (when known). If not set, defaults to 3.
+	"""
+													format:  "int32"
+													maximum: 22
+													minimum: 1
+													type:    "integer"
+												}
+												enableChecksum: {
+													description: """
+	EnableChecksum specifies whether a 32-bits checksum of the content is written
+	at the end of the frame. If not set, defaults to false.
+	"""
+													type: "boolean"
+												}
+												strategy: {
+													description: """
+	Strategy selects the zstd compression strategy. The higher the value of the
+	selected strategy, the more complex it is, resulting in stronger and slower
+	compression. If not set, defaults to Default.
+	"""
+													enum: [
+														"Default",
+														"Fast",
+														"DFast",
+														"Greedy",
+														"Lazy",
+														"Lazy2",
+														"BTLazy2",
+														"BTOpt",
+														"BTUltra",
+														"BTUltra2",
+													]
+													type: "string"
+												}
+											}
+											type: "object"
 										}
 									}
 									required: ["type"]
 									type: "object"
+									"x-kubernetes-validations": [{
+										message: "The brotli configuration is only allowed when the type is Brotli."
+										rule:    "!has(self.brotli) || self.type == 'Brotli'"
+									}, {
+										message: "The gzip configuration is only allowed when the type is Gzip."
+										rule:    "!has(self.gzip) || self.type == 'Gzip'"
+									}, {
+										message: "The zstd configuration is only allowed when the type is Zstd."
+										rule:    "!has(self.zstd) || self.type == 'Zstd'"
+									}]
 								}
-								type: "array"
+								maxItems: 3
+								type:     "array"
+								"x-kubernetes-validations": [{
+									message: "compression types must be unique"
+									rule:    "self.all(c, self.filter(o, o.type == c.type).size() == 1)"
+								}]
 							}
 							compressor: {
 								description: """
@@ -1115,11 +1356,136 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 									properties: {
 										brotli: {
 											description: "The configuration for Brotli compressor."
-											type:        "object"
+											properties: {
+												chunkSize: {
+													description: """
+	ChunkSize is the size in bytes of the compressor's next output buffer, from
+	4096 to 65536. If not set, defaults to 4096.
+	"""
+													format:  "int32"
+													maximum: 65536
+													minimum: 4096
+													type:    "integer"
+												}
+												disableLiteralContextModeling: {
+													description: """
+	DisableLiteralContextModeling disables the "literal context modeling" format
+	feature. This flag is a "decoding-speed vs compression ratio" trade-off.
+	If not set, defaults to false.
+	"""
+													type: "boolean"
+												}
+												encoderMode: {
+													description: """
+	EncoderMode tunes the encoder for a specific input.
+	If not set, defaults to Default.
+	"""
+													enum: [
+														"Default",
+														"Generic",
+														"Text",
+														"Font",
+													]
+													type: "string"
+												}
+												inputBlockBits: {
+													description: """
+	InputBlockBits represents the base two logarithm of the compressor's input block
+	size, from 16 to 24. Larger input block results in better compression at the
+	expense of memory usage. If not set, defaults to 24.
+	"""
+													format:  "int32"
+													maximum: 24
+													minimum: 16
+													type:    "integer"
+												}
+												quality: {
+													description: """
+	Quality controls the main compression speed-density lever, from 0 to 11.
+	The higher the quality, the slower the compression. If not set, defaults to 3.
+	"""
+													format:  "int32"
+													maximum: 11
+													minimum: 0
+													type:    "integer"
+												}
+												windowBits: {
+													description: """
+	WindowBits represents the base two logarithm of the compressor's window size,
+	from 10 to 24. Larger window results in better compression at the expense of
+	memory usage. If not set, defaults to 18.
+	"""
+													format:  "int32"
+													maximum: 24
+													minimum: 10
+													type:    "integer"
+												}
+											}
+											type: "object"
 										}
 										gzip: {
 											description: "The configuration for GZIP compressor."
-											type:        "object"
+											properties: {
+												chunkSize: {
+													description: """
+	ChunkSize is the size in bytes of zlib's next output buffer, from 4096 to 65536.
+	If not set, defaults to 4096.
+	"""
+													format:  "int32"
+													maximum: 65536
+													minimum: 4096
+													type:    "integer"
+												}
+												compressionLevel: {
+													description: """
+	CompressionLevel sets the zlib compression level, from 1 (fastest compression,
+	lowest compression ratio) to 9 (slowest compression, best compression ratio).
+	If not set, Envoy uses the zlib default level, which is equivalent to level 6.
+	"""
+													format:  "int32"
+													maximum: 9
+													minimum: 1
+													type:    "integer"
+												}
+												compressionStrategy: {
+													description: """
+	CompressionStrategy selects the zlib compression strategy, which is directly
+	related to the characteristics of the content. Most of the time "Default" is
+	the best choice. If not set, defaults to Default.
+	"""
+													enum: [
+														"Default",
+														"Filtered",
+														"HuffmanOnly",
+														"RLE",
+														"Fixed",
+													]
+													type: "string"
+												}
+												memoryLevel: {
+													description: """
+	MemoryLevel controls the amount of internal memory used by zlib, from 1 to 9.
+	Higher values use more memory, but are faster and produce better compression
+	results. If not set, defaults to 5.
+	"""
+													format:  "int32"
+													maximum: 9
+													minimum: 1
+													type:    "integer"
+												}
+												windowBits: {
+													description: """
+	WindowBits represents the base two logarithm of the compressor's window size,
+	from 9 to 15. Larger window results in better compression at the expense of
+	memory usage. If not set, defaults to 12, which will produce a 4096 bytes window.
+	"""
+													format:  "int32"
+													maximum: 15
+													minimum: 9
+													type:    "integer"
+												}
+											}
+											type: "object"
 										}
 										minContentLength: {
 											allOf: [{
@@ -1152,13 +1518,79 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 										}
 										zstd: {
 											description: "The configuration for Zstd compressor."
-											type:        "object"
+											properties: {
+												chunkSize: {
+													description: """
+	ChunkSize is the size in bytes of the compressor's next output buffer, from
+	4096 to 65536. If not set, defaults to 4096.
+	"""
+													format:  "int32"
+													maximum: 65536
+													minimum: 4096
+													type:    "integer"
+												}
+												compressionLevel: {
+													description: """
+	CompressionLevel sets the compression parameters according to the pre-defined
+	zstd compression level table, from 1 to 22. Note that the exact compression
+	parameters are dynamically determined, depending on both compression level and
+	source content size (when known). If not set, defaults to 3.
+	"""
+													format:  "int32"
+													maximum: 22
+													minimum: 1
+													type:    "integer"
+												}
+												enableChecksum: {
+													description: """
+	EnableChecksum specifies whether a 32-bits checksum of the content is written
+	at the end of the frame. If not set, defaults to false.
+	"""
+													type: "boolean"
+												}
+												strategy: {
+													description: """
+	Strategy selects the zstd compression strategy. The higher the value of the
+	selected strategy, the more complex it is, resulting in stronger and slower
+	compression. If not set, defaults to Default.
+	"""
+													enum: [
+														"Default",
+														"Fast",
+														"DFast",
+														"Greedy",
+														"Lazy",
+														"Lazy2",
+														"BTLazy2",
+														"BTOpt",
+														"BTUltra",
+														"BTUltra2",
+													]
+													type: "string"
+												}
+											}
+											type: "object"
 										}
 									}
 									required: ["type"]
 									type: "object"
+									"x-kubernetes-validations": [{
+										message: "The brotli configuration is only allowed when the type is Brotli."
+										rule:    "!has(self.brotli) || self.type == 'Brotli'"
+									}, {
+										message: "The gzip configuration is only allowed when the type is Gzip."
+										rule:    "!has(self.gzip) || self.type == 'Gzip'"
+									}, {
+										message: "The zstd configuration is only allowed when the type is Zstd."
+										rule:    "!has(self.zstd) || self.type == 'Zstd'"
+									}]
 								}
-								type: "array"
+								maxItems: 3
+								type:     "array"
+								"x-kubernetes-validations": [{
+									message: "compressor types must be unique"
+									rule:    "self.all(c, self.filter(o, o.type == c.type).size() == 1)"
+								}]
 							}
 							connection: {
 								description: "Connection includes backend connection settings."
@@ -1352,18 +1784,44 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 									active: {
 										description: "Active health check configuration"
 										properties: {
+											disableConnectionReuse: {
+												description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+												type: "boolean"
+											}
 											grpc: {
 												description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-												properties: service: {
-													description: """
+												properties: {
+													hostname: {
+														description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+														maxLength: 253
+														minLength: 1
+														pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+														type:      "string"
+													}
+													service: {
+														description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-													type: "string"
+														type: "string"
+													}
 												}
 												type: "object"
 											}
@@ -1532,6 +1990,31 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 														minLength:   1
 														type:        "string"
 													}
+													protocol: {
+														default: "Auto"
+														description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+														enum: [
+															"Auto",
+															"HTTP1",
+															"HTTP2",
+														]
+														type: "string"
+													}
 													requestBody: {
 														description: "RequestBody defines the HTTP request body payload sent during health checking."
 														properties: {
@@ -1606,6 +2089,10 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 												description: "Interval defines the time between active health checks."
 												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:        "string"
+												"x-kubernetes-validations": [{
+													message: "interval must be greater than 0"
+													rule:    "duration(self) > duration('0s')"
+												}]
 											}
 											overrides: {
 												description: """
@@ -1717,6 +2204,10 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 												description: "Timeout defines the time to wait for a health check response."
 												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:        "string"
+												"x-kubernetes-validations": [{
+													message: "timeout must be greater than 0"
+													rule:    "duration(self) > duration('0s')"
+												}]
 											}
 											type: {
 												allOf: [{
@@ -1789,6 +2280,10 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 												description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:        "string"
+												"x-kubernetes-validations": [{
+													message: "baseEjectionTime must be greater than 0"
+													rule:    "duration(self) > duration('0s')"
+												}]
 											}
 											consecutive5XxErrors: {
 												default:     5
@@ -1826,6 +2321,10 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 												description: "Interval defines the time between passive health checks."
 												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:        "string"
+												"x-kubernetes-validations": [{
+													message: "interval must be greater than 0"
+													rule:    "duration(self) > duration('0s')"
+												}]
 											}
 											maxEjectionPercent: {
 												default:     10
@@ -1842,6 +2341,37 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 											}
 										}
 										type: "object"
+									}
+								}
+								type: "object"
+							}
+							http1: {
+								description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+								properties: {
+									enableTrailers: {
+										description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+										type:        "boolean"
+									}
+									preserveHeaderCase: {
+										description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+										type: "boolean"
 									}
 								}
 								type: "object"
@@ -1940,12 +2470,35 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 								}
 								type: "object"
 							}
+							http3: {
+								description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+								properties: mode: {
+									description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+									enum: [
+										"Auto",
+										"Always",
+									]
+									type: "string"
+								}
+								type: "object"
+							}
 							httpUpgrade: {
 								description: """
 	HTTPUpgrade defines the configuration for HTTP protocol upgrades.
 	If not specified, the default upgrade configuration (websocket) will be used.
-	However, if requestBuffer is configured, the default upgrade configuration
-	will be ignored.
+	However, if requestBuffer is configured with mode BufferAndLimit, the default
+	upgrade configuration will be ignored.
 	"""
 								items: {
 									description: "ProtocolUpgradeConfig specifies the configuration for protocol upgrades."
@@ -2130,7 +2683,7 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 												description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 												properties: name: {
 													description: "Name of the header to hash."
@@ -2333,6 +2886,18 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 											preferLocal: {
 												description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 												properties: {
+													failTrafficOnPanic: {
+														description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+														type: "boolean"
+													}
 													force: {
 														description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -2441,7 +3006,8 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 	configurations targeting a parent resource. When set, this configuration will be merged
 	into the closest parent BackendTrafficPolicy in the route's attachment hierarchy (for
 	example, one targeting a Gateway, Gateway listener, ListenerSet, or ListenerSet listener).
-	Currently, this field can only be set when targeting xRoute resources.
+	This field can only be set when targeting xRoute or backend (Service/ServiceImport/Backend)
+	resources, and is required when targeting a backend.
 	If unset, no merging occurs, and only the most specific configuration takes effect.
 	"""
 								type: "string"
@@ -3468,36 +4034,75 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 							}
 							requestBuffer: {
 								description: """
-	RequestBuffer allows the gateway to buffer and fully receive each request from a client before continuing to send the request
-	upstream to the backends. This can be helpful to shield your backend servers from slow clients, and also to enforce a maximum size per request
-	as any requests larger than the buffer size will be rejected.
+	RequestBuffer configures how much of a request body Envoy is allowed to buffer for a route,
+	and whether the gateway fully buffers each request before forwarding it upstream.
 
-	This can have a negative performance impact so should only be enabled when necessary.
+	A request whose buffered body exceeds the configured limit is rejected with HTTP 413 Content Too
+	Large. How much of a request is buffered, and therefore whether the limit acts as a maximum request
+	body size, depends on the mode: see the mode field.
 
-	When enabling this option, you should also configure your connection buffer size to account for these request buffers. There will also be an
-	increase in memory usage for Envoy that should be accounted for in your deployment settings.
-
-	Request buffering is incompatible with streaming APIs and protocol upgrades such as gRPC streaming and WebSocket. Do not enable this option
-	on routes that need those protocols, because requests can hang instead of being forwarded upstream.
+	Buffering increases memory usage for Envoy that should be accounted for in your deployment settings.
 	"""
-								properties: limit: {
-									allOf: [{
-										pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-									}, {
-										pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-									}]
-									anyOf: [{
-										type: "integer"
-									}, {
-										type: "string"
-									}]
-									description: """
-	Limit specifies the maximum allowed size in bytes for each incoming request buffer.
-	If exceeded, the request will be rejected with HTTP 413 Content Too Large.
+								properties: {
+									limit: {
+										allOf: [{
+											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+										}, {
+											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
+										}]
+										anyOf: [{
+											type: "integer"
+										}, {
+											type: "string"
+										}]
+										description: """
+	Limit specifies the maximum size in bytes that Envoy may buffer for an incoming request body.
+	If a request's buffered body exceeds this limit, the request is rejected with HTTP 413 Content
+	Too Large.
+
+	In BufferAndLimit mode the entire body is always buffered, so this acts as a maximum request body size.
+	In LimitOnly mode only what a filter later in the chain actually buffers counts against the limit,
+	so a streamed request that nothing buffers can exceed it and still be forwarded upstream.
 
 	Accepts values in resource.Quantity format (e.g., "10Mi", "500Ki").
 	"""
-									"x-kubernetes-int-or-string": true
+										"x-kubernetes-int-or-string": true
+									}
+									mode: {
+										default: "BufferAndLimit"
+										description: """
+	Mode determines how Limit is enforced. Defaults to BufferAndLimit.
+
+	Limit applies in both modes: it is always set as the request body buffer limit for the route. Mode
+	only controls whether the gateway additionally buffers the whole request body itself, which is what
+	makes Limit a guaranteed maximum request body size.
+
+	BufferAndLimit makes the gateway receive each request from the client in full before it starts sending
+	the request upstream to the backends. This can be helpful to shield your backend servers from slow
+	clients, and Limit acts as a maximum request body size for the route.
+	Buffering whole request bodies costs memory and adds latency, so this mode should only be used when
+	necessary. It is also incompatible with streaming APIs and protocol upgrades such as gRPC streaming
+	and WebSocket: HTTP upgrades are disabled on routes using this mode, and a request whose body is
+	never completed is never forwarded upstream. Do not use this mode on routes that need those
+	protocols.
+
+	LimitOnly only raises how much of a request body the gateway is allowed to buffer, without buffering
+	requests itself. Use this mode when something later in the request path (ext_proc, Lua, Wasm, ...)
+	buffers the request body and the default limit is too small. Unlike BufferAndLimit, this mode is
+	compatible with streaming APIs and protocol upgrades, because the gateway does not wait for the whole
+	request body before forwarding it upstream.
+
+	In both modes, Limit applies to an individual request body and is separate from the connection buffer
+	limits configured by ClientTrafficPolicy and BackendTrafficPolicy, which control per-connection
+	read/write buffering and back pressure. There is no need to raise the connection buffer limits for
+	Limit to take effect.
+	"""
+										enum: [
+											"BufferAndLimit",
+											"LimitOnly",
+										]
+										type: "string"
+									}
 								}
 								type: "object"
 							}
@@ -3512,10 +4117,65 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 										match: {
 											description: "Match configuration."
 											properties: {
+												requestHeaders: {
+													description: """
+	Request headers to match on. The match evaluates to true if all matches are successful.
+	Note that the request headers are not available for all Envoy-generated responses,
+	in which case a request header match never evaluates to true.
+	"""
+													items: {
+														description: "ResponseOverrideHeaderMatch defines the configuration for matching a request or response header."
+														properties: {
+															name: {
+																description: """
+	Name of the HTTP header.
+	The header name is case-insensitive.
+	For example, "Foo" and "foo" are considered the same header.
+	"""
+																maxLength: 256
+																minLength: 1
+																pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																type:      "string"
+															}
+															value: {
+																description: "Value within the HTTP header to match against."
+																properties: {
+																	type: {
+																		default:     "Exact"
+																		description: "Type specifies how to match against a string."
+																		enum: [
+																			"Exact",
+																			"Prefix",
+																			"Suffix",
+																			"RegularExpression",
+																		]
+																		type: "string"
+																	}
+																	value: {
+																		description: "Value specifies the string value that the match must have."
+																		maxLength:   1024
+																		minLength:   1
+																		type:        "string"
+																	}
+																}
+																required: ["value"]
+																type: "object"
+															}
+														}
+														required: [
+															"name",
+															"value",
+														]
+														type: "object"
+													}
+													maxItems: 16
+													minItems: 1
+													type:     "array"
+												}
 												responseHeaders: {
 													description: "Response headers to match on. The match evaluates to true if all matches are successful."
 													items: {
-														description: "ResponseOverrideHeaderMatch defines the configuration for matching a response header."
+														description: "ResponseOverrideHeaderMatch defines the configuration for matching a request or response header."
 														properties: {
 															name: {
 																description: """
@@ -3631,8 +4291,8 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 											}
 											type: "object"
 											"x-kubernetes-validations": [{
-												message: "at least one of statusCodes or responseHeaders must be specified"
-												rule:    "has(self.statusCodes) || has(self.responseHeaders)"
+												message: "at least one of statusCodes, requestHeaders or responseHeaders must be specified"
+												rule:    "has(self.statusCodes) || has(self.requestHeaders) || has(self.responseHeaders)"
 											}]
 										}
 										redirect: {
@@ -4025,7 +4685,9 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 	Status Code of the Custom Response
 	If unset, does not override the status of response.
 	"""
-													type: "integer"
+													maximum: 599
+													minimum: 200
+													type:    "integer"
 												}
 											}
 											type: "object"
@@ -4174,7 +4836,7 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 	This policy and the TargetRef MUST be in the same namespace for this
 	Policy to have effect
 
-	Deprecated: use targetRefs/targetSelectors instead
+	Deprecated: use targetRefs/targetSelectors instead. This field will be removed in v1.11.
 	"""
 								properties: {
 									group: {
@@ -4510,7 +5172,12 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 	Example: %ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME% => httproute/my-ns/my-route
 	Disabled by default.
 	"""
-											type: "string"
+											maxLength: 1024
+											type:      "string"
+											"x-kubernetes-validations": [{
+												message: "routeStatName contains an unsupported or unterminated operator; supported operators are %ROUTE_NAME%, %ROUTE_NAMESPACE%, %ROUTE_KIND% and %ROUTE_RULE_NAME%"
+												rule:    "self.matches('^([^%]|%(ROUTE_NAME|ROUTE_NAMESPACE|ROUTE_KIND|ROUTE_RULE_NAME)%)*$')"
+											}]
 										}
 										type: "object"
 									}
@@ -4792,32 +5459,80 @@ customresourcedefinition: "backendtrafficpolicies.gateway.envoyproxy.io": {
 							message: "either targetRef or targetRefs must be used"
 							rule:    "(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) "
 						}, {
-							message: "this policy can only have a targetRef.group of gateway.networking.k8s.io"
-							rule:    "has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true "
+							message: "invalid targetRef group/kind combination"
+							rule:    "has(self.targetRef) ? (self.targetRef.group == 'gateway.networking.k8s.io' && self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) || (self.targetRef.group.size() == 0 && self.targetRef.kind == 'Service') || (self.targetRef.group == 'multicluster.x-k8s.io' && self.targetRef.kind == 'ServiceImport') || (self.targetRef.group == 'gateway.envoyproxy.io' && self.targetRef.kind == 'Backend') : true"
 						}, {
-							message: "this policy can only have a targetRef.kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'] : true"
+							message: "invalid targetRefs group/kind combination"
+							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, (ref.group == 'gateway.networking.k8s.io' && ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) || (ref.group.size() == 0 && ref.kind == 'Service') || (ref.group == 'multicluster.x-k8s.io' && ref.kind == 'ServiceImport') || (ref.group == 'gateway.envoyproxy.io' && ref.kind == 'Backend')) : true"
 						}, {
-							message: "this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
-							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true "
+							message: "mergeType can only be used with xRoute or backend targets"
+							rule:    "!has(self.mergeType) || ((!has(self.targetRef) || self.targetRef.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute', 'Service', 'ServiceImport', 'Backend']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute', 'Service', 'ServiceImport', 'Backend'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute', 'Service', 'ServiceImport', 'Backend'])))"
 						}, {
-							message: "this policy can only have a targetRefs[*].kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) : true "
+							message: "mergeType is required when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || has(self.mergeType)"
 						}, {
-							message: "mergeType can only be used with xRoute targets"
-							rule:    "!has(self.mergeType) || ((!has(self.targetRef) || self.targetRef.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'])))"
+							message: "rateLimit is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.rateLimit)"
+						}, {
+							message: "faultInjection is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.faultInjection)"
+						}, {
+							message: "compression is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.compression)"
+						}, {
+							message: "compressor is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.compressor)"
+						}, {
+							message: "responseOverride is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.responseOverride)"
+						}, {
+							message: "httpUpgrade is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.httpUpgrade)"
+						}, {
+							message: "requestBuffer is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.requestBuffer)"
+						}, {
+							message: "telemetry is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.telemetry)"
+						}, {
+							message: "routingType is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.routingType)"
+						}, {
+							message: "retry is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.retry)"
+						}, {
+							message: "bandwidthLimit is not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.bandwidthLimit)"
+						}, {
+							message: "ConsistentHash load balancing is not allowed when targeting a backend (ambiguous hash input across a weighted route's backends)"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.loadBalancer) || self.loadBalancer.type != 'ConsistentHash'"
+						}, {
+							message: "sectionName is not supported when targeting a backend"
+							rule:    "!has(self.targetRef) || !(self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || !has(self.targetRef.sectionName)"
+						}, {
+							message: "sectionName is not supported when targeting a backend"
+							rule:    "!has(self.targetRefs) || self.targetRefs.all(ref, !(ref.kind in ['Service', 'ServiceImport', 'Backend']) || !has(ref.sectionName))"
 						}, {
 							message: "either compression or compressor can be set, not both"
 							rule:    "!has(self.compression) || !has(self.compressor)"
 						}, {
-							message: "requestBuffer cannot be used together with httpUpgrade"
-							rule:    "!has(self.requestBuffer) || !has(self.httpUpgrade) || self.httpUpgrade.size() == 0"
+							message: "useClientProtocol cannot be used together with http3"
+							rule:    "!has(self.http3) || !has(self.useClientProtocol) || !self.useClientProtocol"
 						}, {
-							message: "admissionControl can only be used with HTTPRoute, GRPCRoute, Gateway, or ListenerSet targets"
-							rule:    "!has(self.admissionControl) || ((!has(self.targetRef) || self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute'])))"
+							message: "requestBuffer with mode BufferAndLimit cannot be used together with httpUpgrade"
+							rule:    "!has(self.requestBuffer) || self.requestBuffer.mode == 'LimitOnly' || !has(self.httpUpgrade) || self.httpUpgrade.size() == 0"
+						}, {
+							message: "admissionControl can only be used with HTTPRoute, GRPCRoute, Gateway, or ListenerSet targets, or with Service, ServiceImport, or Backend targets via targetRef/targetRefs (targetSelectors is not supported for those kinds)"
+							rule:    "!has(self.admissionControl) || ((!has(self.targetRef) || self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'Service', 'ServiceImport', 'Backend']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'Service', 'ServiceImport', 'Backend'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute'])))"
+						}, {
+							message: "timeout.http.requestTimeout and timeout.http.streamIdleTimeout are not allowed when targeting a backend"
+							rule:    "!((has(self.targetRef) && self.targetRef.kind in ['Service', 'ServiceImport', 'Backend']) || (has(self.targetRefs) && self.targetRefs.exists(ref, ref.kind in ['Service', 'ServiceImport', 'Backend']))) || !has(self.timeout) || !has(self.timeout.http) || (!has(self.timeout.http.requestTimeout) && !has(self.timeout.http.streamIdleTimeout))"
 						}, {
 							message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 							rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+						}, {
+							message: "proxyProtocol cannot be used together with http3"
+							rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 						}]
 					}
 					status: {
@@ -5336,8 +6051,9 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 	CIDR defines a CIDR Address range.
 	A CIDR can be an IPv4 address range such as "192.168.1.0/24" or an IPv6 address range such as "2001:0db8:11a3:09d7::/64".
 	"""
-													pattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/([0-9]+))|((([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\\/([0-9]+))"
-													type:    "string"
+													maxLength: 64
+													pattern:   "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/([0-9]+))|((([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\\/([0-9]+))"
+													type:      "string"
 												}
 												minItems: 1
 												type:     "array"
@@ -5400,6 +6116,18 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:    "string"
 											}
+											maxConnectionDurationJitter: {
+												description: """
+	MaxConnectionDurationJitter adds a random extra amount of time to each connection's
+	MaxConnectionDuration, up to this percentage of that duration. This keeps connections
+	opened together from expiring at the same moment. Requires MaxConnectionDuration.
+	If not specified, no jitter is added.
+	"""
+												format:  "int32"
+												maximum: 100
+												minimum: 0
+												type:    "integer"
+											}
 											maxRequestsPerConnection: {
 												description: """
 	MaxRequestsPerConnection defines the maximum number of requests allowed over a single connection.
@@ -5430,6 +6158,9 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 										"x-kubernetes-validations": [{
 											message: "closeDelay can only be configured when value is set"
 											rule:    "!has(self.closeDelay) || has(self.value)"
+										}, {
+											message: "maxConnectionDurationJitter can only be configured when maxConnectionDuration is set"
+											rule:    "!has(self.maxConnectionDurationJitter) || has(self.maxConnectionDuration)"
 										}]
 									}
 									maxAcceptPerSocketEvent: {
@@ -5472,7 +6203,7 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 	Note Proxy Protocol must be present when this field is set, else the connection
 	is closed.
 
-	Deprecated: Use ProxyProtocol instead.
+	Deprecated: Use ProxyProtocol instead. This field will be removed in v1.11.
 	"""
 								type: "boolean"
 							}
@@ -5500,6 +6231,13 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 										description: """
 	DisableRateLimitHeaders configures Envoy Proxy to omit the "X-RateLimit-" response headers
 	when rate limiting is enabled.
+	"""
+										type: "boolean"
+									}
+									disableRetryAfterHeader: {
+										description: """
+	DisableRetryAfterHeader configures Envoy Proxy to omit the "Retry-After" response header
+	on rate-limited 429 responses.
 	"""
 										type: "boolean"
 									}
@@ -5638,6 +6376,143 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 												type:     "array"
 												"x-kubernetes-list-map-keys": ["name"]
 												"x-kubernetes-list-type": "map"
+											}
+											mutations: {
+												description: """
+	Mutations is an ordered list of header operations that are applied in
+	exactly the order specified. Use this field when the sequence of
+	operations matters, for example setting a header and then appending to
+	it, or removing a header and then re-adding it.
+
+	Mutations are always applied FIRST, in list order. The Set, Add,
+	AddIfAbsent, Remove and RemoveOnMatch fields below are then applied after
+	the mutations, preserving their existing ordering (Add, then Set, then
+	AddIfAbsent, then Remove, then RemoveOnMatch).
+	"""
+												items: {
+													description:   "HTTPHeaderMutation defines a single header mutation operation."
+													maxProperties: 1
+													minProperties: 1
+													properties: {
+														remove: {
+															description: """
+	Remove removes the named header if it exists. Header names are
+	case-insensitive.
+	"""
+															minLength: 1
+															type:      "string"
+														}
+														removeOnMatch: {
+															description: """
+	RemoveOnMatch removes every header whose name matches the specified string
+	matcher. Matching is performed on the header name (case-insensitive).
+	"""
+															properties: {
+																type: {
+																	default:     "Exact"
+																	description: "Type specifies how to match against a string."
+																	enum: [
+																		"Exact",
+																		"Prefix",
+																		"Suffix",
+																		"RegularExpression",
+																	]
+																	type: "string"
+																}
+																value: {
+																	description: "Value specifies the string value that the match must have."
+																	maxLength:   1024
+																	minLength:   1
+																	type:        "string"
+																}
+															}
+															required: ["value"]
+															type: "object"
+														}
+														write: {
+															description: "Write adds or modifies a header using the specified action."
+															properties: {
+																action: {
+																	default: "Add"
+																	description: """
+	Action controls how the header value is written when a header with the
+	same name already exists. Defaults to Add.
+	"""
+																	enum: [
+																		"Add",
+																		"Set",
+																		"AddIfAbsent",
+																		"SetIfExists",
+																	]
+																	type: "string"
+																}
+																header: {
+																	description: """
+	Header is the header name and value to write. The value may contain
+	Envoy substitution format operators such as "%REQ(x-foo)%", which are
+	evaluated per request.
+	See https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators
+	"""
+																	properties: {
+																		name: {
+																			description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																			maxLength: 256
+																			minLength: 1
+																			pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																			type:      "string"
+																		}
+																		value: {
+																			description: """
+	Value is the value of HTTP Header to be matched.
+	<gateway:experimental:description>
+	Must consist of printable US-ASCII characters, optionally separated
+	by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+	</gateway:experimental:description>
+
+	<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+	"""
+																			maxLength: 4096
+																			minLength: 1
+																			type:      "string"
+																		}
+																	}
+																	required: [
+																		"name",
+																		"value",
+																	]
+																	type: "object"
+																}
+																keepEmptyValue: {
+																	description: """
+	KeepEmptyValue controls whether the header is still written when its
+	value is empty. This matters for values produced by substitution
+	formatters, e.g. "%REQ(x-foo)%", which may resolve to an empty string at
+	request time. Envoy drops such headers by default; set this to true to
+	keep them with an empty value.
+
+	When unset, it defaults to true only if the configured value itself is
+	the empty string, so a literal empty header is always written.
+	"""
+																	type: "boolean"
+																}
+															}
+															required: ["header"]
+															type: "object"
+														}
+													}
+													type: "object"
+												}
+												maxItems: 64
+												type:     "array"
 											}
 											remove: {
 												description: """
@@ -5925,6 +6800,143 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 												"x-kubernetes-list-map-keys": ["name"]
 												"x-kubernetes-list-type": "map"
 											}
+											mutations: {
+												description: """
+	Mutations is an ordered list of header operations that are applied in
+	exactly the order specified. Use this field when the sequence of
+	operations matters, for example setting a header and then appending to
+	it, or removing a header and then re-adding it.
+
+	Mutations are always applied FIRST, in list order. The Set, Add,
+	AddIfAbsent, Remove and RemoveOnMatch fields below are then applied after
+	the mutations, preserving their existing ordering (Add, then Set, then
+	AddIfAbsent, then Remove, then RemoveOnMatch).
+	"""
+												items: {
+													description:   "HTTPHeaderMutation defines a single header mutation operation."
+													maxProperties: 1
+													minProperties: 1
+													properties: {
+														remove: {
+															description: """
+	Remove removes the named header if it exists. Header names are
+	case-insensitive.
+	"""
+															minLength: 1
+															type:      "string"
+														}
+														removeOnMatch: {
+															description: """
+	RemoveOnMatch removes every header whose name matches the specified string
+	matcher. Matching is performed on the header name (case-insensitive).
+	"""
+															properties: {
+																type: {
+																	default:     "Exact"
+																	description: "Type specifies how to match against a string."
+																	enum: [
+																		"Exact",
+																		"Prefix",
+																		"Suffix",
+																		"RegularExpression",
+																	]
+																	type: "string"
+																}
+																value: {
+																	description: "Value specifies the string value that the match must have."
+																	maxLength:   1024
+																	minLength:   1
+																	type:        "string"
+																}
+															}
+															required: ["value"]
+															type: "object"
+														}
+														write: {
+															description: "Write adds or modifies a header using the specified action."
+															properties: {
+																action: {
+																	default: "Add"
+																	description: """
+	Action controls how the header value is written when a header with the
+	same name already exists. Defaults to Add.
+	"""
+																	enum: [
+																		"Add",
+																		"Set",
+																		"AddIfAbsent",
+																		"SetIfExists",
+																	]
+																	type: "string"
+																}
+																header: {
+																	description: """
+	Header is the header name and value to write. The value may contain
+	Envoy substitution format operators such as "%REQ(x-foo)%", which are
+	evaluated per request.
+	See https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators
+	"""
+																	properties: {
+																		name: {
+																			description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																			maxLength: 256
+																			minLength: 1
+																			pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																			type:      "string"
+																		}
+																		value: {
+																			description: """
+	Value is the value of HTTP Header to be matched.
+	<gateway:experimental:description>
+	Must consist of printable US-ASCII characters, optionally separated
+	by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+	</gateway:experimental:description>
+
+	<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+	"""
+																			maxLength: 4096
+																			minLength: 1
+																			type:      "string"
+																		}
+																	}
+																	required: [
+																		"name",
+																		"value",
+																	]
+																	type: "object"
+																}
+																keepEmptyValue: {
+																	description: """
+	KeepEmptyValue controls whether the header is still written when its
+	value is empty. This matters for values produced by substitution
+	formatters, e.g. "%REQ(x-foo)%", which may resolve to an empty string at
+	request time. Envoy drops such headers by default; set this to true to
+	keep them with an empty value.
+
+	When unset, it defaults to true only if the configured value itself is
+	the empty string, so a literal empty header is always written.
+	"""
+																	type: "boolean"
+																}
+															}
+															required: ["header"]
+															type: "object"
+														}
+													}
+													type: "object"
+												}
+												maxItems: 64
+												type:     "array"
+											}
 											remove: {
 												description: """
 	Remove the given header(s) from the HTTP request before the action. The
@@ -6055,13 +7067,37 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 										}
 										type: "object"
 									}
+									maxRequestHeaderLimit: {
+										allOf: [{
+											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+										}, {
+											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
+										}]
+										anyOf: [{
+											type: "integer"
+										}, {
+											type: "string"
+										}]
+										description: """
+	MaxRequestHeaderLimit provides configuration for the maximum size of the
+	request headers allowed for incoming connections, mapping to the Envoy
+	`max_request_headers_kb` HTTP connection manager setting. Requests whose
+	headers exceed this limit receive a 431 (Request Header Fields Too Large)
+	response. The value is rounded up to the nearest KiB, must be at least 1Ki,
+	and cannot exceed 8192Ki (the maximum Envoy supports).
+	For example, 60Ki, 96Ki, 128Ki etc.
+	Note that when the suffix is not provided, the value is interpreted as bytes.
+	Default: 60Ki bytes.
+	"""
+										"x-kubernetes-int-or-string": true
+									}
 									preserveXRequestID: {
 										description: """
 	PreserveXRequestID configures Envoy to keep the X-Request-ID header if passed for a request that is edge
 	(Edge request is the request from external clients to front Envoy) and not reset it, which is the current Envoy behaviour.
 	Defaults to false and cannot be combined with RequestID.
 
-	Deprecated: use RequestID=PreserveOrGenerate instead
+	Deprecated: use RequestID=PreserveOrGenerate instead. This field will be removed in v1.11.
 	"""
 										type: "boolean"
 									}
@@ -6123,10 +7159,11 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 														"Chain",
 														"DNS",
 														"URI",
+														"Issuer",
 													]
 													type: "string"
 												}
-												maxItems: 5
+												maxItems: 6
 												type:     "array"
 											}
 											mode: {
@@ -6182,11 +7219,26 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 										type: "boolean"
 									}
 									enableTrailers: {
-										description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
-										type:        "boolean"
+										description: """
+	EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy.
+
+	Note: this field currently configures both the client connection and the backend HTTP/1
+	protocol settings. In a future release it will be restricted to the client connection only.
+	Use BackendTrafficPolicy.http1.enableTrailers for backend settings.
+	Enable the EnvoyGateway runtimeFlag ApplyClientTrafficPolicyHTTP1SettingsToClientsOnly
+	to opt in to the new behavior now.
+	"""
+										type: "boolean"
 									}
 									http10: {
-										description: "HTTP10 turns on support for HTTP/1.0 and HTTP/0.9 requests."
+										description: """
+	HTTP10 turns on support for HTTP/1.0 and HTTP/0.9 requests.
+
+	Note: this field currently forces explicit HTTP/1 for backend connections when other
+	backend-relevant HTTP/1 fields like EnableTrailers and PreserveHeaderCase are absent.
+	In a future release it will no longer force explicit HTTP/1 on backend connections.
+	Use BackendTrafficPolicy.http1: {} to force HTTP/1 on a backend cluster explicitly.
+	"""
 										properties: useDefaultHost: {
 											description: """
 	UseDefaultHost specifies whether a default Host header should be injected
@@ -6251,6 +7303,12 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 										description: """
 	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
 	By default, Envoy will lowercase all the headers.
+
+	Note: this field currently configures both the client connection and the backend HTTP/1
+	protocol settings. In a future release it will be restricted to the client connection only.
+	Use BackendTrafficPolicy.http1.preserveHeaderCase for backend settings.
+	Enable the EnvoyGateway runtimeFlag ApplyClientTrafficPolicyHTTP1SettingsToClientsOnly
+	to opt in to the new behavior now.
 	"""
 										type: "boolean"
 									}
@@ -6353,7 +7411,20 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 							}
 							http3: {
 								description: "HTTP3 provides HTTP/3 configuration on the listener."
-								type:        "object"
+								properties: advertisedPort: {
+									description: """
+	AdvertisedPort specifies the port advertised to clients in the HTTP/3
+	`alt-svc` response header. It does not change the listener or Service port.
+	If unset, the Gateway listener port is advertised.
+	"""
+									format: "int32"
+									type:   "integer"
+									"x-kubernetes-validations": [{
+										message: "advertisedPort must be between 1 and 65535"
+										rule:    "self >= 1 && self <= 65535"
+									}]
+								}
+								type: "object"
 							}
 							path: {
 								description: "Path enables managing how the incoming path set by clients can be normalized."
@@ -6391,8 +7462,67 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 	If both EnableProxyProtocol and ProxyProtocol are set, ProxyProtocol takes precedence.
 	"""
 								minProperties: 0
-								properties: optional: {
-									description: """
+								properties: {
+									forwardProtoConfig: {
+										description: """
+	ForwardProtoConfig infers the x-forwarded-proto header from the PROXY protocol
+	destination port. Only takes effect when PROXY protocol is enabled.
+
+	This is useful when a Layer 4 load balancer (such as AWS NLB) terminates TLS and
+	forwards traffic to Envoy over PROXY protocol, so that Envoy can set the correct
+	scheme for the forwarded request.
+	"""
+										properties: {
+											httpDestinationPorts: {
+												description: """
+	HTTPDestinationPorts are the destination ports treated as HTTP.
+	When the PROXY protocol destination port matches one of these, the
+	x-forwarded-proto header is set to "http".
+	Common values: 80, 8080.
+	"""
+												items: {
+													format: "int32"
+													type:   "integer"
+													"x-kubernetes-validations": [{
+														message: "port must be in the range [1, 65535]"
+														rule:    "self >= 1 && self <= 65535"
+													}]
+												}
+												maxItems: 16
+												minItems: 1
+												type:     "array"
+											}
+											httpsDestinationPorts: {
+												description: """
+	HTTPSDestinationPorts are the destination ports treated as HTTPS.
+	When the PROXY protocol destination port matches one of these, the
+	x-forwarded-proto header is set to "https".
+	Common values: 443, 8443.
+	"""
+												items: {
+													format: "int32"
+													type:   "integer"
+													"x-kubernetes-validations": [{
+														message: "port must be in the range [1, 65535]"
+														rule:    "self >= 1 && self <= 65535"
+													}]
+												}
+												maxItems: 16
+												minItems: 1
+												type:     "array"
+											}
+										}
+										type: "object"
+										"x-kubernetes-validations": [{
+											message: "at least one of httpsDestinationPorts or httpDestinationPorts must be set"
+											rule:    "(has(self.httpsDestinationPorts) ? self.httpsDestinationPorts.size() : 0) + (has(self.httpDestinationPorts) ? self.httpDestinationPorts.size() : 0) >= 1"
+										}, {
+											message: "httpsDestinationPorts and httpDestinationPorts must be disjoint"
+											rule:    "!(has(self.httpsDestinationPorts) && has(self.httpDestinationPorts) && self.httpsDestinationPorts.exists(p, p in self.httpDestinationPorts))"
+										}]
+									}
+									optional: {
+										description: """
 	Optional allows requests without a Proxy Protocol header to be proxied.
 	If set to true, the listener will accept requests without a Proxy Protocol header.
 	If set to false, the listener will reject requests without a Proxy Protocol header.
@@ -6400,7 +7530,8 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 	Warning: Optional breaks conformance with the specification. Only enable if ALL traffic to the listener comes from a trusted source.
 	For more information on security implications, see haproxy.org/download/2.1/doc/proxy-protocol.txt
 	"""
-									type: "boolean"
+										type: "boolean"
+									}
 								}
 								type: "object"
 							}
@@ -6428,7 +7559,7 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 	This policy and the TargetRef MUST be in the same namespace for this
 	Policy to have effect
 
-	Deprecated: use targetRefs/targetSelectors instead
+	Deprecated: use targetRefs/targetSelectors instead. This field will be removed in v1.11.
 	"""
 								properties: {
 									group: {
@@ -6998,6 +8129,8 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 	An optional list of hex-encoded SHA-256 hashes. If specified, Envoy will
 	verify that the SHA-256 of the DER-encoded presented certificate matches
 	one of the specified values.
+	Setting this requires a client certificate, so it cannot be combined with
+	mode VerifyIfGiven or the deprecated optional: true.
 	"""
 												items: type: "string"
 												type: "array"
@@ -7115,6 +8248,8 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 	An optional list of base64-encoded SHA-256 hashes. If specified, Envoy will
 	verify that the SHA-256 of the DER-encoded Subject Public Key Information
 	(SPKI) of the presented certificate matches one of the specified values.
+	Setting this requires a client certificate, so it cannot be combined with
+	mode VerifyIfGiven or the deprecated optional: true.
 	"""
 												items: type: "string"
 												type: "array"
@@ -7123,7 +8258,9 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 												description: """
 	An optional list of Subject Alternative name matchers. If specified, Envoy
 	will verify that the Subject Alternative Name of the presented certificate
-	matches one of the specified matchers
+	matches one of the specified matchers.
+	Setting this requires a client certificate, so it cannot be combined with
+	mode VerifyIfGiven or the deprecated optional: true.
 	"""
 												properties: {
 													dnsNames: {
@@ -7296,6 +8433,9 @@ customresourcedefinition: "clienttrafficpolicies.gateway.envoyproxy.io": {
 										"x-kubernetes-validations": [{
 											message: "allowExpiredCertificate can only be set when mode is VerifyIfGiven or RequireAndVerify"
 											rule:    "!has(self.allowExpiredCertificate) || !self.allowExpiredCertificate || !has(self.mode) || self.mode in ['VerifyIfGiven', 'RequireAndVerify']"
+										}, {
+											message: "subjectAltNames, certificateHashes and spkiHashes cannot be used with mode VerifyIfGiven, because Envoy requires a client certificate whenever they are set"
+											rule:    "!((has(self.mode) ? self.mode == 'VerifyIfGiven' : (has(self.optional) && self.optional)) && (has(self.subjectAltNames) || has(self.certificateHashes) || has(self.spkiHashes)))"
 										}]
 									}
 									ecdhCurves: {
@@ -7844,6 +8984,1689 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 					spec: {
 						description: "Spec defines the desired state of EnvoyExtensionPolicy."
 						properties: {
+							backends: {
+								description: """
+	Backends declares HTTP callout dependencies for Lua, Wasm and dynamic modules.
+	Requires extensionApis.enableExtensionBackends to be set to true in the
+	EnvoyGateway configuration.
+	Each name is an alias in this policy. Extensions read the generated cluster
+	name from route metadata during a request. Initialization and independent
+	background callbacks have no request route. Asynchronous callbacks can use
+	bindings resolved for their request.
+	When merging policies, a nonempty list replaces the parent's list.
+	Inherited references keep the namespace of the policy that declared them.
+	"""
+								items: {
+									description: "ExtensionBackend binds an extension's backend alias to a backend resource."
+									properties: {
+										backendRef: {
+											description: """
+	BackendRef references the backend for HTTP callouts. References to another
+	namespace require a ReferenceGrant allowing the policy that declares this binding.
+	"""
+											properties: {
+												group: {
+													default: ""
+													description: """
+	Group is the group of the referent. For example, "gateway.networking.k8s.io".
+	When unspecified or empty string, core API group is inferred.
+	"""
+													maxLength: 253
+													pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+													type:      "string"
+												}
+												kind: {
+													default: "Service"
+													description: """
+	Kind is the Kubernetes resource kind of the referent. For example
+	"Service".
+
+	Defaults to "Service" when not specified.
+
+	ExternalName services can refer to CNAME DNS records that may live
+	outside of the cluster and as such are difficult to reason about in
+	terms of conformance. They also may not be safe to forward to (see
+	CVE-2021-25740 for more information). Implementations SHOULD NOT
+	support ExternalName Services.
+
+	Support: Core (Services with a type other than ExternalName)
+
+	Support: Implementation-specific (Services with type ExternalName)
+	"""
+													maxLength: 63
+													minLength: 1
+													pattern:   "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+													type:      "string"
+												}
+												name: {
+													description: "Name is the name of the referent."
+													maxLength:   253
+													minLength:   1
+													type:        "string"
+												}
+												namespace: {
+													description: """
+	Namespace is the namespace of the backend. When unspecified, the local
+	namespace is inferred.
+
+	Note that when a namespace different than the local namespace is specified,
+	a ReferenceGrant object is required in the referent namespace to allow that
+	namespace's owner to accept the reference. See the ReferenceGrant
+	documentation for details.
+
+	Support: Core
+	"""
+													maxLength: 63
+													minLength: 1
+													pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+													type:      "string"
+												}
+												port: {
+													description: """
+	Port specifies the destination port number to use for this resource.
+	Port is required when the referent is a Kubernetes Service. In this
+	case, the port number is the service port number, not the target port.
+	For other resources, destination port might be derived from the referent
+	resource or this field.
+	"""
+													format:  "int32"
+													maximum: 65535
+													minimum: 1
+													type:    "integer"
+												}
+											}
+											required: ["name"]
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "Must have port for Service reference"
+												rule:    "(size(self.group) == 0 && self.kind == 'Service') ? has(self.port) : true"
+											}]
+										}
+										backendSettings: {
+											description: """
+	BackendSettings configures connections and traffic for this binding's cluster.
+	Request timeouts and retries are controlled by the extension's callout API.
+	RequestTimeout and StreamIdleTimeout are not supported here.
+	DynamicModule load balancing is not supported here.
+	HTTP3 is not supported for extension backends.
+	"""
+											properties: {
+												circuitBreaker: {
+													description: """
+	Circuit Breaker settings for the upstream connections and requests.
+	If not set, circuit breakers will be enabled with the default thresholds
+	"""
+													properties: {
+														maxConnections: {
+															default:     1024
+															description: "The maximum number of connections that Envoy will establish to the referenced backend defined within a xRoute rule."
+															format:      "int64"
+															maximum:     4294967295
+															minimum:     0
+															type:        "integer"
+														}
+														maxParallelRequests: {
+															default:     1024
+															description: "The maximum number of parallel requests that Envoy will make to the referenced backend defined within a xRoute rule."
+															format:      "int64"
+															maximum:     4294967295
+															minimum:     0
+															type:        "integer"
+														}
+														maxParallelRetries: {
+															default:     1024
+															description: "The maximum number of parallel retries that Envoy will make to the referenced backend defined within a xRoute rule."
+															format:      "int64"
+															maximum:     4294967295
+															minimum:     0
+															type:        "integer"
+														}
+														maxPendingRequests: {
+															default:     1024
+															description: "The maximum number of pending requests that Envoy will queue to the referenced backend defined within a xRoute rule."
+															format:      "int64"
+															maximum:     4294967295
+															minimum:     0
+															type:        "integer"
+														}
+														maxRequestsPerConnection: {
+															description: """
+	The maximum number of requests that Envoy will make over a single connection to the referenced backend defined within a xRoute rule.
+	Default: unlimited.
+	"""
+															format:  "int64"
+															maximum: 4294967295
+															minimum: 0
+															type:    "integer"
+														}
+														perEndpoint: {
+															description: "PerEndpoint defines Circuit Breakers that will apply per-endpoint for an upstream cluster"
+															properties: maxConnections: {
+																default:     1024
+																description: "MaxConnections configures the maximum number of connections that Envoy will establish per-endpoint to the referenced backend defined within a xRoute rule."
+																format:      "int64"
+																maximum:     4294967295
+																minimum:     0
+																type:        "integer"
+															}
+															type: "object"
+														}
+														retryBudget: {
+															description: """
+	RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+	RetryBudget take precedence over maxParallelRetries.
+	"""
+															properties: {
+																minRetryConcurrency: {
+																	description: """
+	MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+	For example, a budget of 20% with a minimum retry concurrency of 3
+	will allow 5 active retries while there are 25 active requests.
+	If there are 2 active requests, there are still 3 active retries
+	allowed because of the minimum retry concurrency.
+	Defaults to 3.
+	"""
+																	format: "int32"
+																	type:   "integer"
+																}
+																percent: {
+																	description: """
+	Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+	the sum of active requests and active pending requests.
+	"""
+																	properties: {
+																		denominator: {
+																			default: 100
+																			format:  "int32"
+																			minimum: 1
+																			type:    "integer"
+																		}
+																		numerator: {
+																			format:  "int32"
+																			minimum: 0
+																			type:    "integer"
+																		}
+																	}
+																	required: ["numerator"]
+																	type: "object"
+																	"x-kubernetes-validations": [{
+																		message: "numerator must be less than or equal to denominator"
+																		rule:    "self.numerator <= self.denominator"
+																	}]
+																}
+															}
+															required: ["percent"]
+															type: "object"
+														}
+													}
+													type: "object"
+												}
+												connection: {
+													description: "Connection includes backend connection settings."
+													properties: {
+														bufferLimit: {
+															allOf: [{
+																pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+															}, {
+																pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
+															}]
+															anyOf: [{
+																type: "integer"
+															}, {
+																type: "string"
+															}]
+															description: """
+	BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
+	BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
+	If unspecified, an implementation defined default is applied (32768 bytes).
+	For example, 20Mi, 1Gi, 256Ki etc.
+	Note: that when the suffix is not provided, the value is interpreted as bytes.
+	"""
+															"x-kubernetes-int-or-string": true
+														}
+														preconnect: {
+															description: """
+	Preconnect configures proactive upstream connections to reduce latency by establishing
+	connections before they’re needed and avoiding connection establishment overhead.
+
+	If unset, Envoy will fetch connections as needed to serve in-flight requests.
+	"""
+															properties: {
+																perEndpointPercent: {
+																	description: """
+	PerEndpointPercent configures how many additional connections to maintain per
+	upstream endpoint, useful for high-QPS or latency sensitive services. Expressed as a
+	percentage of the connections required by active streams
+	(e.g. 100 = preconnect disabled, 105 = 1.05x connections per-endpoint, 200 = 2.00×).
+
+	Allowed value range is between 100-300. When both PerEndpointPercent and
+	PredictivePercent are set, Envoy ensures both are satisfied (max of the two).
+	"""
+																	format:  "int32"
+																	maximum: 300
+																	minimum: 100
+																	type:    "integer"
+																}
+																predictivePercent: {
+																	description: """
+	PredictivePercent configures how many additional connections to maintain
+	across the cluster by anticipating which upstream endpoint the load balancer
+	will select next, useful for low-QPS services. Relies on deterministic
+	loadbalancing and is only supported with Random or RoundRobin.
+	Expressed as a percentage of the connections required by active streams
+	(e.g. 100 = 1.0 (no preconnect), 105 = 1.05× connections across the cluster, 200 = 2.00×).
+
+	Minimum allowed value is 100. When both PerEndpointPercent and PredictivePercent are
+	set Envoy ensures both are satisfied per host (max of the two).
+	"""
+																	format:  "int32"
+																	minimum: 100
+																	type:    "integer"
+																}
+															}
+															type: "object"
+														}
+														socketBufferLimit: {
+															allOf: [{
+																pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+															}, {
+																pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
+															}]
+															anyOf: [{
+																type: "integer"
+															}, {
+																type: "string"
+															}]
+															description: """
+	SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
+	to backend.
+	SocketBufferLimit applies to socket streaming channel between TCP/IP stacks, it's in kernel space.
+	For example, 20Mi, 1Gi, 256Ki etc.
+	Note that when the suffix is not provided, the value is interpreted as bytes.
+	"""
+															"x-kubernetes-int-or-string": true
+														}
+													}
+													type: "object"
+												}
+												dns: {
+													description: "DNS includes dns resolution settings."
+													properties: {
+														dnsRefreshRate: {
+															description: """
+	DNSRefreshRate specifies the rate at which DNS records should be refreshed.
+	Defaults to 30 seconds.
+	"""
+															pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+															type:    "string"
+														}
+														lookupFamily: {
+															description: """
+	LookupFamily determines how Envoy would resolve DNS for Routes where the backend is specified as a fully qualified domain name (FQDN).
+	If set, this configuration overrides other defaults.
+	"""
+															enum: [
+																"IPv4",
+																"IPv6",
+																"IPv4Preferred",
+																"IPv6Preferred",
+																"IPv4AndIPv6",
+															]
+															type: "string"
+														}
+														respectDnsTtl: {
+															description: """
+	RespectDNSTTL indicates whether the DNS Time-To-Live (TTL) should be respected.
+	If the value is set to true, the DNS refresh rate will be set to the resource record’s TTL.
+	Defaults to true.
+	"""
+															type: "boolean"
+														}
+													}
+													type: "object"
+												}
+												healthCheck: {
+													description: "HealthCheck allows gateway to perform active health checking on backends."
+													properties: {
+														active: {
+															description: "Active health check configuration"
+															properties: {
+																disableConnectionReuse: {
+																	description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																	type: "boolean"
+																}
+																grpc: {
+																	description: """
+	GRPC defines the configuration of the GRPC health checker.
+	It's optional, and can only be used if the specified type is GRPC.
+	"""
+																	properties: {
+																		hostname: {
+																			description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																			maxLength: 253
+																			minLength: 1
+																			pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																			type:      "string"
+																		}
+																		service: {
+																			description: """
+	Service to send in the health check request.
+	If this is not specified, then the health check request applies to the entire
+	server and not to a specific service.
+	"""
+																			type: "string"
+																		}
+																	}
+																	type: "object"
+																}
+																healthCheckLog: {
+																	description: """
+	HealthCheckLog defines health check event logging configuration for this cluster.
+	When set, HC probe outcomes are logged to the configured sinks.
+	Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+	"""
+																	properties: {
+																		matches: {
+																			description: """
+	Matches defines which health check probe outcomes produce a log entry.
+	When omitted or empty, all events are logged.
+
+	Each value must be unique. Multiple values are ORed. If any failure type is
+	specified then a success type must also be specified, and vice versa.
+	"""
+																			items: {
+																				description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																				enum: [
+																					"Failure",
+																					"FailureSeriesStart",
+																					"Success",
+																					"HealthyTransition",
+																				]
+																				type: "string"
+																			}
+																			maxItems:                 4
+																			type:                     "array"
+																			"x-kubernetes-list-type": "set"
+																			"x-kubernetes-validations": [{
+																				message: "a failure type and a success type must both be specified together"
+																				rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																			}]
+																		}
+																		sinks: {
+																			description: """
+	Sinks defines where health check events are written.
+	When omitted, events are written to /dev/stdout.
+	"""
+																			items: {
+																				description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																				properties: {
+																					file: {
+																						description: """
+	File defines the file sink configuration.
+	Required when type is File.
+	"""
+																						properties: path: {
+																							description: """
+	Path specifies the file path for health check event output.
+	Use /dev/stdout to write to standard output.
+	"""
+																							minLength: 1
+																							type:      "string"
+																						}
+																						required: ["path"]
+																						type: "object"
+																					}
+																					type: {
+																						description: "Type defines the type of sink."
+																						enum: ["File"]
+																						type: "string"
+																					}
+																				}
+																				required: ["type"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																					rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																				}]
+																			}
+																			maxItems: 1
+																			type:     "array"
+																		}
+																	}
+																	type: "object"
+																}
+																healthyThreshold: {
+																	default:     1
+																	description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
+																	format:      "int32"
+																	minimum:     1
+																	type:        "integer"
+																}
+																http: {
+																	description: """
+	HTTP defines the configuration of http health checker.
+	It's required while the health checker type is HTTP.
+	"""
+																	properties: {
+																		expectedResponse: {
+																			description: "ExpectedResponse defines a list of HTTP expected responses to match."
+																			properties: {
+																				binary: {
+																					description: "Binary payload base64 encoded."
+																					format:      "byte"
+																					type:        "string"
+																				}
+																				text: {
+																					description: "Text payload in plain text."
+																					type:        "string"
+																				}
+																				type: {
+																					allOf: [{
+																						enum: [
+																							"Text",
+																							"Binary",
+																						]
+																					}, {
+																						enum: [
+																							"Text",
+																							"Binary",
+																						]
+																					}]
+																					description: "Type defines the type of the payload."
+																					type:        "string"
+																				}
+																			}
+																			required: ["type"]
+																			type: "object"
+																			"x-kubernetes-validations": [{
+																				message: "If payload type is Text, text field needs to be set."
+																				rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																			}, {
+																				message: "If payload type is Binary, binary field needs to be set."
+																				rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																			}]
+																		}
+																		expectedStatuses: {
+																			description: """
+	ExpectedStatuses defines a list of HTTP response statuses considered healthy.
+	Defaults to 200 only
+	"""
+																			items: {
+																				description: "HTTPStatus defines the http status code."
+																				maximum:     599
+																				minimum:     100
+																				type:        "integer"
+																			}
+																			type: "array"
+																		}
+																		hostname: {
+																			description: """
+	Hostname defines the HTTP Host header used for active HTTP health checks.
+	Host selection uses this order: this field, the associated Backend endpoint
+	hostname if available, then the effective Route hostname.
+	"""
+																			maxLength: 253
+																			minLength: 1
+																			pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																			type:      "string"
+																		}
+																		method: {
+																			description: """
+	Method defines the HTTP method used for health checking.
+	Defaults to GET
+	"""
+																			maxLength: 16
+																			type:      "string"
+																		}
+																		path: {
+																			description: "Path defines the HTTP path that will be requested during health checking."
+																			maxLength:   1024
+																			minLength:   1
+																			type:        "string"
+																		}
+																		protocol: {
+																			default: "Auto"
+																			description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																			enum: [
+																				"Auto",
+																				"HTTP1",
+																				"HTTP2",
+																			]
+																			type: "string"
+																		}
+																		requestBody: {
+																			description: "RequestBody defines the HTTP request body payload sent during health checking."
+																			properties: {
+																				binary: {
+																					description: "Binary payload base64 encoded."
+																					format:      "byte"
+																					type:        "string"
+																				}
+																				text: {
+																					description: "Text payload in plain text."
+																					type:        "string"
+																				}
+																				type: {
+																					allOf: [{
+																						enum: [
+																							"Text",
+																							"Binary",
+																						]
+																					}, {
+																						enum: [
+																							"Text",
+																							"Binary",
+																						]
+																					}]
+																					description: "Type defines the type of the payload."
+																					type:        "string"
+																				}
+																			}
+																			required: ["type"]
+																			type: "object"
+																			"x-kubernetes-validations": [{
+																				message: "If payload type is Text, text field needs to be set."
+																				rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																			}, {
+																				message: "If payload type is Binary, binary field needs to be set."
+																				rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																			}]
+																		}
+																		retriableStatuses: {
+																			description: """
+	RetriableStatuses defines a list of HTTP response statuses considered retriable.
+	Responses matching these statuses count towards the unhealthy threshold but
+	do not result in the host being considered immediately unhealthy.
+	The expected statuses take precedence for any range overlaps with this field.
+	"""
+																			items: {
+																				description: "HTTPStatus defines the http status code."
+																				maximum:     599
+																				minimum:     100
+																				type:        "integer"
+																			}
+																			type: "array"
+																		}
+																	}
+																	required: ["path"]
+																	type: "object"
+																	"x-kubernetes-validations": [{
+																		message: "The requestBody field can only be set when method is POST or PUT."
+																		rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																	}]
+																}
+																initialJitter: {
+																	description: """
+	InitialJitter defines the maximum time Envoy will wait before the first health check.
+	Envoy will randomly select a value between 0 and the initial jitter value.
+	"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																interval: {
+																	default:     "3s"
+																	description: "Interval defines the time between active health checks."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																	"x-kubernetes-validations": [{
+																		message: "interval must be greater than 0"
+																		rule:    "duration(self) > duration('0s')"
+																	}]
+																}
+																overrides: {
+																	description: """
+	Overrides defines the configuration of the overriding health check settings for all endpoints
+	in the backend cluster. This allows customization of port and other settings that may differ
+	from the main service configuration.
+	"""
+																	properties: port: {
+																		description: """
+	Port overrides the health check port.
+	If not set, the endpoint's serving port is used for health checks.
+	This is useful when health checks are served on a different port than
+	the main service port (e.g., port 443 for service, port 9090 for health checks).
+	"""
+																		format:  "int32"
+																		maximum: 65535
+																		minimum: 1
+																		type:    "integer"
+																	}
+																	type: "object"
+																}
+																tcp: {
+																	description: """
+	TCP defines the configuration of tcp health checker.
+	It's required while the health checker type is TCP.
+	"""
+																	properties: {
+																		receive: {
+																			description: "Receive defines the expected response payload."
+																			properties: {
+																				binary: {
+																					description: "Binary payload base64 encoded."
+																					format:      "byte"
+																					type:        "string"
+																				}
+																				text: {
+																					description: "Text payload in plain text."
+																					type:        "string"
+																				}
+																				type: {
+																					allOf: [{
+																						enum: [
+																							"Text",
+																							"Binary",
+																						]
+																					}, {
+																						enum: [
+																							"Text",
+																							"Binary",
+																						]
+																					}]
+																					description: "Type defines the type of the payload."
+																					type:        "string"
+																				}
+																			}
+																			required: ["type"]
+																			type: "object"
+																			"x-kubernetes-validations": [{
+																				message: "If payload type is Text, text field needs to be set."
+																				rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																			}, {
+																				message: "If payload type is Binary, binary field needs to be set."
+																				rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																			}]
+																		}
+																		send: {
+																			description: "Send defines the request payload."
+																			properties: {
+																				binary: {
+																					description: "Binary payload base64 encoded."
+																					format:      "byte"
+																					type:        "string"
+																				}
+																				text: {
+																					description: "Text payload in plain text."
+																					type:        "string"
+																				}
+																				type: {
+																					allOf: [{
+																						enum: [
+																							"Text",
+																							"Binary",
+																						]
+																					}, {
+																						enum: [
+																							"Text",
+																							"Binary",
+																						]
+																					}]
+																					description: "Type defines the type of the payload."
+																					type:        "string"
+																				}
+																			}
+																			required: ["type"]
+																			type: "object"
+																			"x-kubernetes-validations": [{
+																				message: "If payload type is Text, text field needs to be set."
+																				rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																			}, {
+																				message: "If payload type is Binary, binary field needs to be set."
+																				rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																			}]
+																		}
+																	}
+																	type: "object"
+																}
+																timeout: {
+																	default:     "1s"
+																	description: "Timeout defines the time to wait for a health check response."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																	"x-kubernetes-validations": [{
+																		message: "timeout must be greater than 0"
+																		rule:    "duration(self) > duration('0s')"
+																	}]
+																}
+																type: {
+																	allOf: [{
+																		enum: [
+																			"HTTP",
+																			"TCP",
+																			"GRPC",
+																		]
+																	}, {
+																		enum: [
+																			"HTTP",
+																			"TCP",
+																			"GRPC",
+																		]
+																	}]
+																	description: "Type defines the type of health checker."
+																	type:        "string"
+																}
+																unhealthyThreshold: {
+																	default: 3
+																	description: """
+	UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+	Without RetriableStatuses configured, any health check failure results in the host being immediately
+	considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+	up to this threshold before the host is marked unhealthy.
+	"""
+																	format:  "int32"
+																	minimum: 1
+																	type:    "integer"
+																}
+															}
+															required: ["type"]
+															type: "object"
+															"x-kubernetes-validations": [{
+																message: "If Health Checker type is HTTP, http field needs to be set."
+																rule:    "self.type == 'HTTP' ? has(self.http) : !has(self.http)"
+															}, {
+																message: "If Health Checker type is TCP, tcp field needs to be set."
+																rule:    "self.type == 'TCP' ? has(self.tcp) : !has(self.tcp)"
+															}, {
+																message: "The grpc field can only be set if the Health Checker type is GRPC."
+																rule:    "has(self.grpc) ? self.type == 'GRPC' : true"
+															}]
+														}
+														panicThreshold: {
+															description: """
+	When number of unhealthy endpoints for a backend reaches this threshold
+	Envoy will disregard health status and balance across all endpoints.
+	It's designed to prevent a situation in which host failures cascade throughout the cluster
+	as load increases. If not set, the default value is 50%. To disable panic mode, set value to `0`.
+	"""
+															format:  "int32"
+															maximum: 100
+															minimum: 0
+															type:    "integer"
+														}
+														passive: {
+															description: "Passive passive check configuration"
+															properties: {
+																alwaysEjectOneEndpoint: {
+																	default: false
+																	description: """
+	AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+	regardless of MaxEjectionPercent.
+	"""
+																	type: "boolean"
+																}
+																baseEjectionTime: {
+																	default:     "30s"
+																	description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																	"x-kubernetes-validations": [{
+																		message: "baseEjectionTime must be greater than 0"
+																		rule:    "duration(self) > duration('0s')"
+																	}]
+																}
+																consecutive5XxErrors: {
+																	default:     5
+																	description: "Consecutive5xxErrors sets the number of consecutive 5xx errors triggering ejection."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																consecutiveGatewayErrors: {
+																	description: "ConsecutiveGatewayErrors sets the number of consecutive gateway errors triggering ejection."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																consecutiveLocalOriginFailures: {
+																	default: 5
+																	description: """
+	ConsecutiveLocalOriginFailures sets the number of consecutive local origin failures triggering ejection.
+	Parameter takes effect only when split_external_local_origin_errors is set to true.
+	"""
+																	format: "int32"
+																	type:   "integer"
+																}
+																failurePercentageThreshold: {
+																	description: """
+	FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+	If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+	Defaults to 85.
+	"""
+																	format:  "int32"
+																	maximum: 100
+																	minimum: 0
+																	type:    "integer"
+																}
+																interval: {
+																	default:     "3s"
+																	description: "Interval defines the time between passive health checks."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																	"x-kubernetes-validations": [{
+																		message: "interval must be greater than 0"
+																		rule:    "duration(self) > duration('0s')"
+																	}]
+																}
+																maxEjectionPercent: {
+																	default:     10
+																	description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
+																	format:      "int32"
+																	maximum:     100
+																	minimum:     0
+																	type:        "integer"
+																}
+																splitExternalLocalOriginErrors: {
+																	default:     false
+																	description: "SplitExternalLocalOriginErrors enables splitting of errors between external and local origin."
+																	type:        "boolean"
+																}
+															}
+															type: "object"
+														}
+													}
+													type: "object"
+												}
+												http1: {
+													description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+													properties: {
+														enableTrailers: {
+															description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+															type:        "boolean"
+														}
+														preserveHeaderCase: {
+															description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+															type: "boolean"
+														}
+													}
+													type: "object"
+												}
+												http2: {
+													description: "HTTP2 provides HTTP/2 configuration for backend connections."
+													properties: {
+														connectionKeepalive: {
+															description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+															properties: {
+																idleInterval: {
+																	description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+																interval: {
+																	description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+																intervalJitter: {
+																	description: """
+	IntervalJitter specifies a random jitter percentage added to each interval.
+	Defaults to 15% if not specified.
+	"""
+																	format:  "int32"
+																	maximum: 100
+																	minimum: 0
+																	type:    "integer"
+																}
+																timeout: {
+																	description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+															}
+															type: "object"
+															"x-kubernetes-validations": [{
+																message: "timeout must be less than interval"
+																rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+															}]
+														}
+														initialConnectionWindowSize: {
+															allOf: [{
+																pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+															}, {
+																pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
+															}]
+															anyOf: [{
+																type: "integer"
+															}, {
+																type: "string"
+															}]
+															description: """
+	InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
+	If not set, the default value is 1 MiB.
+	"""
+															"x-kubernetes-int-or-string": true
+														}
+														initialStreamWindowSize: {
+															allOf: [{
+																pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+															}, {
+																pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
+															}]
+															anyOf: [{
+																type: "integer"
+															}, {
+																type: "string"
+															}]
+															description: """
+	InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
+	If not set, the default value is 64 KiB(64*1024).
+	"""
+															"x-kubernetes-int-or-string": true
+														}
+														maxConcurrentStreams: {
+															description: """
+	MaxConcurrentStreams sets the maximum number of concurrent streams allowed per connection.
+	If not set, the default value is 100.
+	"""
+															format:  "int32"
+															maximum: 2147483647
+															minimum: 1
+															type:    "integer"
+														}
+														onInvalidMessage: {
+															description: """
+	OnInvalidMessage determines if Envoy will terminate the connection or just the offending stream in the event of HTTP messaging error
+	It's recommended for L2 Envoy deployments to set this value to TerminateStream.
+	https://www.envoyproxy.io/docs/envoy/latest/configuration/best_practices/level_two
+	Default: TerminateConnection
+	"""
+															type: "string"
+														}
+													}
+													type: "object"
+												}
+												http3: {
+													description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+													properties: mode: {
+														description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+														enum: [
+															"Auto",
+															"Always",
+														]
+														type: "string"
+													}
+													type: "object"
+												}
+												loadBalancer: {
+													description: """
+	LoadBalancer policy to apply when routing traffic from the gateway to
+	the backend endpoints. Defaults to `LeastRequest`.
+	"""
+													properties: {
+														backendUtilization: {
+															description: """
+	BackendUtilization defines the configuration when the load balancer type is
+	set to BackendUtilization.
+	"""
+															properties: {
+																blackoutPeriod: {
+																	description: """
+	A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+	Default is 10s.
+	"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																errorUtilizationPenaltyPercent: {
+																	description: """
+	ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+	This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+	For example:
+	- 100 => 1.0x
+	- 120 => 1.2x
+	- 200 => 2.0x
+
+	Must be non-negative.
+	"""
+																	format:  "int32"
+																	minimum: 0
+																	type:    "integer"
+																}
+																keepResponseHeaders: {
+																	default: false
+																	description: """
+	KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+	Defaults to false.
+	"""
+																	type: "boolean"
+																}
+																metricNamesForComputingUtilization: {
+																	description: """
+	Metric names used to compute utilization if application_utilization is not set.
+	For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+	"""
+																	items: type: "string"
+																	type: "array"
+																}
+																outOfBand: {
+																	description: """
+	OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+	server-streaming gRPC connection to each endpoint's
+	xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+	reports periodically, instead of relying on in-band ORCA metrics
+	carried in response headers/trailers.
+
+	The backend must implement OpenRcaService for this to take effect.
+	"""
+																	properties: {
+																		authority: {
+																			description: """
+	Authority overrides the :authority header on the OutOfBand gRPC stream.
+	If unset, Envoy uses the endpoint hostname, then the dialed address, then
+	the cluster name.
+	"""
+																			maxLength: 259
+																			minLength: 1
+																			pattern:   "^[^\\x00\\n\\r]*$"
+																			type:      "string"
+																		}
+																		port: {
+																			description: """
+	Port overrides the port used for the OutOfBand reporting connection, e.g. to
+	reach a separate reporting sidecar. Defaults to the endpoint's port.
+	"""
+																			format:  "int32"
+																			maximum: 65535
+																			minimum: 1
+																			type:    "integer"
+																		}
+																		reportingPeriod: {
+																			description: """
+	ReportingPeriod is how often Envoy requests load reports from the server.
+	Must be greater than 0. Defaults to 10s.
+	"""
+																			pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																			type:    "string"
+																			"x-kubernetes-validations": [{
+																				message: "reportingPeriod must be greater than 0"
+																				rule:    "duration(self) > duration('0s')"
+																			}]
+																		}
+																	}
+																	type: "object"
+																}
+																weightExpirationPeriod: {
+																	description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+																weightUpdatePeriod: {
+																	description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+															}
+															type: "object"
+														}
+														consistentHash: {
+															description: """
+	ConsistentHash defines the configuration when the load balancer type is
+	set to ConsistentHash
+	"""
+															properties: {
+																cookie: {
+																	description: "Cookie configures the cookie hash policy when the consistent hash type is set to Cookie."
+																	properties: {
+																		attributes: {
+																			additionalProperties: type: "string"
+																			description: "Additional Attributes to set for the generated cookie."
+																			type:        "object"
+																		}
+																		name: {
+																			description: """
+	Name of the cookie to hash.
+	If this cookie does not exist in the request, Envoy will generate a cookie and set
+	the TTL on the response back to the client based on Layer 4
+	attributes of the backend endpoint, to ensure that these future requests
+	go to the same backend endpoint. Make sure to set the TTL field for this case.
+	"""
+																			type: "string"
+																		}
+																		ttl: {
+																			description: """
+	TTL of the generated cookie if the cookie is not present. This value sets the
+	Max-Age attribute value.
+	"""
+																			pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																			type:    "string"
+																		}
+																	}
+																	required: ["name"]
+																	type: "object"
+																}
+																header: {
+																	description: """
+	Header configures the header hash policy when the consistent hash type is set to Header.
+
+	Deprecated: use Headers instead. This field will be removed in v1.11.
+	"""
+																	properties: name: {
+																		description: "Name of the header to hash."
+																		type:        "string"
+																	}
+																	required: ["name"]
+																	type: "object"
+																}
+																headers: {
+																	description: "Headers configures the header hash policy for each header, when the consistent hash type is set to Headers."
+																	items: {
+																		description: """
+	Header defines the header hashing configuration for consistent hash based
+	load balancing.
+	"""
+																		properties: name: {
+																			description: "Name of the header to hash."
+																			type:        "string"
+																		}
+																		required: ["name"]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																queryParams: {
+																	description: "QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams."
+																	items: {
+																		description: """
+	QueryParam defines the query parameter name hashing configuration for consistent hash based
+	load balancing.
+	"""
+																		properties: name: {
+																			description: "Name of the query param to hash."
+																			type:        "string"
+																		}
+																		required: ["name"]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																tableSize: {
+																	default:     65537
+																	description: "The table size for consistent hashing, must be prime number limited to 5000011."
+																	format:      "int64"
+																	maximum:     5000011
+																	minimum:     2
+																	type:        "integer"
+																}
+																type: {
+																	description: """
+	ConsistentHashType defines the type of input to hash on. Valid Type values are
+	"SourceIP",
+	"Header",
+	"Headers",
+	"Cookie".
+	"QueryParams".
+	"""
+																	enum: [
+																		"SourceIP",
+																		"Header",
+																		"Headers",
+																		"Cookie",
+																		"QueryParams",
+																	]
+																	type: "string"
+																}
+															}
+															required: ["type"]
+															type: "object"
+															"x-kubernetes-validations": [{
+																message: "If consistent hash type is header, the header field must be set."
+																rule:    "self.type == 'Header' ? has(self.header) : !has(self.header)"
+															}, {
+																message: "If consistent hash type is headers, the headers field must be set."
+																rule:    "self.type == 'Headers' ? has(self.headers) : !has(self.headers)"
+															}, {
+																message: "If consistent hash type is cookie, the cookie field must be set."
+																rule:    "self.type == 'Cookie' ? has(self.cookie) : !has(self.cookie)"
+															}, {
+																message: "If consistent hash type is queryParams, the queryParams field must be set."
+																rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
+															}]
+														}
+														dynamicModule: {
+															description: """
+	DynamicModule defines the configuration when the load balancer type is
+	set to DynamicModule. The referenced module must be registered in the
+	EnvoyProxy resource's dynamicModules allowlist.
+	"""
+															properties: {
+																config: {
+																	description: """
+	Config is optional configuration for the module's load balancer
+	implementation. This is serialized and passed to the module's
+	initialization function.
+	"""
+																	"x-kubernetes-preserve-unknown-fields": true
+																}
+																lbPolicyName: {
+																	description: """
+	LBPolicyName identifies a specific load balancer implementation within
+	the dynamic module. A single shared library can contain multiple LB
+	policy implementations. This value is passed to the module's
+	initialization function to select the appropriate implementation.
+	"""
+																	maxLength: 253
+																	minLength: 1
+																	type:      "string"
+																}
+																name: {
+																	description: """
+	Name references a dynamic module registered in the EnvoyProxy resource's
+	dynamicModules list. The referenced module must exist in the registry;
+	otherwise, the policy will be rejected.
+	"""
+																	maxLength: 253
+																	minLength: 1
+																	pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																	type:      "string"
+																}
+															}
+															required: [
+																"lbPolicyName",
+																"name",
+															]
+															type: "object"
+														}
+														endpointOverride: {
+															description: """
+	EndpointOverride defines the configuration for endpoint override.
+	When specified, the load balancer will attempt to route requests to endpoints
+	based on the override information extracted from request headers or metadata.
+	 If the override endpoints are not available, the configured load balancer policy will be used as fallback.
+	"""
+															properties: extractFrom: {
+																description: "ExtractFrom defines the sources to extract endpoint override information from."
+																items: {
+																	description: "EndpointOverrideExtractFrom defines a source to extract endpoint override information from."
+																	properties: header: {
+																		description: """
+	Header defines the header to get the override endpoint addresses.
+	The header value must specify at least one endpoint in `IP:Port` format or multiple endpoints in `IP:Port,IP:Port,...` format.
+	For example `10.0.0.5:8080` or `[2600:4040:5204::1574:24ae]:80`.
+	The IPv6 address is enclosed in square brackets.
+	"""
+																		type: "string"
+																	}
+																	type: "object"
+																}
+																maxItems: 10
+																minItems: 1
+																type:     "array"
+															}
+															required: ["extractFrom"]
+															type: "object"
+														}
+														slowStart: {
+															description: """
+	SlowStart defines the configuration related to the slow start load balancer policy.
+	If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
+	Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
+	"""
+															properties: window: {
+																description: """
+	Window defines the duration of the warm up period for newly added host.
+	During slow start window, traffic sent to the newly added hosts will gradually increase.
+	Currently only supports linear growth of traffic. For additional details,
+	see https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto#config-cluster-v3-cluster-slowstartconfig
+	"""
+																pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																type:    "string"
+															}
+															required: ["window"]
+															type: "object"
+														}
+														type: {
+															description: """
+	Type decides the type of Load Balancer policy.
+	Valid LoadBalancerType values are
+	"ConsistentHash",
+	"LeastRequest",
+	"Random",
+	"RoundRobin",
+	"BackendUtilization",
+	"DynamicModule".
+	"""
+															enum: [
+																"ConsistentHash",
+																"LeastRequest",
+																"Random",
+																"RoundRobin",
+																"BackendUtilization",
+																"DynamicModule",
+															]
+															type: "string"
+														}
+														zoneAware: {
+															description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
+															properties: {
+																preferLocal: {
+																	description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																	properties: {
+																		failTrafficOnPanic: {
+																			description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																			type: "boolean"
+																		}
+																		force: {
+																			description: """
+	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
+	which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
+	"""
+																			properties: minEndpointsInZoneThreshold: {
+																				description: """
+	MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
+	override. This is useful for protecting zones with fewer endpoints.
+	"""
+																				format: "int32"
+																				type:   "integer"
+																			}
+																			type: "object"
+																		}
+																		minEndpointsThreshold: {
+																			description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																			format:      "int64"
+																			type:        "integer"
+																		}
+																		percentageEnabled: {
+																			description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																			format:      "int32"
+																			maximum:     100
+																			minimum:     0
+																			type:        "integer"
+																		}
+																	}
+																	type: "object"
+																}
+																weightedZones: {
+																	description: """
+	WeightedZones configures weight-based traffic distribution across locality zones.
+	Traffic is distributed proportionally based on the sum of all zone weights.
+	"""
+																	items: {
+																		description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																		properties: {
+																			weight: {
+																				description: """
+	Weight defines the weight for this locality.
+	Higher values receive more traffic. The actual traffic distribution
+	is proportional to this value relative to other localities.
+	"""
+																				format: "int32"
+																				type:   "integer"
+																			}
+																			zone: {
+																				description: """
+	Zone specifies the topology zone this weight applies to.
+	The value should match the topology.kubernetes.io/zone label
+	of the nodes where endpoints are running.
+	Zones not listed in the configuration receive a default weight of 1.
+	"""
+																				type: "string"
+																			}
+																		}
+																		required: [
+																			"weight",
+																			"zone",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																	"x-kubernetes-list-map-keys": ["zone"]
+																	"x-kubernetes-list-type": "map"
+																}
+															}
+															type: "object"
+														}
+													}
+													required: ["type"]
+													type: "object"
+													"x-kubernetes-validations": [{
+														message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
+														rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
+													}, {
+														message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+														rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
+													}, {
+														message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+														rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+													}, {
+														message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+														rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+													}, {
+														message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+														rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+													}, {
+														message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+														rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+													}, {
+														message: "ZoneAware routing is not supported for DynamicModule load balancers."
+														rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+													}, {
+														message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+														rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+													}, {
+														message: "EndpointOverride is not supported for DynamicModule load balancers."
+														rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
+													}]
+												}
+												proxyProtocol: {
+													description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
+													properties: version: {
+														description: """
+	Version of ProxyProtocol
+	Valid ProxyProtocolVersion values are
+	"V1"
+	"V2"
+	"""
+														enum: [
+															"V1",
+															"V2",
+														]
+														type: "string"
+													}
+													required: ["version"]
+													type: "object"
+												}
+												tcpKeepalive: {
+													description: """
+	TcpKeepalive settings associated with the upstream client connection.
+	Disabled by default.
+	"""
+													properties: {
+														idleTime: {
+															description: """
+	The duration a connection needs to be idle before keep-alive
+	probes start being sent.
+	The duration format is
+	Defaults to `7200s`.
+	"""
+															pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+															type:    "string"
+														}
+														interval: {
+															description: """
+	The duration between keep-alive probes.
+	Defaults to `75s`.
+	"""
+															pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+															type:    "string"
+														}
+														probes: {
+															description: """
+	The total number of unacknowledged probes to send before deciding
+	the connection is dead.
+	Defaults to 9.
+	"""
+															format: "int32"
+															type:   "integer"
+														}
+													}
+													type: "object"
+												}
+												timeout: {
+													description: "Timeout settings for the backend connections."
+													properties: {
+														http: {
+															description: "Timeout settings for HTTP."
+															properties: {
+																connectionIdleTimeout: {
+																	description: """
+	The idle timeout for an HTTP connection. Idle time is defined as a period in which there are no active requests in the connection.
+	Default: 1 hour.
+	"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																maxConnectionDuration: {
+																	description: """
+	The maximum duration of an HTTP connection.
+	Default: unlimited.
+	"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																maxStreamDuration: {
+																	description: """
+	MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+	from when the request is sent until the response stream is fully consumed and does not apply to
+	non-streaming requests.
+	When set to "0s", no max duration is applied and streams can run indefinitely.
+	"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																requestTimeout: {
+																	description: "RequestTimeout is the time until which entire response is received from the upstream."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+																streamIdleTimeout: {
+																	description: """
+	 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+															}
+															type: "object"
+														}
+														tcp: {
+															description: "Timeout settings for TCP."
+															properties: connectTimeout: {
+																description: """
+	The timeout for network connection establishment, including TCP and TLS handshakes.
+	Default: 10 seconds.
+	"""
+																pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																type:    "string"
+															}
+															type: "object"
+														}
+													}
+													type: "object"
+												}
+											}
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "requestTimeout and streamIdleTimeout are controlled by the extension"
+												rule:    "!has(self.timeout) || !has(self.timeout.http) || (!has(self.timeout.http.requestTimeout) && !has(self.timeout.http.streamIdleTimeout))"
+											}, {
+												message: "DynamicModule load balancing is not supported for extension backends"
+												rule:    "!has(self.loadBalancer) || self.loadBalancer.type != 'DynamicModule'"
+											}, {
+												message: "http3 is not supported for extension backends"
+												rule:    "!has(self.http3)"
+											}, {
+												message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
+												rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+											}, {
+												message: "proxyProtocol cannot be used together with http3"
+												rule:    "!has(self.http3) || !has(self.proxyProtocol)"
+											}]
+										}
+										name: {
+											description: """
+	Name is the alias used by extensions. It must be a lowercase DNS label
+	and unique within this policy.
+	"""
+											maxLength: 63
+											minLength: 1
+											pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+											type:      "string"
+										}
+									}
+									required: [
+										"backendRef",
+										"name",
+									]
+									type: "object"
+								}
+								maxItems: 16
+								type:     "array"
+								"x-kubernetes-list-map-keys": ["name"]
+								"x-kubernetes-list-type": "map"
+							}
 							dynamicModule: {
 								description: """
 	DynamicModule is an ordered list of dynamic module HTTP filters
@@ -7919,7 +10742,7 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 	BackendRef references a Kubernetes object that represents the
 	backend server to which the authorization request will be sent.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 											properties: {
 												group: {
@@ -8366,18 +11189,44 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 														active: {
 															description: "Active health check configuration"
 															properties: {
+																disableConnectionReuse: {
+																	description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																	type: "boolean"
+																}
 																grpc: {
 																	description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-																	properties: service: {
-																		description: """
+																	properties: {
+																		hostname: {
+																			description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																			maxLength: 253
+																			minLength: 1
+																			pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																			type:      "string"
+																		}
+																		service: {
+																			description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-																		type: "string"
+																			type: "string"
+																		}
 																	}
 																	type: "object"
 																}
@@ -8546,6 +11395,31 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 																			minLength:   1
 																			type:        "string"
 																		}
+																		protocol: {
+																			default: "Auto"
+																			description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																			enum: [
+																				"Auto",
+																				"HTTP1",
+																				"HTTP2",
+																			]
+																			type: "string"
+																		}
 																		requestBody: {
 																			description: "RequestBody defines the HTTP request body payload sent during health checking."
 																			properties: {
@@ -8620,6 +11494,10 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 																	description: "Interval defines the time between active health checks."
 																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																	type:        "string"
+																	"x-kubernetes-validations": [{
+																		message: "interval must be greater than 0"
+																		rule:    "duration(self) > duration('0s')"
+																	}]
 																}
 																overrides: {
 																	description: """
@@ -8731,6 +11609,10 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 																	description: "Timeout defines the time to wait for a health check response."
 																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																	type:        "string"
+																	"x-kubernetes-validations": [{
+																		message: "timeout must be greater than 0"
+																		rule:    "duration(self) > duration('0s')"
+																	}]
 																}
 																type: {
 																	allOf: [{
@@ -8803,6 +11685,10 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 																	description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																	type:        "string"
+																	"x-kubernetes-validations": [{
+																		message: "baseEjectionTime must be greater than 0"
+																		rule:    "duration(self) > duration('0s')"
+																	}]
 																}
 																consecutive5XxErrors: {
 																	default:     5
@@ -8840,6 +11726,10 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 																	description: "Interval defines the time between passive health checks."
 																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																	type:        "string"
+																	"x-kubernetes-validations": [{
+																		message: "interval must be greater than 0"
+																		rule:    "duration(self) > duration('0s')"
+																	}]
 																}
 																maxEjectionPercent: {
 																	default:     10
@@ -8856,6 +11746,37 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 																}
 															}
 															type: "object"
+														}
+													}
+													type: "object"
+												}
+												http1: {
+													description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+													properties: {
+														enableTrailers: {
+															description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+															type:        "boolean"
+														}
+														preserveHeaderCase: {
+															description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+															type: "boolean"
 														}
 													}
 													type: "object"
@@ -8951,6 +11872,29 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 	"""
 															type: "string"
 														}
+													}
+													type: "object"
+												}
+												http3: {
+													description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+													properties: mode: {
+														description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+														enum: [
+															"Auto",
+															"Always",
+														]
+														type: "string"
 													}
 													type: "object"
 												}
@@ -9106,7 +12050,7 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 																	description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 																	properties: name: {
 																		description: "Name of the header to hash."
@@ -9309,6 +12253,18 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 																preferLocal: {
 																	description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 																	properties: {
+																		failTrafficOnPanic: {
+																			description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																			type: "boolean"
+																		}
 																		force: {
 																			description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -9638,6 +12594,9 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 											"x-kubernetes-validations": [{
 												message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 												rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+											}, {
+												message: "proxyProtocol cannot be used together with http3"
+												rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 											}]
 										}
 										failOpen: {
@@ -9845,6 +12804,12 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 									}, {
 										message: "If shadowMode is enabled, body processing mode must be Streamed or unset."
 										rule:    "!(has(self.shadowMode) && self.shadowMode == true && has(self.processingMode) && ((has(self.processingMode.request) && has(self.processingMode.request.body) && self.processingMode.request.body != 'Streamed') || (has(self.processingMode.response) && has(self.processingMode.response.body) && self.processingMode.response.body != 'Streamed')))"
+									}, {
+										message: "http1 is not supported for ExtProc backends, which always use gRPC."
+										rule:    "!has(self.backendSettings) || !has(self.backendSettings.http1)"
+									}, {
+										message: "http3 is only supported for route backends"
+										rule:    "!has(self.backendSettings) || !has(self.backendSettings.http3)"
 									}]
 								}
 								maxItems: 16
@@ -9961,7 +12926,7 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 	This policy and the TargetRef MUST be in the same namespace for this
 	Policy to have effect
 
-	Deprecated: use targetRefs/targetSelectors instead
+	Deprecated: use targetRefs/targetSelectors instead. This field will be removed in v1.11.
 	"""
 								properties: {
 									group: {
@@ -10257,7 +13222,10 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 	"""
 									properties: {
 										code: {
-											description: "Code is the Wasm code for the extension."
+											description: """
+	Code is the Wasm code for the extension.
+	When omitted, Name must match a module in EnvoyProxy.spec.wasmModules.
+	"""
 											properties: {
 												http: {
 													description: """
@@ -10518,7 +13486,6 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 														enum: [
 															"HTTP",
 															"Image",
-															"ConfigMap",
 														]
 													}]
 													description: """
@@ -10578,8 +13545,12 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 	Wasm extension if multiple extensions are handled by the same vm_id and root_id.
 	It's also used for logging/debugging.
 	If not specified, EG will generate a unique name for the Wasm extension.
+
+	When Code is omitted, Name is required and must match a module registered
+	in EnvoyProxy.spec.wasmModules.
 	"""
-											type: "string"
+											maxLength: 253
+											type:      "string"
 										}
 										rootID: {
 											description: """
@@ -10591,9 +13562,32 @@ customresourcedefinition: "envoyextensionpolicies.gateway.envoyproxy.io": {
 	"""
 											type: "string"
 										}
+										vmSharingScope: {
+											default: "Policy"
+											description: """
+	VMSharingScope defines the scope within which this extension may share a Wasm VM.
+	If Policy or unset, each policy's Wasm entry uses its own VM ID. The same
+	entry may reuse its VM across routes; different entries do not share a VM.
+	If Namespace, this extension may share a VM with other extensions that specify
+	Namespace in the same EnvoyExtensionPolicy namespace. Envoy determines VM
+	compatibility using the Wasm code and VM configuration, including environment
+	variables. Each Envoy worker has its own VM.
+
+	Sharing a VM shares module-level state and VM failures. Plugin names and root
+	IDs are not changed; matching plugin identities may also share a root context.
+	"""
+											enum: [
+												"Policy",
+												"Namespace",
+											]
+											type: "string"
+										}
 									}
-									required: ["code"]
 									type: "object"
+									"x-kubernetes-validations": [{
+										message: "either code must be set, or name must be set and match the wasmModules name pattern"
+										rule:    "has(self.code) || (has(self.name) && self.name.matches('^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$'))"
+									}]
 								}
 								maxItems: 16
 								type:     "array"
@@ -11707,7 +14701,11 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	ClientCertificateRef defines the reference to a Kubernetes Secret that contains
 	the client certificate and private key for Envoy to use when connecting to
 	backend services and external services, such as ExtAuth, ALS, OpenTelemetry, etc.
-	This secret should be located within the same namespace as the Envoy proxy resource that references it.
+	The Secret must be in the same namespace as the EnvoyProxy or Backend resource
+	that references it.
+	Cross-namespace references are not supported, even with a ReferenceGrant.
+	The ReferenceGrant requirement in the namespace field's description is inherited
+	from the Gateway API SecretObjectReference type and does not apply to this field.
 	"""
 										properties: {
 											group: {
@@ -12004,6 +15002,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 														description: "Path is the absolute filesystem path to the dynamic module shared library (.so file)."
 														maxLength:   4096
 														minLength:   1
+														pattern:     "^/.*"
 														type:        "string"
 													}
 													required: ["path"]
@@ -12131,6 +15130,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 
 	- envoy.filters.http.grpc_web
 
+	- envoy.filters.http.grpc_json_transcoder
+
 	- envoy.filters.http.grpc_stats
 
 	- envoy.filters.http.credential_injector
@@ -12138,6 +15139,8 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	- envoy.filters.http.compressor
 
 	- envoy.filters.http.dynamic_forward_proxy
+
+	- envoy.filters.http.alternate_protocols_cache
 
 	- envoy.filters.http.router
 
@@ -12175,10 +15178,12 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 												"envoy.filters.http.ratelimit",
 												"envoy.filters.http.bandwidth_limit",
 												"envoy.filters.http.grpc_web",
+												"envoy.filters.http.grpc_json_transcoder",
 												"envoy.filters.http.grpc_stats",
 												"envoy.filters.http.credential_injector",
 												"envoy.filters.http.compressor",
 												"envoy.filters.http.dynamic_forward_proxy",
+												"envoy.filters.http.alternate_protocols_cache",
 											]
 											type: "string"
 										}
@@ -12211,10 +15216,12 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 												"envoy.filters.http.ratelimit",
 												"envoy.filters.http.bandwidth_limit",
 												"envoy.filters.http.grpc_web",
+												"envoy.filters.http.grpc_json_transcoder",
 												"envoy.filters.http.grpc_stats",
 												"envoy.filters.http.credential_injector",
 												"envoy.filters.http.compressor",
 												"envoy.filters.http.dynamic_forward_proxy",
+												"envoy.filters.http.alternate_protocols_cache",
 											]
 											type: "string"
 										}
@@ -12244,10 +15251,12 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 												"envoy.filters.http.ratelimit",
 												"envoy.filters.http.bandwidth_limit",
 												"envoy.filters.http.grpc_web",
+												"envoy.filters.http.grpc_json_transcoder",
 												"envoy.filters.http.grpc_stats",
 												"envoy.filters.http.credential_injector",
 												"envoy.filters.http.compressor",
 												"envoy.filters.http.dynamic_forward_proxy",
+												"envoy.filters.http.alternate_protocols_cache",
 											]
 											type: "string"
 										}
@@ -12384,6 +15393,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 									"IPv4",
 									"IPv6",
 									"DualStack",
+									"PreferDualStack",
 								]
 								type: "string"
 							}
@@ -12413,10 +15423,100 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 								}
 								type: "object"
 							}
+							lua: {
+								description: """
+	Lua configures how Lua scripts from EnvoyExtensionPolicy resources are
+	validated in the gateway controller. It selects the validation mode and, for the Strict
+	mode, defines the filesystem paths and environment variables the scripts are permitted to
+	access during validation.
+	"""
+								properties: {
+									strictValidation: {
+										description: """
+	StrictValidation configures the security sandbox that the Strict validation mode executes Lua
+	scripts in, defining the filesystem paths and environment variables the scripts are permitted
+	to access during validation.
+
+	It has no effect for the InsecureSyntax or Disabled modes, which do not execute the security
+	sandbox.
+	"""
+										properties: {
+											allowedEnvVars: {
+												description: """
+	AllowedEnvVars is the list of environment variable names that Lua scripts are permitted to
+	access during validation (via os.getenv, os.setenv). Matching is exact and case-sensitive.
+	When empty, access to all environment variables is denied. Blank or whitespace-only entries
+	are rejected.
+	"""
+												items: {
+													maxLength: 256
+													minLength: 1
+													type:      "string"
+												}
+												maxItems: 64
+												type:     "array"
+												"x-kubernetes-validations": [{
+													message: "allowedEnvVars entries must not be blank or whitespace-only"
+													rule:    "self.all(e, e.trim() != '')"
+												}]
+											}
+											allowedPaths: {
+												description: """
+	AllowedPaths is the list of filesystem path prefixes that Lua scripts are permitted to
+	access during validation (via io.open, io.input, io.output, io.lines, os.remove, os.rename).
+	A path is allowed when it equals an entry or is contained within an entry's subtree
+	(e.g. "/tmp" allows "/tmp/file.txt"). Paths are normalized (separators collapsed, made
+	absolute) before matching, and any "." or ".." traversal segment is always rejected.
+	When empty, all filesystem access is denied. Blank or whitespace-only entries are rejected,
+	as they would otherwise match every path and disable the sandbox. The filesystem root ("/")
+	is likewise rejected, as it would allow access to the entire filesystem and defeat the sandbox.
+	Note that a built-in set of sensitive paths is always denied, even if they are added to the
+	allowed paths here: /etc, /proc, /sys, /certs, /var/run/secrets, and /run/secrets.
+	"""
+												items: {
+													maxLength: 4096
+													minLength: 1
+													type:      "string"
+												}
+												maxItems: 64
+												type:     "array"
+												"x-kubernetes-validations": [{
+													message: "allowedPaths entries must not be blank or whitespace-only"
+													rule:    "self.all(p, p.trim() != '')"
+												}, {
+													message: "allowedPaths entries must not be the filesystem root"
+													rule:    "self.all(p, !p.matches('^/+$'))"
+												}]
+											}
+										}
+										type: "object"
+									}
+									validationType: {
+										default: "Strict"
+										description: """
+	ValidationType determines the strictness of the Lua script validation.
+	Default: Strict
+	"""
+										enum: [
+											"Strict",
+											"InsecureSyntax",
+											"Disabled",
+										]
+										type: "string"
+									}
+								}
+								type: "object"
+								"x-kubernetes-validations": [{
+									message: "strictValidation can only be set when validationType is Strict"
+									rule:    "!has(self.strictValidation) || !has(self.validationType) || self.validationType == 'Strict'"
+								}]
+							}
 							luaValidation: {
 								description: """
 	LuaValidation determines strictness of the Lua script validation for Lua EnvoyExtensionPolicies
 	Default: Strict
+
+	Deprecated: Use Lua.ValidationType instead. This field will be removed in a future release.
 	"""
 								enum: [
 									"Strict",
@@ -12431,6 +15531,12 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	share a single Envoy cluster instead of Envoy Gateway generating one cluster per route
 	rule. This reduces xDS size, active health-check traffic, and stats cardinality, and
 	improves upstream connection pooling.
+
+	Only a route's own backendRefs (HTTPRoute, GRPCRoute, TLSRoute, TCPRoute, UDPRoute) are
+	considered. A backend used any other way, such as a RequestMirror filter or an external
+	service of a SecurityPolicy or EnvoyExtensionPolicy, is never merged. A BackendTrafficPolicy
+	that targets a backend only reports status for Gateways where the backend is used as a route
+	backendRef.
 
 	Disabled when unset; specifying this field at all (even without further configuration)
 	enables it. Mutually exclusive with MergeGateways.
@@ -25152,7 +28258,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 														type: "string"
 														"x-kubernetes-validations": [{
 															message: "loadBalancerIP must be a valid IPv4 address"
-															rule:    "self.matches(r\"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\")"
+															rule:    "isIP(self) && ip(self).family() == 4"
 														}]
 													}
 													loadBalancerSourceRanges: {
@@ -25163,8 +28269,12 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	This field may only be set for services with type LoadBalancer and will be cleared if the type
 	is changed to any other type.
 	"""
-														items: type: "string"
-														type: "array"
+														items: {
+															format: "cidr"
+															type:   "string"
+														}
+														maxItems: 64
+														type:     "array"
 													}
 													name: {
 														description: """
@@ -25401,7 +28511,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	BackendRef references a Kubernetes object that represents the
 	backend server to which the authorization request will be sent.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 																				properties: {
 																					group: {
@@ -25848,18 +28958,44 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																							active: {
 																								description: "Active health check configuration"
 																								properties: {
+																									disableConnectionReuse: {
+																										description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																										type: "boolean"
+																									}
 																									grpc: {
 																										description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-																										properties: service: {
-																											description: """
+																										properties: {
+																											hostname: {
+																												description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																												maxLength: 253
+																												minLength: 1
+																												pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																												type:      "string"
+																											}
+																											service: {
+																												description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-																											type: "string"
+																												type: "string"
+																											}
 																										}
 																										type: "object"
 																									}
@@ -26028,6 +29164,31 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																												minLength:   1
 																												type:        "string"
 																											}
+																											protocol: {
+																												default: "Auto"
+																												description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																												enum: [
+																													"Auto",
+																													"HTTP1",
+																													"HTTP2",
+																												]
+																												type: "string"
+																											}
 																											requestBody: {
 																												description: "RequestBody defines the HTTP request body payload sent during health checking."
 																												properties: {
@@ -26102,6 +29263,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "Interval defines the time between active health checks."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																										"x-kubernetes-validations": [{
+																											message: "interval must be greater than 0"
+																											rule:    "duration(self) > duration('0s')"
+																										}]
 																									}
 																									overrides: {
 																										description: """
@@ -26213,6 +29378,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "Timeout defines the time to wait for a health check response."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																										"x-kubernetes-validations": [{
+																											message: "timeout must be greater than 0"
+																											rule:    "duration(self) > duration('0s')"
+																										}]
 																									}
 																									type: {
 																										allOf: [{
@@ -26285,6 +29454,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																										"x-kubernetes-validations": [{
+																											message: "baseEjectionTime must be greater than 0"
+																											rule:    "duration(self) > duration('0s')"
+																										}]
 																									}
 																									consecutive5XxErrors: {
 																										default:     5
@@ -26322,6 +29495,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "Interval defines the time between passive health checks."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																										"x-kubernetes-validations": [{
+																											message: "interval must be greater than 0"
+																											rule:    "duration(self) > duration('0s')"
+																										}]
 																									}
 																									maxEjectionPercent: {
 																										default:     10
@@ -26338,6 +29515,37 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																									}
 																								}
 																								type: "object"
+																							}
+																						}
+																						type: "object"
+																					}
+																					http1: {
+																						description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+																						properties: {
+																							enableTrailers: {
+																								description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+																								type:        "boolean"
+																							}
+																							preserveHeaderCase: {
+																								description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+																								type: "boolean"
 																							}
 																						}
 																						type: "object"
@@ -26433,6 +29641,29 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																								type: "string"
 																							}
+																						}
+																						type: "object"
+																					}
+																					http3: {
+																						description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+																						properties: mode: {
+																							description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+																							enum: [
+																								"Auto",
+																								"Always",
+																							]
+																							type: "string"
 																						}
 																						type: "object"
 																					}
@@ -26588,7 +29819,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 																										properties: name: {
 																											description: "Name of the header to hash."
@@ -26791,6 +30022,18 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																									preferLocal: {
 																										description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 																										properties: {
+																											failTrafficOnPanic: {
+																												description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																												type: "boolean"
+																											}
 																											force: {
 																												description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -27120,6 +30363,9 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				"x-kubernetes-validations": [{
 																					message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 																					rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+																				}, {
+																					message: "proxyProtocol cannot be used together with http3"
+																					rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 																				}]
 																			}
 																			http: {
@@ -27178,6 +30424,12 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																		}, {
 																			message: "BackendRefs only support Core and gateway.envoyproxy.io group."
 																			rule:    "has(self.backendRefs) ? (self.backendRefs.all(f, f.group == \"\" || f.group == 'gateway.envoyproxy.io')) : true"
+																		}, {
+																			message: "http1 is not supported for ALS backends, which always use gRPC."
+																			rule:    "!has(self.backendSettings) || !has(self.backendSettings.http1)"
+																		}, {
+																			message: "http3 is only supported for route backends"
+																			rule:    "!has(self.backendSettings) || !has(self.backendSettings.http3)"
 																		}]
 																	}
 																	file: {
@@ -27197,7 +30449,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	BackendRef references a Kubernetes object that represents the
 	backend server to which the authorization request will be sent.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 																				properties: {
 																					group: {
@@ -27644,18 +30896,44 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																							active: {
 																								description: "Active health check configuration"
 																								properties: {
+																									disableConnectionReuse: {
+																										description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																										type: "boolean"
+																									}
 																									grpc: {
 																										description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-																										properties: service: {
-																											description: """
+																										properties: {
+																											hostname: {
+																												description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																												maxLength: 253
+																												minLength: 1
+																												pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																												type:      "string"
+																											}
+																											service: {
+																												description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-																											type: "string"
+																												type: "string"
+																											}
 																										}
 																										type: "object"
 																									}
@@ -27824,6 +31102,31 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																												minLength:   1
 																												type:        "string"
 																											}
+																											protocol: {
+																												default: "Auto"
+																												description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																												enum: [
+																													"Auto",
+																													"HTTP1",
+																													"HTTP2",
+																												]
+																												type: "string"
+																											}
 																											requestBody: {
 																												description: "RequestBody defines the HTTP request body payload sent during health checking."
 																												properties: {
@@ -27898,6 +31201,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "Interval defines the time between active health checks."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																										"x-kubernetes-validations": [{
+																											message: "interval must be greater than 0"
+																											rule:    "duration(self) > duration('0s')"
+																										}]
 																									}
 																									overrides: {
 																										description: """
@@ -28009,6 +31316,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "Timeout defines the time to wait for a health check response."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																										"x-kubernetes-validations": [{
+																											message: "timeout must be greater than 0"
+																											rule:    "duration(self) > duration('0s')"
+																										}]
 																									}
 																									type: {
 																										allOf: [{
@@ -28081,6 +31392,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																										"x-kubernetes-validations": [{
+																											message: "baseEjectionTime must be greater than 0"
+																											rule:    "duration(self) > duration('0s')"
+																										}]
 																									}
 																									consecutive5XxErrors: {
 																										default:     5
@@ -28118,6 +31433,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: "Interval defines the time between passive health checks."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																										"x-kubernetes-validations": [{
+																											message: "interval must be greater than 0"
+																											rule:    "duration(self) > duration('0s')"
+																										}]
 																									}
 																									maxEjectionPercent: {
 																										default:     10
@@ -28134,6 +31453,37 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																									}
 																								}
 																								type: "object"
+																							}
+																						}
+																						type: "object"
+																					}
+																					http1: {
+																						description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+																						properties: {
+																							enableTrailers: {
+																								description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+																								type:        "boolean"
+																							}
+																							preserveHeaderCase: {
+																								description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+																								type: "boolean"
 																							}
 																						}
 																						type: "object"
@@ -28229,6 +31579,29 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																								type: "string"
 																							}
+																						}
+																						type: "object"
+																					}
+																					http3: {
+																						description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+																						properties: mode: {
+																							description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+																							enum: [
+																								"Auto",
+																								"Always",
+																							]
+																							type: "string"
 																						}
 																						type: "object"
 																					}
@@ -28384,7 +31757,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																										description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 																										properties: name: {
 																											description: "Name of the header to hash."
@@ -28587,6 +31960,18 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																									preferLocal: {
 																										description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 																										properties: {
+																											failTrafficOnPanic: {
+																												description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																												type: "boolean"
+																											}
 																											force: {
 																												description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -28916,6 +32301,9 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				"x-kubernetes-validations": [{
 																					message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 																					rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+																				}, {
+																					message: "proxyProtocol cannot be used together with http3"
+																					rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 																				}]
 																			}
 																			headers: {
@@ -28971,7 +32359,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				description: """
 	Host define the extension service hostname.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 																				type: "string"
 																			}
@@ -28980,7 +32368,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				description: """
 	Port defines the port the extension service is exposed on.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 																				format:  "int32"
 																				minimum: 0
@@ -29021,6 +32409,12 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																		}, {
 																			message: "either resources or resourceAttributes can be set, not both"
 																			rule:    "!has(self.resources) || !has(self.resourceAttributes)"
+																		}, {
+																			message: "http1 is not supported for OpenTelemetry access log backends, which always use gRPC."
+																			rule:    "!has(self.backendSettings) || !has(self.backendSettings.http1)"
+																		}, {
+																			message: "http3 is only supported for route backends"
+																			rule:    "!has(self.backendSettings) || !has(self.backendSettings.http3)"
 																		}]
 																	}
 																	type: {
@@ -29165,7 +32559,21 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	Default: `%ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME%/rule/%ROUTE_RULE_NUMBER%`
 	Example: `httproute/my-ns/my-route/rule/0`
 	"""
-												type: "string"
+												maxLength: 1024
+												type:      "string"
+												"x-kubernetes-validations": [{
+													message: "clusterStatName contains an unsupported or unterminated operator; supported operators are %ROUTE_NAME%, %ROUTE_NAMESPACE%, %ROUTE_KIND%, %ROUTE_RULE_NAME%, %ROUTE_RULE_NUMBER% and %BACKEND_REFS%"
+													rule:    "self.matches('^([^%]|%(ROUTE_NAME|ROUTE_NAMESPACE|ROUTE_KIND|ROUTE_RULE_NAME|ROUTE_RULE_NUMBER|BACKEND_REFS)%)*$')"
+												}]
+											}
+											enableCircuitBreakerRemainingStats: {
+												description: """
+	EnableCircuitBreakerRemainingStats enables Envoy's circuit breaker `remaining_*` gauges,
+	which expose the number of resources remaining before each circuit breaker opens.
+	Enabling this adds 5 additional gauges per cluster, see:
+	https://www.envoyproxy.io/docs/envoy/latest/configuration/upstream/cluster_manager/cluster_stats#circuit-breakers-statistics
+	"""
+												type: "boolean"
 											}
 											enableGRPCStats: {
 												description: """
@@ -29239,11 +32647,136 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 														properties: {
 															brotli: {
 																description: "The configuration for Brotli compressor."
-																type:        "object"
+																properties: {
+																	chunkSize: {
+																		description: """
+	ChunkSize is the size in bytes of the compressor's next output buffer, from
+	4096 to 65536. If not set, defaults to 4096.
+	"""
+																		format:  "int32"
+																		maximum: 65536
+																		minimum: 4096
+																		type:    "integer"
+																	}
+																	disableLiteralContextModeling: {
+																		description: """
+	DisableLiteralContextModeling disables the "literal context modeling" format
+	feature. This flag is a "decoding-speed vs compression ratio" trade-off.
+	If not set, defaults to false.
+	"""
+																		type: "boolean"
+																	}
+																	encoderMode: {
+																		description: """
+	EncoderMode tunes the encoder for a specific input.
+	If not set, defaults to Default.
+	"""
+																		enum: [
+																			"Default",
+																			"Generic",
+																			"Text",
+																			"Font",
+																		]
+																		type: "string"
+																	}
+																	inputBlockBits: {
+																		description: """
+	InputBlockBits represents the base two logarithm of the compressor's input block
+	size, from 16 to 24. Larger input block results in better compression at the
+	expense of memory usage. If not set, defaults to 24.
+	"""
+																		format:  "int32"
+																		maximum: 24
+																		minimum: 16
+																		type:    "integer"
+																	}
+																	quality: {
+																		description: """
+	Quality controls the main compression speed-density lever, from 0 to 11.
+	The higher the quality, the slower the compression. If not set, defaults to 3.
+	"""
+																		format:  "int32"
+																		maximum: 11
+																		minimum: 0
+																		type:    "integer"
+																	}
+																	windowBits: {
+																		description: """
+	WindowBits represents the base two logarithm of the compressor's window size,
+	from 10 to 24. Larger window results in better compression at the expense of
+	memory usage. If not set, defaults to 18.
+	"""
+																		format:  "int32"
+																		maximum: 24
+																		minimum: 10
+																		type:    "integer"
+																	}
+																}
+																type: "object"
 															}
 															gzip: {
 																description: "The configuration for GZIP compressor."
-																type:        "object"
+																properties: {
+																	chunkSize: {
+																		description: """
+	ChunkSize is the size in bytes of zlib's next output buffer, from 4096 to 65536.
+	If not set, defaults to 4096.
+	"""
+																		format:  "int32"
+																		maximum: 65536
+																		minimum: 4096
+																		type:    "integer"
+																	}
+																	compressionLevel: {
+																		description: """
+	CompressionLevel sets the zlib compression level, from 1 (fastest compression,
+	lowest compression ratio) to 9 (slowest compression, best compression ratio).
+	If not set, Envoy uses the zlib default level, which is equivalent to level 6.
+	"""
+																		format:  "int32"
+																		maximum: 9
+																		minimum: 1
+																		type:    "integer"
+																	}
+																	compressionStrategy: {
+																		description: """
+	CompressionStrategy selects the zlib compression strategy, which is directly
+	related to the characteristics of the content. Most of the time "Default" is
+	the best choice. If not set, defaults to Default.
+	"""
+																		enum: [
+																			"Default",
+																			"Filtered",
+																			"HuffmanOnly",
+																			"RLE",
+																			"Fixed",
+																		]
+																		type: "string"
+																	}
+																	memoryLevel: {
+																		description: """
+	MemoryLevel controls the amount of internal memory used by zlib, from 1 to 9.
+	Higher values use more memory, but are faster and produce better compression
+	results. If not set, defaults to 5.
+	"""
+																		format:  "int32"
+																		maximum: 9
+																		minimum: 1
+																		type:    "integer"
+																	}
+																	windowBits: {
+																		description: """
+	WindowBits represents the base two logarithm of the compressor's window size,
+	from 9 to 15. Larger window results in better compression at the expense of
+	memory usage. If not set, defaults to 12, which will produce a 4096 bytes window.
+	"""
+																		format:  "int32"
+																		maximum: 15
+																		minimum: 9
+																		type:    "integer"
+																	}
+																}
+																type: "object"
 															}
 															minContentLength: {
 																allOf: [{
@@ -29276,11 +32809,72 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 															}
 															zstd: {
 																description: "The configuration for Zstd compressor."
-																type:        "object"
+																properties: {
+																	chunkSize: {
+																		description: """
+	ChunkSize is the size in bytes of the compressor's next output buffer, from
+	4096 to 65536. If not set, defaults to 4096.
+	"""
+																		format:  "int32"
+																		maximum: 65536
+																		minimum: 4096
+																		type:    "integer"
+																	}
+																	compressionLevel: {
+																		description: """
+	CompressionLevel sets the compression parameters according to the pre-defined
+	zstd compression level table, from 1 to 22. Note that the exact compression
+	parameters are dynamically determined, depending on both compression level and
+	source content size (when known). If not set, defaults to 3.
+	"""
+																		format:  "int32"
+																		maximum: 22
+																		minimum: 1
+																		type:    "integer"
+																	}
+																	enableChecksum: {
+																		description: """
+	EnableChecksum specifies whether a 32-bits checksum of the content is written
+	at the end of the frame. If not set, defaults to false.
+	"""
+																		type: "boolean"
+																	}
+																	strategy: {
+																		description: """
+	Strategy selects the zstd compression strategy. The higher the value of the
+	selected strategy, the more complex it is, resulting in stronger and slower
+	compression. If not set, defaults to Default.
+	"""
+																		enum: [
+																			"Default",
+																			"Fast",
+																			"DFast",
+																			"Greedy",
+																			"Lazy",
+																			"Lazy2",
+																			"BTLazy2",
+																			"BTOpt",
+																			"BTUltra",
+																			"BTUltra2",
+																		]
+																		type: "string"
+																	}
+																}
+																type: "object"
 															}
 														}
 														required: ["type"]
 														type: "object"
+														"x-kubernetes-validations": [{
+															message: "The brotli configuration is only allowed when the type is Brotli."
+															rule:    "!has(self.brotli) || self.type == 'Brotli'"
+														}, {
+															message: "The gzip configuration is only allowed when the type is Gzip."
+															rule:    "!has(self.gzip) || self.type == 'Gzip'"
+														}, {
+															message: "The zstd configuration is only allowed when the type is Zstd."
+															rule:    "!has(self.zstd) || self.type == 'Zstd'"
+														}]
 													}
 													disable: {
 														description: "Disable the Prometheus endpoint."
@@ -29308,7 +32902,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	BackendRef references a Kubernetes object that represents the
 	backend server to which the authorization request will be sent.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 																	properties: {
 																		group: {
@@ -29755,18 +33349,44 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				active: {
 																					description: "Active health check configuration"
 																					properties: {
+																						disableConnectionReuse: {
+																							description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																							type: "boolean"
+																						}
 																						grpc: {
 																							description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-																							properties: service: {
-																								description: """
+																							properties: {
+																								hostname: {
+																									description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																									maxLength: 253
+																									minLength: 1
+																									pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																									type:      "string"
+																								}
+																								service: {
+																									description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-																								type: "string"
+																									type: "string"
+																								}
 																							}
 																							type: "object"
 																						}
@@ -29935,6 +33555,31 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																									minLength:   1
 																									type:        "string"
 																								}
+																								protocol: {
+																									default: "Auto"
+																									description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																									enum: [
+																										"Auto",
+																										"HTTP1",
+																										"HTTP2",
+																									]
+																									type: "string"
+																								}
 																								requestBody: {
 																									description: "RequestBody defines the HTTP request body payload sent during health checking."
 																									properties: {
@@ -30009,6 +33654,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																							description: "Interval defines the time between active health checks."
 																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																							type:        "string"
+																							"x-kubernetes-validations": [{
+																								message: "interval must be greater than 0"
+																								rule:    "duration(self) > duration('0s')"
+																							}]
 																						}
 																						overrides: {
 																							description: """
@@ -30120,6 +33769,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																							description: "Timeout defines the time to wait for a health check response."
 																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																							type:        "string"
+																							"x-kubernetes-validations": [{
+																								message: "timeout must be greater than 0"
+																								rule:    "duration(self) > duration('0s')"
+																							}]
 																						}
 																						type: {
 																							allOf: [{
@@ -30192,6 +33845,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																							description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																							type:        "string"
+																							"x-kubernetes-validations": [{
+																								message: "baseEjectionTime must be greater than 0"
+																								rule:    "duration(self) > duration('0s')"
+																							}]
 																						}
 																						consecutive5XxErrors: {
 																							default:     5
@@ -30229,6 +33886,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																							description: "Interval defines the time between passive health checks."
 																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																							type:        "string"
+																							"x-kubernetes-validations": [{
+																								message: "interval must be greater than 0"
+																								rule:    "duration(self) > duration('0s')"
+																							}]
 																						}
 																						maxEjectionPercent: {
 																							default:     10
@@ -30245,6 +33906,37 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																						}
 																					}
 																					type: "object"
+																				}
+																			}
+																			type: "object"
+																		}
+																		http1: {
+																			description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+																			properties: {
+																				enableTrailers: {
+																					description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+																					type:        "boolean"
+																				}
+																				preserveHeaderCase: {
+																					description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+																					type: "boolean"
 																				}
 																			}
 																			type: "object"
@@ -30340,6 +34032,29 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																					type: "string"
 																				}
+																			}
+																			type: "object"
+																		}
+																		http3: {
+																			description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+																			properties: mode: {
+																				description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+																				enum: [
+																					"Auto",
+																					"Always",
+																				]
+																				type: "string"
 																			}
 																			type: "object"
 																		}
@@ -30495,7 +34210,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																							description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 																							properties: name: {
 																								description: "Name of the header to hash."
@@ -30698,6 +34413,18 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																						preferLocal: {
 																							description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 																							properties: {
+																								failTrafficOnPanic: {
+																									description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																									type: "boolean"
+																								}
 																								force: {
 																									description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -31027,6 +34754,9 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																	"x-kubernetes-validations": [{
 																		message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 																		rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+																	}, {
+																		message: "proxyProtocol cannot be used together with http3"
+																		rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 																	}]
 																}
 																headers: {
@@ -31082,7 +34812,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																	description: """
 	Host define the service hostname.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 																	type: "string"
 																}
@@ -31091,12 +34821,19 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																	description: """
 	Port defines the port the service is exposed on.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 																	format:  "int32"
 																	maximum: 65535
 																	minimum: 0
 																	type:    "integer"
+																}
+																prefix: {
+																	description: """
+	Prefix configures the OpenTelemetry sink to prepend the given prefix to emitted stat names,
+	the full stat name will be `<prefix>.<stat_name>`.
+	"""
+																	type: "string"
 																}
 																reportCountersAsDeltas: {
 																	description: """
@@ -31135,6 +34872,12 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 															}, {
 																message: "BackendRefs only support Core and gateway.envoyproxy.io group."
 																rule:    "has(self.backendRefs) ? (self.backendRefs.all(f, f.group == \"\" || f.group == 'gateway.envoyproxy.io')) : true"
+															}, {
+																message: "http1 is not supported for OpenTelemetry metrics backends, which always use gRPC."
+																rule:    "!has(self.backendSettings) || !has(self.backendSettings.http1)"
+															}, {
+																message: "http3 is only supported for route backends"
+																rule:    "!has(self.backendSettings) || !has(self.backendSettings.http3)"
 															}]
 														}
 														type: {
@@ -31321,7 +35064,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	BackendRef references a Kubernetes object that represents the
 	backend server to which the authorization request will be sent.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 														properties: {
 															group: {
@@ -31768,18 +35511,44 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																	active: {
 																		description: "Active health check configuration"
 																		properties: {
+																			disableConnectionReuse: {
+																				description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																				type: "boolean"
+																			}
 																			grpc: {
 																				description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-																				properties: service: {
-																					description: """
+																				properties: {
+																					hostname: {
+																						description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																						maxLength: 253
+																						minLength: 1
+																						pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																						type:      "string"
+																					}
+																					service: {
+																						description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-																					type: "string"
+																						type: "string"
+																					}
 																				}
 																				type: "object"
 																			}
@@ -31948,6 +35717,31 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																						minLength:   1
 																						type:        "string"
 																					}
+																					protocol: {
+																						default: "Auto"
+																						description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																						enum: [
+																							"Auto",
+																							"HTTP1",
+																							"HTTP2",
+																						]
+																						type: "string"
+																					}
 																					requestBody: {
 																						description: "RequestBody defines the HTTP request body payload sent during health checking."
 																						properties: {
@@ -32022,6 +35816,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				description: "Interval defines the time between active health checks."
 																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																				type:        "string"
+																				"x-kubernetes-validations": [{
+																					message: "interval must be greater than 0"
+																					rule:    "duration(self) > duration('0s')"
+																				}]
 																			}
 																			overrides: {
 																				description: """
@@ -32133,6 +35931,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				description: "Timeout defines the time to wait for a health check response."
 																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																				type:        "string"
+																				"x-kubernetes-validations": [{
+																					message: "timeout must be greater than 0"
+																					rule:    "duration(self) > duration('0s')"
+																				}]
 																			}
 																			type: {
 																				allOf: [{
@@ -32205,6 +36007,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																				type:        "string"
+																				"x-kubernetes-validations": [{
+																					message: "baseEjectionTime must be greater than 0"
+																					rule:    "duration(self) > duration('0s')"
+																				}]
 																			}
 																			consecutive5XxErrors: {
 																				default:     5
@@ -32242,6 +36048,10 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				description: "Interval defines the time between passive health checks."
 																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																				type:        "string"
+																				"x-kubernetes-validations": [{
+																					message: "interval must be greater than 0"
+																					rule:    "duration(self) > duration('0s')"
+																				}]
 																			}
 																			maxEjectionPercent: {
 																				default:     10
@@ -32258,6 +36068,37 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																			}
 																		}
 																		type: "object"
+																	}
+																}
+																type: "object"
+															}
+															http1: {
+																description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+																properties: {
+																	enableTrailers: {
+																		description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+																		type:        "boolean"
+																	}
+																	preserveHeaderCase: {
+																		description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+																		type: "boolean"
 																	}
 																}
 																type: "object"
@@ -32353,6 +36194,29 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 	"""
 																		type: "string"
 																	}
+																}
+																type: "object"
+															}
+															http3: {
+																description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+																properties: mode: {
+																	description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+																	enum: [
+																		"Auto",
+																		"Always",
+																	]
+																	type: "string"
 																}
 																type: "object"
 															}
@@ -32508,7 +36372,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																				description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 																				properties: name: {
 																					description: "Name of the header to hash."
@@ -32711,6 +36575,18 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 																			preferLocal: {
 																				description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 																				properties: {
+																					failTrafficOnPanic: {
+																						description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																						type: "boolean"
+																					}
 																					force: {
 																						description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -33040,13 +36916,16 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 														"x-kubernetes-validations": [{
 															message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 															rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+														}, {
+															message: "proxyProtocol cannot be used together with http3"
+															rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 														}]
 													}
 													host: {
 														description: """
 	Host define the provider service hostname.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 														type: "string"
 													}
@@ -33167,7 +37046,7 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 														description: """
 	Port defines the port the provider service is exposed on.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 														format:  "int32"
 														minimum: 0
@@ -33237,6 +37116,12 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 												}, {
 													message: "openTelemetry can only be used with type OpenTelemetry"
 													rule:    "has(self.openTelemetry) ? self.type == 'OpenTelemetry' : true"
+												}, {
+													message: "http1 is not supported for OpenTelemetry tracing backends, which use gRPC."
+													rule:    "self.type != 'OpenTelemetry' || !has(self.backendSettings) || !has(self.backendSettings.http1)"
+												}, {
+													message: "http3 is only supported for route backends"
+													rule:    "!has(self.backendSettings) || !has(self.backendSettings.http3)"
 												}]
 											}
 											samplingFraction: {
@@ -33327,9 +37212,87 @@ customresourcedefinition: "envoyproxies.gateway.envoyproxy.io": {
 								}
 								type: "object"
 							}
+							wasmModules: {
+								description: """
+	WasmModules defines the set of Wasm modules that are allowed to be used by
+	EnvoyExtensionPolicy resources. Each entry registers a module by a logical
+	name and a source (currently Local path).
+
+	When EnvoyExtensionPolicy.wasm[].code is omitted, wasm[].name is looked up
+	in this list.
+
+	The EnvoyProxy owner is responsible for ensuring Local modules are available
+	on the proxy container's filesystem (e.g., via init containers, custom images,
+	or shared volumes). EnvoyExtensionPolicy never carries a raw filesystem path.
+	"""
+								items: {
+									description: """
+	WasmModuleEntry defines a Wasm module that is registered and allowed for use
+	by EnvoyExtensionPolicy resources.
+	"""
+									properties: {
+										name: {
+											description: """
+	Name is the logical name for this module. EnvoyExtensionPolicy resources
+	reference modules by this name when wasm[].code is omitted.
+	"""
+											maxLength: 253
+											minLength: 1
+											pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+											type:      "string"
+										}
+										source: {
+											description: "Source defines where the Wasm module code is loaded from."
+											properties: {
+												local: {
+													description: """
+	Local specifies a module loaded from the proxy's local filesystem
+	by absolute path.
+	"""
+													properties: path: {
+														description: "Path is the absolute filesystem path to the Wasm module on the Envoy proxy."
+														maxLength:   4096
+														minLength:   1
+														pattern:     "^/.*"
+														type:        "string"
+													}
+													required: ["path"]
+													type: "object"
+												}
+												type: {
+													default: "Local"
+													description: """
+	Type is the type of the source of the Wasm module.
+	Defaults to Local.
+	"""
+													enum: ["Local"]
+													type: "string"
+												}
+											}
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "If type is Local, local field needs to be set."
+												rule:    "self.type != 'Local' || has(self.local)"
+											}]
+										}
+									}
+									required: [
+										"name",
+										"source",
+									]
+									type: "object"
+								}
+								maxItems: 16
+								type:     "array"
+								"x-kubernetes-list-map-keys": ["name"]
+								"x-kubernetes-list-type": "map"
+							}
 						}
 						type: "object"
 						"x-kubernetes-validations": [{
+							message: "only one of luaValidation or lua may be set"
+							rule:    "!has(self.luaValidation) || !has(self.lua)"
+						}, {
 							message: "mergeGateways and mergeBackends cannot both be enabled"
 							rule:    "!(has(self.mergeGateways) && self.mergeGateways && has(self.mergeBackends))"
 						}]
@@ -33636,6 +37599,30 @@ customresourcedefinition: "httproutefilters.gateway.envoyproxy.io": {
 					spec: {
 						description: "Spec defines the desired state of HTTPRouteFilter."
 						properties: {
+							backendPriority: {
+								description: """
+	BackendPriority sets the Envoy locality priority of the endpoints belonging to the
+	backendRef this filter is attached to, enabling priority-based failover between the
+	backendRefs of a single route rule. 0 is the highest priority.
+
+	Envoy sends traffic to the lowest priority value that has enough healthy endpoints,
+	and only spills over to the next value as that health degrades. It is highly
+	recommended to configure active or passive health checks so that failover can be
+	detected when the higher priority backends become unhealthy.
+
+	This overrides the priority derived from the referenced Backend's fallback field.
+	For additional details, see
+	https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/priority
+
+	This filter is only valid when referenced from a backendRef's filters. Referencing it
+	from a route rule's filters is rejected: a rule-level filter applies uniformly to every
+	backendRef of the rule, and a uniform priority carries no failover meaning.
+	"""
+								format:  "int32"
+								maximum: 128
+								minimum: 0
+								type:    "integer"
+							}
 							credentialInjection: {
 								description: """
 	HTTPCredentialInjectionFilter defines the configuration to inject credentials into the request.
@@ -33994,6 +37981,122 @@ customresourcedefinition: "httproutefilters.gateway.envoyproxy.io": {
 								}
 								type: "object"
 							}
+							grpcJSONTranscoder: {
+								description: """
+	GRPCJSONTranscoder converts a JSON/HTTP request to a gRPC request, and the gRPC
+	response back to JSON.
+
+	It can only be used in the rule filters of an HTTPRoute. It is not supported in a
+	GRPCRoute or in the filters of a backendRef.
+	"""
+								properties: {
+									convertGRPCStatus: {
+										description: """
+	ConvertGRPCStatus converts the gRPC status of an error response to the HTTP
+	status code and a JSON body.
+	"""
+										type: "boolean"
+									}
+									ignoreUnknownQueryParameters: {
+										description: """
+	IgnoreUnknownQueryParameters ignores the query parameters that can't be mapped to
+	a field of the gRPC request.
+
+	If false, a request with such a parameter is not transcoded and is sent to the
+	backend as is.
+	"""
+										type: "boolean"
+									}
+									printOptions: {
+										description: "PrintOptions defines how the gRPC response is printed as JSON."
+										properties: {
+											addWhitespace: {
+												description: "AddWhitespace adds spaces, line breaks and indentation to the JSON output."
+												type:        "boolean"
+											}
+											alwaysPrintPrimitiveFields: {
+												description: """
+	AlwaysPrintPrimitiveFields prints the primitive fields even when they have
+	default values.
+	"""
+												type: "boolean"
+											}
+											preserveProtoFieldNames: {
+												description: """
+	PreserveProtoFieldNames uses the field names in the proto file instead of
+	lowerCamelCase names.
+	"""
+												type: "boolean"
+											}
+										}
+										type: "object"
+									}
+									protoDescriptor: {
+										description: "ProtoDescriptor defines where to find the protobuf descriptor set of the gRPC services."
+										properties: valueRef: {
+											description: """
+	ValueRef references a ConfigMap in the same namespace that holds the descriptor set.
+
+	The descriptor set is read from the `proto-descriptor` key, either in `binaryData`
+	or in `data`, where it can be base64-encoded. If the ConfigMap has no `data` and only
+	one `binaryData` entry, that entry is used.
+
+	The descriptor set must include all the imported files. It can be generated with
+	`protoc --include_imports --descriptor_set_out=...`.
+	"""
+											properties: {
+												group: {
+													description: """
+	Group is the group of the referent. For example, "gateway.networking.k8s.io".
+	When unspecified or empty string, core API group is inferred.
+	"""
+													maxLength: 253
+													pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+													type:      "string"
+												}
+												kind: {
+													description: "Kind is kind of the referent. For example \"HTTPRoute\" or \"Service\"."
+													maxLength:   63
+													minLength:   1
+													pattern:     "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+													type:        "string"
+												}
+												name: {
+													description: "Name is the name of the referent."
+													maxLength:   253
+													minLength:   1
+													type:        "string"
+												}
+											}
+											required: [
+												"group",
+												"kind",
+												"name",
+											]
+											type: "object"
+										}
+										required: ["valueRef"]
+										type: "object"
+										"x-kubernetes-validations": [{
+											message: "valueRef must refer to a core ConfigMap"
+											rule:    "size(self.valueRef.group) == 0 && self.valueRef.kind == 'ConfigMap'"
+										}]
+									}
+									services: {
+										description: """
+	Services defines the gRPC services to transcode.
+
+	If not specified, all the services defined in the descriptor are transcoded,
+	except the ones that come from imported files.
+	"""
+										items: type: "string"
+										type:                     "array"
+										"x-kubernetes-list-type": "set"
+									}
+								}
+								required: ["protoDescriptor"]
+								type: "object"
+							}
 							matches: {
 								description: """
 	Matches defines additional matching criteria for the HTTPRoute rule.
@@ -34051,6 +38154,48 @@ customresourcedefinition: "httproutefilters.gateway.envoyproxy.io": {
 								}
 								maxItems: 8
 								type:     "array"
+							}
+							requestMirror: {
+								description: """
+	RequestMirror defines configuration for request mirroring modifiers.
+	This configuration works together with the Gateway API RequestMirror filter
+	on the attached HTTPRoute rule.
+	"""
+								properties: hostname: {
+									description: "Hostname defines the configuration to rewrite the Host header for mirrored requests."
+									properties: {
+										literal: {
+											description: """
+	Literal specifies a fixed hostname to rewrite the Host header to.
+	Required when Type is "Literal". Must be empty when Type is "Backend".
+	Note: gwapiv1.PreciseHostname already carries MinLength=1, MaxLength=253,
+	and RFC 1123 pattern validation, which automatically flow into the generated CRD.
+	"""
+											maxLength: 253
+											minLength: 1
+											pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+											type:      "string"
+										}
+										type: {
+											description: "Type defines the type of hostname rewrite."
+											enum: [
+												"Backend",
+												"Literal",
+											]
+											type: "string"
+										}
+									}
+									required: ["type"]
+									type: "object"
+									"x-kubernetes-validations": [{
+										message: "literal must be nil if the type is not Literal"
+										rule:    "!(has(self.literal) && self.type != 'Literal')"
+									}, {
+										message: "literal must be specified for Literal type"
+										rule:    "!(!has(self.literal) && self.type == 'Literal')"
+									}]
+								}
+								type: "object"
 							}
 							urlRewrite: {
 								description: "HTTPURLRewriteFilter define rewrites of HTTP URL components such as path and host"
@@ -34597,22 +38742,26 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	You can use the `ClientIPDetection` or the `ProxyProtocol` field in
 	the `ClientTrafficPolicy` to configure how the client IP is detected.
 
-	For TCPRoute targets (raw TCP connections), HTTP headers such as
+	For TCPRoute and UDPRoute targets (raw L4 traffic), HTTP headers such as
 	X-Forwarded-For are not available. The client IP is obtained from the
-	TCP connection's peer address. If intermediaries (load balancers, NAT)
-	terminate or proxy TCP, the original client IP will only be available
-	if the intermediary preserves the source address (for example by
-	enabling the PROXY protocol or avoiding SNAT). Ensure your L4 proxy is
+	TCP connection's peer address, or from the source address of the UDP
+	datagram. If intermediaries (load balancers, NAT) terminate or proxy the
+	traffic, the original client IP will only be available if the
+	intermediary preserves the source address (for example by enabling the
+	PROXY protocol or avoiding SNAT). Note that the PROXY protocol is not
+	available on the UDP path, so a UDPRoute target relies entirely on the
+	datagram source address being preserved. Ensure your L4 proxy is
 	configured to preserve the source IP to enable correct client-IP
-	matching for TCPRoute targets.
+	matching for TCPRoute and UDPRoute targets.
 	"""
 															items: {
 																description: """
 	CIDR defines a CIDR Address range.
 	A CIDR can be an IPv4 address range such as "192.168.1.0/24" or an IPv6 address range such as "2001:0db8:11a3:09d7::/64".
 	"""
-																pattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/([0-9]+))|((([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\\/([0-9]+))"
-																type:    "string"
+																maxLength: 64
+																pattern:   "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/([0-9]+))|((([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\\/([0-9]+))"
+																type:      "string"
 															}
 															minItems: 1
 															type:     "array"
@@ -34621,7 +38770,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 															description: """
 	ClientIPGeoLocations authorizes the request based on geolocation metadata derived from the client IP.
 	This field is supported for HTTPRoute and GRPCRoute authorization.
-	It is not supported for TCPRoute targets.
+	It is not supported for TCPRoute or UDPRoute targets.
 
 	If multiple entries are specified,  one of the ClientIPGeoLocation entries must match for the rule to match.
 
@@ -34812,7 +38961,9 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	description: """
 	Provider is the name of the JWT provider that used to verify the JWT token.
 	In order to use JWT claims for authorization, you must configure the JWT
-	authentication with the same provider in the same `SecurityPolicy`.
+	authentication with the same provider in the same `SecurityPolicy`, or,
+	when `mergeType` is set, in the parent `SecurityPolicy` this policy is
+	merged into.
 	"""
 																	maxLength: 253
 																	minLength: 1
@@ -34968,6 +39119,28 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 										items: type: "string"
 										type: "array"
 									}
+									allowOriginRegexes: {
+										description: """
+	AllowOriginRegexes defines regular expressions that are matched against the Origin header.
+	It specifies additional allowed origins in the Access-Control-Allow-Origin CORS response header.
+	An origin is allowed when it matches any entry in AllowOrigins or AllowOriginRegexes.
+	"""
+										items: {
+											description: """
+	CORSOriginRegex is a regular expression that is matched against the full Origin header value,
+	including the scheme and the port if present.
+	The regex string must adhere to the syntax documented in
+	https://github.com/google/re2/wiki/Syntax, except for the \\C escape sequence,
+	which is not supported.
+	A regular expression that matches the literal string "*" is rejected.
+	The value "*" in AllowOrigins allows any origin.
+	"""
+											maxLength: 1024
+											minLength: 1
+											type:      "string"
+										}
+										type: "array"
+									}
 									allowOrigins: {
 										description: """
 	AllowOrigins defines the origins that are allowed to make requests.
@@ -35106,18 +39279,30 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 								properties: {
 									bodyToExtAuth: {
 										description: "BodyToExtAuth defines the Body to Ext Auth configuration."
-										properties: maxRequestBytes: {
-											description: """
+										properties: {
+											maxRequestBytes: {
+												description: """
 	MaxRequestBytes is the maximum size of a message body that the filter will hold in memory.
 	Envoy will return HTTP 413 and will not initiate the authorization process when buffer
 	reaches the number set in this field.
 	Note that this setting will have precedence over failOpen mode.
+	Defaults to 32768 bytes (32KiB), which matches the default per-connection buffer limit.
 	"""
-											format:  "int32"
-											minimum: 1
-											type:    "integer"
+												format:  "int32"
+												minimum: 1
+												type:    "integer"
+											}
+											packAsBytes: {
+												description: """
+	PackAsBytes, when true, sends the request body to the external authorization
+	service as raw bytes, populating the raw_body field of the HTTP request
+	attribute context. Otherwise, the body is sent as a UTF-8 string in the body field.
+	This field is only supported for gRPC external authorization services.
+	Defaults to false.
+	"""
+												type: "boolean"
+											}
 										}
-										required: ["maxRequestBytes"]
 										type: "object"
 									}
 									contextExtensions: {
@@ -35239,7 +39424,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	BackendRef references a Kubernetes object that represents the
 	backend server to which the authorization request will be sent.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 												properties: {
 													group: {
@@ -35686,18 +39871,44 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 															active: {
 																description: "Active health check configuration"
 																properties: {
+																	disableConnectionReuse: {
+																		description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																		type: "boolean"
+																	}
 																	grpc: {
 																		description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-																		properties: service: {
-																			description: """
+																		properties: {
+																			hostname: {
+																				description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																				maxLength: 253
+																				minLength: 1
+																				pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																				type:      "string"
+																			}
+																			service: {
+																				description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-																			type: "string"
+																				type: "string"
+																			}
 																		}
 																		type: "object"
 																	}
@@ -35866,6 +40077,31 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																				minLength:   1
 																				type:        "string"
 																			}
+																			protocol: {
+																				default: "Auto"
+																				description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																				enum: [
+																					"Auto",
+																					"HTTP1",
+																					"HTTP2",
+																				]
+																				type: "string"
+																			}
 																			requestBody: {
 																				description: "RequestBody defines the HTTP request body payload sent during health checking."
 																				properties: {
@@ -35940,6 +40176,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "Interval defines the time between active health checks."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "interval must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	overrides: {
 																		description: """
@@ -36051,6 +40291,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "Timeout defines the time to wait for a health check response."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "timeout must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	type: {
 																		allOf: [{
@@ -36123,6 +40367,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "baseEjectionTime must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	consecutive5XxErrors: {
 																		default:     5
@@ -36160,6 +40408,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "Interval defines the time between passive health checks."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "interval must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	maxEjectionPercent: {
 																		default:     10
@@ -36176,6 +40428,37 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	}
 																}
 																type: "object"
+															}
+														}
+														type: "object"
+													}
+													http1: {
+														description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+														properties: {
+															enableTrailers: {
+																description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+																type:        "boolean"
+															}
+															preserveHeaderCase: {
+																description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+																type: "boolean"
 															}
 														}
 														type: "object"
@@ -36271,6 +40554,29 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	"""
 																type: "string"
 															}
+														}
+														type: "object"
+													}
+													http3: {
+														description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+														properties: mode: {
+															description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+															enum: [
+																"Auto",
+																"Always",
+															]
+															type: "string"
 														}
 														type: "object"
 													}
@@ -36426,7 +40732,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 																		properties: name: {
 																			description: "Name of the header to hash."
@@ -36629,6 +40935,18 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	preferLocal: {
 																		description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 																		properties: {
+																			failTrafficOnPanic: {
+																				description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																				type: "boolean"
+																			}
 																			force: {
 																				description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -36958,6 +41276,9 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 												"x-kubernetes-validations": [{
 													message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 													rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+												}, {
+													message: "proxyProtocol cannot be used together with http3"
+													rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 												}]
 											}
 										}
@@ -36971,6 +41292,12 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 										}, {
 											message: "BackendRefs only supports Core, multicluster.x-k8s.io, and gateway.envoyproxy.io groups."
 											rule:    "has(self.backendRefs) ? (self.backendRefs.all(f, f.group == \"\" || f.group == 'multicluster.x-k8s.io' || f.group == 'gateway.envoyproxy.io')) : true"
+										}, {
+											message: "http1 is not supported for gRPC ExtAuth backends, which always use gRPC."
+											rule:    "!has(self.backendSettings) || !has(self.backendSettings.http1)"
+										}, {
+											message: "http3 is only supported for route backends"
+											rule:    "!has(self.backendSettings) || !has(self.backendSettings.http3)"
 										}]
 									}
 									headersToExtAuth: {
@@ -37001,7 +41328,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	BackendRef references a Kubernetes object that represents the
 	backend server to which the authorization request will be sent.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 												properties: {
 													group: {
@@ -37448,18 +41775,44 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 															active: {
 																description: "Active health check configuration"
 																properties: {
+																	disableConnectionReuse: {
+																		description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																		type: "boolean"
+																	}
 																	grpc: {
 																		description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-																		properties: service: {
-																			description: """
+																		properties: {
+																			hostname: {
+																				description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																				maxLength: 253
+																				minLength: 1
+																				pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																				type:      "string"
+																			}
+																			service: {
+																				description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-																			type: "string"
+																				type: "string"
+																			}
 																		}
 																		type: "object"
 																	}
@@ -37628,6 +41981,31 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																				minLength:   1
 																				type:        "string"
 																			}
+																			protocol: {
+																				default: "Auto"
+																				description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																				enum: [
+																					"Auto",
+																					"HTTP1",
+																					"HTTP2",
+																				]
+																				type: "string"
+																			}
 																			requestBody: {
 																				description: "RequestBody defines the HTTP request body payload sent during health checking."
 																				properties: {
@@ -37702,6 +42080,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "Interval defines the time between active health checks."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "interval must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	overrides: {
 																		description: """
@@ -37813,6 +42195,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "Timeout defines the time to wait for a health check response."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "timeout must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	type: {
 																		allOf: [{
@@ -37885,6 +42271,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "baseEjectionTime must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	consecutive5XxErrors: {
 																		default:     5
@@ -37922,6 +42312,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "Interval defines the time between passive health checks."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "interval must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	maxEjectionPercent: {
 																		default:     10
@@ -37938,6 +42332,37 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	}
 																}
 																type: "object"
+															}
+														}
+														type: "object"
+													}
+													http1: {
+														description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+														properties: {
+															enableTrailers: {
+																description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+																type:        "boolean"
+															}
+															preserveHeaderCase: {
+																description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+																type: "boolean"
 															}
 														}
 														type: "object"
@@ -38033,6 +42458,29 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	"""
 																type: "string"
 															}
+														}
+														type: "object"
+													}
+													http3: {
+														description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+														properties: mode: {
+															description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+															enum: [
+																"Auto",
+																"Always",
+															]
+															type: "string"
 														}
 														type: "object"
 													}
@@ -38188,7 +42636,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 																		properties: name: {
 																			description: "Name of the header to hash."
@@ -38391,6 +42839,18 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	preferLocal: {
 																		description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 																		properties: {
+																			failTrafficOnPanic: {
+																				description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																				type: "boolean"
+																			}
 																			force: {
 																				description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -38720,6 +43180,9 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 												"x-kubernetes-validations": [{
 													message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 													rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+												}, {
+													message: "proxyProtocol cannot be used together with http3"
+													rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 												}]
 											}
 											headersToBackend: {
@@ -38771,6 +43234,9 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 										}, {
 											message: "only one of path or pathOverride can be specified"
 											rule:    "!(has(self.path) && has(self.pathOverride))"
+										}, {
+											message: "http3 is only supported for route backends"
+											rule:    "!has(self.backendSettings) || !has(self.backendSettings.http3)"
 										}]
 									}
 									includeRouteMetadata: {
@@ -38870,6 +43336,9 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 								}, {
 									message: "only one of grpc or http can be specified"
 									rule:    "(has(self.grpc) && !has(self.http)) || (!has(self.grpc) && has(self.http))"
+								}, {
+									message: "packAsBytes can only be enabled when grpc is specified"
+									rule:    "!has(self.bodyToExtAuth) || !has(self.bodyToExtAuth.packAsBytes) || !self.bodyToExtAuth.packAsBytes || has(self.grpc)"
 								}]
 							}
 							jwt: {
@@ -38934,19 +43403,52 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	Claim is the JWT Claim that should be saved into the header : it can be a nested claim of type
 	(eg. "claim.nested.key", "sub"). The nested claim name must use dot "."
 	to separate the JSON name path.
+
+	Because the name is always split on ".", a claim whose own name contains a dot -- a
+	URI-namespaced claim such as "https://example.com/claims/tenant_name" commonly emitted by
+	OIDC providers -- cannot be addressed this way. Use ClaimPath for those claims instead.
+
+	Exactly one of Claim or ClaimPath must be specified.
 	"""
 																type: "string"
+															}
+															claimPath: {
+																description: """
+	ClaimPath is the path to the claim to copy, given as an explicit list of segments. Each
+	segment is matched in full against a key of the enclosing JSON object, so claim names
+	containing dots are addressable. For example, a top-level claim named
+	"https://example.com/claims/tenant_name" is selected with:
+
+	\tclaimPath:
+	\t- "https://example.com/claims/tenant_name"
+
+	and a nested claim `{"nested": {"claim": {"key": "value"}}}` is selected with:
+
+	\tclaimPath:
+	\t- nested
+	\t- claim
+	\t- key
+
+	Exactly one of Claim or ClaimPath must be specified.
+	"""
+																items: {
+																	minLength: 1
+																	type:      "string"
+																}
+																minItems: 1
+																type:     "array"
 															}
 															header: {
 																description: "Header defines the name of the HTTP request header that the JWT Claim will be saved into."
 																type:        "string"
 															}
 														}
-														required: [
-															"claim",
-															"header",
-														]
+														required: ["header"]
 														type: "object"
+														"x-kubernetes-validations": [{
+															message: "exactly one of claim or claimPath must be specified"
+															rule:    "(has(self.claim) && !has(self.claimPath)) || (!has(self.claim) && has(self.claimPath))"
+														}]
 													}
 													type: "array"
 												}
@@ -39097,7 +43599,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	BackendRef references a Kubernetes object that represents the
 	backend server to which the authorization request will be sent.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 															properties: {
 																group: {
@@ -39544,18 +44046,44 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		active: {
 																			description: "Active health check configuration"
 																			properties: {
+																				disableConnectionReuse: {
+																					description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																					type: "boolean"
+																				}
 																				grpc: {
 																					description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-																					properties: service: {
-																						description: """
+																					properties: {
+																						hostname: {
+																							description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																							maxLength: 253
+																							minLength: 1
+																							pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																							type:      "string"
+																						}
+																						service: {
+																							description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-																						type: "string"
+																							type: "string"
+																						}
 																					}
 																					type: "object"
 																				}
@@ -39724,6 +44252,31 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																							minLength:   1
 																							type:        "string"
 																						}
+																						protocol: {
+																							default: "Auto"
+																							description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																							enum: [
+																								"Auto",
+																								"HTTP1",
+																								"HTTP2",
+																							]
+																							type: "string"
+																						}
 																						requestBody: {
 																							description: "RequestBody defines the HTTP request body payload sent during health checking."
 																							properties: {
@@ -39798,6 +44351,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																					description: "Interval defines the time between active health checks."
 																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																					type:        "string"
+																					"x-kubernetes-validations": [{
+																						message: "interval must be greater than 0"
+																						rule:    "duration(self) > duration('0s')"
+																					}]
 																				}
 																				overrides: {
 																					description: """
@@ -39909,6 +44466,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																					description: "Timeout defines the time to wait for a health check response."
 																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																					type:        "string"
+																					"x-kubernetes-validations": [{
+																						message: "timeout must be greater than 0"
+																						rule:    "duration(self) > duration('0s')"
+																					}]
 																				}
 																				type: {
 																					allOf: [{
@@ -39981,6 +44542,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																					description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																					type:        "string"
+																					"x-kubernetes-validations": [{
+																						message: "baseEjectionTime must be greater than 0"
+																						rule:    "duration(self) > duration('0s')"
+																					}]
 																				}
 																				consecutive5XxErrors: {
 																					default:     5
@@ -40018,6 +44583,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																					description: "Interval defines the time between passive health checks."
 																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																					type:        "string"
+																					"x-kubernetes-validations": [{
+																						message: "interval must be greater than 0"
+																						rule:    "duration(self) > duration('0s')"
+																					}]
 																				}
 																				maxEjectionPercent: {
 																					default:     10
@@ -40034,6 +44603,37 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																				}
 																			}
 																			type: "object"
+																		}
+																	}
+																	type: "object"
+																}
+																http1: {
+																	description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+																	properties: {
+																		enableTrailers: {
+																			description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+																			type:        "boolean"
+																		}
+																		preserveHeaderCase: {
+																			description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+																			type: "boolean"
 																		}
 																	}
 																	type: "object"
@@ -40129,6 +44729,29 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	"""
 																			type: "string"
 																		}
+																	}
+																	type: "object"
+																}
+																http3: {
+																	description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+																	properties: mode: {
+																		description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+																		enum: [
+																			"Auto",
+																			"Always",
+																		]
+																		type: "string"
 																	}
 																	type: "object"
 																}
@@ -40284,7 +44907,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																					description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 																					properties: name: {
 																						description: "Name of the header to hash."
@@ -40487,6 +45110,18 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																				preferLocal: {
 																					description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 																					properties: {
+																						failTrafficOnPanic: {
+																							description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																							type: "boolean"
+																						}
 																						force: {
 																							description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -40816,6 +45451,9 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 															"x-kubernetes-validations": [{
 																message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 																rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+															}, {
+																message: "proxyProtocol cannot be used together with http3"
+																rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 															}]
 														}
 														cacheDuration: {
@@ -40859,6 +45497,9 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 													}, {
 														message: "HTTPStatusCodes is not supported."
 														rule:    "has(self.backendSettings)? (has(self.backendSettings.retry)?(has(self.backendSettings.retry.retryOn)? !has(self.backendSettings.retry.retryOn.httpStatusCodes):true):true):true"
+													}, {
+														message: "http3 is only supported for route backends"
+														rule:    "!has(self.backendSettings) || !has(self.backendSettings.http3)"
 													}]
 												}
 											}
@@ -41025,6 +45666,26 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 										required: ["name"]
 										type: "object"
 									}
+									codeVerifierTTL: {
+										description: """
+	CodeVerifierTTL defines how long the PKCE code verifier generated during the OAuth2
+	authorization flow remains valid.
+
+	This duration determines the lifetime of the code verifier cookie, which is exchanged
+	for the access token when the provider redirects back to the callback endpoint.
+
+	Both this cookie and the CSRF cookie are only consumed on the callback endpoint, so an
+	authorization flow that is started but never completed leaves them behind until they
+	expire. Lowering this value along with csrfTokenTTL bounds how many such cookies a
+	browser can accumulate. It must stay long enough for a user to complete the login,
+	including any multi-factor prompt: once it elapses the browser drops the cookie and
+	the callback fails.
+
+	If omitted, Envoy Gateway defaults the code verifier expiration to 10 minutes.
+	"""
+										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+										type:    "string"
+									}
 									cookieConfig: {
 										description: """
 	CookieConfigs allows setting the SameSite attribute for OIDC cookies.
@@ -41052,29 +45713,105 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 									}
 									cookieNames: {
 										description: """
-	The optional cookie name overrides to be used for Bearer and IdToken cookies in the
+	CookieNames configures the names of the cookies that Envoy sets for the
 	[Authentication Request](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
-	If not specified, uses a randomly generated suffix
+
+	By default, every cookie is named "<Purpose>-<suffix>", where the suffix is
+	derived from the identity of this SecurityPolicy. Set "suffix" to pin that
+	suffix for all cookies at once, or set a per-cookie field to name a single
+	cookie outright.
 	"""
 										properties: {
 											accessToken: {
 												description: """
 	The name of the cookie used to store the AccessToken in the
 	[Authentication Request](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
-	If not specified, defaults to "AccessToken-(randomly generated uid)"
+	If not specified, defaults to "AccessToken-<suffix>", see the "suffix" field.
 	"""
-												type: "string"
+												maxLength: 256
+												minLength: 1
+												type:      "string"
+											}
+											codeVerifier: {
+												description: """
+	The name of the cookie used to store the PKCE code verifier.
+	If not specified, defaults to "CodeVerifier-<suffix>", see the "suffix" field.
+	"""
+												maxLength: 256
+												minLength: 1
+												type:      "string"
 											}
 											idToken: {
 												description: """
 	The name of the cookie used to store the IdToken in the
 	[Authentication Request](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
-	If not specified, defaults to "IdToken-(randomly generated uid)"
+	If not specified, defaults to "IdToken-<suffix>", see the "suffix" field.
 	"""
-												type: "string"
+												maxLength: 256
+												minLength: 1
+												type:      "string"
+											}
+											oauthExpires: {
+												description: """
+	The name of the cookie used to store the OAuth expires value.
+	If not specified, defaults to "OauthExpires-<suffix>", see the "suffix" field.
+	"""
+												maxLength: 256
+												minLength: 1
+												type:      "string"
+											}
+											oauthHmac: {
+												description: """
+	The name of the cookie used to store the OAuth HMAC value.
+	If not specified, defaults to "OauthHMAC-<suffix>", see the "suffix" field.
+	"""
+												maxLength: 256
+												minLength: 1
+												type:      "string"
+											}
+											oauthNonce: {
+												description: """
+	The name of the cookie used to store the OAuth nonce value.
+	If not specified, defaults to "OauthNonce-<suffix>", see the "suffix" field.
+	"""
+												maxLength: 256
+												minLength: 1
+												type:      "string"
+											}
+											refreshToken: {
+												description: """
+	The name of the cookie used to store the RefreshToken.
+	If not specified, defaults to "RefreshToken-<suffix>", see the "suffix" field.
+	"""
+												maxLength: 256
+												minLength: 1
+												type:      "string"
+											}
+											suffix: {
+												description: """
+	Suffix replaces the generated suffix in the default name of every OAuth2
+	cookie, for example "AccessToken-<suffix>" and "IdToken-<suffix>".
+
+	The generated suffix is derived from the identity of the SecurityPolicy, so
+	it changes when the policy is deleted and recreated, which logs users out.
+	Set this field to keep the cookie names stable across the lifetime of the
+	policy, or to share a session between policies that authenticate the same
+	users against the same provider. Policies sharing a suffix must also agree
+	on the OIDC provider, the client, and the cookieDomain.
+
+	If not specified, the generated suffix is used.
+	"""
+												maxLength: 238
+												minLength: 1
+												pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+												type:      "string"
 											}
 										}
 										type: "object"
+										"x-kubernetes-validations": [{
+											message: "cookie names must be unique"
+											rule:    "[(has(self.accessToken) ? [self.accessToken] : (has(self.suffix) ? ['AccessToken-' + self.suffix] : [])) + (has(self.oauthExpires) ? [self.oauthExpires] : (has(self.suffix) ? ['OauthExpires-' + self.suffix] : [])) + (has(self.oauthHmac) ? [self.oauthHmac] : (has(self.suffix) ? ['OauthHMAC-' + self.suffix] : [])) + (has(self.idToken) ? [self.idToken] : (has(self.suffix) ? ['IdToken-' + self.suffix] : [])) + (has(self.refreshToken) ? [self.refreshToken] : (has(self.suffix) ? ['RefreshToken-' + self.suffix] : [])) + (has(self.oauthNonce) ? [self.oauthNonce] : (has(self.suffix) ? ['OauthNonce-' + self.suffix] : [])) + (has(self.codeVerifier) ? [self.codeVerifier] : (has(self.suffix) ? ['CodeVerifier-' + self.suffix] : []))].all(names, names.all(n, names.filter(m, m == n).size() == 1))"
+										}]
 									}
 									csrfTokenTTL: {
 										description: """
@@ -41227,6 +45964,62 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	"""
 										type: "boolean"
 									}
+									postLogoutRedirect: {
+										description: """
+	PostLogoutRedirect configures the `post_logout_redirect_uri` parameter that EG sends to the
+	OIDC Provider's end session endpoint when a user accesses the logout path.
+
+	This only applies when the OIDC Provider's end session endpoint is configured or discovered,
+	i.e. when RP-Initiated Logout is in use. It is ignored otherwise.
+
+	If not specified, Envoy sends the root of the request's host, "<scheme>://<host>/".
+	Note that many OIDC Providers require the post logout redirect URI to be pre-registered for
+	the client and reject the logout request otherwise. If the default value is not registered,
+	set an explicit uri here, or set disabled to true to omit the parameter altogether.
+	"""
+										properties: {
+											disabled: {
+												description: """
+	Disabled omits the `post_logout_redirect_uri` parameter from the logout request entirely.
+	Use this when the OIDC Provider rejects unregistered post logout redirect URIs and you do
+	not need the user redirected back after the logout completes. In that case the user is left
+	on a page controlled by the provider.
+
+	Setting this to false is equivalent to leaving disabled unset.
+	"""
+												type: "boolean"
+											}
+											uri: {
+												description: """
+	URI is sent as the `post_logout_redirect_uri` parameter to the OIDC Provider's end session
+	endpoint. The provider redirects the user to this URI after the logout completes, so it
+	usually must be pre-registered for the client with the provider.
+
+	The URI may contain the Envoy "%REQ(header)%"
+	[command operator](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators)
+	to build the URI from the request, for example
+	"%REQ(x-forwarded-proto)%://%REQ(:authority)%/loggedout". Envoy Gateway accepts only that
+	operator here, since it is the only one meaningful in a URI derived from the request, and
+	rejects any other so that a typo surfaces on this policy instead of being rejected by Envoy
+	as an invalid configuration. A literal percent is written as "%%".
+
+	The scheme must be http, https, or a "%REQ(header)%" command operator. The URI is
+	percent-encoded automatically when the logout URL is built, so do not pre-encode it.
+	"""
+												maxLength: 2048
+												minLength: 1
+												type:      "string"
+											}
+										}
+										type: "object"
+										"x-kubernetes-validations": [{
+											message: "one of uri or disabled must be set"
+											rule:    "has(self.uri) || has(self.disabled)"
+										}, {
+											message: "uri cannot be set when disabled is true"
+											rule:    "!has(self.uri) || !has(self.disabled) || !self.disabled"
+										}]
+									}
 									provider: {
 										description: "The OIDC Provider configuration."
 										properties: {
@@ -41242,7 +46035,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	BackendRef references a Kubernetes object that represents the
 	backend server to which the authorization request will be sent.
 
-	Deprecated: Use BackendRefs instead.
+	Deprecated: Use BackendRefs instead. This field will be removed in v1.11.
 	"""
 												properties: {
 													group: {
@@ -41689,18 +46482,44 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 															active: {
 																description: "Active health check configuration"
 																properties: {
+																	disableConnectionReuse: {
+																		description: """
+	DisableConnectionReuse determines whether the active health check connection to a
+	backend host is closed after each health check probe. When set to true, Envoy opens a
+	new connection for each health check, which is useful for backends (such as
+	haproxy-style agent checks) that do not expect a reused connection.
+	Defaults to false, which reuses the connection across probes.
+	"""
+																		type: "boolean"
+																	}
 																	grpc: {
 																		description: """
 	GRPC defines the configuration of the GRPC health checker.
 	It's optional, and can only be used if the specified type is GRPC.
 	"""
-																		properties: service: {
-																			description: """
+																		properties: {
+																			hostname: {
+																				description: """
+	Hostname defines the value of the :authority header sent with active gRPC
+	health checks. Authority selection uses this order: this field, the
+	associated Backend endpoint hostname if available, then the effective Route
+	hostname. If none of them is set, Envoy falls back to the name of the
+	cluster, which is not a valid authority and is rejected by some gRPC
+	servers.
+	"""
+																				maxLength: 253
+																				minLength: 1
+																				pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																				type:      "string"
+																			}
+																			service: {
+																				description: """
 	Service to send in the health check request.
 	If this is not specified, then the health check request applies to the entire
 	server and not to a specific service.
 	"""
-																			type: "string"
+																				type: "string"
+																			}
 																		}
 																		type: "object"
 																	}
@@ -41869,6 +46688,31 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																				minLength:   1
 																				type:        "string"
 																			}
+																			protocol: {
+																				default: "Auto"
+																				description: """
+	Protocol is the HTTP protocol that active health check requests are sent with.
+
+	Defaults to Auto, which uses the same protocol as regular requests to the backend:
+
+	  - HTTP2 for a backend configured for HTTP/2, through a `kubernetes.io/h2c`,
+	    `gateway.envoyproxy.io/h2c` or `grpc` appProtocol, or as the backend of a
+	    GRPCRoute.
+	  - The protocol negotiated through ALPN for a TLS backend that negotiates it,
+	    with HTTP1 as the fallback when nothing is negotiated.
+	  - HTTP1 otherwise.
+
+	Set HTTP1 or HTTP2 when the health check endpoint speaks a different protocol than
+	the application, for example a backend that serves HTTP/1.1 traffic but only
+	accepts HTTP/2 health checks. An explicit protocol is always used as is.
+	"""
+																				enum: [
+																					"Auto",
+																					"HTTP1",
+																					"HTTP2",
+																				]
+																				type: "string"
+																			}
 																			requestBody: {
 																				description: "RequestBody defines the HTTP request body payload sent during health checking."
 																				properties: {
@@ -41943,6 +46787,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "Interval defines the time between active health checks."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "interval must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	overrides: {
 																		description: """
@@ -42054,6 +46902,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "Timeout defines the time to wait for a health check response."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "timeout must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	type: {
 																		allOf: [{
@@ -42126,6 +46978,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "baseEjectionTime must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	consecutive5XxErrors: {
 																		default:     5
@@ -42163,6 +47019,10 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: "Interval defines the time between passive health checks."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																		"x-kubernetes-validations": [{
+																			message: "interval must be greater than 0"
+																			rule:    "duration(self) > duration('0s')"
+																		}]
 																	}
 																	maxEjectionPercent: {
 																		default:     10
@@ -42179,6 +47039,37 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	}
 																}
 																type: "object"
+															}
+														}
+														type: "object"
+													}
+													http1: {
+														description: """
+	HTTP1 provides HTTP/1 configuration for backend connections.
+	When both this field and the deprecated HTTP1 field on ClientTrafficPolicy are set,
+	this field takes precedence for backend (upstream) traffic.
+
+	Behavior when targeting route kinds that do not use HTTP/1:
+	  - GRPCRoute, TCPRoute, TLSRoute, UDPRoute: targeting these route kinds
+	    directly adds a Warning condition on the policy; the field is ignored.
+	  - Gateway / ListenerSet / sectionName targets: this field is silently
+	    ignored for any GRPCRoute, TCPRoute, TLSRoute, or UDPRoute destinations
+	    beneath that target; no warning is emitted.
+	  - gRPC-only external services (ExtProc, gRPC ExtAuth, ALS, OpenTelemetry
+	    access log/metrics, tracing providers): rejected at admission on their
+	    own BackendSettings via separate validation rules.
+	"""
+														properties: {
+															enableTrailers: {
+																description: "EnableTrailers defines if HTTP/1 trailers should be proxied by Envoy."
+																type:        "boolean"
+															}
+															preserveHeaderCase: {
+																description: """
+	PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
+	By default, Envoy will lowercase all the headers.
+	"""
+																type: "boolean"
 															}
 														}
 														type: "object"
@@ -42274,6 +47165,29 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	"""
 																type: "string"
 															}
+														}
+														type: "object"
+													}
+													http3: {
+														description: """
+	HTTP3 enables HTTP/3 for backend connections.
+	HTTP/3 always runs over TLS, so the backend must be configured
+	with TLS through a BackendTLSPolicy or the Backend's spec.tls.
+	HTTP/3 is only supported for the backends of a route, through
+	BackendTrafficPolicy. It is rejected for the backends of other
+	resources, such as the external services of a SecurityPolicy
+	or EnvoyExtensionPolicy and the sinks of an EnvoyProxy.
+	"""
+														properties: mode: {
+															description: """
+	Mode determines when HTTP/3 is used to reach the backend.
+	Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	"""
+															enum: [
+																"Auto",
+																"Always",
+															]
+															type: "string"
 														}
 														type: "object"
 													}
@@ -42429,7 +47343,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																		description: """
 	Header configures the header hash policy when the consistent hash type is set to Header.
 
-	Deprecated: use Headers instead
+	Deprecated: use Headers instead. This field will be removed in v1.11.
 	"""
 																		properties: name: {
 																			description: "Name of the header to hash."
@@ -42632,6 +47546,18 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 																	preferLocal: {
 																		description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
 																		properties: {
+																			failTrafficOnPanic: {
+																				description: """
+	FailTrafficOnPanic rejects traffic instead of routing to all endpoints when the
+	cluster is in panic mode. Panic mode is entered when the share of healthy endpoints
+	drops below HealthCheck.PanicThreshold, and by default Envoy then load balances
+	across every endpoint, healthy or not. Setting this to true makes Envoy fail the
+	requests instead, applying backpressure to clients and giving the backend room to
+	recover.
+	Defaults to false.
+	"""
+																				type: "boolean"
+																			}
 																			force: {
 																				description: """
 	ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
@@ -42961,6 +47887,9 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 												"x-kubernetes-validations": [{
 													message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 													rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
+												}, {
+													message: "proxyProtocol cannot be used together with http3"
+													rule:    "!has(self.http3) || !has(self.proxyProtocol)"
 												}]
 											}
 											endSessionEndpoint: {
@@ -43001,6 +47930,9 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 										}, {
 											message: "HTTPStatusCodes is not supported."
 											rule:    "has(self.backendSettings)? (has(self.backendSettings.retry)?(has(self.backendSettings.retry.retryOn)? !has(self.backendSettings.retry.retryOn.httpStatusCodes):true):true):true"
+										}, {
+											message: "http3 is only supported for route backends"
+											rule:    "!has(self.backendSettings) || !has(self.backendSettings.http3)"
 										}]
 									}
 									redirectURL: {
@@ -43061,7 +47993,7 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 	This policy and the TargetRef MUST be in the same namespace for this
 	Policy to have effect
 
-	Deprecated: use targetRefs/targetSelectors instead
+	Deprecated: use targetRefs/targetSelectors instead. This field will be removed in v1.11.
 	"""
 								properties: {
 									group: {
@@ -43351,20 +48283,20 @@ customresourcedefinition: "securitypolicies.gateway.envoyproxy.io": {
 							message: "this policy can only have a targetRef.group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true"
 						}, {
-							message: "this policy can only have a targetRef.kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute"
-							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'TCPRoute'] : true"
+							message: "this policy can only have a targetRef.kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute"
+							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'TCPRoute', 'UDPRoute'] : true"
 						}, {
 							message: "this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true "
 						}, {
-							message: "this policy can only have a targetRefs[*].kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute"
-							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'TCPRoute']) : true "
+							message: "this policy can only have a targetRefs[*].kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute"
+							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'TCPRoute', 'UDPRoute']) : true "
 						}, {
 							message: "mergeType can only be used with xRoute targets"
-							rule:    "!has(self.mergeType) || ((!has(self.targetRef) || self.targetRef.kind in ['HTTPRoute', 'GRPCRoute', 'TCPRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['HTTPRoute', 'GRPCRoute', 'TCPRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['HTTPRoute', 'GRPCRoute', 'TCPRoute'])))"
+							rule:    "!has(self.mergeType) || ((!has(self.targetRef) || self.targetRef.kind in ['HTTPRoute', 'GRPCRoute', 'TCPRoute', 'UDPRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['HTTPRoute', 'GRPCRoute', 'TCPRoute', 'UDPRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['HTTPRoute', 'GRPCRoute', 'TCPRoute', 'UDPRoute'])))"
 						}, {
-							message: "if authorization.rules.principal.jwt is used, jwt must be defined"
-							rule:    "(has(self.authorization) && has(self.authorization.rules) && self.authorization.rules.exists(r, has(r.principal) ? has(r.principal.jwt) : false)) ? has(self.jwt) : true"
+							message: "if authorization.rules.principal.jwt is used, jwt must be defined, unless mergeType is set and the jwt providers are inherited from the parent policy"
+							rule:    "(!has(self.mergeType) && has(self.authorization) && has(self.authorization.rules) && self.authorization.rules.exists(r, has(r.principal) ? has(r.principal.jwt) : false)) ? has(self.jwt) : true"
 						}]
 					}
 					status: {
