@@ -12178,14 +12178,14 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 										type: "object"
 									}
 									nebiusmysterybox: {
-										description: "NebiusMysterybox configures this store to sync secrets using NebiusMysterybox provider"
+										description: "NebiusMysterybox configures this store to sync secrets using the Nebius SecretStash provider"
 										properties: {
 											apiDomain: {
-												description: "NebiusMysterybox API endpoint"
+												description: "Nebius SecretStash API endpoint"
 												type:        "string"
 											}
 											auth: {
-												description: "Auth defines parameters to authenticate in MysteryBox"
+												description: "Auth defines parameters to authenticate in SecretStash"
 												properties: {
 													serviceAccountCredsSecretRef: {
 														description: """
@@ -12235,7 +12235,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 														type: "object"
 													}
 													tokenSecretRef: {
-														description: "Token authenticates with Nebius Mysterybox by presenting a token."
+														description: "Token authenticates with Nebius SecretStash by presenting a token."
 														properties: {
 															key: {
 																description: """
@@ -12332,7 +12332,7 @@ customresourcedefinition: "clustersecretstores.external-secrets.io": {
 												}]
 											}
 											caProvider: {
-												description: "The provider for the CA bundle to use to validate NebiusMysterybox server certificate."
+												description: "The provider for the CA bundle to use to validate Nebius SecretStash server certificate."
 												properties: certSecretRef: {
 													description: """
 	SecretKeySelector is a reference to a specific 'key' within a Secret resource.
@@ -31182,14 +31182,14 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 										type: "object"
 									}
 									nebiusmysterybox: {
-										description: "NebiusMysterybox configures this store to sync secrets using NebiusMysterybox provider"
+										description: "NebiusMysterybox configures this store to sync secrets using the Nebius SecretStash provider"
 										properties: {
 											apiDomain: {
-												description: "NebiusMysterybox API endpoint"
+												description: "Nebius SecretStash API endpoint"
 												type:        "string"
 											}
 											auth: {
-												description: "Auth defines parameters to authenticate in MysteryBox"
+												description: "Auth defines parameters to authenticate in SecretStash"
 												properties: {
 													serviceAccountCredsSecretRef: {
 														description: """
@@ -31239,7 +31239,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 														type: "object"
 													}
 													tokenSecretRef: {
-														description: "Token authenticates with Nebius Mysterybox by presenting a token."
+														description: "Token authenticates with Nebius SecretStash by presenting a token."
 														properties: {
 															key: {
 																description: """
@@ -31336,7 +31336,7 @@ customresourcedefinition: "secretstores.external-secrets.io": {
 												}]
 											}
 											caProvider: {
-												description: "The provider for the CA bundle to use to validate NebiusMysterybox server certificate."
+												description: "The provider for the CA bundle to use to validate Nebius SecretStash server certificate."
 												properties: certSecretRef: {
 													description: """
 	SecretKeySelector is a reference to a specific 'key' within a Secret resource.
