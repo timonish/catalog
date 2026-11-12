@@ -8,7 +8,7 @@ customresourcedefinition: "alertmanagerconfigs.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "alertmanagerconfigs.monitoring.coreos.com"
 	}
@@ -14602,7 +14602,7 @@ customresourcedefinition: "alertmanagers.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "alertmanagers.monitoring.coreos.com"
 	}
@@ -27120,7 +27120,7 @@ customresourcedefinition: "podmonitors.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "podmonitors.monitoring.coreos.com"
 	}
@@ -28801,7 +28801,7 @@ customresourcedefinition: "probes.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "probes.monitoring.coreos.com"
 	}
@@ -30496,7 +30496,7 @@ customresourcedefinition: "prometheusagents.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "prometheusagents.monitoring.coreos.com"
 	}
@@ -44835,7 +44835,7 @@ customresourcedefinition: "prometheuses.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "prometheuses.monitoring.coreos.com"
 	}
@@ -61951,7 +61951,7 @@ customresourcedefinition: "prometheusrules.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "prometheusrules.monitoring.coreos.com"
 	}
@@ -62250,7 +62250,7 @@ customresourcedefinition: "scrapeconfigs.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "scrapeconfigs.monitoring.coreos.com"
 	}
@@ -77480,7 +77480,7 @@ customresourcedefinition: "servicemonitors.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "servicemonitors.monitoring.coreos.com"
 	}
@@ -79198,7 +79198,7 @@ customresourcedefinition: "thanosrulers.monitoring.coreos.com": {
 	metadata: {
 		annotations: {
 			"controller-gen.kubebuilder.io/version": "v0.23.0"
-			"operator.prometheus.io/version":        "0.95.1"
+			"operator.prometheus.io/version":        "0.95.2"
 		}
 		name: "thanosrulers.monitoring.coreos.com"
 	}
