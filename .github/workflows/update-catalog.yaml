@@ -34,9 +34,9 @@ jobs:
           # credential makes the loop fully hands-free.
           token: ${{ secrets.BOT_GH_TOKEN || github.token }}
       - name: Setup Timoni
-        uses: stefanprodan/timoni/actions/setup@bb0f07cc4f586e91d5076e63e632cab8398fef41 # v0.34.0
+        uses: stefanprodan/timoni/actions/setup@9f04f5c56a817024dce3f23bdbf8da4516fbe990 # v0.36.0
       - name: Setup CUE
-        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
+        uses: cue-lang/setup-cue@b0e30e540a2dae47304ebf16586a5b2db023b61c # v2.0.0
         with:
           version: v0.17.1
       - name: Setup Bun
@@ -46,13 +46,13 @@ jobs:
       # The image digest resolution lists tags on the upstream registries;
       # authenticated access avoids the anonymous rate limits.
       - name: Login to GHCR
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to Docker Hub
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           username: ${{ secrets.DOCKER_READONLY_USER }}
           password: ${{ secrets.DOCKER_READONLY_PAT }}
