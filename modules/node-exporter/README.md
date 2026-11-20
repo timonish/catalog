@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying [node-exporter](https://githu
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.12.1-1`, packaging the upstream release
-[v1.12.1](https://github.com/prometheus/node_exporter/releases/tag/v1.12.1)
+Latest module version is `1.13.1-0`, packaging the upstream release
+[v1.13.1](https://github.com/prometheus/node_exporter/releases/tag/v1.13.1)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `quay.io/prometheus/node-exporter` | v1.12.1 | `sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0` |
+| `quay.io/prometheus/node-exporter` | v1.13.1 | `sha256:011e2d12c5bff759b90804bda642664775d7b4b127bf5148539bb82d3f590bb7` |
 <!-- versions:end -->
 
 ## Prerequisites

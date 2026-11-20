@@ -1,10 +1,14 @@
 {
   "name": "node-exporter",
   "repo": "prometheus/node_exporter",
-  "tag": "v1.12.1",
-  "commit": "6044da783597cc3b57aef7580ddcdcff58a4ee99",
-  "moduleVersion": "1.12.1-1",
+  "tag": "v1.13.1",
+  "commit": "0192dd896337e6eeb5935024cd5d8aec431caf3a",
+  "moduleVersion": "1.13.1-0",
   "moduleReleases": [
+    {
+      "version": "1.13.1-0",
+      "releasedAt": "2026-11-20T15:14:08.361Z"
+    },
     {
       "version": "1.12.1-1",
       "releasedAt": "2026-08-30T09:57:10.346Z"
@@ -17,10 +21,10 @@
   "images": {
     "node-exporter": {
       "repository": "quay.io/prometheus/node-exporter",
-      "tag": "v1.12.1",
-      "digest": "sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0"
+      "tag": "v1.13.1",
+      "digest": "sha256:011e2d12c5bff759b90804bda642664775d7b4b127bf5148539bb82d3f590bb7"
     }
   },
-  "generatedDigest": "sha256:3dd922d48c060bca5923646168c15a70a88af32004a72fbd9fab888446f263c6",
-  "updatedAt": "2026-08-30T09:57:10.346Z"
+  "generatedDigest": "sha256:3b1f837e5b76a673fde48b34d11623903172420a2e68f99a87003f0efe9b8e95",
+  "updatedAt": "2026-11-20T15:14:08.361Z"
 }
