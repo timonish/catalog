@@ -148,6 +148,20 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 										]
 										type: "string"
 									}
+									sourceWatcher: {
+										description: "SourceWatcher configures the source-watcher component."
+										properties: namespaceManager: {
+											description: """
+	NamespaceManager enables the RBAC required by source-watcher to manage
+	Namespaces on behalf of ArtifactGenerator resources. This grants the
+	source-watcher service account cluster-wide permissions to create,
+	update, patch and delete Namespaces. The source-watcher component must
+	be enabled in .spec.components.
+	"""
+											type: "boolean"
+										}
+										type: "object"
+									}
 									tenantDefaultDecryptionServiceAccount: {
 										description: """
 	TenantDefaultDecryptionServiceAccount is the name of the service account
@@ -772,6 +786,9 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 						}, {
 							message: ".spec.cluster.objectIdentityRBAC or .spec.spiffe.brokerAPI must be set when .spec.cluster.multitenantObjectIdentity is set to true"
 							rule:    "!has(self.cluster) || !has(self.cluster.multitenantObjectIdentity) || !self.cluster.multitenantObjectIdentity || (has(self.cluster.objectIdentityRBAC) && self.cluster.objectIdentityRBAC) || (has(self.cluster.objectLevelWorkloadIdentity) && self.cluster.objectLevelWorkloadIdentity) || (has(self.spiffe) && has(self.spiffe.brokerAPI))"
+						}, {
+							message: ".spec.cluster.sourceWatcher requires source-watcher in .spec.components"
+							rule:    "!has(self.cluster) || !has(self.cluster.sourceWatcher) || (has(self.components) && self.components.exists(c, c == 'source-watcher'))"
 						}]
 					}
 					status: {
@@ -1713,8 +1730,71 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 	When set to "*", ExternalArtifacts are listed across all namespaces by
 	omitting the namespace option from List().
 	Otherwise, ExternalArtifacts are listed only in the specified namespace.
+	This field is mutually exclusive with NamespaceSelector.
 	"""
 											type: "string"
+										}
+										namespaceSelector: {
+											description: """
+	NamespaceSelector selects the namespaces where ExternalArtifacts are
+	discovered based on their labels. An empty selector matches all
+	namespaces. When both Namespace and NamespaceSelector are empty,
+	ExternalArtifacts are listed in the ResourceSetInputProvider namespace.
+	This field is mutually exclusive with Namespace.
+	"""
+											properties: {
+												matchExpressions: {
+													description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+													items: {
+														description: """
+	A label selector requirement is a selector that contains values, a key, and an operator that
+	relates the key and values.
+	"""
+														properties: {
+															key: {
+																description: "key is the label key that the selector applies to."
+																type:        "string"
+															}
+															operator: {
+																description: """
+	operator represents a key's relationship to a set of values.
+	Valid operators are In, NotIn, Exists and DoesNotExist.
+	"""
+																type: "string"
+															}
+															values: {
+																description: """
+	values is an array of string values. If the operator is In or NotIn,
+	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+	the values array must be empty. This array is replaced during a strategic
+	merge patch.
+	"""
+																items: type: "string"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
+															}
+														}
+														required: [
+															"key",
+															"operator",
+														]
+														type: "object"
+													}
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+												matchLabels: {
+													additionalProperties: type: "string"
+													description: """
+	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+	map is equivalent to an element of matchExpressions, whose key field is "key", the
+	operator is "In", and the values array contains only "value". The requirements are ANDed.
+	"""
+													type: "object"
+												}
+											}
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
 										}
 									}
 									type:                    "object"
@@ -1722,6 +1802,9 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 									"x-kubernetes-validations": [{
 										message: "name is mutually exclusive with matchLabels and matchExpressions"
 										rule:    "!has(self.name) || (!has(self.matchLabels) && !has(self.matchExpressions))"
+									}, {
+										message: "namespace and namespaceSelector are mutually exclusive"
+										rule:    "!(has(self.__namespace__) && has(self.namespaceSelector))"
 									}]
 								}
 								type: "array"
