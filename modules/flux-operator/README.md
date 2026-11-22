@@ -5,13 +5,13 @@ A [Timoni](https://timoni.sh) module for deploying the [Flux Operator](https://g
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.63.0-0`, packaging the upstream release
-[v0.63.0](https://github.com/controlplaneio-fluxcd/flux-operator/releases/tag/v0.63.0)
+Latest module version is `0.63.1-0`, packaging the upstream release
+[v0.63.1](https://github.com/controlplaneio-fluxcd/flux-operator/releases/tag/v0.63.1)
 with the following container images:
 
 | Image | Tag | Digest |
 |---|---|---|
-| `ghcr.io/controlplaneio-fluxcd/flux-operator` | v0.63.0 | `sha256:82a6a83711fcfb00af55b23684a5c5fbfbde36cf3a233b4b81b4d45180f99cb0` |
+| `ghcr.io/controlplaneio-fluxcd/flux-operator` | v0.63.1 | `sha256:460cc140dba2958261b05466acca40dfbee3addd1a6c33b885c1cd4e4e5d0489` |
 <!-- versions:end -->
 
 To list all available versions and their digests:
