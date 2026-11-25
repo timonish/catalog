@@ -21,12 +21,12 @@ import (
 		{
 			apiGroups: [""]
 			resources: ["nodes/metrics"]
-			verbs: ["get"]
+			verbs:     ["get"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["pods", "nodes", "namespaces", "configmaps"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 	]
 }
@@ -52,7 +52,7 @@ import (
 	rules: [{
 		apiGroups: ["metrics.k8s.io"]
 		resources: ["pods", "nodes"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	}]
 }
 

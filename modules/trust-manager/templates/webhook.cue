@@ -58,15 +58,15 @@ import (
 	webhooks: [{
 		name: "trust.cert-manager.io"
 		rules: [{
-			apiGroups: ["trust.cert-manager.io"]
+			apiGroups:   ["trust.cert-manager.io"]
 			apiVersions: ["v1alpha1"]
-			operations: ["CREATE", "UPDATE"]
-			resources: ["bundles"]
+			operations:  ["CREATE", "UPDATE"]
+			resources:   ["bundles"]
 		}]
 		admissionReviewVersions: ["v1"]
-		timeoutSeconds: _config.webhook.timeoutSeconds
-		failurePolicy:  "Fail"
-		sideEffects:    "None"
+		timeoutSeconds:          _config.webhook.timeoutSeconds
+		failurePolicy:           "Fail"
+		sideEffects:             "None"
 		clientConfig: service: {
 			name:      _config.metadata.name
 			namespace: _config.metadata.namespace

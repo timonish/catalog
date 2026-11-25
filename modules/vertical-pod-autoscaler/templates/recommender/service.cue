@@ -12,7 +12,7 @@ import (
 
 	apiVersion: "v1"
 	kind:       "Service"
-	metadata: #ObjectMeta & {#config: _config}
+	metadata:   #ObjectMeta & {#config: _config}
 	if _config.recommender.metricsService.labels != _|_ {
 		metadata: labels: _config.recommender.metricsService.labels
 	}

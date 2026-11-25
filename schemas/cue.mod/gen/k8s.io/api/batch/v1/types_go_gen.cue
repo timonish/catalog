@@ -5,6 +5,7 @@ package v1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
+	schedulingv1alpha3 "k8s.io/api/scheduling/v1alpha3"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -156,6 +157,18 @@ _#labelPrefix: "batch.kubernetes.io/"
 	podReplacementPolicy?: #PodReplacementPolicy @go(PodReplacementPolicy,*PodReplacementPolicy) @protobuf(14,bytes,opt,casttype=podReplacementPolicy)
 
 	managedBy?: string @go(ManagedBy,*string) @protobuf(15,bytes,opt)
+
+	scheduling?: #JobSchedulingConfiguration @go(Scheduling,*JobSchedulingConfiguration) @protobuf(17,bytes,opt)
+}
+
+#JobSchedulingConfiguration: {
+	schedulingPolicy?: schedulingv1alpha3.#WorkloadPodGroupSchedulingPolicy @go(SchedulingPolicy,*schedulingv1alpha3.WorkloadPodGroupSchedulingPolicy) @protobuf(1,bytes,opt)
+
+	schedulingConstraints?: schedulingv1alpha3.#WorkloadPodGroupSchedulingConstraints @go(SchedulingConstraints,*schedulingv1alpha3.WorkloadPodGroupSchedulingConstraints) @protobuf(2,bytes,opt)
+
+	disruptionMode?: schedulingv1alpha3.#WorkloadPodGroupDisruptionMode @go(DisruptionMode,*schedulingv1alpha3.WorkloadPodGroupDisruptionMode) @protobuf(3,bytes,opt)
+
+	resourceClaims?: [...schedulingv1alpha3.#WorkloadPodGroupResourceClaim] @go(ResourceClaims,[]schedulingv1alpha3.WorkloadPodGroupResourceClaim) @protobuf(4,bytes,rep)
 }
 
 #JobStatus: {

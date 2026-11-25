@@ -42,7 +42,7 @@ import (
 	// recommender metrics-reader ClusterRole, e.g. for reading custom
 	// metrics.
 	rbac: {
-		create: *true | bool
+		create:      *true | bool
 		extraRules?: [...rbacv1.#PolicyRule]
 	}
 
@@ -61,8 +61,8 @@ import (
 		labelLimit?:            int & >=0
 		labelNameLengthLimit?:  int & >=0
 		labelValueLengthLimit?: int & >=0
-		targetLabels?: [...string & =~".+"]
-		podTargetLabels?: [...string & =~".+"]
+		targetLabels?:          [...string & =~".+"]
+		podTargetLabels?:       [...string & =~".+"]
 	}
 
 	// The security preset applied to the pod identity defaults of all
@@ -110,7 +110,7 @@ import (
 	}
 
 	// Extra volumes and volume mounts for the recommender container.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 }
 
@@ -129,6 +129,6 @@ import (
 	inPlaceSkipDisruptionBudget: *true | bool
 
 	// Extra volumes and volume mounts for the updater container.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 }

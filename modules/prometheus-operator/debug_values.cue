@@ -27,14 +27,14 @@ values: {
 		enableProbe: true
 	}
 
-	denyNamespaces: ["kube-node-lease"]
-	prometheusInstanceNamespaces: ["monitoring"]
+	denyNamespaces:                 ["kube-node-lease"]
+	prometheusInstanceNamespaces:   ["monitoring"]
 	alertmanagerInstanceNamespaces: ["monitoring"]
-	alertmanagerConfigNamespaces: ["monitoring"]
-	thanosRulerInstanceNamespaces: ["monitoring"]
-	prometheusInstanceSelector:   "operator=e2e"
-	alertmanagerInstanceSelector: "operator=e2e"
-	thanosRulerInstanceSelector:  "operator=e2e"
+	alertmanagerConfigNamespaces:   ["monitoring"]
+	thanosRulerInstanceNamespaces:  ["monitoring"]
+	prometheusInstanceSelector:     "operator=e2e"
+	alertmanagerInstanceSelector:   "operator=e2e"
+	thanosRulerInstanceSelector:    "operator=e2e"
 
 	featureGates: PrometheusAgentDaemonSet: true
 
@@ -67,7 +67,7 @@ values: {
 		matchExpressions: [{
 			key:      "kubernetes.io/os"
 			operator: "In"
-			values: ["linux"]
+			values:   ["linux"]
 		}]
 	}]
 	topologySpreadConstraints: [{
@@ -88,7 +88,7 @@ values: {
 	revisionHistoryLimit: 5
 
 	extraVolumes: [{
-		name: "tmp"
+		name:     "tmp"
 		emptyDir: {}
 	}]
 	extraVolumeMounts: [{
@@ -103,7 +103,7 @@ values: {
 	service: {
 		annotations: "team": "platform"
 		labels: "team":      "platform"
-		ipFamilies: ["IPv4"]
+		ipFamilies:     ["IPv4"]
 		ipFamilyPolicy: "SingleStack"
 	}
 
@@ -127,7 +127,7 @@ values: {
 				key:  "ca.crt"
 			}
 		}
-		targetLabels: ["app.kubernetes.io/part-of"]
+		targetLabels:          ["app.kubernetes.io/part-of"]
 		sampleLimit:           1000
 		targetLimit:           10
 		labelLimit:            64
@@ -138,9 +138,9 @@ values: {
 			regex:  "pod_template_hash"
 		}]
 		relabelings: [{
-			action: "replace"
+			action:       "replace"
 			sourceLabels: ["__meta_kubernetes_pod_node_name"]
-			targetLabel: "node"
+			targetLabel:  "node"
 		}]
 	}
 

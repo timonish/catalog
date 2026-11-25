@@ -28,21 +28,21 @@ customresourcedefinition: "dnsendpoints.externaldns.k8s.io": {
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+							APIVersion defines the versioned schema of this representation of an object.
+							Servers should convert recognized schemas to the latest internal value, and
+							may reject unrecognized values.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+							"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+							Kind is a string value representing the REST resource this object represents.
+							Servers may infer this from the endpoint the client submits requests to.
+							Cannot be updated.
+							In CamelCase.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+							"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -55,12 +55,12 @@ customresourcedefinition: "dnsendpoints.externaldns.k8s.io": {
 								properties: {
 									dnsName: {
 										description: """
-	DNSName is the hostname of the DNS record. It is at most 253 characters, or 254
-	written as an absolute name with a trailing dot.
-	"""
+											DNSName is the hostname of the DNS record. It is at most 253 characters, or 254
+											written as an absolute name with a trailing dot.
+											"""
 										maxLength: 254
 										minLength: 1
-										pattern:   "^(\\*\\.)?([a-zA-Z0-9_]([-a-zA-Z0-9_]{0,61}[a-zA-Z0-9_])?\\.)*[a-zA-Z0-9_]([-a-zA-Z0-9_]{0,61}[a-zA-Z0-9_])?\\.?$"
+										pattern:   #"^(\*\.)?([a-zA-Z0-9_]([-a-zA-Z0-9_]{0,61}[a-zA-Z0-9_])?\.)*[a-zA-Z0-9_]([-a-zA-Z0-9_]{0,61}[a-zA-Z0-9_])?\.?$"#
 										type:      "string"
 										"x-kubernetes-validations": [{
 											message: "dnsName must be at most 253 characters, or 254 including the trailing dot"
@@ -79,9 +79,9 @@ customresourcedefinition: "dnsendpoints.externaldns.k8s.io": {
 											properties: {
 												name: {
 													description: """
-	Name of the provider-specific property. Accepted names are provider
-	dependent; see the tutorial for the provider in use.
-	"""
+														Name of the provider-specific property. Accepted names are provider
+														dependent; see the tutorial for the provider in use.
+														"""
 													maxLength: 253
 													minLength: 1
 													type:      "string"
@@ -93,16 +93,16 @@ customresourcedefinition: "dnsendpoints.externaldns.k8s.io": {
 												}
 											}
 											required: ["name"]
-											type: "object"
+											type:     "object"
 										}
 										maxItems: 100
 										type:     "array"
 									}
 									recordTTL: {
 										description: """
-	RecordTTL is the TTL of the record in seconds. 0 means "not set" and lets
-	the provider apply its own default. The upper bound is the RFC 2181 §8 maximum.
-	"""
+											RecordTTL is the TTL of the record in seconds. 0 means "not set" and lets
+											the provider apply its own default. The upper bound is the RFC 2181 §8 maximum.
+											"""
 										format:  "int64"
 										maximum: 2147483647
 										minimum: 0
@@ -127,17 +127,17 @@ customresourcedefinition: "dnsendpoints.externaldns.k8s.io": {
 									}
 									setIdentifier: {
 										description: """
-	SetIdentifier distinguishes multiple records with the same name and type
-	(e.g. Route53 records with routing policies other than 'simple').
-	"""
+											SetIdentifier distinguishes multiple records with the same name and type
+											(e.g. Route53 records with routing policies other than 'simple').
+											"""
 										maxLength: 255
 										type:      "string"
 									}
 									targets: {
 										description: """
-	Targets are the values the DNS record points to. Leaving it empty is only
-	meaningful when --default-targets is configured.
-	"""
+											Targets are the values the DNS record points to. Leaving it empty is only
+											meaningful when --default-targets is configured.
+											"""
 										items: {
 											maxLength: 4096
 											minLength: 1

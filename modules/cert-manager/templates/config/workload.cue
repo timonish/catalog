@@ -50,7 +50,7 @@ import (
 
 	// Extra volumes and volume mounts added to the pod, e.g. a CA
 	// bundle or serving certificate files.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Extra containers added to the pod.
@@ -68,15 +68,15 @@ import (
 		nodeAffinity?:   corev1.#NodeAffinity
 		podAffinity?:    corev1.#PodAffinity
 	}
-	tolerations?: [...corev1.#Toleration]
+	tolerations?:               [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 
 	// Pod optional settings.
-	podLabels?:      timoniv1.#Labels
-	podAnnotations?: timoniv1.#Annotations
-	dnsPolicy?:      "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
-	dnsConfig?:      corev1.#PodDNSConfig
-	hostAliases?: [...corev1.#HostAlias]
+	podLabels?:         timoniv1.#Labels
+	podAnnotations?:    timoniv1.#Annotations
+	dnsPolicy?:         "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
+	dnsConfig?:         corev1.#PodDNSConfig
+	hostAliases?:       [...corev1.#HostAlias]
 	hostUsers?:         bool
 	priorityClassName?: string & =~".+"
 	runtimeClassName?:  string & =~".+"

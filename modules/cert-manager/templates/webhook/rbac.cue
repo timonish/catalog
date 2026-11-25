@@ -18,7 +18,7 @@ import (
 			"\(_name)-role-serving": rbacv1.#Role & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "Role"
-				metadata: #ClusterObjectMeta & {#config: _config}
+				metadata:   #ClusterObjectMeta & {#config: _config}
 				metadata: name:      "\(_name):dynamic-serving"
 				metadata: namespace: _config.webhook.config.tlsConfig.dynamic.secretNamespace
 				rules: [
@@ -39,14 +39,14 @@ import (
 					{
 						apiGroups: [""]
 						resources: ["secrets"]
-						verbs: ["create"]
+						verbs:     ["create"]
 					},
 				]
 			}
 			"\(_name)-rb-serving": rbacv1.#RoleBinding & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "RoleBinding"
-				metadata: #ClusterObjectMeta & {#config: _config}
+				metadata:   #ClusterObjectMeta & {#config: _config}
 				metadata: name:      "\(_name):dynamic-serving"
 				metadata: namespace: _config.webhook.config.tlsConfig.dynamic.secretNamespace
 				roleRef: {
@@ -67,18 +67,18 @@ import (
 		"\(_name)-cr-sar": rbacv1.#ClusterRole & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRole"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name):subjectaccessreviews"
 			rules: [{
 				apiGroups: ["authorization.k8s.io"]
 				resources: ["subjectaccessreviews"]
-				verbs: ["create"]
+				verbs:     ["create"]
 			}]
 		}
 		"\(_name)-crb-sar": rbacv1.#ClusterRoleBinding & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRoleBinding"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name):subjectaccessreviews"
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"

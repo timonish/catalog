@@ -31,7 +31,7 @@ values: {
 		extraRules: [{
 			apiGroups: [""]
 			resources: ["pods"]
-			verbs: ["get", "list"]
+			verbs:     ["get", "list"]
 		}]
 	}
 
@@ -44,7 +44,7 @@ values: {
 		honorLabels:   true
 		additionalLabels: release:       "kube-prometheus-stack"
 		annotations: "example.com/team": "platform"
-		sampleLimit: 1000
+		sampleLimit:  1000
 		targetLabels: ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
 			action: "labeldrop"
@@ -71,9 +71,9 @@ values: {
 		genericTargets: {
 			enabled: true
 			resources: [{
-				apiGroup: "argoproj.io"
+				apiGroup:  "argoproj.io"
 				resources: ["applications"]
-				verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+				verbs:     ["get", "list", "watch", "create", "update", "patch", "delete"]
 			}]
 		}
 		vault: {
@@ -95,7 +95,7 @@ values: {
 				annotations: "example.com/metrics": "true"
 				labels: "example.com/scope":        "secrets"
 				ipFamilyPolicy: "SingleStack"
-				ipFamilies: ["IPv4"]
+				ipFamilies:     ["IPv4"]
 			}
 		}
 		healthPort: 8082
@@ -106,12 +106,12 @@ values: {
 			}
 			limits: memory: "256Mi"
 		}
-		env: [{name: "HTTPS_PROXY", value: "http://proxy.example.com:3128"}]
-		extraArgs: ["--client-qps=50"]
-		extraVolumes: [{name: "metrics-tls", secret: secretName: "metrics-tls"}]
+		env:               [{name: "HTTPS_PROXY", value: "http://proxy.example.com:3128"}]
+		extraArgs:         ["--client-qps=50"]
+		extraVolumes:      [{name: "metrics-tls", secret: secretName: "metrics-tls"}]
 		extraVolumeMounts: [{name: "metrics-tls", mountPath: "/etc/metrics-tls", readOnly: true}]
-		initContainers: [{name: "init", image: "busybox", command: ["true"]}]
-		extraContainers: [{name: "sidecar", image: "busybox", command: ["sleep", "infinity"]}]
+		initContainers:    [{name: "init", image: "busybox", command: ["true"]}]
+		extraContainers:   [{name: "sidecar", image: "busybox", command: ["sleep", "infinity"]}]
 		podLabels: "example.com/scope":             "secrets"
 		podAnnotations: "example.com/scrape":       "true"
 		deploymentAnnotations: "example.com/owner": "platform"
@@ -119,15 +119,15 @@ values: {
 		schedulerName:                 "default-scheduler"
 		terminationGracePeriodSeconds: 30
 		automountServiceAccountToken:  true
-		hostAliases: [{ip: "127.0.0.1", hostnames: ["vault.local"]}]
-		dnsPolicy: "ClusterFirst"
+		hostAliases:                   [{ip: "127.0.0.1", hostnames: ["vault.local"]}]
+		dnsPolicy:                     "ClusterFirst"
 		dnsConfig: options: [{name: "ndots", value: "1"}]
 		tolerations: [{key: "node-role.kubernetes.io/control-plane", operator: "Exists", effect: "NoSchedule"}]
 		affinity: nodeAffinity: requiredDuringSchedulingIgnoredDuringExecution: nodeSelectorTerms: [{
 			matchExpressions: [{
 				key:      "kubernetes.io/os"
 				operator: "In"
-				values: ["linux"]
+				values:   ["linux"]
 			}]
 		}]
 		topologySpreadConstraints: [{
@@ -170,7 +170,7 @@ values: {
 				port:    8080
 			}
 		}
-		extraVolumes: [{name: "metrics-tls", secret: secretName: "metrics-tls"}]
+		extraVolumes:      [{name: "metrics-tls", secret: secretName: "metrics-tls"}]
 		extraVolumeMounts: [{name: "metrics-tls", mountPath: "/etc/tls", readOnly: true}]
 		resources: requests: {
 			cpu:    "10m"
@@ -181,7 +181,7 @@ values: {
 			port: 443
 			annotations: "example.com/webhook": "true"
 			ipFamilyPolicy: "SingleStack"
-			ipFamilies: ["IPv4"]
+			ipFamilies:     ["IPv4"]
 		}
 		startupProbe: {
 			httpGet: {
@@ -211,7 +211,7 @@ values: {
 				annotations: "example.com/metrics": "true"
 			}
 		}
-		extraVolumes: [{name: "metrics-tls", secret: secretName: "metrics-tls"}]
+		extraVolumes:      [{name: "metrics-tls", secret: secretName: "metrics-tls"}]
 		extraVolumeMounts: [{name: "metrics-tls", mountPath: "/etc/tls", readOnly: true}]
 		startupProbe: {
 			httpGet: {

@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying the [Kubernetes Gateway API](
 ## Version
 
 <!-- versions:start -->
-Latest module version is `1.7.0-0`, packaging the upstream release
+Latest module version is `1.7.0-1`, packaging the upstream release
 [v1.7.0](https://github.com/kubernetes-sigs/gateway-api/releases/tag/v1.7.0).
 <!-- versions:end -->
 
@@ -18,7 +18,7 @@ timoni mod list oci://ghcr.io/timonish/modules/gateway-api
 ## Prerequisites
 
 - Kubernetes 1.30+
-- [Timoni](https://timoni.sh/install/) 0.34+
+- [Timoni](https://timoni.sh/install/) 0.38+
 
 ## Install
 

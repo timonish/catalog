@@ -21,7 +21,7 @@ values: {
 	listenOnAllInterfaces: false
 
 	extraArgs: ["--collector.textfile.directory=/run/prometheus"]
-	env: [{name: "GOMAXPROCS", value: "1"}]
+	env:       [{name: "GOMAXPROCS", value: "1"}]
 	extraVolumes: [{
 		name: "textfile"
 		emptyDir: medium: "Memory"
@@ -41,7 +41,7 @@ values: {
 	}]
 	resources: {
 		requests: {cpu: "10m", memory: "32Mi"}
-		limits: {cpu: "100m", memory: "64Mi"}
+		limits:   {cpu: "100m", memory: "64Mi"}
 	}
 	terminationMessagePath:   "/dev/termination-log"
 	terminationMessagePolicy: "FallbackToLogsOnError"
@@ -62,7 +62,7 @@ values: {
 		matchExpressions: [{
 			key:      "kubernetes.io/os"
 			operator: "In"
-			values: ["linux"]
+			values:   ["linux"]
 		}]
 	}]
 	topologySpreadConstraints: [{
@@ -98,7 +98,7 @@ values: {
 		targetPort: 9102
 		annotations: "team": "platform"
 		labels: "team":      "platform"
-		ipFamilies: ["IPv4"]
+		ipFamilies:            ["IPv4"]
 		ipFamilyPolicy:        "SingleStack"
 		externalTrafficPolicy: "Local"
 		internalTrafficPolicy: "Cluster"
@@ -109,9 +109,9 @@ values: {
 		enabled: true
 		additionalLabels: "release": "e2e"
 		annotations: "team":         "platform"
-		jobLabel: "app.kubernetes.io/instance"
-		targetLabels: ["cluster"]
-		podTargetLabels: ["pod"]
+		jobLabel:              "app.kubernetes.io/instance"
+		targetLabels:          ["cluster"]
+		podTargetLabels:       ["pod"]
 		sampleLimit:           1000
 		targetLimit:           10
 		labelLimit:            64
@@ -133,9 +133,9 @@ values: {
 			regex:  "pod_template_hash"
 		}]
 		relabelings: [{
-			action: "replace"
+			action:       "replace"
 			sourceLabels: ["__meta_kubernetes_pod_node_name"]
-			targetLabel: "instance"
+			targetLabel:  "instance"
 		}]
 	}
 
@@ -143,10 +143,10 @@ values: {
 		enabled: true
 		additionalLabels: "release": "e2e"
 		annotations: "team":         "platform"
-		jobLabel: "app.kubernetes.io/instance"
+		jobLabel:        "app.kubernetes.io/instance"
 		podTargetLabels: ["pod"]
-		sampleLimit: 1000
-		path:        "/metrics"
+		sampleLimit:     1000
+		path:            "/metrics"
 		params: collect: ["cpu"]
 		honorTimestamps: false
 		filterRunning:   false
@@ -159,13 +159,13 @@ values: {
 			password: {name: "scrape-creds", key: "password"}
 		}
 		authorization: credentials: {name: "scrape-token", key: "token"}
-		attachMetadata: node: true
+		attachMetadata: node:       true
 	}
 
 	networkPolicy: {
 		enabled: true
 		ingress: [{
-			from: [{namespaceSelector: matchLabels: "kubernetes.io/metadata.name": "monitoring"}]
+			from:  [{namespaceSelector: matchLabels: "kubernetes.io/metadata.name": "monitoring"}]
 			ports: [{port: 9102, protocol: "TCP"}]
 		}]
 		egress: [{
@@ -174,12 +174,12 @@ values: {
 	}
 
 	verticalPodAutoscaler: {
-		enabled: true
-		recommenders: [{name: "custom-recommender"}]
+		enabled:             true
+		recommenders:        [{name: "custom-recommender"}]
 		controlledResources: ["cpu", "memory"]
-		controlledValues: "RequestsAndLimits"
-		maxAllowed: {cpu: "200m", memory: "100Mi"}
-		minAllowed: {cpu: "20m", memory: "30Mi"}
+		controlledValues:    "RequestsAndLimits"
+		maxAllowed:          {cpu: "200m", memory: "100Mi"}
+		minAllowed:          {cpu: "20m", memory: "30Mi"}
 		updatePolicy: {
 			minReplicas: 1
 			updateMode:  "Auto"

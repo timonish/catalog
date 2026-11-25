@@ -27,13 +27,13 @@ values: {
 	env: [{name: "GOMAXPROCS", value: "2"}]
 
 	extraContainers: [{
-		name:  "sidecar"
-		image: "docker.io/library/busybox:latest"
+		name:    "sidecar"
+		image:   "docker.io/library/busybox:latest"
 		command: ["sleep", "infinity"]
 	}]
 	initContainers: [{
-		name:  "init"
-		image: "docker.io/library/busybox:latest"
+		name:    "init"
+		image:   "docker.io/library/busybox:latest"
 		command: ["true"]
 	}]
 
@@ -58,12 +58,12 @@ values: {
 			}
 			serverName: "metrics-server.monitoring.svc"
 		}
-		sampleLimit: 1000
+		sampleLimit:  1000
 		targetLabels: ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
-			action: "drop"
+			action:       "drop"
 			sourceLabels: ["__name__"]
-			regex: "go_gc_.*"
+			regex:        "go_gc_.*"
 		}]
 	}
 
@@ -98,14 +98,14 @@ values: {
 		type: "NodePort"
 		port: 4443
 		labels: "kubernetes.io/cluster-service": "true"
-		nodePort: 30443
-		ipFamilies: ["IPv4", "IPv6"]
+		nodePort:              30443
+		ipFamilies:            ["IPv4", "IPv6"]
 		ipFamilyPolicy:        "PreferDualStack"
 		externalTrafficPolicy: "Local"
 	}
 
 	extraVolumes: [{
-		name: "extra"
+		name:     "extra"
 		emptyDir: {}
 	}]
 	extraVolumeMounts: [{

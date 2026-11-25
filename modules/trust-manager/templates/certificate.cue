@@ -34,7 +34,7 @@ import (
 	}
 	spec: {
 		commonName: "\(_config.metadata.name).\(_config.metadata.namespace).svc"
-		dnsNames: ["\(_config.metadata.name).\(_config.metadata.namespace).svc"]
+		dnsNames:   ["\(_config.metadata.name).\(_config.metadata.namespace).svc"]
 		secretName: "\(_config.metadata.name)-tls"
 		_template:  _config.webhook.tls.certificate.secretTemplate
 		if _template.annotations != _|_ || _template.labels != _|_ {
@@ -82,7 +82,7 @@ import (
 				required: true
 			}
 			dnsNames: {
-				values: [_svcName]
+				values:   [_svcName]
 				required: true
 			}
 		}
@@ -109,9 +109,9 @@ import (
 		}
 	}
 	rules: [{
-		apiGroups: ["policy.cert-manager.io"]
-		resources: ["certificaterequestpolicies"]
-		verbs: ["use"]
+		apiGroups:     ["policy.cert-manager.io"]
+		resources:     ["certificaterequestpolicies"]
+		verbs:         ["use"]
 		resourceNames: ["\(_config.metadata.name)-policy"]
 	}]
 }

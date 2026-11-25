@@ -17,14 +17,14 @@ import (
 			"webhook-metrics-auth-clusterrole": rbacv1.#ClusterRole & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRole"
-				metadata: #ClusterObjectMeta & {#config: _config}
+				metadata:   #ClusterObjectMeta & {#config: _config}
 				metadata: name: _name
 				rules: config.#MetricsAuthRules
 			}
 			"webhook-metrics-auth-clusterrolebinding": rbacv1.#ClusterRoleBinding & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRoleBinding"
-				metadata: #ClusterObjectMeta & {#config: _config}
+				metadata:   #ClusterObjectMeta & {#config: _config}
 				metadata: name: _name
 				roleRef: {
 					apiGroup: "rbac.authorization.k8s.io"

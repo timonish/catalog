@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Fluent Operator](https://git
 ## Version
 
 <!-- versions:start -->
-Latest module version is `3.11.0-0`, packaging the upstream release
+Latest module version is `3.11.0-1`, packaging the upstream release
 [v3.11.0](https://github.com/fluent/fluent-operator/releases/tag/v3.11.0)
 with the following container images:
 
@@ -17,7 +17,7 @@ with the following container images:
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.34+
+- [Timoni](https://timoni.sh/install/) 0.38+
 
 ## Install
 

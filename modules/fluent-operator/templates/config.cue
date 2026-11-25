@@ -140,14 +140,14 @@ import (
 	}
 
 	// Extra volumes and volume mounts for the operator container.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Pod optional settings.
 	podLabels?:      timoniv1.#Labels
 	podAnnotations?: timoniv1.#Annotations
-	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
-	tolerations?: [...corev1.#Toleration]
+	nodeSelector:    *{"kubernetes.io/os": "linux"} | {[string]: string}
+	tolerations?:    [...corev1.#Toleration]
 	// The affinity rules; Linux placement comes from the nodeSelector
 	// default. `podAntiAffinity` accepts the `soft` (default), `hard`
 	// and `none` presets for spreading the replicas across nodes, or
@@ -157,7 +157,7 @@ import (
 		nodeAffinity?:   corev1.#NodeAffinity
 		podAffinity?:    corev1.#PodAffinity
 	}
-	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
+	topologySpreadConstraints?:     [...corev1.#TopologySpreadConstraint]
 	dnsPolicy?:                     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
 	dnsConfig?:                     corev1.#PodDNSConfig
 	priorityClassName?:             string & =~".+"
@@ -198,28 +198,28 @@ import (
 	// `extraRules` extends its ClusterRole with the rules those
 	// workloads need beyond the defaults.
 	rbac: {
-		create: *true | bool
+		create:      *true | bool
 		extraRules?: [...rbacv1.#PolicyRule]
 	}
 
 	// Service settings for the operator metrics endpoint. The operator
 	// listens for metrics on the service port.
 	service: {
-		enabled:    *true | bool
-		type:       *"ClusterIP" | "NodePort" | "LoadBalancer"
-		port:       *8080 | int & >0 & <=65535
-		portName:   *"metrics" | string & =~".+"
-		clusterIP?: string & =~".+"
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		enabled:         *true | bool
+		type:            *"ClusterIP" | "NodePort" | "LoadBalancer"
+		port:            *8080 | int & >0 & <=65535
+		portName:        *"metrics" | string & =~".+"
+		clusterIP?:      string & =~".+"
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-		externalIPs?: [...string]
+		externalIPs?:    [...string]
 		if type == "NodePort" {
 			// Zero lets the cluster assign the node port.
 			nodePort: *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?:    string & =~".+"
-			loadBalancerClass?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
+			loadBalancerClass?:        string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -285,11 +285,11 @@ import (
 		}
 
 		if config.rbac.create {
-			"\(config.metadata.name)-cr": #ClusterRole & {_config: config}
+			"\(config.metadata.name)-cr":  #ClusterRole & {_config: config}
 			"\(config.metadata.name)-crb": #ClusterRoleBinding & {_config: config}
 			if config.leaderElection.enabled {
 				"\(config.metadata.name)-le-role": #LeaderElectionRole & {_config: config}
-				"\(config.metadata.name)-le-rb": #LeaderElectionRoleBinding & {_config: config}
+				"\(config.metadata.name)-le-rb":   #LeaderElectionRoleBinding & {_config: config}
 			}
 		}
 

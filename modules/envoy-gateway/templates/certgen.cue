@@ -76,7 +76,7 @@ import (
 					name:            "envoy-gateway-certgen"
 					image:           _config.image.reference
 					imagePullPolicy: _config.image.pullPolicy
-					command: ["envoy-gateway", "certgen"]
+					command:         ["envoy-gateway", "certgen"]
 					if len(_args) > 0 {
 						args: _args
 					}

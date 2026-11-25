@@ -76,11 +76,11 @@ values: {
 	sourceNamespace:           "apps"
 	enableGatewayListenerSets: true
 
-	domainFilters: ["example.com"]
-	excludeDomains: ["internal.example.com"]
-	labelFilter:      "team=platform"
-	annotationFilter: "external-dns.alpha.kubernetes.io/include=true"
-	annotationPrefix: "external-dns.alpha.kubernetes.io/"
+	domainFilters:      ["example.com"]
+	excludeDomains:     ["internal.example.com"]
+	labelFilter:        "team=platform"
+	annotationFilter:   "external-dns.alpha.kubernetes.io/include=true"
+	annotationPrefix:   "external-dns.alpha.kubernetes.io/"
 	managedRecordTypes: ["A", "AAAA", "CNAME", "TXT"]
 
 	extraArgs: ["--dry-run"]
@@ -104,7 +104,7 @@ values: {
 	}
 
 	extraVolumes: [{
-		name: "extra"
+		name:     "extra"
 		emptyDir: {}
 	}]
 	extraVolumeMounts: [{
@@ -134,7 +134,7 @@ values: {
 			matchExpressions: [{
 				key:      "kubernetes.io/os"
 				operator: "In"
-				values: ["linux"]
+				values:   ["linux"]
 			}]
 		}]
 		// Raw rules replace the anti-affinity preset and need explicit
@@ -179,7 +179,7 @@ values: {
 	rbac: extraRules: [{
 		apiGroups: [""]
 		resources: ["endpoints"]
-		verbs: ["get", "watch", "list"]
+		verbs:     ["get", "watch", "list"]
 	}]
 
 	crds: keep: true
@@ -190,7 +190,7 @@ values: {
 		nodePort: 30080
 		annotations: "team": "platform"
 		labels: "team":      "platform"
-		ipFamilies: ["IPv4"]
+		ipFamilies:            ["IPv4"]
 		ipFamilyPolicy:        "SingleStack"
 		externalTrafficPolicy: "Local"
 	}
@@ -207,9 +207,9 @@ values: {
 		honorLabels:   true
 		sampleLimit:   1000
 		metricRelabelings: [{
-			action: "drop"
+			action:       "drop"
 			sourceLabels: ["__name__"]
-			regex: "go_gc_.*"
+			regex:        "go_gc_.*"
 		}]
 		relabelings: [{
 			action: "labeldrop"

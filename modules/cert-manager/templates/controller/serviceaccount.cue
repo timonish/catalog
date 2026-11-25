@@ -11,7 +11,7 @@ import (
 
 	apiVersion: "v1"
 	kind:       "ServiceAccount"
-	metadata: #ObjectMeta & {#config: _config}
+	metadata:   #ObjectMeta & {#config: _config}
 	metadata: name: _config.controller.serviceAccount.name
 	if _config.controller.serviceAccount.labels != _|_ {
 		metadata: labels: _config.controller.serviceAccount.labels

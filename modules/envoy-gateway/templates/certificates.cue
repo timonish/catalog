@@ -11,7 +11,7 @@ import (
 	_config:    #Config
 	apiVersion: "cert-manager.io/v1"
 	kind:       "Issuer"
-	metadata: _certMeta & {_c: _config, _name: "\(_config.metadata.name)-selfsigned"}
+	metadata:   _certMeta & {_c: _config, _name: "\(_config.metadata.name)-selfsigned"}
 	spec: selfSigned: {}
 }
 
@@ -21,7 +21,7 @@ import (
 	_config:    #Config
 	apiVersion: "cert-manager.io/v1"
 	kind:       "Certificate"
-	metadata: _certMeta & {_c: _config, _name: _config._caSecretName}
+	metadata:   _certMeta & {_c: _config, _name: _config._caSecretName}
 	spec: {
 		isCA: true
 		// The CA common name must differ from the leaf certificates'
@@ -55,7 +55,7 @@ import (
 	_config:    #Config
 	apiVersion: "cert-manager.io/v1"
 	kind:       "Issuer"
-	metadata: _certMeta & {_c: _config, _name: "\(_config.metadata.name)-ca"}
+	metadata:   _certMeta & {_c: _config, _name: "\(_config.metadata.name)-ca"}
 	spec: ca: secretName: _config._caSecretName
 }
 
@@ -69,7 +69,7 @@ import (
 	_certName:  string
 	apiVersion: "cert-manager.io/v1"
 	kind:       "Certificate"
-	metadata: _certMeta & {_c: _config, _name: "\(_config.metadata.name)-\(_certName)"}
+	metadata:   _certMeta & {_c: _config, _name: "\(_config.metadata.name)-\(_certName)"}
 	spec: {
 		secretName: _certName
 		if _certName == "envoy-gateway" {
@@ -83,7 +83,7 @@ import (
 		}
 		if _certName != "envoy-gateway" {
 			commonName: "envoy"
-			dnsNames: ["*.\(_config.metadata.namespace)"]
+			dnsNames:   ["*.\(_config.metadata.namespace)"]
 		}
 		usages: ["server auth", "client auth"]
 		privateKey: {

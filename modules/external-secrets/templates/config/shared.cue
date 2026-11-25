@@ -37,10 +37,10 @@ import (
 	// The metrics Service settings. The Service is created when
 	// `enabled` is set or when the ServiceMonitor is enabled.
 	service: {
-		enabled:    *false | bool
-		port:       *8080 | int & >0 & <=65535
-		clusterIP?: string & =~".+"
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		enabled:         *false | bool
+		port:            *8080 | int & >0 & <=65535
+		clusterIP?:      string & =~".+"
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 		annotations?:    timoniv1.#Annotations
 		labels?:         timoniv1.#Labels
@@ -93,11 +93,11 @@ import (
 	{
 		apiGroups: ["authentication.k8s.io"]
 		resources: ["tokenreviews"]
-		verbs: ["create"]
+		verbs:     ["create"]
 	},
 	{
 		apiGroups: ["authorization.k8s.io"]
 		resources: ["subjectaccessreviews"]
-		verbs: ["create"]
+		verbs:     ["create"]
 	},
 ]

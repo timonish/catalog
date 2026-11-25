@@ -221,6 +221,8 @@ import (
 	reason?: string @go(Reason) @protobuf(4,bytes,opt)
 
 	message?: string @go(Message) @protobuf(5,bytes,opt)
+
+	observedGeneration?: int64 @go(ObservedGeneration,*int64) @protobuf(6,varint,opt)
 }
 
 #MetricStatus: {

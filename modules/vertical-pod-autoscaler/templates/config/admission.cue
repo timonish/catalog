@@ -18,12 +18,12 @@ import (
 	// serving certificate DNS names; the port is referenced by the
 	// webhook configuration.
 	service: {
-		name:         *"vpa-webhook" | string & =~".+"
-		port:         *443 | int & >0 & <=65535
-		targetPort:   *8000 | int & >0 & <=65535
-		annotations?: timoniv1.#Annotations
-		labels?:      timoniv1.#Labels
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		name:            *"vpa-webhook" | string & =~".+"
+		port:            *443 | int & >0 & <=65535
+		targetPort:      *8000 | int & >0 & <=65535
+		annotations?:    timoniv1.#Annotations
+		labels?:         timoniv1.#Labels
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 	}
 
@@ -111,7 +111,7 @@ import (
 
 	// Override the pod volumes and volume mounts, replacing the default
 	// serving certificate Secret mount at `/etc/tls-certs`.
-	volumes?: [...corev1.#Volume]
+	volumes?:      [...corev1.#Volume]
 	volumeMounts?: [...corev1.#VolumeMount]
 
 	_guard: "valid"

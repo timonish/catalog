@@ -14,32 +14,32 @@ import (
 		{
 			apiGroups: [""]
 			resources: ["configmaps"]
-			verbs: ["get", "list", "create", "patch", "watch", "delete"]
+			verbs:     ["get", "list", "create", "patch", "watch", "delete"]
 		},
 		{
 			apiGroups: ["", "events.k8s.io"]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 		if #config.secretTargets.enabled && #config.secretTargets.authorizedSecretsAll {
 			{
 				apiGroups: [""]
 				resources: ["secrets"]
-				verbs: ["get", "list", "create", "patch", "watch", "delete"]
+				verbs:     ["get", "list", "create", "patch", "watch", "delete"]
 			}
 		},
 		if #config.secretTargets.enabled && !#config.secretTargets.authorizedSecretsAll && len(#config.secretTargets.authorizedSecrets) > 0 {
 			{
 				apiGroups: [""]
 				resources: ["secrets"]
-				verbs: ["get", "list", "watch"]
+				verbs:     ["get", "list", "watch"]
 			}
 		},
 		if #config.secretTargets.enabled && !#config.secretTargets.authorizedSecretsAll && len(#config.secretTargets.authorizedSecrets) > 0 {
 			{
-				apiGroups: [""]
-				resources: ["secrets"]
-				verbs: ["create", "patch", "delete"]
+				apiGroups:     [""]
+				resources:     ["secrets"]
+				verbs:         ["create", "patch", "delete"]
 				resourceNames: #config.secretTargets.authorizedSecrets
 			}
 		},
@@ -64,24 +64,24 @@ import (
 		{
 			apiGroups: ["trust.cert-manager.io"]
 			resources: ["bundles"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		// Updating finalizers is required for trust-manager to work
 		// correctly on OpenShift, even though no finalizers are used.
 		{
 			apiGroups: ["trust.cert-manager.io"]
 			resources: ["bundles/finalizers"]
-			verbs: ["update"]
+			verbs:     ["update"]
 		},
 		{
 			apiGroups: ["trust.cert-manager.io"]
 			resources: ["bundles/status"]
-			verbs: ["patch"]
+			verbs:     ["patch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["namespaces"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		if _config.targetNamespaces == _|_ for rule in (#TargetRules & {#config: _config}).rules {rule},
 	]
@@ -105,7 +105,7 @@ import (
 	rules: [{
 		apiGroups: ["trust.cert-manager.io"]
 		resources: ["bundles"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	}]
 }
 
@@ -149,7 +149,7 @@ import (
 	rules: [{
 		apiGroups: [""]
 		resources: ["secrets"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	}]
 }
 
@@ -192,7 +192,7 @@ import (
 	rules: [{
 		apiGroups: ["coordination.k8s.io"]
 		resources: ["leases"]
-		verbs: ["get", "create", "update", "watch", "list"]
+		verbs:     ["get", "create", "update", "watch", "list"]
 	}]
 }
 

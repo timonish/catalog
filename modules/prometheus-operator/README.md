@@ -5,7 +5,7 @@ A [Timoni](https://timoni.sh) module for deploying [Prometheus Operator](https:/
 ## Version
 
 <!-- versions:start -->
-Latest module version is `0.95.2-0`, packaging the upstream release
+Latest module version is `0.95.2-1`, packaging the upstream release
 [v0.95.2](https://github.com/prometheus-operator/prometheus-operator/releases/tag/v0.95.2)
 with the following container images:
 
@@ -18,7 +18,7 @@ with the following container images:
 ## Prerequisites
 
 - Kubernetes 1.25+
-- [Timoni](https://timoni.sh/install/) 0.34+
+- [Timoni](https://timoni.sh/install/) 0.38+
 
 ## Install
 

@@ -38,6 +38,8 @@ import (
 
 #ResourceSliceSelectorDriver: "spec.driver"
 
+#ResourceSliceSelectorPoolName: "spec.pool.name"
+
 #ResourceSliceSpec: {
 	driver: string @go(Driver) @protobuf(1,bytes)
 
@@ -54,7 +56,24 @@ import (
 	perDeviceNodeSelection?: bool @go(PerDeviceNodeSelection,*bool) @protobuf(7,bytes)
 
 	sharedCounters?: [...#CounterSet] @go(SharedCounters,[]CounterSet) @protobuf(8,bytes)
+
+	partitionTypeAttribute?: #FullyQualifiedName @go(PartitionTypeAttribute,*FullyQualifiedName) @protobuf(9,bytes,opt)
+
+	skipNodeOperations?: [...#SkipNodeOperation] @go(SkipNodeOperations,[]SkipNodeOperation) @protobuf(10,bytes,rep,casttype=SkipNodeOperation)
 }
+
+#SkipNodeOperation: string // #enumSkipNodeOperation
+
+#enumSkipNodeOperation:
+	#SkipNodeOperationNodePrepareResources |
+	#SkipNodeOperationNodeUnprepareResources |
+	#SkipNodeOperationAll
+
+#SkipNodeOperationNodePrepareResources: #SkipNodeOperation & "NodePrepareResources"
+
+#SkipNodeOperationNodeUnprepareResources: #SkipNodeOperation & "NodeUnprepareResources"
+
+#SkipNodeOperationAll: #SkipNodeOperation & "*"
 
 #CounterSet: {
 	name: string @go(Name) @protobuf(1,bytes)
@@ -92,6 +111,8 @@ import (
 
 #ResourceSliceMaxCountersPerDeviceCounterConsumption: 32
 
+#DeviceCompatibilityGroupsMaxSize: 2
+
 #Device: {
 	name: string @go(Name) @protobuf(1,bytes)
 
@@ -117,19 +138,35 @@ import (
 
 	allowMultipleAllocations?: bool @go(AllowMultipleAllocations,*bool) @protobuf(12,bytes,opt)
 
-	nodeAllocatableResourceMappings?: {[string]: #NodeAllocatableResourceMapping} @go(NodeAllocatableResourceMappings,map[v1.ResourceName]NodeAllocatableResourceMapping) @protobuf(13,bytes,opt)
+	nodeAllocatableResources?: {[string]: #NodeAllocatableResource} @go(NodeAllocatableResources,map[v1.ResourceName]NodeAllocatableResource) @protobuf(14,bytes,opt)
 }
 
-#NodeAllocatableResourceMapping: {
+#NodeAllocatableResource: {
+	mapping?: #NodeAllocatableMapping @go(Mapping,*NodeAllocatableMapping) @protobuf(3,bytes,opt)
+
+	overhead?: #NodeAllocatableOverhead @go(Overhead,*NodeAllocatableOverhead) @protobuf(4,bytes,opt)
+}
+
+#NodeAllocatableMapping: {
 	capacityKey?: #QualifiedName @go(CapacityKey,*QualifiedName) @protobuf(1,bytes,opt)
 
-	allocationMultiplier?: resource.#Quantity @go(AllocationMultiplier,*resource.Quantity) @protobuf(2,bytes,opt)
+	capacityMultiplier?: resource.#Quantity @go(CapacityMultiplier,*resource.Quantity) @protobuf(2,bytes,opt)
+
+	deviceMultiplier?: resource.#Quantity @go(DeviceMultiplier,*resource.Quantity) @protobuf(3,bytes,opt)
+}
+
+#NodeAllocatableOverhead: {
+	perPod?: resource.#Quantity @go(PerPod,*resource.Quantity) @protobuf(1,bytes,opt)
+
+	perContainer?: resource.#Quantity @go(PerContainer,*resource.Quantity) @protobuf(2,bytes,opt)
 }
 
 #DeviceCounterConsumption: {
 	counterSet: string @go(CounterSet) @protobuf(1,bytes,opt)
 
 	counters: {[string]: #Counter} @go(Counters,map[string]Counter) @protobuf(2,bytes,opt)
+
+	compatibilityGroups?: [...string] @go(CompatibilityGroups,[]string) @protobuf(3,bytes,rep)
 }
 
 #DeviceCapacity: {
@@ -215,6 +252,46 @@ import (
 
 #DeviceTaintEffectNoExecute: #DeviceTaintEffect & "NoExecute"
 
+#DeviceTaintRule: {
+	metav1.#TypeMeta
+
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	spec: #DeviceTaintRuleSpec @go(Spec) @protobuf(2,bytes)
+
+	status?: #DeviceTaintRuleStatus @go(Status) @protobuf(3,bytes,opt)
+}
+
+#DeviceTaintRuleSpec: {
+	deviceSelector?: #DeviceTaintSelector @go(DeviceSelector,*DeviceTaintSelector) @protobuf(1,bytes,opt)
+
+	taint: #DeviceTaint @go(Taint) @protobuf(2,bytes,rep)
+}
+
+#DeviceTaintSelector: {
+	driver?: string @go(Driver,*string) @protobuf(2,bytes,opt)
+
+	pool?: string @go(Pool,*string) @protobuf(3,bytes,opt)
+
+	device?: string @go(Device,*string) @protobuf(4,bytes,opt)
+}
+
+#DeviceTaintRuleStatus: {
+	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition) @protobuf(1,bytes,rep)
+}
+
+#DeviceTaintRuleStatusMaxConditions: 8
+
+#DeviceTaintConditionEvictionInProgress: "EvictionInProgress"
+
+#DeviceTaintRuleList: {
+	metav1.#TypeMeta
+
+	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
+
+	items: [...#DeviceTaintRule] @go(Items,[]DeviceTaintRule) @protobuf(2,bytes,rep)
+}
+
 #ResourceSliceList: {
 	metav1.#TypeMeta
 
@@ -228,7 +305,7 @@ import (
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec: #ResourceClaimSpec @go(Spec) @protobuf(2,bytes)
+	spec?: #ResourceClaimSpec @go(Spec) @protobuf(2,bytes)
 
 	status?: #ResourceClaimStatus @go(Status) @protobuf(3,bytes,opt)
 }
@@ -273,6 +350,8 @@ import (
 	tolerations?: [...#DeviceToleration] @go(Tolerations,[]DeviceToleration) @protobuf(6,bytes,opt)
 
 	capacity?: #CapacityRequirements @go(Capacity,*CapacityRequirements) @protobuf(7,bytes,opt)
+
+	derivedAttributes?: [...#DeviceDerivedAttribute] @go(DerivedAttributes,[]DeviceDerivedAttribute) @protobuf(8,bytes,rep)
 }
 
 #DeviceSubRequest: {
@@ -289,6 +368,8 @@ import (
 	tolerations?: [...#DeviceToleration] @go(Tolerations,[]DeviceToleration) @protobuf(6,bytes,opt)
 
 	capacity?: #CapacityRequirements @go(Capacity,*CapacityRequirements) @protobuf(7,bytes,opt)
+
+	derivedAttributes?: [...#DeviceDerivedAttribute] @go(DerivedAttributes,[]DeviceDerivedAttribute) @protobuf(8,bytes,rep)
 }
 
 #CapacityRequirements: {
@@ -298,6 +379,7 @@ import (
 #DeviceSelectorsMaxSize:             32
 #FirstAvailableDeviceRequestMaxSize: 8
 #DeviceTolerationsMaxLength:         16
+#DeviceDerivedAttributesMaxSize:     32
 
 #DeviceAllocationMode: string // #enumDeviceAllocationMode
 
@@ -316,7 +398,15 @@ import (
 	expression: string @go(Expression) @protobuf(1,bytes)
 }
 
+#DeviceDerivedAttribute: {
+	name: #FullyQualifiedName @go(Name) @protobuf(1,bytes)
+
+	expression: string @go(Expression) @protobuf(2,bytes)
+}
+
 #CELSelectorExpressionMaxCost: 1000000
+
+#DeviceClaimDerivedAttributeCELMaxCost: 1000000
 
 #CELSelectorExpressionMaxLength: 10240
 
@@ -423,6 +513,8 @@ import (
 	shareID?: types.#UID @go(ShareID,*types.UID) @protobuf(9,bytes,opt)
 
 	consumedCapacity?: {[string]: resource.#Quantity} @go(ConsumedCapacity,map[QualifiedName]resource.Quantity) @protobuf(10,bytes,rep)
+
+	skipNodeOperations?: [...#SkipNodeOperation] @go(SkipNodeOperations,[]SkipNodeOperation) @protobuf(11,bytes,rep,casttype=SkipNodeOperation)
 }
 
 #DeviceAllocationConfiguration: {
@@ -455,7 +547,7 @@ import (
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec: #DeviceClassSpec @go(Spec) @protobuf(2,bytes)
+	spec?: #DeviceClassSpec @go(Spec) @protobuf(2,bytes)
 }
 
 #DeviceClassSpec: {
@@ -483,13 +575,13 @@ import (
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec: #ResourceClaimTemplateSpec @go(Spec) @protobuf(2,bytes)
+	spec?: #ResourceClaimTemplateSpec @go(Spec) @protobuf(2,bytes)
 }
 
 #ResourceClaimTemplateSpec: {
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec: #ResourceClaimSpec @go(Spec) @protobuf(2,bytes)
+	spec?: #ResourceClaimSpec @go(Spec) @protobuf(2,bytes)
 }
 
 #ResourceClaimTemplateList: {

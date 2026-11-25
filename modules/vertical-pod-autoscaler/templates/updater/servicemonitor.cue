@@ -21,7 +21,7 @@ import (
 	spec: {
 		jobLabel: _sm.jobLabel
 		namespaceSelector: matchNames: [_config.metadata.namespace]
-		selector: matchLabels: #SelectorLabels & {#config: _config}
+		selector: matchLabels:         #SelectorLabels & {#config: _config}
 		if _sm.sampleLimit != _|_ {
 			sampleLimit: _sm.sampleLimit
 		}

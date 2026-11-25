@@ -14,7 +14,7 @@ import (
 
 	apiVersion: "v1"
 	kind:       "Service"
-	metadata: #ObjectMeta & {#config: _config}
+	metadata:   #ObjectMeta & {#config: _config}
 	if _config.webhook.service.annotations != _|_ {
 		metadata: annotations: _config.webhook.service.annotations
 	}

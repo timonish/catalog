@@ -31,7 +31,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec?: #FlowSchemaSpec @go(Spec) @protobuf(2,bytes,opt)
+	spec: #FlowSchemaSpec @go(Spec) @protobuf(2,bytes,opt)
 
 	status?: #FlowSchemaStatus @go(Status) @protobuf(3,bytes,opt)
 }
@@ -138,7 +138,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 }
 
 #FlowSchemaCondition: {
-	type?: #FlowSchemaConditionType @go(Type) @protobuf(1,bytes,opt)
+	type: #FlowSchemaConditionType @go(Type) @protobuf(1,bytes,opt)
 
 	status?: #ConditionStatus @go(Status) @protobuf(2,bytes,opt)
 
@@ -156,7 +156,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec?: #PriorityLevelConfigurationSpec @go(Spec) @protobuf(2,bytes,opt)
+	spec: #PriorityLevelConfigurationSpec @go(Spec) @protobuf(2,bytes,opt)
 
 	status?: #PriorityLevelConfigurationStatus @go(Status) @protobuf(3,bytes,opt)
 }
@@ -190,7 +190,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #LimitedPriorityLevelConfiguration: {
 	nominalConcurrencyShares?: int32 @go(NominalConcurrencyShares,*int32) @protobuf(1,varint,opt)
 
-	limitResponse?: #LimitResponse @go(LimitResponse) @protobuf(2,bytes,opt)
+	limitResponse: #LimitResponse @go(LimitResponse) @protobuf(2,bytes,opt)
 
 	lendablePercent?: int32 @go(LendablePercent,*int32) @protobuf(3,varint,opt)
 
@@ -234,7 +234,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 }
 
 #PriorityLevelConfigurationCondition: {
-	type?: #PriorityLevelConfigurationConditionType @go(Type) @protobuf(1,bytes,opt)
+	type: #PriorityLevelConfigurationConditionType @go(Type) @protobuf(1,bytes,opt)
 
 	status?: #ConditionStatus @go(Status) @protobuf(2,bytes,opt)
 

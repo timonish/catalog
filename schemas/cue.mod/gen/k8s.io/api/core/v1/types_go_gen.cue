@@ -342,6 +342,41 @@ import (
 	message?: string @go(Message) @protobuf(6,bytes,opt)
 }
 
+#VolumeHealthStatusType: string // #enumVolumeHealthStatusType
+
+#enumVolumeHealthStatusType:
+	#VolumeHealthInaccessible |
+	#VolumeHealthDataLoss |
+	#VolumeHealthDegraded
+
+#VolumeHealthInaccessible: #VolumeHealthStatusType & "Inaccessible"
+
+#VolumeHealthDataLoss: #VolumeHealthStatusType & "DataLoss"
+
+#VolumeHealthDegraded: #VolumeHealthStatusType & "Degraded"
+
+#VolumeHealthCondition: {
+	status: #VolumeHealthStatusType @go(Status) @protobuf(1,bytes,opt,casttype=VolumeHealthStatusType)
+
+	reason: string @go(Reason) @protobuf(2,bytes,opt)
+
+	message?: string @go(Message) @protobuf(3,bytes,opt)
+}
+
+#VolumeHealthStatus: {
+	healthConditions?: [...#VolumeHealthCondition] @go(HealthConditions,[]VolumeHealthCondition) @protobuf(1,bytes,rep)
+
+	lastTransitionTime?: metav1.#Time @go(LastTransitionTime) @protobuf(2,bytes,opt)
+}
+
+#PodVolumeHealth: {
+	name: string @go(Name) @protobuf(1,bytes,opt)
+
+	healthConditions?: [...#VolumeHealthCondition] @go(HealthConditions,[]VolumeHealthCondition) @protobuf(2,bytes,rep)
+
+	lastTransitionTime?: metav1.#Time @go(LastTransitionTime) @protobuf(3,bytes,opt)
+}
+
 #PersistentVolumeClaimStatus: {
 	phase?: #PersistentVolumeClaimPhase @go(Phase) @protobuf(1,bytes,opt,casttype=PersistentVolumeClaimPhase)
 
@@ -358,6 +393,8 @@ import (
 	currentVolumeAttributesClassName?: string @go(CurrentVolumeAttributesClassName,*string) @protobuf(8,bytes,opt)
 
 	modifyVolumeStatus?: #ModifyVolumeStatus @go(ModifyVolumeStatus,*ModifyVolumeStatus) @protobuf(9,bytes,opt)
+
+	healthStatus?: #VolumeHealthStatus @go(HealthStatus,*VolumeHealthStatus) @protobuf(10,bytes,opt)
 }
 
 #PersistentVolumeAccessMode: string // #enumPersistentVolumeAccessMode
@@ -446,6 +483,8 @@ import (
 	medium?: #StorageMedium @go(Medium) @protobuf(1,bytes,opt,casttype=StorageMedium)
 
 	sizeLimit?: resource.#Quantity @go(SizeLimit,*resource.Quantity) @protobuf(2,bytes,opt)
+
+	mode?: int32 @go(Mode,*int32) @protobuf(3,varint,opt)
 }
 
 #GlusterfsVolumeSource: {
@@ -662,6 +701,8 @@ import (
 	defaultMode?: int32 @go(DefaultMode,*int32) @protobuf(3,bytes,opt)
 
 	optional?: bool @go(Optional,*bool) @protobuf(4,varint,opt)
+
+	defaultUser?: int64 @go(DefaultUser,*int64) @protobuf(5,varint,opt)
 }
 
 #SecretVolumeSourceDefaultMode: int32 & 0o644
@@ -895,6 +936,8 @@ import (
 	defaultMode?: int32 @go(DefaultMode,*int32) @protobuf(3,varint,opt)
 
 	optional?: bool @go(Optional,*bool) @protobuf(4,varint,opt)
+
+	defaultUser?: int64 @go(DefaultUser,*int64) @protobuf(5,varint,opt)
 }
 
 #ConfigMapVolumeSourceDefaultMode: int32 & 0o644
@@ -913,6 +956,8 @@ import (
 	expirationSeconds?: int64 @go(ExpirationSeconds,*int64) @protobuf(2,varint,opt)
 
 	path: string @go(Path) @protobuf(3,bytes,opt)
+
+	user?: int64 @go(User,*int64) @protobuf(4,varint,opt)
 }
 
 #ClusterTrustBundleProjection: {
@@ -925,6 +970,8 @@ import (
 	optional?: bool @go(Optional,*bool) @protobuf(5,varint,opt)
 
 	path: string @go(Path) @protobuf(4,bytes,rep)
+
+	user?: int64 @go(User,*int64) @protobuf(6,varint,opt)
 }
 
 #PodCertificateProjection: {
@@ -941,12 +988,16 @@ import (
 	certificateChainPath?: string @go(CertificateChainPath) @protobuf(6,bytes,rep)
 
 	userAnnotations?: {[string]: string} @go(UserAnnotations,map[string]string) @protobuf(7,bytes,rep)
+
+	user?: int64 @go(User,*int64) @protobuf(8,varint,opt)
 }
 
 #ProjectedVolumeSource: {
 	sources?: [...#VolumeProjection] @go(Sources,[]VolumeProjection) @protobuf(1,bytes,rep)
 
 	defaultMode?: int32 @go(DefaultMode,*int32) @protobuf(2,varint,opt)
+
+	defaultUser?: int64 @go(DefaultUser,*int64) @protobuf(3,varint,opt)
 }
 
 #VolumeProjection: {
@@ -971,6 +1022,8 @@ import (
 	path: string @go(Path) @protobuf(2,bytes,opt)
 
 	mode?: int32 @go(Mode,*int32) @protobuf(3,varint,opt)
+
+	user?: int64 @go(User,*int64) @protobuf(4,varint,opt)
 }
 
 #LocalVolumeSource: {
@@ -1049,7 +1102,22 @@ import (
 	mountPropagation?: #MountPropagationMode @go(MountPropagation,*MountPropagationMode) @protobuf(5,bytes,opt,casttype=MountPropagationMode)
 
 	subPathExpr?: string @go(SubPathExpr) @protobuf(6,bytes,opt)
+
+	bindMountOptions?: [...string] @go(BindMountOptions,[]string) @protobuf(8,bytes,rep)
 }
+
+#BindMountOption: string // #enumBindMountOption
+
+#enumBindMountOption:
+	#BindMountOptionNoExec |
+	#BindMountOptionNoDev |
+	#BindMountOptionNoSUID
+
+#BindMountOptionNoExec: #BindMountOption & "noexec"
+
+#BindMountOptionNoDev: #BindMountOption & "nodev"
+
+#BindMountOptionNoSUID: #BindMountOption & "nosuid"
 
 #MountPropagationMode: string // #enumMountPropagationMode
 
@@ -1169,6 +1237,16 @@ import (
 	value: string @go(Value) @protobuf(2,bytes,opt)
 }
 
+#HTTPProtocol: string // #enumHTTPProtocol
+
+#enumHTTPProtocol:
+	#HTTPProtocolHTTP1 |
+	#HTTPProtocolHTTP2
+
+#HTTPProtocolHTTP1: #HTTPProtocol & "HTTP1"
+
+#HTTPProtocolHTTP2: #HTTPProtocol & "HTTP2"
+
 #HTTPGetAction: {
 	path?: string @go(Path) @protobuf(1,bytes,opt)
 
@@ -1179,6 +1257,8 @@ import (
 	scheme?: #URIScheme @go(Scheme) @protobuf(4,bytes,opt,casttype=URIScheme)
 
 	httpHeaders?: [...#HTTPHeader] @go(HTTPHeaders,[]HTTPHeader) @protobuf(5,bytes,rep)
+
+	protocol?: #HTTPProtocol @go(Protocol,*HTTPProtocol) @protobuf(6,bytes,opt,casttype=HTTPProtocol)
 }
 
 #URIScheme: string // #enumURIScheme
@@ -1201,7 +1281,19 @@ import (
 	port: int32 @go(Port) @protobuf(1,bytes,opt)
 
 	service?: string @go(Service,*string) @protobuf(2,bytes,opt)
+
+	mode?: #GRPCProbeMode @go(Mode,*GRPCProbeMode) @protobuf(3,bytes,opt,casttype=GRPCProbeMode)
 }
+
+#GRPCProbeMode: string // #enumGRPCProbeMode
+
+#enumGRPCProbeMode:
+	#GRPCProbeModePlaintext |
+	#GRPCProbeModeTLS
+
+#GRPCProbeModePlaintext: #GRPCProbeMode & "Plaintext"
+
+#GRPCProbeModeTLS: #GRPCProbeMode & "TLS"
 
 #ExecAction: {
 	command?: [...string] @go(Command,[]string) @protobuf(1,bytes,rep)
@@ -2057,6 +2149,8 @@ import (
 	hostnameOverride?: string @go(HostnameOverride,*string) @protobuf(41,bytes,opt)
 
 	schedulingGroup?: #PodSchedulingGroup @go(SchedulingGroup,*PodSchedulingGroup) @protobuf(43,bytes,opt)
+
+	evictionResponders?: [...#EvictionResponder] @go(EvictionResponders,[]EvictionResponder) @protobuf(44,bytes,rep)
 }
 
 #PodResourceClaim: {
@@ -2343,6 +2437,12 @@ import (
 	targetContainerName?: string @go(TargetContainerName) @protobuf(2,bytes,opt)
 }
 
+#EvictionResponder: {
+	name: string @go(Name) @protobuf(1,bytes,opt)
+
+	priority: int32 @go(Priority,*int32) @protobuf(2,varint,opt)
+}
+
 #PodStatus: {
 	observedGeneration?: int64 @go(ObservedGeneration) @protobuf(17,varint,opt)
 
@@ -2385,14 +2485,8 @@ import (
 	resources?: #ResourceRequirements @go(Resources,*ResourceRequirements) @protobuf(20,bytes,opt)
 
 	nodeAllocatableResourceClaimStatuses?: [...#NodeAllocatableResourceClaimStatus] @go(NodeAllocatableResourceClaimStatuses,[]NodeAllocatableResourceClaimStatus) @protobuf(21,bytes,rep)
-}
 
-#PodStatusResult: {
-	metav1.#TypeMeta
-
-	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
-
-	status?: #PodStatus @go(Status) @protobuf(2,bytes,opt)
+	volumeHealth?: [...#PodVolumeHealth] @go(VolumeHealth,[]PodVolumeHealth) @protobuf(22,bytes,rep)
 }
 
 #Pod: {
@@ -2773,6 +2867,12 @@ import (
 	configSource?: #NodeConfigSource @go(ConfigSource,*NodeConfigSource) @protobuf(6,bytes,opt)
 
 	externalID?: string @go(DoNotUseExternalID) @protobuf(2,bytes,opt)
+
+	podPreemptionPolicy?: #NodePodPreemptionPolicy @go(PodPreemptionPolicy,*NodePodPreemptionPolicy) @protobuf(8,bytes,opt)
+}
+
+#NodePodPreemptionPolicy: {
+	disableResizePreemption?: [...string] @go(DisableResizePreemption,[]string) @protobuf(1,bytes,rep)
 }
 
 #NodeConfigSource: {
@@ -2837,6 +2937,8 @@ import (
 	architecture: string @go(Architecture) @protobuf(10,bytes,opt)
 
 	swap?: #NodeSwapStatus @go(Swap,*NodeSwapStatus) @protobuf(11,bytes,opt)
+
+	runningInUserNamespace?: bool @go(RunningInUserNamespace,*bool) @protobuf(12,varint,opt)
 }
 
 #NodeSwapStatus: {
@@ -2935,7 +3037,12 @@ import (
 	#NodeMemoryPressure |
 	#NodeDiskPressure |
 	#NodePIDPressure |
-	#NodeNetworkUnavailable
+	#NodeNetworkUnavailable |
+	#NodeGracefulNodeShutdownInProgress |
+	#NodeDrainInProgress |
+	#NodeDrained |
+	#NodeMaintenancePlanned |
+	#NodeMaintenanceInProgress
 
 #NodeReady: #NodeConditionType & "Ready"
 
@@ -2946,6 +3053,16 @@ import (
 #NodePIDPressure: #NodeConditionType & "PIDPressure"
 
 #NodeNetworkUnavailable: #NodeConditionType & "NetworkUnavailable"
+
+#NodeGracefulNodeShutdownInProgress: #NodeConditionType & "GracefulNodeShutdownInProgress"
+
+#NodeDrainInProgress: #NodeConditionType & "DrainInProgress"
+
+#NodeDrained: #NodeConditionType & "Drained"
+
+#NodeMaintenancePlanned: #NodeConditionType & "MaintenancePlanned"
+
+#NodeMaintenanceInProgress: #NodeConditionType & "MaintenanceInProgress"
 
 #NodeCondition: {
 	type: #NodeConditionType @go(Type) @protobuf(1,bytes,opt,casttype=NodeConditionType)
@@ -3616,6 +3733,8 @@ import (
 	items?: [...#DownwardAPIVolumeFile] @go(Items,[]DownwardAPIVolumeFile) @protobuf(1,bytes,rep)
 
 	defaultMode?: int32 @go(DefaultMode,*int32) @protobuf(2,varint,opt)
+
+	defaultUser?: int64 @go(DefaultUser,*int64) @protobuf(3,varint,opt)
 }
 
 #DownwardAPIVolumeSourceDefaultMode: int32 & 0o644
@@ -3628,6 +3747,8 @@ import (
 	resourceFieldRef?: #ResourceFieldSelector @go(ResourceFieldRef,*ResourceFieldSelector) @protobuf(3,bytes,opt)
 
 	mode?: int32 @go(Mode,*int32) @protobuf(4,varint,opt)
+
+	user?: int64 @go(User,*int64) @protobuf(5,varint,opt)
 }
 
 #DownwardAPIProjection: {
@@ -3769,5 +3890,21 @@ import (
 
 	containers?: [...string] @go(Containers,[]string) @protobuf(2,bytes,rep)
 
-	resources: {[string]: resource.#Quantity} @go(Resources,map[ResourceName]resource.Quantity) @protobuf(3,bytes,rep)
+	mapping?: [...#NodeAllocatableMappedResources] @go(Mapping,[]NodeAllocatableMappedResources) @protobuf(4,bytes,rep)
+
+	overhead?: [...#NodeAllocatableOverheadResources] @go(Overhead,[]NodeAllocatableOverheadResources) @protobuf(5,bytes,rep)
+}
+
+#NodeAllocatableMappedResources: {
+	name: #ResourceName @go(Name) @protobuf(1,bytes,opt,casttype=ResourceName)
+
+	quantity: resource.#Quantity @go(Quantity,*resource.Quantity) @protobuf(2,bytes,opt)
+}
+
+#NodeAllocatableOverheadResources: {
+	name: #ResourceName @go(Name) @protobuf(1,bytes,opt,casttype=ResourceName)
+
+	perPod?: resource.#Quantity @go(PerPod,*resource.Quantity) @protobuf(2,bytes,opt)
+
+	perContainer?: resource.#Quantity @go(PerContainer,*resource.Quantity) @protobuf(3,bytes,opt)
 }

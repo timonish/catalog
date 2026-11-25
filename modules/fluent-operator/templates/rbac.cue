@@ -24,22 +24,22 @@ import (
 		{
 			apiGroups: ["apps"]
 			resources: ["daemonsets", "statefulsets"]
-			verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+			verbs:     ["create", "delete", "get", "list", "patch", "update", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["pods"]
-			verbs: ["get"]
+			verbs:     ["get"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["list", "watch"]
+			verbs:     ["list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["secrets", "configmaps", "serviceaccounts", "services"]
-			verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+			verbs:     ["create", "delete", "get", "list", "patch", "update", "watch"]
 		},
 		// The controller only reads namespaces; write access would also
 		// be delegable to the managed workloads through the FluentBit
@@ -47,7 +47,7 @@ import (
 		{
 			apiGroups: [""]
 			resources: ["namespaces"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["fluentbit.fluent.io"]
@@ -98,14 +98,14 @@ import (
 		{
 			apiGroups: ["rbac.authorization.k8s.io"]
 			resources: ["clusterrolebindings", "clusterroles"]
-			verbs: ["create", "list", "get", "watch", "patch"]
+			verbs:     ["create", "list", "get", "watch", "patch"]
 		},
 		// The namespaced-mode finalizer (--watch-namespaces) deletes the
 		// per-workload Role and RoleBinding it created.
 		{
 			apiGroups: ["rbac.authorization.k8s.io"]
 			resources: ["rolebindings", "roles"]
-			verbs: ["create", "list", "get", "watch", "patch", "delete"]
+			verbs:     ["create", "list", "get", "watch", "patch", "delete"]
 		},
 		if _config.rbac.extraRules != _|_ for r in _config.rbac.extraRules {r},
 	]
@@ -152,12 +152,12 @@ import (
 		{
 			apiGroups: ["coordination.k8s.io"]
 			resources: ["leases"]
-			verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+			verbs:     ["get", "list", "watch", "create", "update", "patch", "delete"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 	]
 }

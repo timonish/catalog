@@ -45,7 +45,7 @@ package config
 	// Verify the client certificates of requests made to the webhook
 	// server against the CA at `clientCAPath`, accepting the subject
 	// names in `clientCertificateSubjects`.
-	enableClientVerification?: bool
-	clientCAPath?:             string & =~".+"
+	enableClientVerification?:  bool
+	clientCAPath?:              string & =~".+"
 	clientCertificateSubjects?: [...string & =~".+"]
 }

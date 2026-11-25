@@ -86,9 +86,9 @@ import (
 	// The metrics Service settings; the Service is created together
 	// with the ServiceMonitor.
 	metricsService: {
-		annotations?: timoniv1.#Annotations
-		labels?:      timoniv1.#Labels
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		annotations?:    timoniv1.#Annotations
+		labels?:         timoniv1.#Labels
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 	}
 
@@ -103,7 +103,7 @@ import (
 		nodeAffinity?:   corev1.#NodeAffinity
 		podAffinity?:    corev1.#PodAffinity
 	}
-	tolerations?: [...corev1.#Toleration]
+	tolerations?:               [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 
 	// Pod optional settings.

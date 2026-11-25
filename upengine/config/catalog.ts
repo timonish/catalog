@@ -15,7 +15,7 @@ export const TIMONI_SCHEMAS = "oci://ghcr.io/stefanprodan/timoni/schemas:latest"
 
 /** The minimum Timoni version every module README lists as a prerequisite —
  * the version the catalog is built, vetted and e2e-tested with. */
-export const TIMONI_MIN_VERSION = "0.34";
+export const TIMONI_MIN_VERSION = "0.38";
 
 /**
  * CRD schemas vendored into the shared schemas/ module, pruned to the

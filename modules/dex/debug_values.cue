@@ -34,7 +34,7 @@ values: {
 			headers: "X-Frame-Options": "DENY"
 			allowedOrigins: ["https://app.example.com"]
 			clientRemoteIP: {
-				header: "X-Forwarded-For"
+				header:         "X-Forwarded-For"
 				trustedProxies: ["10.0.0.0/8"]
 			}
 		}
@@ -42,7 +42,7 @@ values: {
 		grpc: reflection:           true
 		oauth2: {
 			skipApprovalScreen: true
-			responseTypes: ["code"]
+			responseTypes:      ["code"]
 		}
 		expiry: {
 			idTokens: "24h"
@@ -67,9 +67,9 @@ values: {
 			}
 		}]
 		staticClients: [{
-			id:        "example-app"
-			name:      "Example App"
-			secretEnv: "EXAMPLE_APP_SECRET"
+			id:           "example-app"
+			name:         "Example App"
+			secretEnv:    "EXAMPLE_APP_SECRET"
 			redirectURIs: ["https://app.example.com/callback"]
 		}]
 		staticPasswords: [{
@@ -88,13 +88,13 @@ values: {
 	}]
 
 	extraContainers: [{
-		name:  "sidecar"
-		image: "docker.io/library/busybox:latest"
+		name:    "sidecar"
+		image:   "docker.io/library/busybox:latest"
 		command: ["sleep", "infinity"]
 	}]
 	initContainers: [{
-		name:  "init"
-		image: "docker.io/library/busybox:latest"
+		name:    "init"
+		image:   "docker.io/library/busybox:latest"
 		command: ["true"]
 	}]
 
@@ -108,11 +108,11 @@ values: {
 		scrapeTimeout: "5s"
 		honorLabels:   true
 		sampleLimit:   1000
-		targetLabels: ["app.kubernetes.io/part-of"]
+		targetLabels:  ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
-			action: "drop"
+			action:       "drop"
 			sourceLabels: ["__name__"]
-			regex: "go_gc_.*"
+			regex:        "go_gc_.*"
 		}]
 	}
 
@@ -143,12 +143,12 @@ values: {
 		className: "nginx"
 		annotations: "cert-manager.io/cluster-issuer": "letsencrypt"
 		hosts: [{
-			host: "dex.example.com"
+			host:  "dex.example.com"
 			paths: [{path: "/", pathType: "Prefix"}]
 		}]
 		tls: [{
 			secretName: "dex-ingress-tls"
-			hosts: ["dex.example.com"]
+			hosts:      ["dex.example.com"]
 		}]
 	}
 
@@ -184,7 +184,7 @@ values: {
 	rbac: extraRules: [{
 		apiGroups: [""]
 		resources: ["secrets"]
-		verbs: ["get"]
+		verbs:     ["get"]
 	}]
 
 	serviceAccount: {
@@ -195,10 +195,10 @@ values: {
 		type: "NodePort"
 		port: 80
 		labels: "kubernetes.io/cluster-service": "true"
-		nodePort:      30556
-		httpsNodePort: 30554
-		grpcNodePort:  30557
-		ipFamilies: ["IPv4", "IPv6"]
+		nodePort:              30556
+		httpsNodePort:         30554
+		grpcNodePort:          30557
+		ipFamilies:            ["IPv4", "IPv6"]
 		ipFamilyPolicy:        "PreferDualStack"
 		externalTrafficPolicy: "Local"
 	}
@@ -214,7 +214,7 @@ values: {
 	}]
 
 	hostAliases: [{
-		ip: "10.0.0.10"
+		ip:        "10.0.0.10"
 		hostnames: ["idp.internal"]
 	}]
 

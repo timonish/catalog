@@ -11,7 +11,7 @@ import (
 
 	apiVersion: "v1"
 	kind:       "ServiceAccount"
-	metadata: #ClusterObjectMeta & {#config: _config}
+	metadata:   #ClusterObjectMeta & {#config: _config}
 	metadata: name:      _config.updater.serviceAccount.name
 	metadata: namespace: _config.metadata.namespace
 	if _config.updater.serviceAccount.labels != _|_ {

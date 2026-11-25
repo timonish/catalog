@@ -15,7 +15,7 @@ import (
 	// configuration file.
 	#cmName: string
 
-	_controller: _config.controller
+	_controller:     _config.controller
 	_selectorLabels: #SelectorLabels & {#config: _config}
 
 	// The affinity rules generated from the affinity values;
@@ -29,7 +29,7 @@ import (
 
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
-	metadata: #ObjectMeta & {#config: _config}
+	metadata:   #ObjectMeta & {#config: _config}
 	if _controller.deploymentAnnotations != _|_ {
 		metadata: annotations: _controller.deploymentAnnotations
 	}

@@ -20,7 +20,7 @@ import (
 
 	apiVersion: "admissionregistration.k8s.io/v1"
 	kind:       "MutatingWebhookConfiguration"
-	metadata: #ClusterObjectMeta & {#config: _config}
+	metadata:   #ClusterObjectMeta & {#config: _config}
 	metadata: name: "\(_config.metadata.name)-webhook-config"
 	if _ac.certManager.enabled {
 		metadata: annotations: "cert-manager.io/inject-ca-from": "\(_config.metadata.namespace)/\(_config.metadata.name)-webhook-cert"
@@ -29,7 +29,7 @@ import (
 		metadata: annotations: _mwc.annotations
 	}
 	webhooks: [{
-		name: "vpa.k8s.io"
+		name:                    "vpa.k8s.io"
 		admissionReviewVersions: ["v1"]
 		clientConfig: {
 			service: {
@@ -55,18 +55,18 @@ import (
 		reinvocationPolicy: "Never"
 		rules: [
 			{
-				apiGroups: [""]
+				apiGroups:   [""]
 				apiVersions: ["v1"]
-				operations: ["CREATE"]
-				resources: ["pods"]
-				scope: "*"
+				operations:  ["CREATE"]
+				resources:   ["pods"]
+				scope:       "*"
 			},
 			{
-				apiGroups: ["autoscaling.k8s.io"]
+				apiGroups:   ["autoscaling.k8s.io"]
 				apiVersions: ["*"]
-				operations: ["CREATE", "UPDATE"]
-				resources: ["verticalpodautoscalers"]
-				scope: "*"
+				operations:  ["CREATE", "UPDATE"]
+				resources:   ["verticalpodautoscalers"]
+				scope:       "*"
 			},
 		]
 		sideEffects:    "None"

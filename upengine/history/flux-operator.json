@@ -3,8 +3,12 @@
   "repo": "controlplaneio-fluxcd/flux-operator",
   "tag": "v0.63.1",
   "commit": "cb3cc0de38df84c359d24f6a6663d515c42b3f57",
-  "moduleVersion": "0.63.1-0",
+  "moduleVersion": "0.63.1-1",
   "moduleReleases": [
+    {
+      "version": "0.63.1-1",
+      "releasedAt": "2026-11-25T10:33:16.084Z"
+    },
     {
       "version": "0.63.1-0",
       "releasedAt": "2026-11-22T14:25:09.082Z"
@@ -54,6 +58,6 @@
     }
   },
   "crdsDigest": "sha256:b7cc8b325c6b0e7e84b91e8042f68875d768753eef67f7c1fb2532e10c64e695",
-  "generatedDigest": "sha256:567402ec0c7c4d7e4397f3849531a0722c69cdf872e9bb48a3ad32fdccf6ce50",
-  "updatedAt": "2026-11-22T14:25:09.082Z"
+  "generatedDigest": "sha256:262afb002d575f674cd99f39b748ea4b2da0035552b44f792f20ff4dc08ec7ff",
+  "updatedAt": "2026-11-25T10:33:16.084Z"
 }

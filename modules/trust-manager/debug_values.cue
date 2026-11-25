@@ -35,7 +35,7 @@ values: {
 	targetNamespaces: ["default", "cert-manager"]
 
 	secretTargets: {
-		enabled: true
+		enabled:           true
 		authorizedSecrets: ["ca-bundle", "istio-ca"]
 	}
 
@@ -77,7 +77,7 @@ values: {
 			type:           "NodePort"
 			nodePort:       30443
 			ipFamilyPolicy: "SingleStack"
-			ipFamilies: ["IPv4"]
+			ipFamilies:     ["IPv4"]
 		}
 		tls: {
 			certificate: {
@@ -100,7 +100,7 @@ values: {
 		service: {
 			type:           "NodePort"
 			ipFamilyPolicy: "SingleStack"
-			ipFamilies: ["IPv4"]
+			ipFamilies:     ["IPv4"]
 		}
 	}
 
@@ -113,16 +113,16 @@ values: {
 		honorLabels:   true
 		scheme:        "http"
 		sampleLimit:   1000
-		targetLabels: ["app.kubernetes.io/part-of"]
+		targetLabels:  ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
-			action: "drop"
+			action:       "drop"
 			sourceLabels: ["__name__"]
-			regex: "go_gc_.*"
+			regex:        "go_gc_.*"
 		}]
 		relabelings: [{
-			action: "replace"
+			action:       "replace"
 			sourceLabels: ["__meta_kubernetes_pod_node_name"]
-			targetLabel: "instance"
+			targetLabel:  "instance"
 		}]
 	}
 
@@ -152,7 +152,7 @@ values: {
 		matchExpressions: [{
 			key:      "kubernetes.io/os"
 			operator: "In"
-			values: ["linux"]
+			values:   ["linux"]
 		}]
 	}]
 	topologySpreadConstraints: [{
@@ -167,7 +167,7 @@ values: {
 	serviceAccount: annotations: "eks.amazonaws.com/role-arn": "arn:aws:iam::111122223333:role/trust-manager"
 
 	extraVolumes: [{
-		name: "extra"
+		name:     "extra"
 		emptyDir: {}
 	}]
 	extraVolumeMounts: [{

@@ -14,7 +14,7 @@ import (
 
 	apiVersion: "v1"
 	kind:       "Secret"
-	metadata: #ClusterObjectMeta & {#config: _config}
+	metadata:   #ClusterObjectMeta & {#config: _config}
 	metadata: {
 		name:      _config.webhook.tls.secretName
 		namespace: _config.metadata.namespace

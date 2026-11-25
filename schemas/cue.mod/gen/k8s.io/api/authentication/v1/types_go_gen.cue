@@ -15,6 +15,8 @@ import (
 
 #ImpersonateUserExtraHeaderPrefix: "Impersonate-Extra-"
 
+#AttestationAdmissionReviewAPIGroups: "admissionReviewAPIGroups"
+
 #TokenReview: {
 	metav1.#TypeMeta
 
@@ -53,6 +55,8 @@ import (
 
 #ExtraValue: [...string]
 
+#AttestationValue: [...string]
+
 #TokenRequest: {
 	metav1.#TypeMeta
 
@@ -69,6 +73,8 @@ import (
 	expirationSeconds?: int64 @go(ExpirationSeconds,*int64) @protobuf(4,varint,opt)
 
 	boundObjectRef?: #BoundObjectReference @go(BoundObjectRef,*BoundObjectReference) @protobuf(3,bytes,opt)
+
+	attestations?: {[string]: #AttestationValue} @go(Attestations,map[string]AttestationValue) @protobuf(5,bytes,rep)
 }
 
 #TokenRequestStatus: {

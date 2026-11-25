@@ -55,11 +55,11 @@ import (
 
 	// Extra volumes and volume mounts added to the pod, e.g. a CA
 	// bundle or the metrics serving certificate.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Init containers and extra containers added to the pod.
-	initContainers?: [...corev1.#Container]
+	initContainers?:  [...corev1.#Container]
 	extraContainers?: [...corev1.#Container]
 
 	// Pod scheduling settings; pods are restricted to Linux nodes by
@@ -74,15 +74,15 @@ import (
 		nodeAffinity?:   corev1.#NodeAffinity
 		podAffinity?:    corev1.#PodAffinity
 	}
-	tolerations?: [...corev1.#Toleration]
+	tolerations?:               [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
 
 	// Pod optional settings.
-	podLabels?:      timoniv1.#Labels
-	podAnnotations?: timoniv1.#Annotations
-	dnsPolicy?:      "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
-	dnsConfig?:      corev1.#PodDNSConfig
-	hostAliases?: [...corev1.#HostAlias]
+	podLabels?:                     timoniv1.#Labels
+	podAnnotations?:                timoniv1.#Annotations
+	dnsPolicy?:                     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
+	dnsConfig?:                     corev1.#PodDNSConfig
+	hostAliases?:                   [...corev1.#HostAlias]
 	hostUsers?:                     bool
 	priorityClassName?:             string & =~".+"
 	schedulerName?:                 string & =~".+"

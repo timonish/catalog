@@ -16,7 +16,7 @@ import (
 			{
 				apiGroups: ["dex.coreos.com"]
 				resources: ["*"]
-				verbs: ["*"]
+				verbs:     ["*"]
 			}
 		},
 		if _config.rbac.extraRules != _|_ for r in _config.rbac.extraRules {r},
@@ -56,7 +56,7 @@ import (
 	rules: [{
 		apiGroups: ["apiextensions.k8s.io"]
 		resources: ["customresourcedefinitions"]
-		verbs: ["list", "create"]
+		verbs:     ["list", "create"]
 	}]
 }
 

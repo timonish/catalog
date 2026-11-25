@@ -3,8 +3,12 @@
   "repo": "kubernetes/autoscaler",
   "tag": "vertical-pod-autoscaler-1.8.1",
   "commit": "de59752fd24e25cca63e8e779561b97c9240623a",
-  "moduleVersion": "1.8.1-0",
+  "moduleVersion": "1.8.1-1",
   "moduleReleases": [
+    {
+      "version": "1.8.1-1",
+      "releasedAt": "2026-11-25T10:33:52.016Z"
+    },
     {
       "version": "1.8.1-0",
       "releasedAt": "2026-10-22T11:34:47.039Z"
@@ -52,6 +56,6 @@
     }
   },
   "crdsDigest": "sha256:2916e9b8e0699375ed8eca8af81e00c5a8cf9d68a70b4796e24d43794838d623",
-  "generatedDigest": "sha256:6814fcb366d66d00e7ac06e86032b4bba2fc4d24c501e06decf7ddf318cc340d",
-  "updatedAt": "2026-10-22T11:34:47.039Z"
+  "generatedDigest": "sha256:3fd204db044cad0413e72e2417fd449fb866bbcd6f0aa2575961fa2bac75349d",
+  "updatedAt": "2026-11-25T10:33:52.016Z"
 }

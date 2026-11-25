@@ -50,7 +50,7 @@ import (
 	rules: [{
 		apiGroups: ["fluxcd.controlplane.io"]
 		resources: ["resourcesets", "resourcesetinputproviders"]
-		verbs: ["create", "delete", "deletecollection", "patch", "update"]
+		verbs:     ["create", "delete", "deletecollection", "patch", "update"]
 	}]
 }
 
@@ -75,6 +75,6 @@ import (
 	rules: [{
 		apiGroups: ["fluxcd.controlplane.io"]
 		resources: ["resourcesets", "resourcesetinputproviders"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	}]
 }

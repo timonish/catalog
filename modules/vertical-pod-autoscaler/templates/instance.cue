@@ -46,7 +46,7 @@ import (
 			}
 			if config.serviceMonitor.enabled {
 				"recommender-metrics-svc": recommender.#MetricsService & {#config: cfg}
-				"recommender-sm": recommender.#ServiceMonitor & {#config: cfg}
+				"recommender-sm":          recommender.#ServiceMonitor & {#config: cfg}
 			}
 		}
 
@@ -66,13 +66,13 @@ import (
 			}
 			if config.serviceMonitor.enabled {
 				"updater-metrics-svc": updater.#MetricsService & {#config: cfg}
-				"updater-sm": updater.#ServiceMonitor & {#config: cfg}
+				"updater-sm":          updater.#ServiceMonitor & {#config: cfg}
 			}
 		}
 
 		// Admission controller.
 		if config.admissionController.enabled {
-			"admission-deploy": admission.#Deployment & {#config: cfg}
+			"admission-deploy":      admission.#Deployment & {#config: cfg}
 			"admission-webhook-svc": admission.#WebhookService & {#config: cfg}
 			if config.admissionController.serviceAccount.create {
 				"admission-sa": admission.#ServiceAccount & {#config: cfg}
@@ -98,7 +98,7 @@ import (
 			}
 			if config.serviceMonitor.enabled {
 				"admission-metrics-svc": admission.#MetricsService & {#config: cfg}
-				"admission-sm": admission.#ServiceMonitor & {#config: cfg}
+				"admission-sm":          admission.#ServiceMonitor & {#config: cfg}
 			}
 		}
 	}

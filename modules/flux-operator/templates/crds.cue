@@ -28,11 +28,11 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 				name:     "Age"
 				type:     "date"
 			}, {
-				jsonPath: ".status.conditions[?(@.type==\"Ready\")].status"
+				jsonPath: #".status.conditions[?(@.type=="Ready")].status"#
 				name:     "Ready"
 				type:     "string"
 			}, {
-				jsonPath: ".status.conditions[?(@.type==\"Ready\")].message"
+				jsonPath: #".status.conditions[?(@.type=="Ready")].message"#
 				name:     "Status"
 				type:     "string"
 			}, {
@@ -46,21 +46,21 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+							APIVersion defines the versioned schema of this representation of an object.
+							Servers should convert recognized schemas to the latest internal value, and
+							may reject unrecognized values.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+							"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+							Kind is a string value representing the REST resource this object represents.
+							Servers may infer this from the endpoint the client submits requests to.
+							Cannot be updated.
+							In CamelCase.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+							"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -73,9 +73,9 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									domain: {
 										default: "cluster.local"
 										description: """
-	Domain is the cluster domain used for generating the FQDN of services.
-	Defaults to 'cluster.local'.
-	"""
+											Domain is the cluster domain used for generating the FQDN of services.
+											Defaults to 'cluster.local'.
+											"""
 										type: "string"
 									}
 									multitenant: {
@@ -86,61 +86,61 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									multitenantObjectIdentity: {
 										default: false
 										description: """
-	MultitenantObjectIdentity enables the multitenancy lockdown for
-	object identity. Defaults to false.
-	"""
+											MultitenantObjectIdentity enables the multitenancy lockdown for
+											object identity. Defaults to false.
+											"""
 										type: "boolean"
 									}
 									multitenantWorkloadIdentity: {
 										default: false
 										description: """
-	MultitenantWorkloadIdentity is now legacy.
+											MultitenantWorkloadIdentity is now legacy.
 
-	Legacy: Use MultitenantObjectIdentity instead.
-	"""
+											Legacy: Use MultitenantObjectIdentity instead.
+											"""
 										type: "boolean"
 									}
 									networkPolicy: {
 										default: true
 										description: """
-	NetworkPolicy restricts network access to the current namespace.
-	Defaults to true.
-	"""
+											NetworkPolicy restricts network access to the current namespace.
+											Defaults to true.
+											"""
 										type: "boolean"
 									}
 									objectIdentityRBAC: {
 										description: """
-	ObjectIdentityRBAC configures the RBAC required for object identity
-	using Kubernetes service account tokens. Object identity is the new
-	name of the upstream Flux object-level workload identity feature.
-	In Flux v2.6.0 to v2.9.x this enables the
-	ObjectLevelWorkloadIdentity feature gate and leaves the RBAC for
-	creating service account tokens in place. When disabled, the
-	operator removes that RBAC from the Flux controllers' ClusterRole.
-	Starting with Flux v2.10.0, the ObjectLevelWorkloadIdentity feature
-	gate is retired and no longer changes behavior, so the operator no
-	longer passes it to the controllers.
-	Starting with Flux v2.10.0, the RBAC for creating service account
-	tokens is removed from the Flux distribution, and this field
-	controls whether the operator adds it.
-	This feature is only available in Flux v2.6.0 and later.
-	"""
+											ObjectIdentityRBAC configures the RBAC required for object identity
+											using Kubernetes service account tokens. Object identity is the new
+											name of the upstream Flux object-level workload identity feature.
+											In Flux v2.6.0 to v2.9.x this enables the
+											ObjectLevelWorkloadIdentity feature gate and leaves the RBAC for
+											creating service account tokens in place. When disabled, the
+											operator removes that RBAC from the Flux controllers' ClusterRole.
+											Starting with Flux v2.10.0, the ObjectLevelWorkloadIdentity feature
+											gate is retired and no longer changes behavior, so the operator no
+											longer passes it to the controllers.
+											Starting with Flux v2.10.0, the RBAC for creating service account
+											tokens is removed from the Flux distribution, and this field
+											controls whether the operator adds it.
+											This feature is only available in Flux v2.6.0 and later.
+											"""
 										type: "boolean"
 									}
 									objectLevelWorkloadIdentity: {
 										description: """
-	ObjectLevelWorkloadIdentity is now legacy.
+											ObjectLevelWorkloadIdentity is now legacy.
 
-	Legacy: Use ObjectIdentityRBAC instead.
-	"""
+											Legacy: Use ObjectIdentityRBAC instead.
+											"""
 										type: "boolean"
 									}
 									size: {
 										description: """
-	Size defines the vertical scaling profile of the Flux controllers.
-	The size is used to determine the concurrency and CPU/Memory limits for the Flux controllers.
-	Accepted values are: 'small', 'medium' and 'large'.
-	"""
+											Size defines the vertical scaling profile of the Flux controllers.
+											The size is used to determine the concurrency and CPU/Memory limits for the Flux controllers.
+											Accepted values are: 'small', 'medium' and 'large'.
+											"""
 										enum: [
 											"small",
 											"medium",
@@ -152,53 +152,53 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 										description: "SourceWatcher configures the source-watcher component."
 										properties: namespaceManager: {
 											description: """
-	NamespaceManager enables the RBAC required by source-watcher to manage
-	Namespaces on behalf of ArtifactGenerator resources. This grants the
-	source-watcher service account cluster-wide permissions to create,
-	update, patch and delete Namespaces. The source-watcher component must
-	be enabled in .spec.components.
-	"""
+												NamespaceManager enables the RBAC required by source-watcher to manage
+												Namespaces on behalf of ArtifactGenerator resources. This grants the
+												source-watcher service account cluster-wide permissions to create,
+												update, patch and delete Namespaces. The source-watcher component must
+												be enabled in .spec.components.
+												"""
 											type: "boolean"
 										}
 										type: "object"
 									}
 									tenantDefaultDecryptionServiceAccount: {
 										description: """
-	TenantDefaultDecryptionServiceAccount is the name of the service account
-	to use as default for kustomize-controller SOPS decryption when the
-	multitenant lockdown for object identity is enabled. Defaults to the
-	'default' service account from the tenant namespace.
-	"""
+											TenantDefaultDecryptionServiceAccount is the name of the service account
+											to use as default for kustomize-controller SOPS decryption when the
+											multitenant lockdown for object identity is enabled. Defaults to the
+											'default' service account from the tenant namespace.
+											"""
 										type: "string"
 									}
 									tenantDefaultKubeConfigServiceAccount: {
 										description: """
-	TenantDefaultKubeConfigServiceAccount is the name of the service account
-	to use as default for kustomize-controller and helm-controller remote
-	cluster access via spec.kubeConfig.configMapRef when the multitenant
-	lockdown for object identity is enabled. Defaults to the 'default'
-	service account from the tenant namespace.
-	"""
+											TenantDefaultKubeConfigServiceAccount is the name of the service account
+											to use as default for kustomize-controller and helm-controller remote
+											cluster access via spec.kubeConfig.configMapRef when the multitenant
+											lockdown for object identity is enabled. Defaults to the 'default'
+											service account from the tenant namespace.
+											"""
 										type: "string"
 									}
 									tenantDefaultServiceAccount: {
 										description: """
-	TenantDefaultServiceAccount is the name of the service account
-	to use as default when the multitenant lockdown is enabled, for
-	kustomize-controller and helm-controller.
-	This field will also be used for multitenant object identity
-	lockdown for source-controller, notification-controller,
-	image-reflector-controller and image-automation-controller.
-	Defaults to the 'default' service account from the tenant namespace.
-	"""
+											TenantDefaultServiceAccount is the name of the service account
+											to use as default when the multitenant lockdown is enabled, for
+											kustomize-controller and helm-controller.
+											This field will also be used for multitenant object identity
+											lockdown for source-controller, notification-controller,
+											image-reflector-controller and image-automation-controller.
+											Defaults to the 'default' service account from the tenant namespace.
+											"""
 										type: "string"
 									}
 									type: {
 										default: "kubernetes"
 										description: """
-	Type specifies the distro of the Kubernetes cluster.
-	Defaults to 'kubernetes'.
-	"""
+											Type specifies the distro of the Kubernetes cluster.
+											Defaults to 'kubernetes'.
+											"""
 										enum: [
 											"kubernetes",
 											"openshift",
@@ -223,10 +223,10 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 							}
 							commonMetadata: {
 								description: """
-	CommonMetadata specifies the common labels and annotations that are
-	applied to all resources. Any existing label or annotation will be
-	overridden if its key matches a common one.
-	"""
+									CommonMetadata specifies the common labels and annotations that are
+									applied to all resources. Any existing label or annotation will be
+									overridden if its key matches a common one.
+									"""
 								properties: {
 									annotations: {
 										additionalProperties: type: "string"
@@ -243,13 +243,13 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 							}
 							components: {
 								description: """
-	Components is the list of controllers to install.
-	Defaults to the core Flux controllers:
-	  - source-controller
-	  - kustomize-controller
-	  - helm-controller
-	  - notification-controller
-	"""
+									Components is the list of controllers to install.
+									Defaults to the core Flux controllers:
+									  - source-controller
+									  - kustomize-controller
+									  - helm-controller
+									  - notification-controller
+									"""
 								items: {
 									description: "Component is the name of a controller to install."
 									enum: [
@@ -270,39 +270,39 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 								properties: {
 									artifact: {
 										description: """
-	Artifact is the URL to the OCI artifact containing
-	the latest Kubernetes manifests for the distribution,
-	e.g. 'oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests:latest'.
-	"""
+											Artifact is the URL to the OCI artifact containing
+											the latest Kubernetes manifests for the distribution,
+											e.g. 'oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests:latest'.
+											"""
 										pattern: "^oci://.*$"
 										type:    "string"
 									}
 									artifactPullSecret: {
 										description: """
-	ArtifactPullSecret is the name of the Kubernetes secret
-	to use for pulling the Kubernetes manifests for the distribution specified in the Artifact field.
-	"""
+											ArtifactPullSecret is the name of the Kubernetes secret
+											to use for pulling the Kubernetes manifests for the distribution specified in the Artifact field.
+											"""
 										type: "string"
 									}
 									imagePullSecret: {
 										description: """
-	ImagePullSecret is the name of the Kubernetes secret
-	to use for pulling images.
-	"""
+											ImagePullSecret is the name of the Kubernetes secret
+											to use for pulling images.
+											"""
 										type: "string"
 									}
 									registry: {
 										description: """
-	Registry address to pull the distribution images from
-	e.g. 'ghcr.io/fluxcd'.
-	"""
+											Registry address to pull the distribution images from
+											e.g. 'ghcr.io/fluxcd'.
+											"""
 										type: "string"
 									}
 									variant: {
 										description: """
-	Variant specifies the Flux distribution flavor stored
-	in the registry.
-	"""
+											Variant specifies the Flux distribution flavor stored
+											in the registry.
+											"""
 										enum: [
 											"upstream-alpine",
 											"enterprise-alpine",
@@ -324,25 +324,25 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 							}
 							kustomize: {
 								description: """
-	Kustomize holds a set of patches that can be applied to the
-	Flux installation, to customize the way Flux operates.
-	"""
+									Kustomize holds a set of patches that can be applied to the
+									Flux installation, to customize the way Flux operates.
+									"""
 								properties: patches: {
 									description: """
-	Strategic merge and JSON patches, defined as inline YAML objects,
-	capable of targeting objects based on kind, label and annotation selectors.
-	"""
+										Strategic merge and JSON patches, defined as inline YAML objects,
+										capable of targeting objects based on kind, label and annotation selectors.
+										"""
 									items: {
 										description: """
-	Patch contains an inline StrategicMerge or JSON6902 patch, and the target the patch should
-	be applied to.
-	"""
+											Patch contains an inline StrategicMerge or JSON6902 patch, and the target the patch should
+											be applied to.
+											"""
 										properties: {
 											patch: {
 												description: """
-	Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with
-	an array of operation objects.
-	"""
+													Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with
+													an array of operation objects.
+													"""
 												type: "string"
 											}
 											target: {
@@ -350,35 +350,35 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 												properties: {
 													annotationSelector: {
 														description: """
-	AnnotationSelector is a string that follows the label selection expression
-	https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api
-	It matches with the resource annotations.
-	"""
+															AnnotationSelector is a string that follows the label selection expression
+															https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api
+															It matches with the resource annotations.
+															"""
 														type: "string"
 													}
 													group: {
 														description: """
-	Group is the API group to select resources from.
-	Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources.
-	https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-	"""
+															Group is the API group to select resources from.
+															Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources.
+															https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+															"""
 														type: "string"
 													}
 													kind: {
 														description: """
-	Kind of the API Group to select resources from.
-	Together with Group and Version it is capable of unambiguously
-	identifying and/or selecting resources.
-	https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-	"""
+															Kind of the API Group to select resources from.
+															Together with Group and Version it is capable of unambiguously
+															identifying and/or selecting resources.
+															https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+															"""
 														type: "string"
 													}
 													labelSelector: {
 														description: """
-	LabelSelector is a string that follows the label selection expression
-	https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api
-	It matches with the resource labels.
-	"""
+															LabelSelector is a string that follows the label selection expression
+															https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api
+															It matches with the resource labels.
+															"""
 														type: "string"
 													}
 													name: {
@@ -391,10 +391,10 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 													}
 													version: {
 														description: """
-	Version of the API Group to select resources from.
-	Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources.
-	https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-	"""
+															Version of the API Group to select resources from.
+															Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources.
+															https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+															"""
 														type: "string"
 													}
 												}
@@ -402,7 +402,7 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 											}
 										}
 										required: ["patch"]
-										type: "object"
+										type:     "object"
 									}
 									type: "array"
 								}
@@ -411,10 +411,10 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 							migrateResources: {
 								default: true
 								description: """
-	MigrateResources instructs the controller to migrate the Flux custom resources
-	from the previous version to the latest API version specified in the CRD.
-	Defaults to true.
-	"""
+									MigrateResources instructs the controller to migrate the Flux custom resources
+									from the previous version to the latest API version specified in the CRD.
+									Defaults to true.
+									"""
 								type: "boolean"
 							}
 							sharding: {
@@ -433,11 +433,11 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									}
 									storage: {
 										description: """
-	Storage defines if the source-controller shards
-	should use an emptyDir or a persistent volume claim for storage.
-	Accepted values are 'ephemeral' or 'persistent', defaults to 'ephemeral'.
-	When set to 'persistent', the '.spec.storage' field must be set.
-	"""
+											Storage defines if the source-controller shards
+											should use an emptyDir or a persistent volume claim for storage.
+											Accepted values are 'ephemeral' or 'persistent', defaults to 'ephemeral'.
+											When set to 'persistent', the '.spec.storage' field must be set.
+											"""
 										enum: [
 											"ephemeral",
 											"persistent",
@@ -446,33 +446,33 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									}
 								}
 								required: ["shards"]
-								type: "object"
+								type:     "object"
 							}
 							spiffe: {
 								description: """
-	SPIFFE holds the configuration for the SPIFFE integration.
-	When set, the operator configures the Flux controllers to use
-	the SPIFFE Workload API and optionally enables object identity
-	and mTLS between the controllers.
-	The flux-operator pod must also be configured with the same Workload API
-	and, when used, Broker API settings, but does not need the inter-controller
-	flags.
-	"""
+									SPIFFE holds the configuration for the SPIFFE integration.
+									When set, the operator configures the Flux controllers to use
+									the SPIFFE Workload API and optionally enables object identity
+									and mTLS between the controllers.
+									The flux-operator pod must also be configured with the same Workload API
+									and, when used, Broker API settings, but does not need the inter-controller
+									flags.
+									"""
 								properties: {
 									brokerAPI: {
 										description: """
-	BrokerAPI holds the configuration for the SPIFFE Broker API.
-	When set, enables the object-level SPIFFE features.
-	"""
+											BrokerAPI holds the configuration for the SPIFFE Broker API.
+											When set, enables the object-level SPIFFE features.
+											"""
 										properties: {
 											endpoint: {
 												description: """
-	Endpoint is the address of the SPIFFE Broker API endpoint,
-	e.g. 'dns:///spiffe-broker.example.com:443'.
-	The flux-operator pod accepts the same --spiffe-broker-endpoint flag
-	as the Flux controllers. For OLM installations, the endpoint can be
-	set with the SPIFFE_BROKER_ENDPOINT environment variable.
-	"""
+													Endpoint is the address of the SPIFFE Broker API endpoint,
+													e.g. 'dns:///spiffe-broker.example.com:443'.
+													The flux-operator pod accepts the same --spiffe-broker-endpoint flag
+													as the Flux controllers. For OLM installations, the endpoint can be
+													set with the SPIFFE_BROKER_ENDPOINT environment variable.
+													"""
 												maxLength: 1024
 												minLength: 1
 												pattern:   "^[!-~]+$"
@@ -480,14 +480,14 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 											}
 											ids: {
 												description: """
-	IDs is the list of SPIFFE IDs or SPIFFE ID prefixes authorized
-	for the SPIFFE Broker API endpoint. SPIFFE IDs ending with a slash
-	are treated as prefixes.
-	The flux-operator pod accepts the same repeatable --spiffe-broker-id
-	flag as the Flux controllers. For OLM installations, the IDs can be
-	set with the SPIFFE_BROKER_IDS environment variable as a comma-separated
-	list.
-	"""
+													IDs is the list of SPIFFE IDs or SPIFFE ID prefixes authorized
+													for the SPIFFE Broker API endpoint. SPIFFE IDs ending with a slash
+													are treated as prefixes.
+													The flux-operator pod accepts the same repeatable --spiffe-broker-id
+													flag as the Flux controllers. For OLM installations, the IDs can be
+													set with the SPIFFE_BROKER_IDS environment variable as a comma-separated
+													list.
+													"""
 												items: {
 													maxLength: 2048
 													pattern:   "^(?:spiffe://[a-z0-9._-]{1,255}|spiffe://[a-z0-9._-]{1,255}(?:/(?:[a-zA-Z0-9_-]|[.][a-zA-Z0-9_-])[a-zA-Z0-9._-]*)+(?:/)?)$"
@@ -506,27 +506,27 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									}
 									mtls: {
 										description: """
-	MTLS holds the configuration for mTLS between the Flux controllers.
-	The flux-operator reads the controller SPIFFE IDs from .status.spiffe.
-	"""
+											MTLS holds the configuration for mTLS between the Flux controllers.
+											The flux-operator reads the controller SPIFFE IDs from .status.spiffe.
+											"""
 										properties: {
 											componentIDTemplate: {
 												description: """
-	ComponentIDTemplate is the SPIFFE ID template for the Flux controllers.
-	The '{component}' placeholder is replaced with the name of each
-	installed component. A trailing slash indicates a SPIFFE ID prefix.
-	The flux-operator ID is derived from this template with 'flux-operator'
-	as the component name, and is only authorized when the operator has a
-	SPIFFE Workload API source. The template must resolve to the operator
-	pod's actual SPIFFE ID.
-	When the operator has a SPIFFE Workload API source, its ID is added to
-	notification-controller as an authorized notifier. When the operator's
-	embedded Web UI is enabled, it is also added to source-controller and
-	source-watcher as an authorized artifact client for the Web UI artifact
-	downloads. Enabling or disabling the embedded Web UI changes these
-	controller arguments and rolls out the affected controllers.
-	For a standalone Web UI, use ExtraArtifactClients and ExtraNotifiers.
-	"""
+													ComponentIDTemplate is the SPIFFE ID template for the Flux controllers.
+													The '{component}' placeholder is replaced with the name of each
+													installed component. A trailing slash indicates a SPIFFE ID prefix.
+													The flux-operator ID is derived from this template with 'flux-operator'
+													as the component name, and is only authorized when the operator has a
+													SPIFFE Workload API source. The template must resolve to the operator
+													pod's actual SPIFFE ID.
+													When the operator has a SPIFFE Workload API source, its ID is added to
+													notification-controller as an authorized notifier. When the operator's
+													embedded Web UI is enabled, it is also added to source-controller and
+													source-watcher as an authorized artifact client for the Web UI artifact
+													downloads. Enabling or disabling the embedded Web UI changes these
+													controller arguments and rolls out the affected controllers.
+													For a standalone Web UI, use ExtraArtifactClients and ExtraNotifiers.
+													"""
 												maxLength: 2048
 												pattern:   "^spiffe://[a-z0-9._-]{1,255}(?:/(?:[a-zA-Z0-9_-]|[.][a-zA-Z0-9_-]|[{]component[}])[a-zA-Z0-9._-]*(?:[{]component[}][a-zA-Z0-9._-]*)*)+(?:/)?$"
 												type:      "string"
@@ -541,10 +541,10 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 											}
 											extraArtifactClients: {
 												description: """
-	ExtraArtifactClients is a list of additional SPIFFE IDs added to
-	source-controller and source-watcher as authorized artifact clients,
-	e.g. the standalone Web UI or the Flux MCP Server.
-	"""
+													ExtraArtifactClients is a list of additional SPIFFE IDs added to
+													source-controller and source-watcher as authorized artifact clients,
+													e.g. the standalone Web UI or the Flux MCP Server.
+													"""
 												items: {
 													maxLength: 2048
 													pattern:   "^(?:spiffe://[a-z0-9._-]{1,255}|spiffe://[a-z0-9._-]{1,255}(?:/(?:[a-zA-Z0-9_-]|[.][a-zA-Z0-9_-])[a-zA-Z0-9._-]*)+(?:/)?)$"
@@ -555,10 +555,10 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 											}
 											extraArtifactServers: {
 												description: """
-	ExtraArtifactServers is a list of additional SPIFFE IDs added to
-	kustomize-controller, helm-controller and source-watcher as authorized
-	artifact servers, e.g. an external source controller.
-	"""
+													ExtraArtifactServers is a list of additional SPIFFE IDs added to
+													kustomize-controller, helm-controller and source-watcher as authorized
+													artifact servers, e.g. an external source controller.
+													"""
 												items: {
 													maxLength: 2048
 													pattern:   "^(?:spiffe://[a-z0-9._-]{1,255}|spiffe://[a-z0-9._-]{1,255}(?:/(?:[a-zA-Z0-9_-]|[.][a-zA-Z0-9_-])[a-zA-Z0-9._-]*)+(?:/)?)$"
@@ -569,10 +569,10 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 											}
 											extraNotifiers: {
 												description: """
-	ExtraNotifiers is a list of additional SPIFFE IDs added to
-	notification-controller as authorized notifiers, e.g. the standalone
-	Web UI or the Flux MCP Server.
-	"""
+													ExtraNotifiers is a list of additional SPIFFE IDs added to
+													notification-controller as authorized notifiers, e.g. the standalone
+													Web UI or the Flux MCP Server.
+													"""
 												items: {
 													maxLength: 2048
 													pattern:   "^(?:spiffe://[a-z0-9._-]{1,255}|spiffe://[a-z0-9._-]{1,255}(?:/(?:[a-zA-Z0-9_-]|[.][a-zA-Z0-9_-])[a-zA-Z0-9._-]*)+(?:/)?)$"
@@ -583,10 +583,10 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 											}
 											receivers: {
 												description: """
-	Receivers is the list of SPIFFE IDs of external Ingress or Gateway
-	controllers authorized to send webhook requests to notification-controller.
-	Setting at least one ID makes the receiver accept only SPIFFE mTLS clients.
-	"""
+													Receivers is the list of SPIFFE IDs of external Ingress or Gateway
+													controllers authorized to send webhook requests to notification-controller.
+													Setting at least one ID makes the receiver accept only SPIFFE mTLS clients.
+													"""
 												items: {
 													maxLength: 2048
 													pattern:   "^(?:spiffe://[a-z0-9._-]{1,255}|spiffe://[a-z0-9._-]{1,255}(?:/(?:[a-zA-Z0-9_-]|[.][a-zA-Z0-9_-])[a-zA-Z0-9._-]*)+(?:/)?)$"
@@ -604,41 +604,41 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									}
 									workloadAPI: {
 										description: """
-	WorkloadAPI holds the configuration for the SPIFFE Workload API.
-	It is required for enabling any of the SPIFFE features and is used
-	to render the go-spiffe environment variable and the SPIFFE CSI volume.
-	"""
+											WorkloadAPI holds the configuration for the SPIFFE Workload API.
+											It is required for enabling any of the SPIFFE features and is used
+											to render the go-spiffe environment variable and the SPIFFE CSI volume.
+											"""
 										properties: {
 											csiDriver: {
 												description: """
-	CSIDriver is the name of the SPIFFE CSI driver used to mount
-	the Workload API socket into the Flux controller pods.
-	When set, the operator mounts the CSI volume at /spiffe-workload-api
-	and the endpoint must be a unix socket under that path.
-	When omitted, no CSI volume is configured.
-	"""
+													CSIDriver is the name of the SPIFFE CSI driver used to mount
+													the Workload API socket into the Flux controller pods.
+													When set, the operator mounts the CSI volume at /spiffe-workload-api
+													and the endpoint must be a unix socket under that path.
+													When omitted, no CSI volume is configured.
+													"""
 												maxLength: 63
 												minLength: 1
-												pattern:   "^[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?)*$"
+												pattern:   #"^[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?)*$"#
 												type:      "string"
 											}
 											endpoint: {
 												description: """
-	Endpoint is the address of the SPIFFE Workload API endpoint,
-	in the form 'unix:///<absolute path>', 'unix:/<absolute path>'
-	or 'tcp://<ip>:<port>',
-	e.g. 'unix:///spiffe-workload-api/agent.sock'.
-	The flux-operator pod must be configured with the same endpoint
-	through the SPIFFE_ENDPOINT_SOCKET environment variable.
-	"""
+													Endpoint is the address of the SPIFFE Workload API endpoint,
+													in the form 'unix:///<absolute path>', 'unix:/<absolute path>'
+													or 'tcp://<ip>:<port>',
+													e.g. 'unix:///spiffe-workload-api/agent.sock'.
+													The flux-operator pod must be configured with the same endpoint
+													through the SPIFFE_ENDPOINT_SOCKET environment variable.
+													"""
 												maxLength: 1024
 												minLength: 1
-												pattern:   "^(?:unix:(?:///[!$&->@-~]+|/[!$&-.0->@-~][!$&->@-~]*)|tcp://(?:[0-9]{1,3}(?:\\.[0-9]{1,3}){3}|\\[[0-9a-fA-F:.]+\\]):[0-9]{1,5})$"
+												pattern:   #"^(?:unix:(?:///[!$&->@-~]+|/[!$&-.0->@-~][!$&->@-~]*)|tcp://(?:[0-9]{1,3}(?:\.[0-9]{1,3}){3}|\[[0-9a-fA-F:.]+\]):[0-9]{1,5})$"#
 												type:      "string"
 											}
 										}
 										required: ["endpoint"]
-										type: "object"
+										type:     "object"
 										"x-kubernetes-validations": [{
 											message: "endpoint must be a unix socket under /spiffe-workload-api/ without '..' segments when csiDriver is set, as the CSI volume is mounted at /spiffe-workload-api"
 											rule:    "!has(self.csiDriver) || ((self.endpoint.startsWith('unix:///spiffe-workload-api/') || self.endpoint.startsWith('unix:/spiffe-workload-api/')) && !self.endpoint.matches('(^|/)[.][.](/|$)'))"
@@ -646,13 +646,13 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									}
 								}
 								required: ["workloadAPI"]
-								type: "object"
+								type:     "object"
 							}
 							storage: {
 								description: """
-	Storage holds the specification of the source-controller
-	persistent volume claim.
-	"""
+									Storage holds the specification of the source-controller
+									persistent volume claim.
+									"""
 								properties: {
 									class: {
 										description: "Class is the storage class to use for the PVC."
@@ -671,16 +671,16 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 							}
 							sync: {
 								description: """
-	Sync specifies the source for the cluster sync operation.
-	When set, a Flux source (GitRepository, OCIRepository or Bucket)
-	and Flux Kustomization are created to sync the cluster state
-	with the source repository.
-	"""
+									Sync specifies the source for the cluster sync operation.
+									When set, a Flux source (GitRepository, OCIRepository or Bucket)
+									and Flux Kustomization are created to sync the cluster state
+									with the source repository.
+									"""
 								properties: {
 									interval: {
 										default:     "1m"
 										description: "Interval is the time between syncs."
-										pattern:     "^([0-9]+(\\.[0-9]+)?(ms|s|m|h))+$"
+										pattern:     #"^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"#
 										type:        "string"
 									}
 									kind: {
@@ -694,9 +694,9 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									}
 									name: {
 										description: """
-	Name is the name of the Flux source and kustomization resources.
-	When not specified, the name is set to the namespace name of the FluxInstance.
-	"""
+											Name is the name of the Flux source and kustomization resources.
+											When not specified, the name is set to the namespace name of the FluxInstance.
+											"""
 										maxLength: 63
 										type:      "string"
 										"x-kubernetes-validations": [{
@@ -706,19 +706,19 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									}
 									path: {
 										description: """
-	Path is the path to the source directory containing
-	the kustomize overlay or plain Kubernetes manifests.
-	"""
+											Path is the path to the source directory containing
+											the kustomize overlay or plain Kubernetes manifests.
+											"""
 										type: "string"
 									}
 									provider: {
 										description: """
-	Provider specifies OIDC provider for source authentication.
-	For OCIRepository and Bucket the provider can be set to 'aws', 'azure' or 'gcp'.
-	For GitRepository the provider can be set to 'aws' (requires Flux 2.9 or later),
-	'azure' or 'github'.
-	To disable OIDC authentication the provider can be set to 'generic' or left empty.
-	"""
+											Provider specifies OIDC provider for source authentication.
+											For OCIRepository and Bucket the provider can be set to 'aws', 'azure' or 'gcp'.
+											For GitRepository the provider can be set to 'aws' (requires Flux 2.9 or later),
+											'azure' or 'github'.
+											To disable OIDC authentication the provider can be set to 'generic' or left empty.
+											"""
 										enum: [
 											"generic",
 											"aws",
@@ -730,27 +730,27 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									}
 									pullSecret: {
 										description: """
-	PullSecret specifies the Kubernetes Secret containing the
-	authentication credentials for the source.
-	For Git over HTTP/S sources, the secret must contain username and password fields.
-	For Git over SSH sources, the secret must contain known_hosts and identity fields.
-	For OCI sources, the secret must be of type kubernetes.io/dockerconfigjson.
-	For Bucket sources, the secret must contain accesskey and secretkey fields.
-	"""
+											PullSecret specifies the Kubernetes Secret containing the
+											authentication credentials for the source.
+											For Git over HTTP/S sources, the secret must contain username and password fields.
+											For Git over SSH sources, the secret must contain known_hosts and identity fields.
+											For OCI sources, the secret must be of type kubernetes.io/dockerconfigjson.
+											For Bucket sources, the secret must contain accesskey and secretkey fields.
+											"""
 										type: "string"
 									}
 									ref: {
 										description: """
-	Ref is the source reference, can be a Git ref name e.g. 'refs/heads/main',
-	an OCI tag e.g. 'latest' or a bucket name e.g. 'flux'.
-	"""
+											Ref is the source reference, can be a Git ref name e.g. 'refs/heads/main',
+											an OCI tag e.g. 'latest' or a bucket name e.g. 'flux'.
+											"""
 										type: "string"
 									}
 									url: {
 										description: """
-	URL is the source URL, can be a Git repository HTTP/S or SSH address,
-	an OCI repository address or a Bucket endpoint.
-	"""
+											URL is the source URL, can be a Git repository HTTP/S or SSH address,
+											an OCI repository address or a Bucket endpoint.
+											"""
 										type: "string"
 									}
 								}
@@ -772,14 +772,14 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 							wait: {
 								default: true
 								description: """
-	Wait instructs the controller to check the health of all the reconciled
-	resources. Defaults to true.
-	"""
+									Wait instructs the controller to check the health of all the reconciled
+									resources. Defaults to true.
+									"""
 								type: "boolean"
 							}
 						}
 						required: ["distribution"]
-						type: "object"
+						type:     "object"
 						"x-kubernetes-validations": [{
 							message: ".spec.storage must be set when .spec.sharding.storage is 'persistent'"
 							rule:    "!has(self.sharding) || !has(self.sharding.storage) || self.sharding.storage != 'persistent' || has(self.storage)"
@@ -832,38 +832,38 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									properties: {
 										lastTransitionTime: {
 											description: """
-	lastTransitionTime is the last time the condition transitioned from one status to another.
-	This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-	"""
+												lastTransitionTime is the last time the condition transitioned from one status to another.
+												This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+												"""
 											format: "date-time"
 											type:   "string"
 										}
 										message: {
 											description: """
-	message is a human readable message indicating details about the transition.
-	This may be an empty string.
-	"""
+												message is a human readable message indicating details about the transition.
+												This may be an empty string.
+												"""
 											maxLength: 32768
 											type:      "string"
 										}
 										observedGeneration: {
 											description: """
-	observedGeneration represents the .metadata.generation that the condition was set based upon.
-	For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-	with respect to the current state of the instance.
-	"""
+												observedGeneration represents the .metadata.generation that the condition was set based upon.
+												For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+												with respect to the current state of the instance.
+												"""
 											format:  "int64"
 											minimum: 0
 											type:    "integer"
 										}
 										reason: {
 											description: """
-	reason contains a programmatic identifier indicating the reason for the condition's last transition.
-	Producers of specific condition types may define expected values and meanings for this field,
-	and whether the values are considered a guaranteed API.
-	The value should be a CamelCase string.
-	This field may not be empty.
-	"""
+												reason contains a programmatic identifier indicating the reason for the condition's last transition.
+												Producers of specific condition types may define expected values and meanings for this field,
+												and whether the values are considered a guaranteed API.
+												The value should be a CamelCase string.
+												This field may not be empty.
+												"""
 											maxLength: 1024
 											minLength: 1
 											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
@@ -881,7 +881,7 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 										type: {
 											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
 											maxLength:   316
-											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											pattern:     #"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"#
 											type:        "string"
 										}
 									}
@@ -898,14 +898,14 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 							}
 							history: {
 								description: """
-	History contains the reconciliation history of the FluxInstance
-	as a list of snapshots ordered by the last reconciled time.
-	"""
+									History contains the reconciliation history of the FluxInstance
+									as a list of snapshots ordered by the last reconciled time.
+									"""
 								items: {
 									description: """
-	Snapshot represents a point-in-time record of a group of resources reconciliation,
-	including timing information, status, and a unique digest identifier.
-	"""
+										Snapshot represents a point-in-time record of a group of resources reconciliation,
+										including timing information, status, and a unique digest identifier.
+										"""
 									properties: {
 										digest: {
 											description: "Digest is the checksum in the format `<algo>:<hex>` of the resources in this snapshot."
@@ -954,9 +954,9 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 							}
 							inventory: {
 								description: """
-	Inventory contains a list of Kubernetes resource object references
-	last applied on the cluster.
-	"""
+									Inventory contains a list of Kubernetes resource object references
+									last applied on the cluster.
+									"""
 								properties: entries: {
 									description: "Entries of Kubernetes resource object references."
 									items: {
@@ -964,9 +964,9 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 										properties: {
 											id: {
 												description: """
-	ID is the string representation of the Kubernetes resource object's metadata,
-	in the format '<namespace>_<name>_<group>_<kind>'.
-	"""
+													ID is the string representation of the Kubernetes resource object's metadata,
+													in the format '<namespace>_<name>_<group>_<kind>'.
+													"""
 												type: "string"
 											}
 											v: {
@@ -983,43 +983,43 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 									type: "array"
 								}
 								required: ["entries"]
-								type: "object"
+								type:     "object"
 							}
 							lastAppliedRevision: {
 								description: """
-	LastAppliedRevision is the version and digest of the
-	distribution config that was last reconcile.
-	"""
+									LastAppliedRevision is the version and digest of the
+									distribution config that was last reconcile.
+									"""
 								type: "string"
 							}
 							lastArtifactRevision: {
 								description: """
-	LastArtifactRevision is the digest of the last pulled
-	distribution artifact.
-	"""
+									LastArtifactRevision is the digest of the last pulled
+									distribution artifact.
+									"""
 								type: "string"
 							}
 							lastAttemptedRevision: {
 								description: """
-	LastAttemptedRevision is the version and digest of the
-	distribution config that was last attempted to reconcile.
-	"""
+									LastAttemptedRevision is the version and digest of the
+									distribution config that was last attempted to reconcile.
+									"""
 								type: "string"
 							}
 							lastHandledForceAt: {
 								description: """
-	LastHandledForceAt holds the value of the most recent
-	force request value, so a change of the annotation value
-	can be detected.
-	"""
+									LastHandledForceAt holds the value of the most recent
+									force request value, so a change of the annotation value
+									can be detected.
+									"""
 								type: "string"
 							}
 							lastHandledReconcileAt: {
 								description: """
-	LastHandledReconcileAt holds the value of the most recent
-	reconcile request value, so a change of the annotation value
-	can be detected.
-	"""
+									LastHandledReconcileAt holds the value of the most recent
+									reconcile request value, so a change of the annotation value
+									can be detected.
+									"""
 								type: "string"
 							}
 							spiffe: {
@@ -1037,15 +1037,15 @@ customresourcedefinition: "fluxinstances.fluxcd.controlplane.io": {
 										}
 										extraArtifactServers: {
 											description: """
-	ExtraArtifactServers is the list of additional SPIFFE IDs
-	authorized as artifact servers.
-	"""
+												ExtraArtifactServers is the list of additional SPIFFE IDs
+												authorized as artifact servers.
+												"""
 											items: type: "string"
 											type: "array"
 										}
 									}
 									required: ["enabled"]
-									type: "object"
+									type:     "object"
 								}
 								type: "object"
 							}
@@ -1076,10 +1076,10 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 		group: "fluxcd.controlplane.io"
 		names: {
 			categories: ["fluxcd"]
-			kind:     "FluxReport"
-			listKind: "FluxReportList"
-			plural:   "fluxreports"
-			singular: "fluxreport"
+			kind:       "FluxReport"
+			listKind:   "FluxReportList"
+			plural:     "fluxreports"
+			singular:   "fluxreport"
 		}
 		scope: "Namespaced"
 		versions: [{
@@ -1093,15 +1093,15 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 				name:     "Age"
 				type:     "date"
 			}, {
-				jsonPath: ".status.conditions[?(@.type==\"Ready\")].status"
+				jsonPath: #".status.conditions[?(@.type=="Ready")].status"#
 				name:     "Ready"
 				type:     "string"
 			}, {
-				jsonPath: ".status.conditions[?(@.type==\"Ready\")].message"
+				jsonPath: #".status.conditions[?(@.type=="Ready")].message"#
 				name:     "Status"
 				type:     "string"
 			}, {
-				jsonPath: ".status.conditions[?(@.type==\"Ready\")].lastTransitionTime"
+				jsonPath: #".status.conditions[?(@.type=="Ready")].lastTransitionTime"#
 				name:     "LastUpdated"
 				type:     "string"
 			}]
@@ -1111,21 +1111,21 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+							APIVersion defines the versioned schema of this representation of an object.
+							Servers should convert recognized schemas to the latest internal value, and
+							may reject unrecognized values.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+							"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+							Kind is a string value representing the REST resource this object represents.
+							Servers may infer this from the endpoint the client submits requests to.
+							Cannot be updated.
+							In CamelCase.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+							"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -1173,9 +1173,9 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 										}
 										status: {
 											description: """
-	Status is a human-readable message indicating details
-	about the Flux component observed state.
-	"""
+												Status is a human-readable message indicating details
+												about the Flux component observed state.
+												"""
 											type: "string"
 										}
 									}
@@ -1202,9 +1202,9 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 									}
 									status: {
 										description: """
-	Status is a human-readable message indicating details
-	about the distribution observed state.
-	"""
+											Status is a human-readable message indicating details
+											about the distribution observed state.
+											"""
 										type: "string"
 									}
 									version: {
@@ -1243,9 +1243,9 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 							}
 							reconcilers: {
 								description: """
-	ReconcilersStatus is the list of Flux reconcilers and
-	their statistics grouped by API kind.
-	"""
+									ReconcilersStatus is the list of Flux reconcilers and
+									their statistics grouped by API kind.
+									"""
 								items: {
 									description: "FluxReconcilerStatus defines the observed state of a Flux reconciler."
 									properties: {
@@ -1262,23 +1262,23 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 											properties: {
 												failing: {
 													description: """
-	Failing is the number of reconciled
-	resources in the Failing state and not Suspended.
-	"""
+														Failing is the number of reconciled
+														resources in the Failing state and not Suspended.
+														"""
 													type: "integer"
 												}
 												running: {
 													description: """
-	Running is the number of reconciled
-	resources in the Running state.
-	"""
+														Running is the number of reconciled
+														resources in the Running state.
+														"""
 													type: "integer"
 												}
 												suspended: {
 													description: """
-	Suspended is the number of reconciled
-	resources in the Suspended state.
-	"""
+														Suspended is the number of reconciled
+														resources in the Suspended state.
+														"""
 													type: "integer"
 												}
 												totalSize: {
@@ -1304,9 +1304,9 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 							}
 							sync: {
 								description: """
-	SyncStatus is the status of the cluster sync
-	Source and Kustomization resources.
-	"""
+									SyncStatus is the status of the cluster sync
+									Source and Kustomization resources.
+									"""
 								properties: {
 									id: {
 										description: "ID is the identifier of the sync."
@@ -1326,9 +1326,9 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 									}
 									status: {
 										description: """
-	Status is a human-readable message indicating details
-	about the sync observed state.
-	"""
+											Status is a human-readable message indicating details
+											about the sync observed state.
+											"""
 										type: "string"
 									}
 								}
@@ -1341,7 +1341,7 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 							}
 						}
 						required: ["distribution"]
-						type: "object"
+						type:     "object"
 					}
 					status: {
 						description: "FluxReportStatus defines the readiness of a FluxReport."
@@ -1353,38 +1353,38 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 									properties: {
 										lastTransitionTime: {
 											description: """
-	lastTransitionTime is the last time the condition transitioned from one status to another.
-	This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-	"""
+												lastTransitionTime is the last time the condition transitioned from one status to another.
+												This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+												"""
 											format: "date-time"
 											type:   "string"
 										}
 										message: {
 											description: """
-	message is a human readable message indicating details about the transition.
-	This may be an empty string.
-	"""
+												message is a human readable message indicating details about the transition.
+												This may be an empty string.
+												"""
 											maxLength: 32768
 											type:      "string"
 										}
 										observedGeneration: {
 											description: """
-	observedGeneration represents the .metadata.generation that the condition was set based upon.
-	For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-	with respect to the current state of the instance.
-	"""
+												observedGeneration represents the .metadata.generation that the condition was set based upon.
+												For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+												with respect to the current state of the instance.
+												"""
 											format:  "int64"
 											minimum: 0
 											type:    "integer"
 										}
 										reason: {
 											description: """
-	reason contains a programmatic identifier indicating the reason for the condition's last transition.
-	Producers of specific condition types may define expected values and meanings for this field,
-	and whether the values are considered a guaranteed API.
-	The value should be a CamelCase string.
-	This field may not be empty.
-	"""
+												reason contains a programmatic identifier indicating the reason for the condition's last transition.
+												Producers of specific condition types may define expected values and meanings for this field,
+												and whether the values are considered a guaranteed API.
+												The value should be a CamelCase string.
+												This field may not be empty.
+												"""
 											maxLength: 1024
 											minLength: 1
 											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
@@ -1402,7 +1402,7 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 										type: {
 											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
 											maxLength:   316
-											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											pattern:     #"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"#
 											type:        "string"
 										}
 									}
@@ -1419,10 +1419,10 @@ customresourcedefinition: "fluxreports.fluxcd.controlplane.io": {
 							}
 							lastHandledReconcileAt: {
 								description: """
-	LastHandledReconcileAt holds the value of the most recent
-	reconcile request value, so a change of the annotation value
-	can be detected.
-	"""
+									LastHandledReconcileAt holds the value of the most recent
+									reconcile request value, so a change of the annotation value
+									can be detected.
+									"""
 								type: "string"
 							}
 						}
@@ -1456,11 +1456,11 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 				"fluxcd",
 				"fluxcd-sources",
 			]
-			kind:     "ResourceSetInputProvider"
-			listKind: "ResourceSetInputProviderList"
-			plural:   "resourcesetinputproviders"
+			kind:       "ResourceSetInputProvider"
+			listKind:   "ResourceSetInputProviderList"
+			plural:     "resourcesetinputproviders"
 			shortNames: ["rsip"]
-			singular: "resourcesetinputprovider"
+			singular:   "resourcesetinputprovider"
 		}
 		scope: "Namespaced"
 		versions: [{
@@ -1469,11 +1469,11 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 				name:     "Age"
 				type:     "date"
 			}, {
-				jsonPath: ".status.conditions[?(@.type==\"Ready\")].status"
+				jsonPath: #".status.conditions[?(@.type=="Ready")].status"#
 				name:     "Ready"
 				type:     "string"
 			}, {
-				jsonPath: ".status.conditions[?(@.type==\"Ready\")].message"
+				jsonPath: #".status.conditions[?(@.type=="Ready")].message"#
 				name:     "Status"
 				type:     "string"
 			}]
@@ -1483,21 +1483,21 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+							APIVersion defines the versioned schema of this representation of an object.
+							Servers should convert recognized schemas to the latest internal value, and
+							may reject unrecognized values.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+							"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+							Kind is a string value representing the REST resource this object represents.
+							Servers may infer this from the endpoint the client submits requests to.
+							Cannot be updated.
+							In CamelCase.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+							"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -1506,30 +1506,30 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 						properties: {
 							certSecretRef: {
 								description: """
-	CertSecretRef specifies the Kubernetes Secret containing either or both of
+									CertSecretRef specifies the Kubernetes Secret containing either or both of
 
-	- a PEM-encoded CA certificate (`ca.crt`)
-	- a PEM-encoded client certificate (`tls.crt`) and private key (`tls.key`)
+									- a PEM-encoded CA certificate (`ca.crt`)
+									- a PEM-encoded client certificate (`tls.crt`) and private key (`tls.key`)
 
-	When connecting to a Git, OCI, or ExternalService provider that uses self-signed certificates,
-	the CA certificate must be set in the Secret under the 'ca.crt' key to establish the trust relationship.
-	When connecting to a provider that supports client certificates (mTLS), the client certificate
-	and private key must be set in the Secret under the 'tls.crt' and 'tls.key' keys, respectively.
-	"""
+									When connecting to a Git, OCI, or ExternalService provider that uses self-signed certificates,
+									the CA certificate must be set in the Secret under the 'ca.crt' key to establish the trust relationship.
+									When connecting to a provider that supports client certificates (mTLS), the client certificate
+									and private key must be set in the Secret under the 'tls.crt' and 'tls.key' keys, respectively.
+									"""
 								properties: name: {
 									description: "Name of the referent."
 									type:        "string"
 								}
 								required: ["name"]
-								type: "object"
+								type:     "object"
 							}
 							defaultValues: {
 								additionalProperties: "x-kubernetes-preserve-unknown-fields": true
 								description: """
-	DefaultValues contains the default values for the inputs.
-	These values are used to populate the inputs when the provider
-	response does not contain them.
-	"""
+									DefaultValues contains the default values for the inputs.
+									These values are used to populate the inputs when the provider
+									response does not contain them.
+									"""
 								type: "object"
 							}
 							filter: {
@@ -1537,44 +1537,44 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 								properties: {
 									excludeBranch: {
 										description: """
-	ExcludeBranch specifies the regular expression to filter the branches
-	that the input provider should exclude.
-	"""
+											ExcludeBranch specifies the regular expression to filter the branches
+											that the input provider should exclude.
+											"""
 										type: "string"
 									}
 									excludeEnvironment: {
 										description: """
-	ExcludeEnvironment specifies the regular expression to filter the environments
-	that the input provider should exclude.
-	"""
+											ExcludeEnvironment specifies the regular expression to filter the environments
+											that the input provider should exclude.
+											"""
 										type: "string"
 									}
 									excludeTag: {
 										description: """
-	ExcludeTag specifies the regular expression to filter the tags
-	that the input provider should exclude.
-	"""
+											ExcludeTag specifies the regular expression to filter the tags
+											that the input provider should exclude.
+											"""
 										type: "string"
 									}
 									includeBranch: {
 										description: """
-	IncludeBranch specifies the regular expression to filter the branches
-	that the input provider should include.
-	"""
+											IncludeBranch specifies the regular expression to filter the branches
+											that the input provider should include.
+											"""
 										type: "string"
 									}
 									includeEnvironment: {
 										description: """
-	IncludeEnvironment specifies the regular expression to filter the environments
-	that the input provider should include.
-	"""
+											IncludeEnvironment specifies the regular expression to filter the environments
+											that the input provider should include.
+											"""
 										type: "string"
 									}
 									includeTag: {
 										description: """
-	IncludeTag specifies the regular expression to filter the tags
-	that the input provider should include.
-	"""
+											IncludeTag specifies the regular expression to filter the tags
+											that the input provider should include.
+											"""
 										type: "string"
 									}
 									labels: {
@@ -1585,19 +1585,19 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 									limit: {
 										default: 100
 										description: """
-	Limit specifies the maximum number of input sets to return.
-	When not set, the default limit is 100.
-	"""
+											Limit specifies the maximum number of input sets to return.
+											When not set, the default limit is 100.
+											"""
 										maximum: 10000
 										type:    "integer"
 									}
 									semver: {
 										description: """
-	Semver specifies a semantic version range to filter and sort the tags.
-	If this field is not specified, the tags will be sorted in reverse
-	alphabetical order.
-	Supported only for tags at the moment.
-	"""
+											Semver specifies a semantic version range to filter and sort the tags.
+											If this field is not specified, the tags will be sorted in reverse
+											alphabetical order.
+											Supported only for tags at the moment.
+											"""
 										type: "string"
 									}
 								}
@@ -1605,9 +1605,9 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 							}
 							insecure: {
 								description: """
-	Insecure allows connecting to an ExternalService or OCIArtifactTag provider
-	over plain HTTP without TLS. When not set, the URL must use HTTPS.
-	"""
+									Insecure allows connecting to an ExternalService or OCIArtifactTag provider
+									over plain HTTP without TLS. When not set, the URL must use HTTPS.
+									"""
 								type: "boolean"
 							}
 							schedule: {
@@ -1627,43 +1627,43 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 										window: {
 											default: "0s"
 											description: """
-	Window defines the time window during which the execution is allowed.
-	Defaults to 0s, meaning no window is applied.
-	"""
-											pattern: "^([0-9]+(\\.[0-9]+)?(ms|s|m|h))+$"
+												Window defines the time window during which the execution is allowed.
+												Defaults to 0s, meaning no window is applied.
+												"""
+											pattern: #"^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"#
 											type:    "string"
 										}
 									}
 									required: ["cron"]
-									type: "object"
+									type:     "object"
 								}
 								type: "array"
 							}
 							secretRef: {
 								description: """
-	SecretRef specifies the Kubernetes Secret containing the credentials
-	to access the input provider.
-	When connecting to a Git provider, the secret must contain the keys
-	'username' and 'password', and the password should be a personal access token
-	that grants read-only access to the repository.
-	When connecting to an OCI provider, the secret must contain a Kubernetes
-	Image Pull Secret, as if created by `kubectl create secret docker-registry`.
-	When connecting to an ExternalService provider, the secret must contain either
-	a 'token' key for bearer token authentication, or 'username' and 'password'
-	keys for basic authentication.
-	"""
+									SecretRef specifies the Kubernetes Secret containing the credentials
+									to access the input provider.
+									When connecting to a Git provider, the secret must contain the keys
+									'username' and 'password', and the password should be a personal access token
+									that grants read-only access to the repository.
+									When connecting to an OCI provider, the secret must contain a Kubernetes
+									Image Pull Secret, as if created by `kubectl create secret docker-registry`.
+									When connecting to an ExternalService provider, the secret must contain either
+									a 'token' key for bearer token authentication, or 'username' and 'password'
+									keys for basic authentication.
+									"""
 								properties: name: {
 									description: "Name of the referent."
 									type:        "string"
 								}
 								required: ["name"]
-								type: "object"
+								type:     "object"
 							}
 							selectors: {
 								description: """
-	Selectors specifies label selectors used to discover ExternalArtifact objects.
-	Required when spec.type is 'ExternalArtifact' and must not be set otherwise.
-	"""
+									Selectors specifies label selectors used to discover ExternalArtifact objects.
+									Required when spec.type is 'ExternalArtifact' and must not be set otherwise.
+									"""
 								items: {
 									description: "ExternalArtifactSelector defines a selector for discovering ExternalArtifact objects."
 									properties: {
@@ -1671,9 +1671,9 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 											description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 											items: {
 												description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+													A label selector requirement is a selector that contains values, a key, and an operator that
+													relates the key and values.
+													"""
 												properties: {
 													key: {
 														description: "key is the label key that the selector applies to."
@@ -1681,18 +1681,18 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 													}
 													operator: {
 														description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+															operator represents a key's relationship to a set of values.
+															Valid operators are In, NotIn, Exists and DoesNotExist.
+															"""
 														type: "string"
 													}
 													values: {
 														description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+															values is an array of string values. If the operator is In or NotIn,
+															the values array must be non-empty. If the operator is Exists or DoesNotExist,
+															the values array must be empty. This array is replaced during a strategic
+															merge patch.
+															"""
 														items: type: "string"
 														type:                     "array"
 														"x-kubernetes-list-type": "atomic"
@@ -1710,46 +1710,46 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 										matchLabels: {
 											additionalProperties: type: "string"
 											description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+												matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+												map is equivalent to an element of matchExpressions, whose key field is "key", the
+												operator is "In", and the values array contains only "value". The requirements are ANDed.
+												"""
 											type: "object"
 										}
 										name: {
 											description: """
-	Name selects a single ExternalArtifact by metadata.name.
-	This field is mutually exclusive with matchLabels and matchExpressions.
-	"""
+												Name selects a single ExternalArtifact by metadata.name.
+												This field is mutually exclusive with matchLabels and matchExpressions.
+												"""
 											type: "string"
 										}
 										namespace: {
 											description: """
-	Namespace scopes ExternalArtifact discovery.
-	When empty, ExternalArtifacts are listed in the ResourceSetInputProvider namespace.
-	When set to "*", ExternalArtifacts are listed across all namespaces by
-	omitting the namespace option from List().
-	Otherwise, ExternalArtifacts are listed only in the specified namespace.
-	This field is mutually exclusive with NamespaceSelector.
-	"""
+												Namespace scopes ExternalArtifact discovery.
+												When empty, ExternalArtifacts are listed in the ResourceSetInputProvider namespace.
+												When set to "*", ExternalArtifacts are listed across all namespaces by
+												omitting the namespace option from List().
+												Otherwise, ExternalArtifacts are listed only in the specified namespace.
+												This field is mutually exclusive with NamespaceSelector.
+												"""
 											type: "string"
 										}
 										namespaceSelector: {
 											description: """
-	NamespaceSelector selects the namespaces where ExternalArtifacts are
-	discovered based on their labels. An empty selector matches all
-	namespaces. When both Namespace and NamespaceSelector are empty,
-	ExternalArtifacts are listed in the ResourceSetInputProvider namespace.
-	This field is mutually exclusive with Namespace.
-	"""
+												NamespaceSelector selects the namespaces where ExternalArtifacts are
+												discovered based on their labels. An empty selector matches all
+												namespaces. When both Namespace and NamespaceSelector are empty,
+												ExternalArtifacts are listed in the ResourceSetInputProvider namespace.
+												This field is mutually exclusive with Namespace.
+												"""
 											properties: {
 												matchExpressions: {
 													description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 													items: {
 														description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
 														properties: {
 															key: {
 																description: "key is the label key that the selector applies to."
@@ -1757,18 +1757,18 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 															}
 															operator: {
 																description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
 																type: "string"
 															}
 															values: {
 																description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
 																items: type: "string"
 																type:                     "array"
 																"x-kubernetes-list-type": "atomic"
@@ -1786,10 +1786,10 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 												matchLabels: {
 													additionalProperties: type: "string"
 													description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
 													type: "object"
 												}
 											}
@@ -1811,26 +1811,26 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 							}
 							serviceAccountName: {
 								description: """
-	ServiceAccountName specifies the name of the Kubernetes ServiceAccount
-	used for authentication with external services using object identity.
-	If not specified, the default object identity ServiceAccount configured
-	with the --default-object-identity-service-account flag or the
-	DEFAULT_OBJECT_IDENTITY_SERVICE_ACCOUNT environment variable is used.
-	This field can also be set for the ExternalArtifact type, where it is
-	used only for impersonation and its annotations are ignored.
-	For a complete guide to the ServiceAccount annotations used for
-	object identity, including the spiffe credential provider, see:
-	https://fluxcd.io/flux/integrations/object-identity/
-	"""
+									ServiceAccountName specifies the name of the Kubernetes ServiceAccount
+									used for authentication with external services using object identity.
+									If not specified, the default object identity ServiceAccount configured
+									with the --default-object-identity-service-account flag or the
+									DEFAULT_OBJECT_IDENTITY_SERVICE_ACCOUNT environment variable is used.
+									This field can also be set for the ExternalArtifact type, where it is
+									used only for impersonation and its annotations are ignored.
+									For a complete guide to the ServiceAccount annotations used for
+									object identity, including the spiffe credential provider, see:
+									https://fluxcd.io/flux/integrations/object-identity/
+									"""
 								type: "string"
 							}
 							skip: {
 								description: "Skip defines whether we need to skip input provider response updates."
 								properties: labels: {
 									description: """
-	Labels specifies list of labels to skip input provider response when any of the label conditions matched.
-	When prefixed with !, input provider response will be skipped if it does not have this label.
-	"""
+										Labels specifies list of labels to skip input provider response when any of the label conditions matched.
+										When prefixed with !, input provider response will be skipped if it does not have this label.
+										"""
 									items: type: "string"
 									type: "array"
 								}
@@ -1867,16 +1867,16 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 							}
 							url: {
 								description: """
-	URL specifies the HTTP/S or OCI address of the input provider API.
-	When connecting to a Git provider, the URL should point to the repository address.
-	When connecting to an OCI provider, the URL should point to the OCI repository address.
-	"""
+									URL specifies the HTTP/S or OCI address of the input provider API.
+									When connecting to a Git provider, the URL should point to the repository address.
+									When connecting to an OCI provider, the URL should point to the OCI repository address.
+									"""
 								pattern: "^((http|https|oci)://.*){0,1}$"
 								type:    "string"
 							}
 						}
 						required: ["type"]
-						type: "object"
+						type:     "object"
 						"x-kubernetes-validations": [{
 							message: "spec.url must be empty when spec.type is 'Static'"
 							rule:    "self.type != 'Static' || !has(self.url)"
@@ -1937,38 +1937,38 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 									properties: {
 										lastTransitionTime: {
 											description: """
-	lastTransitionTime is the last time the condition transitioned from one status to another.
-	This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-	"""
+												lastTransitionTime is the last time the condition transitioned from one status to another.
+												This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+												"""
 											format: "date-time"
 											type:   "string"
 										}
 										message: {
 											description: """
-	message is a human readable message indicating details about the transition.
-	This may be an empty string.
-	"""
+												message is a human readable message indicating details about the transition.
+												This may be an empty string.
+												"""
 											maxLength: 32768
 											type:      "string"
 										}
 										observedGeneration: {
 											description: """
-	observedGeneration represents the .metadata.generation that the condition was set based upon.
-	For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-	with respect to the current state of the instance.
-	"""
+												observedGeneration represents the .metadata.generation that the condition was set based upon.
+												For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+												with respect to the current state of the instance.
+												"""
 											format:  "int64"
 											minimum: 0
 											type:    "integer"
 										}
 										reason: {
 											description: """
-	reason contains a programmatic identifier indicating the reason for the condition's last transition.
-	Producers of specific condition types may define expected values and meanings for this field,
-	and whether the values are considered a guaranteed API.
-	The value should be a CamelCase string.
-	This field may not be empty.
-	"""
+												reason contains a programmatic identifier indicating the reason for the condition's last transition.
+												Producers of specific condition types may define expected values and meanings for this field,
+												and whether the values are considered a guaranteed API.
+												The value should be a CamelCase string.
+												This field may not be empty.
+												"""
 											maxLength: 1024
 											minLength: 1
 											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
@@ -1986,7 +1986,7 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 										type: {
 											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
 											maxLength:   316
-											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											pattern:     #"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"#
 											type:        "string"
 										}
 									}
@@ -2012,25 +2012,25 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 							}
 							lastExportedRevision: {
 								description: """
-	LastExportedRevision is the digest of the
-	inputs that were last reconcile.
-	"""
+									LastExportedRevision is the digest of the
+									inputs that were last reconcile.
+									"""
 								type: "string"
 							}
 							lastHandledForceAt: {
 								description: """
-	LastHandledForceAt holds the value of the most recent
-	force request value, so a change of the annotation value
-	can be detected.
-	"""
+									LastHandledForceAt holds the value of the most recent
+									force request value, so a change of the annotation value
+									can be detected.
+									"""
 								type: "string"
 							}
 							lastHandledReconcileAt: {
 								description: """
-	LastHandledReconcileAt holds the value of the most recent
-	reconcile request value, so a change of the annotation value
-	can be detected.
-	"""
+									LastHandledReconcileAt holds the value of the most recent
+									reconcile request value, so a change of the annotation value
+									can be detected.
+									"""
 								type: "string"
 							}
 							nextSchedule: {
@@ -2053,10 +2053,10 @@ customresourcedefinition: "resourcesetinputproviders.fluxcd.controlplane.io": {
 									window: {
 										default: "0s"
 										description: """
-	Window defines the time window during which the execution is allowed.
-	Defaults to 0s, meaning no window is applied.
-	"""
-										pattern: "^([0-9]+(\\.[0-9]+)?(ms|s|m|h))+$"
+											Window defines the time window during which the execution is allowed.
+											Defaults to 0s, meaning no window is applied.
+											"""
+										pattern: #"^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"#
 										type:    "string"
 									}
 								}
@@ -2093,11 +2093,11 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 				"fluxcd",
 				"fluxcd-appliers",
 			]
-			kind:     "ResourceSet"
-			listKind: "ResourceSetList"
-			plural:   "resourcesets"
+			kind:       "ResourceSet"
+			listKind:   "ResourceSetList"
+			plural:     "resourcesets"
 			shortNames: ["rset"]
-			singular: "resourceset"
+			singular:   "resourceset"
 		}
 		scope: "Namespaced"
 		versions: [{
@@ -2106,11 +2106,11 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 				name:     "Age"
 				type:     "date"
 			}, {
-				jsonPath: ".status.conditions[?(@.type==\"Ready\")].status"
+				jsonPath: #".status.conditions[?(@.type=="Ready")].status"#
 				name:     "Ready"
 				type:     "string"
 			}, {
-				jsonPath: ".status.conditions[?(@.type==\"Ready\")].message"
+				jsonPath: #".status.conditions[?(@.type=="Ready")].message"#
 				name:     "Status"
 				type:     "string"
 			}]
@@ -2120,21 +2120,21 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+							APIVersion defines the versioned schema of this representation of an object.
+							Servers should convert recognized schemas to the latest internal value, and
+							may reject unrecognized values.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+							"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+							Kind is a string value representing the REST resource this object represents.
+							Servers may infer this from the endpoint the client submits requests to.
+							Cannot be updated.
+							In CamelCase.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+							"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -2143,10 +2143,10 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 						properties: {
 							commonMetadata: {
 								description: """
-	CommonMetadata specifies the common labels and annotations that are
-	applied to all resources. Any existing label or annotation will be
-	overridden if its key matches a common one.
-	"""
+									CommonMetadata specifies the common labels and annotations that are
+									applied to all resources. Any existing label or annotation will be
+									overridden if its key matches a common one.
+									"""
 								properties: {
 									annotations: {
 										additionalProperties: type: "string"
@@ -2163,9 +2163,9 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 							}
 							dependsOn: {
 								description: """
-	DependsOn specifies the list of Kubernetes resources that must
-	exist on the cluster before the reconciliation process starts.
-	"""
+									DependsOn specifies the list of Kubernetes resources that must
+									exist on the cluster before the reconciliation process starts.
+									"""
 								items: {
 									description: "Dependency defines a ResourceSet dependency on a Kubernetes resource."
 									properties: {
@@ -2191,10 +2191,10 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 										}
 										readyExpr: {
 											description: """
-	ReadyExpr checks if the resource satisfies the given CEL expression.
-	The expression replaces the default readiness check and
-	is only evaluated if Ready is set to 'true'.
-	"""
+												ReadyExpr checks if the resource satisfies the given CEL expression.
+												The expression replaces the default readiness check and
+												is only evaluated if Ready is set to 'true'.
+												"""
 											type: "string"
 										}
 									}
@@ -2213,38 +2213,38 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 							}
 							inputStrategy: {
 								description: """
-	InputStrategy defines how the inputs are combined when multiple
-	input provider objects are used. Defaults to flattening all inputs
-	from all providers into a single list of input sets.
-	"""
+									InputStrategy defines how the inputs are combined when multiple
+									input provider objects are used. Defaults to flattening all inputs
+									from all providers into a single list of input sets.
+									"""
 								properties: {
 									includeEmptyProviders: {
 										description: """
-	IncludeEmptyProviders controls how input providers that export no
-	inputs are treated. Only applies when Name is Permute. When true, if
-	any provider has zero inputs the resulting permutation set is empty
-	(mathematically correct Cartesian product behavior). When false or
-	unset (default), providers with zero inputs are silently skipped and
-	the remaining providers still permute among themselves.
-	"""
+											IncludeEmptyProviders controls how input providers that export no
+											inputs are treated. Only applies when Name is Permute. When true, if
+											any provider has zero inputs the resulting permutation set is empty
+											(mathematically correct Cartesian product behavior). When false or
+											unset (default), providers with zero inputs are silently skipped and
+											the remaining providers still permute among themselves.
+											"""
 										type: "boolean"
 									}
 									name: {
 										description: """
-	Name defines how the inputs are combined when multiple
-	input provider objects are used. Supported values are:
-	- Flatten: all inputs sets from all input provider objects are
-	  flattened into a single list of input sets.
-	- Permute: all inputs sets from all input provider objects are
-	  combined using a Cartesian product, resulting in a list of input sets
-	  that contains every possible combination of input values.
-	  For example, if provider A has inputs [{x: 1}, {x: 2}] and provider B has
-	  inputs [{y: "a"}, {y: "b"}], the resulting input sets will be:
-	  [{x: 1, y: "a"}, {x: 1, y: "b"}, {x: 2, y: "a"}, {x: 2, y: "b"}].
-	  This strategy can lead to a large number of input sets and should be
-	  used with caution. Users should use filtering features from
-	  ResourceSetInputProvider to limit the amount of exported inputs.
-	"""
+											Name defines how the inputs are combined when multiple
+											input provider objects are used. Supported values are:
+											- Flatten: all inputs sets from all input provider objects are
+											  flattened into a single list of input sets.
+											- Permute: all inputs sets from all input provider objects are
+											  combined using a Cartesian product, resulting in a list of input sets
+											  that contains every possible combination of input values.
+											  For example, if provider A has inputs [{x: 1}, {x: 2}] and provider B has
+											  inputs [{y: "a"}, {y: "b"}], the resulting input sets will be:
+											  [{x: 1, y: "a"}, {x: 1, y: "b"}, {x: 2, y: "a"}, {x: 2, y: "b"}].
+											  This strategy can lead to a large number of input sets and should be
+											  used with caution. Users should use filtering features from
+											  ResourceSetInputProvider to limit the amount of exported inputs.
+											"""
 										enum: [
 											"Flatten",
 											"Permute",
@@ -2253,7 +2253,7 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 									}
 								}
 								required: ["name"]
-								type: "object"
+								type:     "object"
 								"x-kubernetes-validations": [{
 									message: "includeEmptyProviders only applies when name is Permute"
 									rule:    "!has(self.includeEmptyProviders) || self.name == 'Permute'"
@@ -2270,49 +2270,49 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 							}
 							inputsFrom: {
 								description: """
-	InputsFrom contains the list of references to input providers.
-	When set, the inputs are fetched from the providers and concatenated
-	with the in-line inputs defined in the ResourceSet.
-	"""
+									InputsFrom contains the list of references to input providers.
+									When set, the inputs are fetched from the providers and concatenated
+									with the in-line inputs defined in the ResourceSet.
+									"""
 								items: {
 									description: """
-	InputProviderReference defines a reference to an input provider resource
-	in the same namespace as the ResourceSet.
-	"""
+										InputProviderReference defines a reference to an input provider resource
+										in the same namespace as the ResourceSet.
+										"""
 									properties: {
 										apiVersion: {
 											description: """
-	APIVersion of the input provider resource.
-	When not set, the APIVersion of the ResourceSet is used.
-	"""
+												APIVersion of the input provider resource.
+												When not set, the APIVersion of the ResourceSet is used.
+												"""
 											enum: ["fluxcd.controlplane.io/v1"]
 											type: "string"
 										}
 										kind: {
 											description: "Kind of the input provider resource."
-											enum: ["ResourceSetInputProvider"]
-											type: "string"
+											enum:        ["ResourceSetInputProvider"]
+											type:        "string"
 										}
 										name: {
 											description: """
-	Name of the input provider resource. Cannot be set
-	when the Selector field is set.
-	"""
+												Name of the input provider resource. Cannot be set
+												when the Selector field is set.
+												"""
 											type: "string"
 										}
 										selector: {
 											description: """
-	Selector is a label selector to filter the input provider resources
-	as an alternative to the Name field.
-	"""
+												Selector is a label selector to filter the input provider resources
+												as an alternative to the Name field.
+												"""
 											properties: {
 												matchExpressions: {
 													description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 													items: {
 														description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
 														properties: {
 															key: {
 																description: "key is the label key that the selector applies to."
@@ -2320,18 +2320,18 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 															}
 															operator: {
 																description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
 																type: "string"
 															}
 															values: {
 																description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
 																items: type: "string"
 																type:                     "array"
 																"x-kubernetes-list-type": "atomic"
@@ -2349,10 +2349,10 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 												matchLabels: {
 													additionalProperties: type: "string"
 													description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
 													type: "object"
 												}
 											}
@@ -2381,33 +2381,33 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 							}
 							resourcesTemplate: {
 								description: """
-	ResourcesTemplate is a Go template that generates the list of
-	Kubernetes resources to reconcile. The template is rendered
-	as multi-document YAML, the resources should be separated by '---'.
-	When both Resources and ResourcesTemplate are set, the resulting
-	objects are merged and deduplicated, with the ones from Resources taking precedence.
-	"""
+									ResourcesTemplate is a Go template that generates the list of
+									Kubernetes resources to reconcile. The template is rendered
+									as multi-document YAML, the resources should be separated by '---'.
+									When both Resources and ResourcesTemplate are set, the resulting
+									objects are merged and deduplicated, with the ones from Resources taking precedence.
+									"""
 								type: "string"
 							}
 							serviceAccountName: {
 								description: """
-	The name of the Kubernetes service account to impersonate
-	when reconciling the generated resources.
-	"""
+									The name of the Kubernetes service account to impersonate
+									when reconciling the generated resources.
+									"""
 								type: "string"
 							}
 							steps: {
 								description: """
-	Steps contains an ordered list of named steps to reconcile in sequence.
-	Each step's resources are applied and health-checked before the next
-	step starts. Mutually exclusive with Resources and ResourcesTemplate.
-	"""
+									Steps contains an ordered list of named steps to reconcile in sequence.
+									Each step's resources are applied and health-checked before the next
+									step starts. Mutually exclusive with Resources and ResourcesTemplate.
+									"""
 								items: {
 									description: """
-	ResourceSetStep defines a named step in the ResourceSet reconciliation
-	sequence. The step's resources are applied and health-checked before
-	the next step starts.
-	"""
+										ResourceSetStep defines a named step in the ResourceSet reconciliation
+										sequence. The step's resources are applied and health-checked before
+										the next step starts.
+										"""
 									properties: {
 										name: {
 											description: "Name of the step, must be unique within the ResourceSet."
@@ -2425,26 +2425,26 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 										}
 										resourcesTemplate: {
 											description: """
-	ResourcesTemplate is a Go template that generates the list of
-	Kubernetes resources to reconcile. The template is rendered
-	as multi-document YAML, the resources should be separated by '---'.
-	When both Resources and ResourcesTemplate are set, the resulting
-	objects are merged and deduplicated, with the ones from Resources taking precedence.
-	"""
+												ResourcesTemplate is a Go template that generates the list of
+												Kubernetes resources to reconcile. The template is rendered
+												as multi-document YAML, the resources should be separated by '---'.
+												When both Resources and ResourcesTemplate are set, the resulting
+												objects are merged and deduplicated, with the ones from Resources taking precedence.
+												"""
 											type: "string"
 										}
 										timeout: {
 											description: """
-	Timeout is the maximum time to wait for the step's resources to
-	become ready. When not set, the ResourceSet reconciliation
-	timeout is used.
-	"""
-											pattern: "^([0-9]+(\\.[0-9]+)?(ms|s|m|h))+$"
+												Timeout is the maximum time to wait for the step's resources to
+												become ready. When not set, the ResourceSet reconciliation
+												timeout is used.
+												"""
+											pattern: #"^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"#
 											type:    "string"
 										}
 									}
 									required: ["name"]
-									type: "object"
+									type:     "object"
 									"x-kubernetes-validations": [{
 										message: "at least one of resources or resourcesTemplate must be set"
 										rule:    "has(self.resources) || has(self.resourcesTemplate)"
@@ -2460,9 +2460,9 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 							}
 							wait: {
 								description: """
-	Wait instructs the controller to check the health
-	of all the reconciled resources.
-	"""
+									Wait instructs the controller to check the health
+									of all the reconciled resources.
+									"""
 								type: "boolean"
 							}
 						}
@@ -2485,38 +2485,38 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 									properties: {
 										lastTransitionTime: {
 											description: """
-	lastTransitionTime is the last time the condition transitioned from one status to another.
-	This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-	"""
+												lastTransitionTime is the last time the condition transitioned from one status to another.
+												This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+												"""
 											format: "date-time"
 											type:   "string"
 										}
 										message: {
 											description: """
-	message is a human readable message indicating details about the transition.
-	This may be an empty string.
-	"""
+												message is a human readable message indicating details about the transition.
+												This may be an empty string.
+												"""
 											maxLength: 32768
 											type:      "string"
 										}
 										observedGeneration: {
 											description: """
-	observedGeneration represents the .metadata.generation that the condition was set based upon.
-	For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-	with respect to the current state of the instance.
-	"""
+												observedGeneration represents the .metadata.generation that the condition was set based upon.
+												For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+												with respect to the current state of the instance.
+												"""
 											format:  "int64"
 											minimum: 0
 											type:    "integer"
 										}
 										reason: {
 											description: """
-	reason contains a programmatic identifier indicating the reason for the condition's last transition.
-	Producers of specific condition types may define expected values and meanings for this field,
-	and whether the values are considered a guaranteed API.
-	The value should be a CamelCase string.
-	This field may not be empty.
-	"""
+												reason contains a programmatic identifier indicating the reason for the condition's last transition.
+												Producers of specific condition types may define expected values and meanings for this field,
+												and whether the values are considered a guaranteed API.
+												The value should be a CamelCase string.
+												This field may not be empty.
+												"""
 											maxLength: 1024
 											minLength: 1
 											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
@@ -2534,7 +2534,7 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 										type: {
 											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
 											maxLength:   316
-											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											pattern:     #"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"#
 											type:        "string"
 										}
 									}
@@ -2551,25 +2551,25 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 							}
 							externalChecksumRefs: {
 								description: """
-	ExternalChecksumRefs lists the ConfigMap and Secret references
-	discovered in checksumFrom annotations on the last reconciliation
-	that point to objects not rendered by this ResourceSet. Each entry
-	has the form "Kind/namespace/name". It is used to trigger a
-	reconciliation when one of the referenced objects changes.
-	"""
+									ExternalChecksumRefs lists the ConfigMap and Secret references
+									discovered in checksumFrom annotations on the last reconciliation
+									that point to objects not rendered by this ResourceSet. Each entry
+									has the form "Kind/namespace/name". It is used to trigger a
+									reconciliation when one of the referenced objects changes.
+									"""
 								items: type: "string"
 								type: "array"
 							}
 							history: {
 								description: """
-	History contains the reconciliation history of the ResourceSet
-	as a list of snapshots ordered by the last reconciled time.
-	"""
+									History contains the reconciliation history of the ResourceSet
+									as a list of snapshots ordered by the last reconciled time.
+									"""
 								items: {
 									description: """
-	Snapshot represents a point-in-time record of a group of resources reconciliation,
-	including timing information, status, and a unique digest identifier.
-	"""
+										Snapshot represents a point-in-time record of a group of resources reconciliation,
+										including timing information, status, and a unique digest identifier.
+										"""
 									properties: {
 										digest: {
 											description: "Digest is the checksum in the format `<algo>:<hex>` of the resources in this snapshot."
@@ -2618,9 +2618,9 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 							}
 							inventory: {
 								description: """
-	Inventory contains a list of Kubernetes resource object references
-	last applied on the cluster.
-	"""
+									Inventory contains a list of Kubernetes resource object references
+									last applied on the cluster.
+									"""
 								properties: entries: {
 									description: "Entries of Kubernetes resource object references."
 									items: {
@@ -2628,9 +2628,9 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 										properties: {
 											id: {
 												description: """
-	ID is the string representation of the Kubernetes resource object's metadata,
-	in the format '<namespace>_<name>_<group>_<kind>'.
-	"""
+													ID is the string representation of the Kubernetes resource object's metadata,
+													in the format '<namespace>_<name>_<group>_<kind>'.
+													"""
 												type: "string"
 											}
 											v: {
@@ -2647,21 +2647,21 @@ customresourcedefinition: "resourcesets.fluxcd.controlplane.io": {
 									type: "array"
 								}
 								required: ["entries"]
-								type: "object"
+								type:     "object"
 							}
 							lastAppliedRevision: {
 								description: """
-	LastAppliedRevision is the digest of the
-	generated resources that were last reconcile.
-	"""
+									LastAppliedRevision is the digest of the
+									generated resources that were last reconcile.
+									"""
 								type: "string"
 							}
 							lastHandledReconcileAt: {
 								description: """
-	LastHandledReconcileAt holds the value of the most recent
-	reconcile request value, so a change of the annotation value
-	can be detected.
-	"""
+									LastHandledReconcileAt holds the value of the most recent
+									reconcile request value, so a change of the annotation value
+									can be detected.
+									"""
 								type: "string"
 							}
 						}

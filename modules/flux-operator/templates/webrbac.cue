@@ -32,17 +32,17 @@ _fluxAPIGroups: [
 		{
 			apiGroups: ["*"]
 			resources: ["*"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create"]
+			verbs:     ["create"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["users", "groups"]
-			verbs: ["impersonate"]
+			verbs:     ["impersonate"]
 		},
 		// Fine-grained access: GitOps actions are performed using the
 		// web server's own privileges instead of impersonating the
@@ -56,28 +56,28 @@ _fluxAPIGroups: [
 			{
 				apiGroups: _fluxAPIGroups
 				resources: ["*"]
-				verbs: ["patch"]
+				verbs:     ["patch"]
 			}
 		},
 		if _config._webFineGrained {
 			{
 				apiGroups: ["apps"]
 				resources: ["deployments", "statefulsets", "daemonsets"]
-				verbs: ["patch"]
+				verbs:     ["patch"]
 			}
 		},
 		if _config._webFineGrained {
 			{
 				apiGroups: ["batch"]
 				resources: ["jobs"]
-				verbs: ["create"]
+				verbs:     ["create"]
 			}
 		},
 		if _config._webFineGrained {
 			{
 				apiGroups: [""]
 				resources: ["pods"]
-				verbs: ["delete"]
+				verbs:     ["delete"]
 			}
 		},
 	]
@@ -122,7 +122,7 @@ _fluxAPIGroups: [
 	rules: [{
 		apiGroups: ["*"]
 		resources: ["*"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	}]
 }
 
@@ -143,27 +143,27 @@ _fluxAPIGroups: [
 		{
 			apiGroups: ["*"]
 			resources: ["*"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: _fluxAPIGroups
 			resources: ["*"]
-			verbs: ["patch", "reconcile", "suspend", "resume", "download"]
+			verbs:     ["patch", "reconcile", "suspend", "resume", "download"]
 		},
 		{
 			apiGroups: ["apps"]
 			resources: ["deployments", "statefulsets", "daemonsets"]
-			verbs: ["patch", "restart"]
+			verbs:     ["patch", "restart"]
 		},
 		{
 			apiGroups: ["batch"]
 			resources: ["cronjobs", "jobs"]
-			verbs: ["create", "restart"]
+			verbs:     ["create", "restart"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["pods"]
-			verbs: ["delete"]
+			verbs:     ["delete"]
 		},
 	]
 }
@@ -186,22 +186,22 @@ _fluxAPIGroups: [
 		{
 			apiGroups: _fluxAPIGroups
 			resources: ["*"]
-			verbs: ["reconcile", "suspend", "resume", "download"]
+			verbs:     ["reconcile", "suspend", "resume", "download"]
 		},
 		{
 			apiGroups: ["apps"]
 			resources: ["deployments", "statefulsets", "daemonsets"]
-			verbs: ["patch", "restart"]
+			verbs:     ["patch", "restart"]
 		},
 		{
 			apiGroups: ["batch"]
 			resources: ["cronjobs", "jobs"]
-			verbs: ["create", "restart"]
+			verbs:     ["create", "restart"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["pods"]
-			verbs: ["delete"]
+			verbs:     ["delete"]
 		},
 	]
 }

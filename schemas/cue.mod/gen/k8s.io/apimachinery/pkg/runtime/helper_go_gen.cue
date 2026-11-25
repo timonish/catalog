@@ -16,4 +16,7 @@ _#defaultFramer: {}
 	Decoder: #Decoder
 }
 
-_#nondeterministicEncoderToEncoderAdapter: NondeterministicEncoder: #NondeterministicEncoder
+_#nondeterministicEncoderToEncoderAdapter: {
+	NondeterministicEncoder: #NondeterministicEncoder
+	Decoder:                 #Decoder
+}

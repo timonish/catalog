@@ -39,7 +39,7 @@ values: {
 				scrapeInterval: "30s"
 			}
 			userActions: {
-				audit: ["*"]
+				audit:  ["*"]
 				access: "FineGrained"
 			}
 			authentication: {
@@ -48,7 +48,7 @@ values: {
 					provider:     "OIDC"
 					clientID:     "flux-web"
 					clientSecret: "test-secret"
-					scopes: ["openid", "profile", "email", "groups"]
+					scopes:       ["openid", "profile", "email", "groups"]
 					authURLParams: "prompt": "consent"
 					autoLogin: false
 					issuerURL: "https://dex.example.com"
@@ -78,12 +78,12 @@ values: {
 			enabled:   true
 			className: "nginx"
 			hosts: [{
-				host: "flux.example.com"
+				host:  "flux.example.com"
 				paths: [{path: "/", pathType: "Prefix"}]
 			}]
 			tls: [{
 				secretName: "flux-web-tls"
-				hosts: ["flux.example.com"]
+				hosts:      ["flux.example.com"]
 			}]
 			annotations: "cert-manager.io/cluster-issuer": "letsencrypt"
 			labels: "team":                                "platform"
@@ -141,7 +141,7 @@ values: {
 	tmpVolume: emptyDir: medium: "Memory"
 
 	extraVolumes: [{
-		name: "extra"
+		name:     "extra"
 		emptyDir: {}
 	}]
 	extraVolumeMounts: [{
@@ -150,13 +150,13 @@ values: {
 	}]
 
 	extraContainers: [{
-		name:  "sidecar"
-		image: "docker.io/library/busybox:latest"
+		name:    "sidecar"
+		image:   "docker.io/library/busybox:latest"
 		command: ["sleep", "infinity"]
 	}]
 	initContainers: [{
-		name:  "init"
-		image: "docker.io/library/busybox:latest"
+		name:    "init"
+		image:   "docker.io/library/busybox:latest"
 		command: ["true"]
 	}]
 
@@ -176,7 +176,7 @@ values: {
 		labelSelector: matchLabels: "app.kubernetes.io/name": "flux-operator"
 	}]
 	hostAliases: [{
-		ip: "127.0.0.1"
+		ip:        "127.0.0.1"
 		hostnames: ["git.internal"]
 	}]
 	dnsConfig: options: [{
@@ -210,12 +210,12 @@ values: {
 	}
 
 	service: {
-		type:        "NodePort"
-		port:        9090
-		webPort:     9091
-		nodePort:    30090
-		webNodePort: 30091
-		ipFamilies: ["IPv4", "IPv6"]
+		type:                  "NodePort"
+		port:                  9090
+		webPort:               9091
+		nodePort:              30090
+		webNodePort:           30091
+		ipFamilies:            ["IPv4", "IPv6"]
 		ipFamilyPolicy:        "PreferDualStack"
 		externalTrafficPolicy: "Local"
 		labels: "kubernetes.io/cluster-service": "true"
@@ -236,11 +236,11 @@ values: {
 		scrapeTimeout: "5s"
 		honorLabels:   true
 		sampleLimit:   1000
-		targetLabels: ["app.kubernetes.io/part-of"]
+		targetLabels:  ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
-			action: "drop"
+			action:       "drop"
 			sourceLabels: ["__name__"]
-			regex: "go_gc_.*"
+			regex:        "go_gc_.*"
 		}]
 	}
 }
