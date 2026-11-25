@@ -171,6 +171,8 @@ import (
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
 	spec: #CSINodeSpec @go(Spec) @protobuf(2,bytes,opt)
+
+	status?: #CSINodeStatus @go(Status) @protobuf(3,bytes,opt)
 }
 
 #CSINodeSpec: {
@@ -189,6 +191,40 @@ import (
 
 #VolumeNodeResources: {
 	count?: int32 @go(Count,*int32) @protobuf(1,varint,opt)
+}
+
+#StorageHealthStatusType: string // #enumStorageHealthStatusType
+
+#enumStorageHealthStatusType:
+	#StorageUnreachable |
+	#StorageDegraded
+
+#StorageUnreachable: #StorageHealthStatusType & "StorageUnreachable"
+
+#StorageDegraded: #StorageHealthStatusType & "StorageDegraded"
+
+#StorageHealthCondition: {
+	status: #StorageHealthStatusType @go(Status) @protobuf(1,bytes,opt,casttype=StorageHealthStatusType)
+
+	reason: string @go(Reason) @protobuf(2,bytes,opt)
+
+	message?: string @go(Message) @protobuf(3,bytes,opt)
+
+	accessMode?: v1.#PersistentVolumeAccessMode @go(AccessMode,*v1.PersistentVolumeAccessMode) @protobuf(4,bytes,opt,casttype=k8s.io/api/core/v1.PersistentVolumeAccessMode)
+
+	volumeMode?: v1.#PersistentVolumeMode @go(VolumeMode,*v1.PersistentVolumeMode) @protobuf(5,bytes,opt,casttype=k8s.io/api/core/v1.PersistentVolumeMode)
+
+	lastTransitionTime?: metav1.#Time @go(LastTransitionTime) @protobuf(6,bytes,opt)
+}
+
+#StorageHealth: {
+	name: string @go(Name) @protobuf(1,bytes,opt)
+
+	healthConditions?: [...#StorageHealthCondition] @go(HealthConditions,[]StorageHealthCondition) @protobuf(2,bytes,rep)
+}
+
+#CSINodeStatus: {
+	storageHealth?: [...#StorageHealth] @go(StorageHealth,[]StorageHealth) @protobuf(1,bytes,rep)
 }
 
 #CSINodeList: {

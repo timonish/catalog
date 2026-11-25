@@ -5,6 +5,7 @@ package v1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 #CertificateSigningRequest: {
@@ -134,3 +135,87 @@ import (
 #UsageOCSPSigning:       #KeyUsage & "ocsp signing"
 #UsageMicrosoftSGC:      #KeyUsage & "microsoft sgc"
 #UsageNetscapeSGC:       #KeyUsage & "netscape sgc"
+
+#ClusterTrustBundle: {
+	metav1.#TypeMeta
+
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	spec: #ClusterTrustBundleSpec @go(Spec) @protobuf(2,bytes,opt)
+}
+
+#ClusterTrustBundleSpec: {
+	signerName?: string @go(SignerName) @protobuf(1,bytes,opt)
+
+	trustBundle: string @go(TrustBundle) @protobuf(2,bytes,opt)
+}
+
+#ClusterTrustBundleList: {
+	metav1.#TypeMeta
+
+	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
+
+	items: [...#ClusterTrustBundle] @go(Items,[]ClusterTrustBundle) @protobuf(2,bytes,rep)
+}
+
+#PodCertificateRequest: {
+	metav1.#TypeMeta
+
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	spec: #PodCertificateRequestSpec @go(Spec) @protobuf(2,bytes,opt)
+
+	status?: #PodCertificateRequestStatus @go(Status) @protobuf(3,bytes,opt)
+}
+
+#PodCertificateRequestSpec: {
+	signerName: string @go(SignerName) @protobuf(1,bytes,opt)
+
+	podName: string @go(PodName) @protobuf(2,bytes,opt)
+
+	podUID: types.#UID @go(PodUID) @protobuf(3,bytes,opt)
+
+	serviceAccountName: string @go(ServiceAccountName) @protobuf(4,bytes,opt)
+
+	serviceAccountUID: types.#UID @go(ServiceAccountUID) @protobuf(5,bytes,opt)
+
+	nodeName: types.#NodeName @go(NodeName) @protobuf(6,bytes,opt)
+
+	nodeUID: types.#UID @go(NodeUID) @protobuf(7,bytes,opt)
+
+	maxExpirationSeconds?: int32 @go(MaxExpirationSeconds,*int32) @protobuf(8,varint,opt)
+
+	stubPKCS10Request: bytes @go(StubPKCS10Request,[]byte) @protobuf(12,bytes,opt)
+
+	unverifiedUserAnnotations?: {[string]: string} @go(UnverifiedUserAnnotations,map[string]string) @protobuf(11,bytes,opt)
+}
+
+#PodCertificateRequestStatus: {
+	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition) @protobuf(1,bytes,rep)
+
+	certificateChain?: string @go(CertificateChain) @protobuf(2,bytes,opt)
+
+	notBefore?: metav1.#Time @go(NotBefore,*metav1.Time) @protobuf(4,bytes,opt)
+
+	beginRefreshAt?: metav1.#Time @go(BeginRefreshAt,*metav1.Time) @protobuf(5,bytes,opt)
+
+	notAfter?: metav1.#Time @go(NotAfter,*metav1.Time) @protobuf(6,bytes,opt)
+}
+
+#PodCertificateRequestConditionTypeDenied: "Denied"
+
+#PodCertificateRequestConditionTypeFailed: "Failed"
+
+#PodCertificateRequestConditionTypeIssued: "Issued"
+
+#PodCertificateRequestConditionUnsupportedKeyType: "UnsupportedKeyType"
+
+#PodCertificateRequestConditionInvalidUserConfig: "InvalidUnverifiedUserAnnotations"
+
+#PodCertificateRequestList: {
+	metav1.#TypeMeta
+
+	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
+
+	items: [...#PodCertificateRequest] @go(Items,[]PodCertificateRequest) @protobuf(2,bytes,rep)
+}

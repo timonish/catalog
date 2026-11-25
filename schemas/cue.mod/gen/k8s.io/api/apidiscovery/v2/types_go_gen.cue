@@ -9,7 +9,7 @@ import "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	metadata?: v1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	items: [...#APIGroupDiscovery] @go(Items,[]APIGroupDiscovery) @protobuf(2,bytes,rep)
+	items?: [...#APIGroupDiscovery] @go(Items,[]APIGroupDiscovery) @protobuf(2,bytes,rep)
 }
 
 #APIGroupDiscovery: {
@@ -21,7 +21,7 @@ import "k8s.io/apimachinery/pkg/apis/meta/v1"
 }
 
 #APIVersionDiscovery: {
-	version: string @go(Version) @protobuf(1,bytes,opt)
+	version?: string @go(Version) @protobuf(1,bytes,opt)
 
 	resources?: [...#APIResourceDiscovery] @go(Resources,[]APIResourceDiscovery) @protobuf(2,bytes,rep)
 
@@ -29,15 +29,15 @@ import "k8s.io/apimachinery/pkg/apis/meta/v1"
 }
 
 #APIResourceDiscovery: {
-	resource: string @go(Resource) @protobuf(1,bytes,opt)
+	resource?: string @go(Resource) @protobuf(1,bytes,opt)
 
 	responseKind?: v1.#GroupVersionKind @go(ResponseKind,*v1.GroupVersionKind) @protobuf(2,bytes,opt)
 
-	scope: #ResourceScope @go(Scope) @protobuf(3,bytes,opt)
+	scope?: #ResourceScope @go(Scope) @protobuf(3,bytes,opt)
 
-	singularResource: string @go(SingularResource) @protobuf(4,bytes,opt)
+	singularResource?: string @go(SingularResource) @protobuf(4,bytes,opt)
 
-	verbs: [...string] @go(Verbs,[]string) @protobuf(5,bytes,opt)
+	verbs?: [...string] @go(Verbs,[]string) @protobuf(5,bytes,opt)
 
 	shortNames?: [...string] @go(ShortNames,[]string) @protobuf(6,bytes,rep)
 
@@ -65,11 +65,11 @@ import "k8s.io/apimachinery/pkg/apis/meta/v1"
 #DiscoveryFreshnessStale:   #DiscoveryFreshness & "Stale"
 
 #APISubresourceDiscovery: {
-	subresource: string @go(Subresource) @protobuf(1,bytes,opt)
+	subresource?: string @go(Subresource) @protobuf(1,bytes,opt)
 
 	responseKind?: v1.#GroupVersionKind @go(ResponseKind,*v1.GroupVersionKind) @protobuf(2,bytes,opt)
 
 	acceptedTypes?: [...v1.#GroupVersionKind] @go(AcceptedTypes,[]v1.GroupVersionKind) @protobuf(3,bytes,rep)
 
-	verbs: [...string] @go(Verbs,[]string) @protobuf(4,bytes,opt)
+	verbs?: [...string] @go(Verbs,[]string) @protobuf(4,bytes,opt)
 }

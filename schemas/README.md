@@ -31,9 +31,9 @@ which packages the symlink targets as regular files (already set in
 `make push-mod`).
 
 Each vendored CRD schema embeds the original CRD in a hidden `_crd` field
-that `timoni mod vet` (0.34 or newer) uses to validate the rendered custom
+that `timoni mod vet` (0.38 or newer) uses to validate the rendered custom
 resources against the OpenAPI schema and the CEL rules. Run
-`make update-shared-schemas` with Timoni 0.34 or newer; older versions drop
+`make update-shared-schemas` with Timoni 0.38 or newer; older versions drop
 the embedded CRDs.
 
 ## Updating

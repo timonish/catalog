@@ -21,7 +21,7 @@ import (
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec?: #StatefulSetSpec @go(Spec) @protobuf(2,bytes,opt)
+	spec: #StatefulSetSpec @go(Spec) @protobuf(2,bytes,opt)
 
 	status?: #StatefulSetStatus @go(Status) @protobuf(3,bytes,opt)
 }
@@ -46,11 +46,14 @@ import (
 
 #enumStatefulSetUpdateStrategyType:
 	#RollingUpdateStatefulSetStrategyType |
-	#OnDeleteStatefulSetStrategyType
+	#OnDeleteStatefulSetStrategyType |
+	#RecreateStatefulSetStrategyType
 
 #RollingUpdateStatefulSetStrategyType: #StatefulSetUpdateStrategyType & "RollingUpdate"
 
 #OnDeleteStatefulSetStrategyType: #StatefulSetUpdateStrategyType & "OnDelete"
+
+#RecreateStatefulSetStrategyType: #StatefulSetUpdateStrategyType & "Recreate"
 
 #RollingUpdateStatefulSetStrategy: {
 	partition?: int32 @go(Partition,*int32) @protobuf(1,varint,opt)
@@ -81,7 +84,7 @@ import (
 #StatefulSetSpec: {
 	replicas?: int32 @go(Replicas,*int32) @protobuf(1,varint,opt)
 
-	selector?: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(2,bytes,opt)
+	selector: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(2,bytes,opt)
 
 	template: v1.#PodTemplateSpec @go(Template) @protobuf(3,bytes,opt)
 
@@ -124,12 +127,17 @@ import (
 	availableReplicas?: int32 @go(AvailableReplicas) @protobuf(11,varint,opt)
 }
 
-#StatefulSetConditionType: string
+#StatefulSetConditionType: string // #enumStatefulSetConditionType
+
+#enumStatefulSetConditionType:
+	#StatefulSetProgressing
+
+#StatefulSetProgressing: #StatefulSetConditionType & "Progressing"
 
 #StatefulSetCondition: {
-	type: #StatefulSetConditionType @go(Type) @protobuf(1,bytes,opt,casttype=StatefulSetConditionType)
+	type?: #StatefulSetConditionType @go(Type) @protobuf(1,bytes,opt,casttype=StatefulSetConditionType)
 
-	status: v1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
+	status?: v1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
 
 	lastTransitionTime?: metav1.#Time @go(LastTransitionTime) @protobuf(3,bytes,opt)
 
@@ -151,7 +159,7 @@ import (
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec?: #DeploymentSpec @go(Spec) @protobuf(2,bytes,opt)
+	spec: #DeploymentSpec @go(Spec) @protobuf(2,bytes,opt)
 
 	status?: #DeploymentStatus @go(Status) @protobuf(3,bytes,opt)
 }
@@ -159,7 +167,7 @@ import (
 #DeploymentSpec: {
 	replicas?: int32 @go(Replicas,*int32) @protobuf(1,varint,opt)
 
-	selector?: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(2,bytes,opt)
+	selector: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(2,bytes,opt)
 
 	template: v1.#PodTemplateSpec @go(Template) @protobuf(3,bytes,opt)
 
@@ -232,9 +240,9 @@ import (
 #DeploymentReplicaFailure: #DeploymentConditionType & "ReplicaFailure"
 
 #DeploymentCondition: {
-	type: #DeploymentConditionType @go(Type) @protobuf(1,bytes,opt,casttype=DeploymentConditionType)
+	type?: #DeploymentConditionType @go(Type) @protobuf(1,bytes,opt,casttype=DeploymentConditionType)
 
-	status: v1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
+	status?: v1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
 
 	lastUpdateTime?: metav1.#Time @go(LastUpdateTime) @protobuf(6,bytes,opt)
 
@@ -276,7 +284,7 @@ import (
 }
 
 #DaemonSetSpec: {
-	selector?: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(1,bytes,opt)
+	selector: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(1,bytes,opt)
 
 	template: v1.#PodTemplateSpec @go(Template) @protobuf(2,bytes,opt)
 
@@ -312,9 +320,9 @@ import (
 #DaemonSetConditionType: string
 
 #DaemonSetCondition: {
-	type: #DaemonSetConditionType @go(Type) @protobuf(1,bytes,opt,casttype=DaemonSetConditionType)
+	type?: #DaemonSetConditionType @go(Type) @protobuf(1,bytes,opt,casttype=DaemonSetConditionType)
 
-	status: v1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
+	status?: v1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
 
 	lastTransitionTime?: metav1.#Time @go(LastTransitionTime) @protobuf(3,bytes,opt)
 
@@ -328,7 +336,7 @@ import (
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec?: #DaemonSetSpec @go(Spec) @protobuf(2,bytes,opt)
+	spec: #DaemonSetSpec @go(Spec) @protobuf(2,bytes,opt)
 
 	status?: #DaemonSetStatus @go(Status) @protobuf(3,bytes,opt)
 }
@@ -348,7 +356,7 @@ import (
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	spec?: #ReplicaSetSpec @go(Spec) @protobuf(2,bytes,opt)
+	spec: #ReplicaSetSpec @go(Spec) @protobuf(2,bytes,opt)
 
 	status?: #ReplicaSetStatus @go(Status) @protobuf(3,bytes,opt)
 }
@@ -366,7 +374,7 @@ import (
 
 	minReadySeconds?: int32 @go(MinReadySeconds) @protobuf(4,varint,opt)
 
-	selector?: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(2,bytes,opt)
+	selector: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(2,bytes,opt)
 
 	template?: v1.#PodTemplateSpec @go(Template) @protobuf(3,bytes,opt)
 }
@@ -395,9 +403,9 @@ import (
 #ReplicaSetReplicaFailure: #ReplicaSetConditionType & "ReplicaFailure"
 
 #ReplicaSetCondition: {
-	type: #ReplicaSetConditionType @go(Type) @protobuf(1,bytes,opt,casttype=ReplicaSetConditionType)
+	type?: #ReplicaSetConditionType @go(Type) @protobuf(1,bytes,opt,casttype=ReplicaSetConditionType)
 
-	status: v1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
+	status?: v1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
 
 	lastTransitionTime?: metav1.#Time @go(LastTransitionTime) @protobuf(3,bytes,opt)
 
@@ -411,9 +419,9 @@ import (
 
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	data?: runtime.#RawExtension @go(Data) @protobuf(2,bytes,opt)
+	data: runtime.#RawExtension @go(Data) @protobuf(2,bytes,opt)
 
-	revision: int64 @go(Revision) @protobuf(3,varint,opt)
+	revision?: int64 @go(Revision) @protobuf(3,varint,opt)
 }
 
 #ControllerRevisionList: {
