@@ -3,8 +3,12 @@
   "repo": "dexidp/dex",
   "tag": "v2.46.1",
   "commit": "75eb19238e10fc4750e7efb05a4031b254b04029",
-  "moduleVersion": "2.46.1-0",
+  "moduleVersion": "2.46.1-1",
   "moduleReleases": [
+    {
+      "version": "2.46.1-1",
+      "releasedAt": "2026-11-25T10:32:49.625Z"
+    },
     {
       "version": "2.46.1-0",
       "releasedAt": "2026-10-22T11:34:25.043Z"
@@ -29,6 +33,6 @@
       "digest": "sha256:65b72ca0f4b0bf6d4ada84ec21da8851782563404ac7b8f926923d27ceced9ab"
     }
   },
-  "generatedDigest": "sha256:86a3490c642b8194476615b50c6afbf2132d9801fcffa6b234539409ea34ecb8",
-  "updatedAt": "2026-10-22T11:34:25.043Z"
+  "generatedDigest": "sha256:536a718e9618ead022b99ec2a51b03c38f6f0d638731e8f0a7bd7cab2e5a3002",
+  "updatedAt": "2026-11-25T10:32:49.625Z"
 }

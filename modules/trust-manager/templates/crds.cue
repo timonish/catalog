@@ -31,12 +31,12 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 				type:        "string"
 			}, {
 				description: "Bundle has been synced"
-				jsonPath:    ".status.conditions[?(@.type == \"Synced\")].status"
+				jsonPath:    #".status.conditions[?(@.type == "Synced")].status"#
 				name:        "Synced"
 				type:        "string"
 			}, {
 				description: "Reason Bundle has Synced status"
-				jsonPath:    ".status.conditions[?(@.type == \"Synced\")].reason"
+				jsonPath:    #".status.conditions[?(@.type == "Synced")].reason"#
 				name:        "Reason"
 				type:        "string"
 			}, {
@@ -50,21 +50,21 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+							APIVersion defines the versioned schema of this representation of an object.
+							Servers should convert recognized schemas to the latest internal value, and
+							may reject unrecognized values.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+							"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+							Kind is a string value representing the REST resource this object represents.
+							Servers may infer this from the endpoint the client submits requests to.
+							Cannot be updated.
+							In CamelCase.
+							More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+							"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -75,21 +75,21 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 								description: "sources is a set of references to data whose data will sync to the target."
 								items: {
 									description: """
-	BundleSource is the set of sources whose data will be appended and synced to
-	the BundleTarget in all Namespaces.
-	"""
+										BundleSource is the set of sources whose data will be appended and synced to
+										the BundleTarget in all Namespaces.
+										"""
 									properties: {
 										configMap: {
 											description: """
-	configMap is a reference (by name) to a ConfigMap's `data` key(s), or to a
-	list of ConfigMap's `data` key(s) using label selector, in the trust namespace.
-	"""
+												configMap is a reference (by name) to a ConfigMap's `data` key(s), or to a
+												list of ConfigMap's `data` key(s) using label selector, in the trust namespace.
+												"""
 											properties: {
 												includeAllKeys: {
 													description: """
-	includeAllKeys is a flag to include all keys in the object's `data` field to be used. False by default.
-	This field must not be true when `key` is set.
-	"""
+														includeAllKeys is a flag to include all keys in the object's `data` field to be used. False by default.
+														This field must not be true when `key` is set.
+														"""
 													type: "boolean"
 												}
 												key: {
@@ -100,26 +100,26 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 												}
 												name: {
 													description: """
-	name is the name of the source object in the trust namespace.
-	This field must be left empty when `selector` is set
-	"""
+														name is the name of the source object in the trust namespace.
+														This field must be left empty when `selector` is set
+														"""
 													maxLength: 253
 													minLength: 1
 													type:      "string"
 												}
 												selector: {
 													description: """
-	selector is the label selector to use to fetch a list of objects. Must not be set
-	when `name` is set.
-	"""
+														selector is the label selector to use to fetch a list of objects. Must not be set
+														when `name` is set.
+														"""
 													properties: {
 														matchExpressions: {
 															description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 															items: {
 																description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+																	A label selector requirement is a selector that contains values, a key, and an operator that
+																	relates the key and values.
+																	"""
 																properties: {
 																	key: {
 																		description: "key is the label key that the selector applies to."
@@ -127,18 +127,18 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 																	}
 																	operator: {
 																		description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																			operator represents a key's relationship to a set of values.
+																			Valid operators are In, NotIn, Exists and DoesNotExist.
+																			"""
 																		type: "string"
 																	}
 																	values: {
 																		description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																			values is an array of string values. If the operator is In or NotIn,
+																			the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																			the values array must be empty. This array is replaced during a strategic
+																			merge patch.
+																			"""
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
@@ -156,10 +156,10 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 														matchLabels: {
 															additionalProperties: type: "string"
 															description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+																matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																map is equivalent to an element of matchExpressions, whose key field is "key", the
+																operator is "In", and the values array contains only "value". The requirements are ANDed.
+																"""
 															type: "object"
 														}
 													}
@@ -182,15 +182,15 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 										}
 										secret: {
 											description: """
-	secret is a reference (by name) to a Secret's `data` key(s), or to a
-	list of Secret's `data` key(s) using label selector, in the trust namespace.
-	"""
+												secret is a reference (by name) to a Secret's `data` key(s), or to a
+												list of Secret's `data` key(s) using label selector, in the trust namespace.
+												"""
 											properties: {
 												includeAllKeys: {
 													description: """
-	includeAllKeys is a flag to include all keys in the object's `data` field to be used. False by default.
-	This field must not be true when `key` is set.
-	"""
+														includeAllKeys is a flag to include all keys in the object's `data` field to be used. False by default.
+														This field must not be true when `key` is set.
+														"""
 													type: "boolean"
 												}
 												key: {
@@ -201,26 +201,26 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 												}
 												name: {
 													description: """
-	name is the name of the source object in the trust namespace.
-	This field must be left empty when `selector` is set
-	"""
+														name is the name of the source object in the trust namespace.
+														This field must be left empty when `selector` is set
+														"""
 													maxLength: 253
 													minLength: 1
 													type:      "string"
 												}
 												selector: {
 													description: """
-	selector is the label selector to use to fetch a list of objects. Must not be set
-	when `name` is set.
-	"""
+														selector is the label selector to use to fetch a list of objects. Must not be set
+														when `name` is set.
+														"""
 													properties: {
 														matchExpressions: {
 															description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 															items: {
 																description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+																	A label selector requirement is a selector that contains values, a key, and an operator that
+																	relates the key and values.
+																	"""
 																properties: {
 																	key: {
 																		description: "key is the label key that the selector applies to."
@@ -228,18 +228,18 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 																	}
 																	operator: {
 																		description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																			operator represents a key's relationship to a set of values.
+																			Valid operators are In, NotIn, Exists and DoesNotExist.
+																			"""
 																		type: "string"
 																	}
 																	values: {
 																		description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																			values is an array of string values. If the operator is In or NotIn,
+																			the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																			the values array must be empty. This array is replaced during a strategic
+																			merge patch.
+																			"""
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
@@ -257,10 +257,10 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 														matchLabels: {
 															additionalProperties: type: "string"
 															description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+																matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																map is equivalent to an element of matchExpressions, whose key field is "key", the
+																operator is "In", and the values array contains only "value". The requirements are ANDed.
+																"""
 															type: "object"
 														}
 													}
@@ -277,15 +277,15 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 										}
 										useDefaultCAs: {
 											description: """
-	useDefaultCAs indicates whether the default CA bundle should be used as a source.
-	The default CA bundle is available only if trust-manager was installed with
-	default CA support enabled, either via the Helm chart or by starting the
-	trust-manager controller with the "--default-package-location" flag.
-	If default CA support was not enabled at startup, setting this field to true
-	will result in reconciliation failure.
-	The version of the default CA package used for this Bundle is reported in
-	status.defaultCAVersion.
-	"""
+												useDefaultCAs indicates whether the default CA bundle should be used as a source.
+												The default CA bundle is available only if trust-manager was installed with
+												default CA support enabled, either via the Helm chart or by starting the
+												trust-manager controller with the "--default-package-location" flag.
+												If default CA support was not enabled at startup, setting this field to true
+												will result in reconciliation failure.
+												The version of the default CA package used for this Bundle is reported in
+												status.defaultCAVersion.
+												"""
 											type: "boolean"
 										}
 									}
@@ -309,12 +309,12 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 										properties: {
 											jks: {
 												description: """
-	jks requests a JKS-formatted binary trust bundle to be written to the target.
-	The bundle has "changeit" as the default password.
-	For more information refer to this link https://cert-manager.io/docs/faq/#keystore-passwords
-	Format is deprecated: Writing JKS is subject for removal. Please migrate to PKCS12.
-	PKCS#12 trust stores created by trust-manager are compatible with Java.
-	"""
+													jks requests a JKS-formatted binary trust bundle to be written to the target.
+													The bundle has "changeit" as the default password.
+													For more information refer to this link https://cert-manager.io/docs/faq/#keystore-passwords
+													Format is deprecated: Writing JKS is subject for removal. Please migrate to PKCS12.
+													PKCS#12 trust stores created by trust-manager are compatible with Java.
+													"""
 												minProperties: 1
 												properties: {
 													key: {
@@ -331,17 +331,17 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 														type:        "string"
 													}
 												}
-												required: ["key"]
+												required:                ["key"]
 												type:                    "object"
 												"x-kubernetes-map-type": "atomic"
 											}
 											pkcs12: {
 												description: """
-	pkcs12 requests a PKCS12-formatted binary trust bundle to be written to the target.
+													pkcs12 requests a PKCS12-formatted binary trust bundle to be written to the target.
 
-	The bundle is by default created without a password.
-	For more information refer to this link https://cert-manager.io/docs/faq/#keystore-passwords
-	"""
+													The bundle is by default created without a password.
+													For more information refer to this link https://cert-manager.io/docs/faq/#keystore-passwords
+													"""
 												minProperties: 1
 												properties: {
 													key: {
@@ -359,16 +359,16 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 													}
 													profile: {
 														description: """
-	profile specifies the certificate encryption algorithms and the HMAC algorithm
-	used to create the PKCS12 trust store.
+															profile specifies the certificate encryption algorithms and the HMAC algorithm
+															used to create the PKCS12 trust store.
 
-	If provided, allowed values are:
-	`LegacyRC2`: Deprecated. Not supported by default in OpenSSL 3 or Java 20.
-	`LegacyDES`: Less secure algorithm. Use this option for maximal compatibility.
-	`Modern2023`: Secure algorithm. Use this option in case you have to always use secure algorithms (e.g. because of company policy).
+															If provided, allowed values are:
+															`LegacyRC2`: Deprecated. Not supported by default in OpenSSL 3 or Java 20.
+															`LegacyDES`: Less secure algorithm. Use this option for maximal compatibility.
+															`Modern2023`: Secure algorithm. Use this option in case you have to always use secure algorithms (e.g. because of company policy).
 
-	Default value is `LegacyRC2` for backward compatibility.
-	"""
+															Default value is `LegacyRC2` for backward compatibility.
+															"""
 														enum: [
 															"LegacyRC2",
 															"LegacyDES",
@@ -377,7 +377,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 														type: "string"
 													}
 												}
-												required: ["key"]
+												required:                ["key"]
 												type:                    "object"
 												"x-kubernetes-map-type": "atomic"
 											}
@@ -390,9 +390,9 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 									}
 									configMap: {
 										description: """
-	configMap is the target ConfigMap in Namespaces that all Bundle source
-	data will be synced to.
-	"""
+											configMap is the target ConfigMap in Namespaces that all Bundle source
+											data will be synced to.
+											"""
 										properties: {
 											key: {
 												description: "key is the key of the entry in the object's `data` field to be used."
@@ -421,21 +421,21 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 											}
 										}
 										required: ["key"]
-										type: "object"
+										type:     "object"
 									}
 									namespaceSelector: {
 										description: """
-	namespaceSelector will, if set, only sync the target resource in
-	Namespaces which match the selector.
-	"""
+											namespaceSelector will, if set, only sync the target resource in
+											Namespaces which match the selector.
+											"""
 										properties: {
 											matchExpressions: {
 												description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 												items: {
 													description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+														A label selector requirement is a selector that contains values, a key, and an operator that
+														relates the key and values.
+														"""
 													properties: {
 														key: {
 															description: "key is the label key that the selector applies to."
@@ -443,18 +443,18 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 														}
 														operator: {
 															description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																operator represents a key's relationship to a set of values.
+																Valid operators are In, NotIn, Exists and DoesNotExist.
+																"""
 															type: "string"
 														}
 														values: {
 															description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																values is an array of string values. If the operator is In or NotIn,
+																the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																the values array must be empty. This array is replaced during a strategic
+																merge patch.
+																"""
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
@@ -472,10 +472,10 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 											matchLabels: {
 												additionalProperties: type: "string"
 												description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+													matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+													map is equivalent to an element of matchExpressions, whose key field is "key", the
+													operator is "In", and the values array contains only "value". The requirements are ANDed.
+													"""
 												type: "object"
 											}
 										}
@@ -484,10 +484,10 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 									}
 									secret: {
 										description: """
-	secret is the target Secret that all Bundle source data will be synced to.
-	Using Secrets as targets is only supported if enabled at trust-manager startup.
-	By default, trust-manager has no permissions for writing to secrets and can only read secrets in the trust namespace.
-	"""
+											secret is the target Secret that all Bundle source data will be synced to.
+											Using Secrets as targets is only supported if enabled at trust-manager startup.
+											By default, trust-manager has no permissions for writing to secrets and can only read secrets in the trust namespace.
+											"""
 										properties: {
 											key: {
 												description: "key is the key of the entry in the object's `data` field to be used."
@@ -516,7 +516,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 											}
 										}
 										required: ["key"]
-										type: "object"
+										type:     "object"
 									}
 								}
 								type: "object"
@@ -527,7 +527,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 							}
 						}
 						required: ["sources"]
-						type: "object"
+						type:     "object"
 					}
 					status: {
 						description:   "status of the Bundle. This is set and managed automatically."
@@ -540,38 +540,38 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 									properties: {
 										lastTransitionTime: {
 											description: """
-	lastTransitionTime is the last time the condition transitioned from one status to another.
-	This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-	"""
+												lastTransitionTime is the last time the condition transitioned from one status to another.
+												This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+												"""
 											format: "date-time"
 											type:   "string"
 										}
 										message: {
 											description: """
-	message is a human readable message indicating details about the transition.
-	This may be an empty string.
-	"""
+												message is a human readable message indicating details about the transition.
+												This may be an empty string.
+												"""
 											maxLength: 32768
 											type:      "string"
 										}
 										observedGeneration: {
 											description: """
-	observedGeneration represents the .metadata.generation that the condition was set based upon.
-	For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-	with respect to the current state of the instance.
-	"""
+												observedGeneration represents the .metadata.generation that the condition was set based upon.
+												For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+												with respect to the current state of the instance.
+												"""
 											format:  "int64"
 											minimum: 0
 											type:    "integer"
 										}
 										reason: {
 											description: """
-	reason contains a programmatic identifier indicating the reason for the condition's last transition.
-	Producers of specific condition types may define expected values and meanings for this field,
-	and whether the values are considered a guaranteed API.
-	The value should be a CamelCase string.
-	This field may not be empty.
-	"""
+												reason contains a programmatic identifier indicating the reason for the condition's last transition.
+												Producers of specific condition types may define expected values and meanings for this field,
+												and whether the values are considered a guaranteed API.
+												The value should be a CamelCase string.
+												This field may not be empty.
+												"""
 											maxLength: 1024
 											minLength: 1
 											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
@@ -589,7 +589,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 										type: {
 											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
 											maxLength:   316
-											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											pattern:     #"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"#
 											type:        "string"
 										}
 									}
@@ -602,20 +602,20 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 									]
 									type: "object"
 								}
-								maxItems: 10
-								minItems: 0
-								type:     "array"
+								maxItems:                     10
+								minItems:                     0
+								type:                         "array"
 								"x-kubernetes-list-map-keys": ["type"]
-								"x-kubernetes-list-type": "map"
+								"x-kubernetes-list-type":     "map"
 							}
 							defaultCAVersion: {
 								description: """
-	defaultCAVersion is the version of the default CA package used when resolving
-	the default CA source(s) for this Bundle (for example, when any source has
-	useDefaultCAs set to true), if applicable.
-	Bundles resolved from identical sets of default CA certificates will report
-	the same defaultCAVersion value.
-	"""
+									defaultCAVersion is the version of the default CA package used when resolving
+									the default CA source(s) for this Bundle (for example, when any source has
+									useDefaultCAs set to true), if applicable.
+									Bundles resolved from identical sets of default CA certificates will report
+									the same defaultCAVersion value.
+									"""
 								maxLength: 253
 								minLength: 1
 								type:      "string"
@@ -625,7 +625,7 @@ customresourcedefinition: "bundles.trust.cert-manager.io": {
 					}
 				}
 				required: ["spec"]
-				type: "object"
+				type:     "object"
 			}
 			served:  true
 			storage: true

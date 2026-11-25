@@ -3,8 +3,12 @@
   "repo": "cert-manager/cert-manager",
   "tag": "v1.21.3",
   "commit": "925c22283de556172d48d96a165dc2fa27f7a6ff",
-  "moduleVersion": "1.21.3-0",
+  "moduleVersion": "1.21.3-1",
   "moduleReleases": [
+    {
+      "version": "1.21.3-1",
+      "releasedAt": "2026-11-25T10:32:47.359Z"
+    },
     {
       "version": "1.21.3-0",
       "releasedAt": "2026-10-24T10:42:38.769Z"
@@ -61,6 +65,6 @@
     }
   },
   "crdsDigest": "sha256:29810b2a84c8ee0731a79679ee1dfd7e93cd750eb0244542eec47fa8700f2749",
-  "generatedDigest": "sha256:8fcbf24e470d915fd0f0cd27fb5a2b94413248b9a8a81f83bbc989c1337bb986",
-  "updatedAt": "2026-10-24T10:42:38.769Z"
+  "generatedDigest": "sha256:f3f40f3a96721dc212c8abe6704b12ef178469103b967d76440da4cbee4d810b",
+  "updatedAt": "2026-11-25T10:32:47.359Z"
 }

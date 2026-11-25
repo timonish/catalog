@@ -3,8 +3,12 @@
   "repo": "fluent/fluent-operator",
   "tag": "v3.11.0",
   "commit": "4b98e755cf513f42e5ff8f50a084c0f1ff9feec7",
-  "moduleVersion": "3.11.0-0",
+  "moduleVersion": "3.11.0-1",
   "moduleReleases": [
+    {
+      "version": "3.11.0-1",
+      "releasedAt": "2026-11-25T10:33:12.509Z"
+    },
     {
       "version": "3.11.0-0",
       "releasedAt": "2026-10-29T12:44:49.132Z"
@@ -34,6 +38,6 @@
     }
   },
   "crdsDigest": "sha256:db27125f5da7d1a4b08c4e397b0594132e1cb15fcb894c885378325aec02c3f2",
-  "generatedDigest": "sha256:71e4a667ba3a70c71beb7185c721b153968f1d634f20d7c94bc8e04511016856",
-  "updatedAt": "2026-10-29T12:44:49.132Z"
+  "generatedDigest": "sha256:c12478ffade53a6fec6253beb3cc8b1578e5a8822213cfc540b7fe41362d23c0",
+  "updatedAt": "2026-11-25T10:33:12.509Z"
 }
