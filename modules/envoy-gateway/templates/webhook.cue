@@ -28,9 +28,9 @@ import (
 		}
 	}
 	webhooks: [{
-		name: "topology.webhook.gateway.envoyproxy.io"
+		name:                    "topology.webhook.gateway.envoyproxy.io"
 		admissionReviewVersions: ["v1"]
-		sideEffects: "None"
+		sideEffects:             "None"
 		clientConfig: service: {
 			name:      _config._serviceName
 			namespace: _config.metadata.namespace
@@ -41,10 +41,10 @@ import (
 		// is unreachable.
 		failurePolicy: "Ignore"
 		rules: [{
-			operations: ["CREATE"]
-			apiGroups: [""]
+			operations:  ["CREATE"]
+			apiGroups:   [""]
 			apiVersions: ["v1"]
-			resources: ["pods/binding"]
+			resources:   ["pods/binding"]
 		}]
 		// Scope the webhook to the namespaces running Envoy fleet pods:
 		// the controller namespace by default, the watched namespaces
@@ -54,7 +54,7 @@ import (
 			namespaceSelector: matchExpressions: [{
 				key:      "kubernetes.io/metadata.name"
 				operator: "In"
-				values: [_config.metadata.namespace]
+				values:   [_config.metadata.namespace]
 			}]
 		}
 		if _config._gatewayNamespaceMode if len(_config._watchNamespaces) > 0 {

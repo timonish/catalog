@@ -24,13 +24,13 @@ import (
 		"\(_name)-cr-metrics-reader": rbacv1.#ClusterRole & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRole"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-metrics-reader"
 			rules: [
 				{
 					apiGroups: ["metrics.k8s.io"]
 					resources: ["pods"]
-					verbs: ["get", "list"]
+					verbs:     ["get", "list"]
 				},
 				if _config.rbac.extraRules != _|_ for r in _config.rbac.extraRules {r},
 			]
@@ -38,7 +38,7 @@ import (
 		"\(_name)-crb-metrics-reader": rbacv1.#ClusterRoleBinding & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRoleBinding"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-metrics-reader"
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"
@@ -51,35 +51,35 @@ import (
 		"\(_name)-cr-actor": rbacv1.#ClusterRole & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRole"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-actor"
 			rules: [
 				{
 					apiGroups: [""]
 					resources: ["pods", "nodes", "limitranges"]
-					verbs: ["get", "list", "watch"]
+					verbs:     ["get", "list", "watch"]
 				},
 				{
 					apiGroups: ["", "events.k8s.io"]
 					resources: ["events"]
-					verbs: ["create", "get", "list", "watch", "patch", "update"]
+					verbs:     ["create", "get", "list", "watch", "patch", "update"]
 				},
 				{
 					apiGroups: ["poc.autoscaling.k8s.io"]
 					resources: ["verticalpodautoscalers"]
-					verbs: ["get", "list", "watch"]
+					verbs:     ["get", "list", "watch"]
 				},
 				{
 					apiGroups: ["autoscaling.k8s.io"]
 					resources: ["verticalpodautoscalers"]
-					verbs: ["get", "list", "watch"]
+					verbs:     ["get", "list", "watch"]
 				},
 			]
 		}
 		"\(_name)-crb-actor": rbacv1.#ClusterRoleBinding & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRoleBinding"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-actor"
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"
@@ -92,18 +92,18 @@ import (
 		"\(_name)-cr-status-actor": rbacv1.#ClusterRole & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRole"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-status-actor"
 			rules: [{
 				apiGroups: ["autoscaling.k8s.io"]
 				resources: ["verticalpodautoscalers/status"]
-				verbs: ["get", "patch"]
+				verbs:     ["get", "patch"]
 			}]
 		}
 		"\(_name)-crb-status-actor": rbacv1.#ClusterRoleBinding & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRoleBinding"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-status-actor"
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"
@@ -116,30 +116,30 @@ import (
 		"\(_name)-cr-checkpoint-actor": rbacv1.#ClusterRole & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRole"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-checkpoint-actor"
 			rules: [
 				{
 					apiGroups: ["poc.autoscaling.k8s.io"]
 					resources: ["verticalpodautoscalercheckpoints"]
-					verbs: ["get", "list", "watch", "create", "patch", "delete"]
+					verbs:     ["get", "list", "watch", "create", "patch", "delete"]
 				},
 				{
 					apiGroups: ["autoscaling.k8s.io"]
 					resources: ["verticalpodautoscalercheckpoints"]
-					verbs: ["get", "list", "watch", "create", "patch", "delete"]
+					verbs:     ["get", "list", "watch", "create", "patch", "delete"]
 				},
 				{
 					apiGroups: [""]
 					resources: ["namespaces"]
-					verbs: ["get", "list"]
+					verbs:     ["get", "list"]
 				},
 			]
 		}
 		"\(_name)-crb-checkpoint-actor": rbacv1.#ClusterRoleBinding & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRoleBinding"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-checkpoint-actor"
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"
@@ -152,14 +152,14 @@ import (
 		"\(_name)-cr-target-reader": rbacv1.#ClusterRole & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRole"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-target-reader"
 			rules: #TargetReaderRules
 		}
 		"\(_name)-crb-target-reader": rbacv1.#ClusterRoleBinding & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRoleBinding"
-			metadata: #ClusterObjectMeta & {#config: _config}
+			metadata:   #ClusterObjectMeta & {#config: _config}
 			metadata: name: "\(_name)-target-reader"
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"
@@ -174,27 +174,27 @@ import (
 			"\(_name)-role-leader-locking": rbacv1.#Role & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "Role"
-				metadata: #ClusterObjectMeta & {#config: _config}
+				metadata:   #ClusterObjectMeta & {#config: _config}
 				metadata: name:      "\(_name)-leader-locking"
 				metadata: namespace: _config.recommender.leaderElection.resourceNamespace
 				rules: [
 					{
 						apiGroups: ["coordination.k8s.io"]
 						resources: ["leases"]
-						verbs: ["create"]
+						verbs:     ["create"]
 					},
 					{
-						apiGroups: ["coordination.k8s.io"]
-						resources: ["leases"]
+						apiGroups:     ["coordination.k8s.io"]
+						resources:     ["leases"]
 						resourceNames: [_config.recommender.leaderElection.resourceName]
-						verbs: ["get", "watch", "update"]
+						verbs:         ["get", "watch", "update"]
 					},
 				]
 			}
 			"\(_name)-rb-leader-locking": rbacv1.#RoleBinding & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "RoleBinding"
-				metadata: #ClusterObjectMeta & {#config: _config}
+				metadata:   #ClusterObjectMeta & {#config: _config}
 				metadata: name:      "\(_name)-leader-locking"
 				metadata: namespace: _config.recommender.leaderElection.resourceNamespace
 				roleRef: {
@@ -214,21 +214,21 @@ import (
 	{
 		apiGroups: ["*"]
 		resources: ["*/scale"]
-		verbs: ["get", "watch"]
+		verbs:     ["get", "watch"]
 	},
 	{
 		apiGroups: [""]
 		resources: ["replicationcontrollers"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	},
 	{
 		apiGroups: ["apps"]
 		resources: ["daemonsets", "deployments", "replicasets", "statefulsets"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	},
 	{
 		apiGroups: ["batch"]
 		resources: ["jobs", "cronjobs"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	},
 ]

@@ -65,60 +65,60 @@ _reconciledKinds: {
 // them here from the #config parameter would see the schema defaults
 // instead of the user values.
 _controllerRules: {
-	#config: config.#Config
-	#kinds: [...string]
+	#config:       config.#Config
+	#kinds:        [...string]
 	#subresources: [...string]
-	#generators: [...string]
-	_r: #config.controller.reconcilers
+	#generators:   [...string]
+	_r:            #config.controller.reconcilers
 	rules: [
 		{
 			apiGroups: ["external-secrets.io"]
 			resources: #kinds
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["external-secrets.io"]
 			resources: #subresources
-			verbs: ["get", "update", "patch"]
+			verbs:     ["get", "update", "patch"]
 		},
 		{
 			apiGroups: ["generators.external-secrets.io"]
 			resources: ["generatorstates"]
-			verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]
+			verbs:     ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]
 		},
 		{
 			apiGroups: ["generators.external-secrets.io"]
 			resources: #generators
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["serviceaccounts", "namespaces"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		// Namespace finalizers of ClusterExternalSecrets.
 		if _r.clusterExternalSecret {
 			{
 				apiGroups: [""]
 				resources: ["namespaces"]
-				verbs: ["update", "patch"]
+				verbs:     ["update", "patch"]
 			}
 		},
 		{
 			apiGroups: [""]
 			resources: ["configmaps"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["secrets"]
-			verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+			verbs:     ["get", "list", "watch", "create", "update", "delete", "patch"]
 		},
 		if #config.controller.genericTargets.enabled {
 			{
 				apiGroups: [""]
 				resources: ["configmaps"]
-				verbs: ["create", "update", "delete", "patch"]
+				verbs:     ["create", "update", "delete", "patch"]
 			}
 		},
 		if #config.controller.genericTargets.enabled && #config.controller.genericTargets.resources != _|_
@@ -133,26 +133,26 @@ _controllerRules: {
 			{
 				apiGroups: [""]
 				resources: ["serviceaccounts/token"]
-				verbs: ["create"]
+				verbs:     ["create"]
 			}
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 		if _r.clusterExternalSecret {
 			{
 				apiGroups: ["external-secrets.io"]
 				resources: ["externalsecrets"]
-				verbs: ["create", "update", "delete"]
+				verbs:     ["create", "update", "delete"]
 			}
 		},
 		if _r.pushSecret {
 			{
 				apiGroups: ["external-secrets.io"]
 				resources: ["pushsecrets"]
-				verbs: ["create", "update", "delete"]
+				verbs:     ["create", "update", "delete"]
 			}
 		},
 		if #config.controller.metrics.auth.enabled for r in config.#MetricsAuthRules {r},
@@ -192,7 +192,7 @@ _controllerRules: {
 	}
 
 	_kinds: _reconciledKinds & {#config: cfg}
-	_gens: _generators & {#config: cfg}
+	_gens:  _generators & {#config: cfg}
 
 	_subject: {
 		kind:      "ServiceAccount"
@@ -204,7 +204,7 @@ _controllerRules: {
 		"controller-role": {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       _roleKind
-			metadata: _roleMeta & {#name: "\(_name)-controller"}
+			metadata:   _roleMeta & {#name: "\(_name)-controller"}
 			rules: (_controllerRules & {
 				#config:       cfg
 				#kinds:        _kinds.list
@@ -215,7 +215,7 @@ _controllerRules: {
 		"controller-rolebinding": {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "\(_roleKind)Binding"
-			metadata: _roleMeta & {#name: "\(_name)-controller"}
+			metadata:   _roleMeta & {#name: "\(_name)-controller"}
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"
 				kind:     _roleKind
@@ -229,25 +229,25 @@ _controllerRules: {
 		"view-role": {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       _roleKind
-			metadata: _roleMeta & {#name: "\(_name)-view"}
+			metadata:   _roleMeta & {#name: "\(_name)-view"}
 			metadata: labels: _aggregation
 			rules: [
 				{
 					apiGroups: ["external-secrets.io"]
 					resources: _kinds.userFacing
-					verbs: ["get", "watch", "list"]
+					verbs:     ["get", "watch", "list"]
 				},
 				{
 					apiGroups: ["generators.external-secrets.io"]
 					resources: list.Concat([_gens.list, ["generatorstates"]])
-					verbs: ["get", "watch", "list"]
+					verbs:     ["get", "watch", "list"]
 				},
 			]
 		}
 		"edit-role": {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       _roleKind
-			metadata: _roleMeta & {#name: "\(_name)-edit"}
+			metadata:   _roleMeta & {#name: "\(_name)-edit"}
 			metadata: labels: {
 				if _config.rbac.aggregateClusterRoles {
 					"rbac.authorization.k8s.io/aggregate-to-edit":  "true"
@@ -258,12 +258,12 @@ _controllerRules: {
 				{
 					apiGroups: ["external-secrets.io"]
 					resources: _kinds.userFacing
-					verbs: ["create", "delete", "deletecollection", "patch", "update"]
+					verbs:     ["create", "delete", "deletecollection", "patch", "update"]
 				},
 				{
 					apiGroups: ["generators.external-secrets.io"]
 					resources: list.Concat([_gens.list, ["generatorstates"]])
-					verbs: ["create", "delete", "deletecollection", "patch", "update"]
+					verbs:     ["create", "delete", "deletecollection", "patch", "update"]
 				},
 			]
 		}
@@ -272,34 +272,34 @@ _controllerRules: {
 		"leaderelection-role": rbacv1.#Role & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "Role"
-			metadata: #ClusterObjectMeta & {#config: cfg}
+			metadata:   #ClusterObjectMeta & {#config: cfg}
 			metadata: {
 				name:      "\(_name)-leaderelection"
 				namespace: _config.metadata.namespace
 			}
 			rules: [
 				{
-					apiGroups: [""]
-					resources: ["configmaps"]
+					apiGroups:     [""]
+					resources:     ["configmaps"]
 					resourceNames: [_config.controller.leaderElection.id]
-					verbs: ["get", "update", "patch"]
+					verbs:         ["get", "update", "patch"]
 				},
 				{
 					apiGroups: [""]
 					resources: ["configmaps"]
-					verbs: ["create"]
+					verbs:     ["create"]
 				},
 				{
 					apiGroups: ["coordination.k8s.io"]
 					resources: ["leases"]
-					verbs: ["get", "create", "update", "patch"]
+					verbs:     ["get", "create", "update", "patch"]
 				},
 			]
 		}
 		"leaderelection-rolebinding": rbacv1.#RoleBinding & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "RoleBinding"
-			metadata: #ClusterObjectMeta & {#config: cfg}
+			metadata:   #ClusterObjectMeta & {#config: cfg}
 			metadata: {
 				name:      "\(_name)-leaderelection"
 				namespace: _config.metadata.namespace
@@ -316,7 +316,7 @@ _controllerRules: {
 			"servicebindings-clusterrole": rbacv1.#ClusterRole & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRole"
-				metadata: #ClusterObjectMeta & {#config: cfg}
+				metadata:   #ClusterObjectMeta & {#config: cfg}
 				metadata: name: "\(_name)-servicebindings"
 				metadata: labels: "servicebinding.io/controller": "true"
 				rules: [{
@@ -334,7 +334,7 @@ _controllerRules: {
 			"auth-delegator-clusterrolebinding": rbacv1.#ClusterRoleBinding & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRoleBinding"
-				metadata: #ClusterObjectMeta & {#config: cfg}
+				metadata:   #ClusterObjectMeta & {#config: cfg}
 				metadata: name: "\(_name)-auth-delegator"
 				roleRef: {
 					apiGroup: "rbac.authorization.k8s.io"

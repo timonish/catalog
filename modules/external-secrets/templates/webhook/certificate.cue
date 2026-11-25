@@ -24,7 +24,7 @@ _certMeta: {
 
 	apiVersion: "cert-manager.io/v1"
 	kind:       "Issuer"
-	metadata: _certMeta & {#config: _config}
+	metadata:   _certMeta & {#config: _config}
 	spec: selfSigned: {}
 }
 
@@ -37,7 +37,7 @@ _certMeta: {
 
 	apiVersion: "cert-manager.io/v1"
 	kind:       "Certificate"
-	metadata: _certMeta & {#config: _config}
+	metadata:   _certMeta & {#config: _config}
 	spec: {
 		commonName: _name
 		dnsNames: [

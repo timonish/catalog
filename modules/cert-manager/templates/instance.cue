@@ -16,7 +16,7 @@ import (
 	// names can be passed to the deployments: a config change rolls the
 	// component pods.
 	_controllerCM: controller.#ConfigMap & {#config: cfg}
-	_webhookCM: webhook.#ConfigMap & {#config: cfg}
+	_webhookCM:    webhook.#ConfigMap & {#config: cfg}
 	_cainjectorCM: cainjector.#ConfigMap & {#config: cfg}
 
 	objects: {
@@ -58,7 +58,7 @@ import (
 		}
 		if config.controller.networkPolicy.enabled {
 			"controller-netpol-ingress": controller.#NetworkPolicyIngress & {#config: cfg}
-			"controller-netpol-egress": controller.#NetworkPolicyEgress & {#config: cfg}
+			"controller-netpol-egress":  controller.#NetworkPolicyEgress & {#config: cfg}
 		}
 
 		// Webhook.
@@ -67,9 +67,9 @@ import (
 			#config: cfg
 			#cmName: _webhookCM.metadata.name
 		}
-		"webhook-svc": webhook.#Service & {#config: cfg}
+		"webhook-svc":        webhook.#Service & {#config: cfg}
 		"webhook-validating": webhook.#ValidatingWebhookConfiguration & {#config: cfg}
-		"webhook-mutating": webhook.#MutatingWebhookConfiguration & {#config: cfg}
+		"webhook-mutating":   webhook.#MutatingWebhookConfiguration & {#config: cfg}
 		if config.webhook.serviceAccount.create {
 			"webhook-sa": webhook.#ServiceAccount & {#config: cfg}
 		}
@@ -83,7 +83,7 @@ import (
 		}
 		if config.webhook.networkPolicy.enabled {
 			"webhook-netpol-ingress": webhook.#NetworkPolicyIngress & {#config: cfg}
-			"webhook-netpol-egress": webhook.#NetworkPolicyEgress & {#config: cfg}
+			"webhook-netpol-egress":  webhook.#NetworkPolicyEgress & {#config: cfg}
 		}
 
 		// CAInjector.
@@ -109,7 +109,7 @@ import (
 			}
 			if config.cainjector.networkPolicy.enabled {
 				"cainjector-netpol-ingress": cainjector.#NetworkPolicyIngress & {#config: cfg}
-				"cainjector-netpol-egress": cainjector.#NetworkPolicyEgress & {#config: cfg}
+				"cainjector-netpol-egress":  cainjector.#NetworkPolicyEgress & {#config: cfg}
 			}
 		}
 

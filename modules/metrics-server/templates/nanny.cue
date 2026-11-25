@@ -41,7 +41,7 @@ import (
 	}
 	rules: [{
 		nonResourceURLs: ["/metrics"]
-		verbs: ["get"]
+		verbs:           ["get"]
 	}]
 }
 
@@ -85,13 +85,13 @@ import (
 		{
 			apiGroups: [""]
 			resources: ["pods"]
-			verbs: ["get"]
+			verbs:     ["get"]
 		},
 		{
-			apiGroups: ["apps"]
-			resources: ["deployments"]
+			apiGroups:     ["apps"]
+			resources:     ["deployments"]
 			resourceNames: [_config.metadata.name]
-			verbs: ["get", "patch"]
+			verbs:         ["get", "patch"]
 		},
 	]
 }

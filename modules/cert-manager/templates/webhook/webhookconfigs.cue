@@ -50,16 +50,16 @@ _clientConfig: {
 
 	apiVersion: "admissionregistration.k8s.io/v1"
 	kind:       "ValidatingWebhookConfiguration"
-	metadata: #ClusterObjectMeta & {#config: _config}
+	metadata:   #ClusterObjectMeta & {#config: _config}
 	metadata: annotations: _annotations
 	webhooks: [{
 		name:              "webhook.cert-manager.io"
 		namespaceSelector: _config.webhook.validatingWebhookConfiguration.namespaceSelector
 		rules: [{
-			apiGroups: ["cert-manager.io", "acme.cert-manager.io"]
+			apiGroups:   ["cert-manager.io", "acme.cert-manager.io"]
 			apiVersions: ["v1"]
-			operations: ["CREATE", "UPDATE"]
-			resources: ["*/*"]
+			operations:  ["CREATE", "UPDATE"]
+			resources:   ["*/*"]
 		}]
 		admissionReviewVersions: ["v1"]
 		// Non-v1 requests are converted to v1 before reaching the
@@ -68,7 +68,7 @@ _clientConfig: {
 		timeoutSeconds: _config.webhook.timeoutSeconds
 		failurePolicy:  "Fail"
 		sideEffects:    "None"
-		clientConfig: (_clientConfig & {#config: _config, #path: "/validate"}).out
+		clientConfig:   (_clientConfig & {#config: _config, #path: "/validate"}).out
 	}]
 }
 
@@ -85,7 +85,7 @@ _clientConfig: {
 
 	apiVersion: "admissionregistration.k8s.io/v1"
 	kind:       "MutatingWebhookConfiguration"
-	metadata: #ClusterObjectMeta & {#config: _config}
+	metadata:   #ClusterObjectMeta & {#config: _config}
 	metadata: annotations: _annotations
 	webhooks: [{
 		name: "webhook.cert-manager.io"
@@ -93,16 +93,16 @@ _clientConfig: {
 			namespaceSelector: _config.webhook.mutatingWebhookConfiguration.namespaceSelector
 		}
 		rules: [{
-			apiGroups: ["cert-manager.io"]
+			apiGroups:   ["cert-manager.io"]
 			apiVersions: ["v1"]
-			operations: ["CREATE"]
-			resources: ["certificaterequests"]
+			operations:  ["CREATE"]
+			resources:   ["certificaterequests"]
 		}]
 		admissionReviewVersions: ["v1"]
-		matchPolicy:    "Equivalent"
-		timeoutSeconds: _config.webhook.timeoutSeconds
-		failurePolicy:  "Fail"
-		sideEffects:    "None"
-		clientConfig: (_clientConfig & {#config: _config, #path: "/mutate"}).out
+		matchPolicy:             "Equivalent"
+		timeoutSeconds:          _config.webhook.timeoutSeconds
+		failurePolicy:           "Fail"
+		sideEffects:             "None"
+		clientConfig:            (_clientConfig & {#config: _config, #path: "/mutate"}).out
 	}]
 }

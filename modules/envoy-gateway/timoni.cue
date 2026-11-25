@@ -44,6 +44,6 @@ timoni: {
 	// applier.
 	apply: {
 		certs: [for obj in instance.certObjects {obj}]
-		app: [for obj in instance.objects {obj}]
+		app:   [for obj in instance.objects {obj}]
 	}
 }

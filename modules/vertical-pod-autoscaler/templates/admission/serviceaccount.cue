@@ -11,7 +11,7 @@ import (
 
 	apiVersion: "v1"
 	kind:       "ServiceAccount"
-	metadata: #ClusterObjectMeta & {#config: _config}
+	metadata:   #ClusterObjectMeta & {#config: _config}
 	metadata: name:      _config.admissionController.serviceAccount.name
 	metadata: namespace: _config.metadata.namespace
 	if _config.admissionController.serviceAccount.labels != _|_ {

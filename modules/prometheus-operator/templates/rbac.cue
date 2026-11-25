@@ -65,7 +65,7 @@ _monitoringResources: [
 		{
 			apiGroups: ["apps"]
 			resources: ["statefulsets"]
-			verbs: ["*"]
+			verbs:     ["*"]
 		},
 		// The operator refuses to start the PrometheusAgent DaemonSet
 		// reconciler without this permission.
@@ -73,60 +73,60 @@ _monitoringResources: [
 			{
 				apiGroups: ["apps"]
 				resources: ["daemonsets"]
-				verbs: ["*"]
+				verbs:     ["*"]
 			}
 		},
 		{
 			apiGroups: [""]
 			resources: ["configmaps", "secrets"]
-			verbs: ["*"]
+			verbs:     ["*"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["pods"]
-			verbs: ["list", "delete"]
+			verbs:     ["list", "delete"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["services", "services/finalizers"]
-			verbs: ["get", "create", "update", "delete"]
+			verbs:     ["get", "create", "update", "delete"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["nodes"]
-			verbs: ["list", "watch"]
+			verbs:     ["list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["namespaces"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["events.k8s.io"]
 			resources: ["events"]
-			verbs: ["patch", "create"]
+			verbs:     ["patch", "create"]
 		},
 		{
 			apiGroups: ["networking.k8s.io"]
 			resources: ["ingresses"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["storage.k8s.io"]
 			resources: ["storageclasses"]
-			verbs: ["get"]
+			verbs:     ["get"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["endpoints"]
-			verbs: ["get", "create", "update", "delete"]
+			verbs:     ["get", "create", "update", "delete"]
 		},
 		// The EndpointSlice mirror of the kubelet Endpoints object.
 		if _config.kubeletEndpointSlice {
 			{
 				apiGroups: ["discovery.k8s.io"]
 				resources: ["endpointslices"]
-				verbs: ["get", "list", "watch", "create", "update", "delete"]
+				verbs:     ["get", "list", "watch", "create", "update", "delete"]
 			}
 		},
 	]
@@ -176,7 +176,7 @@ _monitoringResources: [
 	rules: [{
 		apiGroups: ["monitoring.coreos.com"]
 		resources: _monitoringResources
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	}]
 }
 
@@ -200,6 +200,6 @@ _monitoringResources: [
 	rules: [{
 		apiGroups: ["monitoring.coreos.com"]
 		resources: _monitoringResources
-		verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+		verbs:     ["get", "list", "watch", "create", "update", "patch", "delete"]
 	}]
 }

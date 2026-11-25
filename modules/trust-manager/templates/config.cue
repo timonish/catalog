@@ -81,7 +81,7 @@ import (
 	secretTargets: {
 		enabled:              *false | bool
 		authorizedSecretsAll: *false | bool
-		authorizedSecrets: *[] | [...string & =~".+"]
+		authorizedSecrets:    *[] | [...string & =~".+"]
 	}
 
 	// Filter certificates expired at reconciliation time out of the
@@ -143,8 +143,8 @@ import (
 
 		// The Service exposing the webhook to the API server.
 		service: {
-			type: *"ClusterIP" | "NodePort" | "LoadBalancer"
-			ipFamilies?: [..."IPv4" | "IPv6"]
+			type:            *"ClusterIP" | "NodePort" | "LoadBalancer"
+			ipFamilies?:     [..."IPv4" | "IPv6"]
 			ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 			if type == "NodePort" {
 				// Zero lets the cluster assign the node port.
@@ -184,9 +184,9 @@ import (
 		port: *9402 | int & >0 & <=65535
 		// The Service exposing the metrics endpoint.
 		service: {
-			enabled: *true | bool
-			type:    *"ClusterIP" | "NodePort" | "LoadBalancer"
-			ipFamilies?: [..."IPv4" | "IPv6"]
+			enabled:         *true | bool
+			type:            *"ClusterIP" | "NodePort" | "LoadBalancer"
+			ipFamilies?:     [..."IPv4" | "IPv6"]
 			ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 			annotations?:    timoniv1.#Annotations
 			labels?:         timoniv1.#Labels
@@ -246,9 +246,9 @@ import (
 		nodeAffinity?:   corev1.#NodeAffinity
 		podAffinity?:    corev1.#PodAffinity
 	}
-	tolerations?: [...corev1.#Toleration]
+	tolerations?:               [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
-	dnsConfig?: corev1.#PodDNSConfig
+	dnsConfig?:                 corev1.#PodDNSConfig
 	// Pods on the host network (webhook.hostNetwork) default to
 	// ClusterFirstWithHostNet to resolve cluster services.
 	if webhook.hostNetwork {
@@ -271,7 +271,7 @@ import (
 	automountServiceAccountToken: *true | bool
 
 	// Extra volumes and volume mounts for the trust-manager container.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Extra command line arguments appended after the generated ones;
@@ -350,12 +350,12 @@ import (
 		}
 
 		if config.rbac.create {
-			"\(config.metadata.name)-cr": #ClusterRole & {_config: config}
-			"\(config.metadata.name)-crb": #ClusterRoleBinding & {_config: config}
-			"\(config.metadata.name)-role-trust": #TrustSourceRole & {_config: config}
-			"\(config.metadata.name)-rb-trust": #TrustSourceRoleBinding & {_config: config}
+			"\(config.metadata.name)-cr":          #ClusterRole & {_config: config}
+			"\(config.metadata.name)-crb":         #ClusterRoleBinding & {_config: config}
+			"\(config.metadata.name)-role-trust":  #TrustSourceRole & {_config: config}
+			"\(config.metadata.name)-rb-trust":    #TrustSourceRoleBinding & {_config: config}
 			"\(config.metadata.name)-role-leader": #LeaderElectionRole & {_config: config}
-			"\(config.metadata.name)-rb-leader": #LeaderElectionRoleBinding & {_config: config}
+			"\(config.metadata.name)-rb-leader":   #LeaderElectionRoleBinding & {_config: config}
 
 			if config.rbac.aggregateClusterRoles {
 				"\(config.metadata.name)-cr-aggregated": #AggregatedClusterRole & {_config: config}
@@ -366,22 +366,22 @@ import (
 			if config.targetNamespaces != _|_ {
 				for ns, _ in config._rbacNamespaces {
 					"\(config.metadata.name)-role-target-\(ns)": #TargetRole & {_config: config, _namespace: ns}
-					"\(config.metadata.name)-rb-target-\(ns)": #TargetRoleBinding & {_config: config, _namespace: ns}
+					"\(config.metadata.name)-rb-target-\(ns)":   #TargetRoleBinding & {_config: config, _namespace: ns}
 				}
 			}
 		}
 
-		"\(config.metadata.name)-svc": #WebhookService & {_config: config}
+		"\(config.metadata.name)-svc":     #WebhookService & {_config: config}
 		"\(config.metadata.name)-webhook": #ValidatingWebhookConfiguration & {_config: config}
-		"\(config.metadata.name)-issuer": #Issuer & {_config: config}
-		"\(config.metadata.name)-cert": #Certificate & {_config: config}
-		"\(config.metadata.name)-deploy": #Deployment & {_config: config}
+		"\(config.metadata.name)-issuer":  #Issuer & {_config: config}
+		"\(config.metadata.name)-cert":    #Certificate & {_config: config}
+		"\(config.metadata.name)-deploy":  #Deployment & {_config: config}
 
 		// The policy and its use-grant are all-or-nothing: without the
 		// RBAC the webhook certificate requests would stay unapproved.
 		if config.webhook.tls.approverPolicy.enabled {
-			"\(config.metadata.name)-policy": #CertificateRequestPolicy & {_config: config}
-			"\(config.metadata.name)-policy-cr": #PolicyClusterRole & {_config: config}
+			"\(config.metadata.name)-policy":     #CertificateRequestPolicy & {_config: config}
+			"\(config.metadata.name)-policy-cr":  #PolicyClusterRole & {_config: config}
 			"\(config.metadata.name)-policy-crb": #PolicyClusterRoleBinding & {_config: config}
 		}
 

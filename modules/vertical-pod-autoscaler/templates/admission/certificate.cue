@@ -41,7 +41,7 @@ import (
 			// Bootstraps the chain by signing the CA certificate.
 			"admission-issuer-selfsigned": issuerv1.#Issuer & {
 				metadata: _metadata
-				metadata: name: "\(_name)-selfsigned"
+				metadata: name:   "\(_name)-selfsigned"
 				spec: selfSigned: {}
 			}
 
@@ -85,7 +85,7 @@ import (
 					"\(_config.admissionController.service.name).\(_config.metadata.namespace).svc.cluster.local",
 				]
 				privateKey: _privateKey
-				usages: ["digital signature", "key encipherment", "server auth"]
+				usages:     ["digital signature", "key encipherment", "server auth"]
 				issuerRef: {
 					if _cm.createSelfSignedIssuer.enabled {
 						name:  "\(_name)-ca"

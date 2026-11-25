@@ -26,218 +26,218 @@ _clusterRoleRules: {
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["issuers", "issuers/status"]
-			verbs: ["update", "patch"]
+			verbs:     ["update", "patch"]
 		},
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["issuers"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["secrets"]
-			verbs: ["get", "list", "watch", "create", "update", "delete"]
+			verbs:     ["get", "list", "watch", "create", "update", "delete"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 	]
 	clusterissuers: [
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["clusterissuers", "clusterissuers/status"]
-			verbs: ["update", "patch"]
+			verbs:     ["update", "patch"]
 		},
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["clusterissuers"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["secrets"]
-			verbs: ["get", "list", "watch", "create", "update", "delete"]
+			verbs:     ["get", "list", "watch", "create", "update", "delete"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 	]
 	certificates: [
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["certificates", "certificates/status", "certificaterequests", "certificaterequests/status"]
-			verbs: ["update", "patch"]
+			verbs:     ["update", "patch"]
 		},
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["certificates", "certificaterequests", "clusterissuers", "issuers"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		// Finalizer updates support clusters running the
 		// OwnerReferencesPermissionEnforcement admission controller.
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["certificates/finalizers", "certificaterequests/finalizers"]
-			verbs: ["update"]
+			verbs:     ["update"]
 		},
 		{
 			apiGroups: ["acme.cert-manager.io"]
 			resources: ["orders"]
-			verbs: ["create", "delete", "get", "list", "watch"]
+			verbs:     ["create", "delete", "get", "list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["secrets"]
-			verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+			verbs:     ["get", "list", "watch", "create", "update", "delete", "patch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 	]
 	orders: [
 		{
 			apiGroups: ["acme.cert-manager.io"]
 			resources: ["orders", "orders/status"]
-			verbs: ["update", "patch"]
+			verbs:     ["update", "patch"]
 		},
 		{
 			apiGroups: ["acme.cert-manager.io"]
 			resources: ["orders", "challenges"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["clusterissuers", "issuers"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["acme.cert-manager.io"]
 			resources: ["challenges"]
-			verbs: ["create", "delete"]
+			verbs:     ["create", "delete"]
 		},
 		{
 			apiGroups: ["acme.cert-manager.io"]
 			resources: ["orders/finalizers"]
-			verbs: ["update"]
+			verbs:     ["update"]
 		},
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["clusterissuers/finalizers", "issuers/finalizers"]
-			verbs: ["update"]
+			verbs:     ["update"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["secrets"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 	]
 	challenges: [
 		{
 			apiGroups: ["acme.cert-manager.io"]
 			resources: ["challenges", "challenges/status"]
-			verbs: ["update", "patch"]
+			verbs:     ["update", "patch"]
 		},
 		{
 			apiGroups: ["acme.cert-manager.io"]
 			resources: ["challenges"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["issuers", "clusterissuers"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		// The ACME account private key is needed to complete challenges.
 		{
 			apiGroups: [""]
 			resources: ["secrets"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 		// HTTP01 solver resources.
 		{
 			apiGroups: [""]
 			resources: ["pods", "services"]
-			verbs: ["get", "list", "watch", "create", "delete"]
+			verbs:     ["get", "list", "watch", "create", "delete"]
 		},
 		{
 			apiGroups: ["networking.k8s.io"]
 			resources: ["ingresses"]
-			verbs: ["get", "list", "watch", "create", "delete", "update"]
+			verbs:     ["get", "list", "watch", "create", "delete", "update"]
 		},
 		{
 			apiGroups: ["gateway.networking.k8s.io"]
 			resources: ["httproutes"]
-			verbs: ["get", "list", "watch", "create", "delete", "update"]
+			verbs:     ["get", "list", "watch", "create", "delete", "update"]
 		},
 		// OpenShift requires this to create ingresses with a custom host.
 		{
 			apiGroups: ["route.openshift.io"]
 			resources: ["routes/custom-host"]
-			verbs: ["create"]
+			verbs:     ["create"]
 		},
 		{
 			apiGroups: ["acme.cert-manager.io"]
 			resources: ["challenges/finalizers"]
-			verbs: ["update"]
+			verbs:     ["update"]
 		},
 		// DNS01 rules (duplicated above, kept verbatim from upstream).
 		{
 			apiGroups: [""]
 			resources: ["secrets"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 	]
 	"ingress-shim": [
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["certificates", "certificaterequests"]
-			verbs: ["create", "update", "delete"]
+			verbs:     ["create", "update", "delete"]
 		},
 		{
 			apiGroups: ["cert-manager.io"]
 			resources: ["certificates", "certificaterequests", "issuers", "clusterissuers"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["networking.k8s.io"]
 			resources: ["ingresses"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["networking.k8s.io"]
 			resources: ["ingresses/finalizers"]
-			verbs: ["update"]
+			verbs:     ["update"]
 		},
 		{
 			apiGroups: ["gateway.networking.k8s.io"]
 			resources: ["gateways", "httproutes", "listenersets"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
 			apiGroups: ["gateway.networking.k8s.io"]
 			resources: ["gateways/finalizers", "httproutes/finalizers", "listenersets/finalizers"]
-			verbs: ["update"]
+			verbs:     ["update"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 	]
 }
@@ -254,26 +254,26 @@ _clusterRoleRules: {
 		"\(_name)-le-role": rbacv1.#Role & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "Role"
-			metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name):leaderelection"}
+			metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name):leaderelection"}
 			metadata: namespace: cfg.controller.config.leaderElectionConfig.namespace
 			rules: [
 				{
-					apiGroups: ["coordination.k8s.io"]
-					resources: ["leases"]
+					apiGroups:     ["coordination.k8s.io"]
+					resources:     ["leases"]
 					resourceNames: ["cert-manager-controller"]
-					verbs: ["get", "update", "patch"]
+					verbs:         ["get", "update", "patch"]
 				},
 				{
 					apiGroups: ["coordination.k8s.io"]
 					resources: ["leases"]
-					verbs: ["create"]
+					verbs:     ["create"]
 				},
 			]
 		}
 		"\(_name)-le-rb": rbacv1.#RoleBinding & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "RoleBinding"
-			metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name):leaderelection"}
+			metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name):leaderelection"}
 			metadata: namespace: cfg.controller.config.leaderElectionConfig.namespace
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"
@@ -292,13 +292,13 @@ _clusterRoleRules: {
 			"\(_name)-cr-\(area)": rbacv1.#ClusterRole & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRole"
-				metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-\(area)"}
-				rules: areaRules
+				metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-\(area)"}
+				rules:      areaRules
 			}
 			"\(_name)-crb-\(area)": rbacv1.#ClusterRoleBinding & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRoleBinding"
-				metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-\(area)"}
+				metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-\(area)"}
 				roleRef: {
 					apiGroup: "rbac.authorization.k8s.io"
 					kind:     "ClusterRole"
@@ -318,7 +318,7 @@ _clusterRoleRules: {
 		"\(_name)-cr-view": rbacv1.#ClusterRole & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRole"
-			metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name)-view"}
+			metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name)-view"}
 			if cfg.rbac.aggregateClusterRoles {
 				metadata: labels: {
 					"rbac.authorization.k8s.io/aggregate-to-view":           "true"
@@ -331,12 +331,12 @@ _clusterRoleRules: {
 				{
 					apiGroups: ["cert-manager.io"]
 					resources: ["certificates", "certificaterequests", "issuers"]
-					verbs: ["get", "list", "watch"]
+					verbs:     ["get", "list", "watch"]
 				},
 				{
 					apiGroups: ["acme.cert-manager.io"]
 					resources: ["challenges", "orders"]
-					verbs: ["get", "list", "watch"]
+					verbs:     ["get", "list", "watch"]
 				},
 			]
 		}
@@ -346,7 +346,7 @@ _clusterRoleRules: {
 		"\(_name)-cr-edit": rbacv1.#ClusterRole & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRole"
-			metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name)-edit"}
+			metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name)-edit"}
 			if cfg.rbac.aggregateClusterRoles {
 				metadata: labels: {
 					"rbac.authorization.k8s.io/aggregate-to-edit":  "true"
@@ -357,22 +357,22 @@ _clusterRoleRules: {
 				{
 					apiGroups: ["cert-manager.io"]
 					resources: ["certificates", "certificaterequests", "issuers"]
-					verbs: ["create", "delete", "deletecollection", "patch", "update"]
+					verbs:     ["create", "delete", "deletecollection", "patch", "update"]
 				},
 				{
 					apiGroups: ["cert-manager.io"]
 					resources: ["certificates/status"]
-					verbs: ["update"]
+					verbs:     ["update"]
 				},
 				{
 					apiGroups: ["acme.cert-manager.io"]
 					resources: ["challenges"]
-					verbs: ["delete", "deletecollection", "patch", "update"]
+					verbs:     ["delete", "deletecollection", "patch", "update"]
 				},
 				{
 					apiGroups: ["acme.cert-manager.io"]
 					resources: ["orders"]
-					verbs: ["delete", "deletecollection"]
+					verbs:     ["delete", "deletecollection"]
 				},
 			]
 		}
@@ -380,12 +380,12 @@ _clusterRoleRules: {
 			"\(_name)-cr-cluster-view": rbacv1.#ClusterRole & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRole"
-				metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name)-cluster-view"}
+				metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name)-cluster-view"}
 				metadata: labels: "rbac.authorization.k8s.io/aggregate-to-cluster-reader": "true"
 				rules: [{
 					apiGroups: ["cert-manager.io"]
 					resources: ["clusterissuers"]
-					verbs: ["get", "list", "watch"]
+					verbs:     ["get", "list", "watch"]
 				}]
 			}
 		}
@@ -396,18 +396,18 @@ _clusterRoleRules: {
 			"\(_name)-cr-approve": rbacv1.#ClusterRole & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRole"
-				metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-approve:cert-manager-io"}
+				metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-approve:cert-manager-io"}
 				rules: [{
-					apiGroups: ["cert-manager.io"]
-					resources: ["signers"]
-					verbs: ["approve"]
+					apiGroups:     ["cert-manager.io"]
+					resources:     ["signers"]
+					verbs:         ["approve"]
 					resourceNames: cfg.approveSignerNames
 				}]
 			}
 			"\(_name)-crb-approve": rbacv1.#ClusterRoleBinding & {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRoleBinding"
-				metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-approve:cert-manager-io"}
+				metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-approve:cert-manager-io"}
 				roleRef: {
 					apiGroup: "rbac.authorization.k8s.io"
 					kind:     "ClusterRole"
@@ -426,35 +426,35 @@ _clusterRoleRules: {
 		"\(_name)-cr-csr": rbacv1.#ClusterRole & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRole"
-			metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-certificatesigningrequests"}
+			metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-certificatesigningrequests"}
 			rules: [
 				{
 					apiGroups: ["certificates.k8s.io"]
 					resources: ["certificatesigningrequests"]
-					verbs: ["get", "list", "watch", "update"]
+					verbs:     ["get", "list", "watch", "update"]
 				},
 				{
 					apiGroups: ["certificates.k8s.io"]
 					resources: ["certificatesigningrequests/status"]
-					verbs: ["update", "patch"]
+					verbs:     ["update", "patch"]
 				},
 				{
-					apiGroups: ["certificates.k8s.io"]
-					resources: ["signers"]
+					apiGroups:     ["certificates.k8s.io"]
+					resources:     ["signers"]
 					resourceNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
-					verbs: ["sign"]
+					verbs:         ["sign"]
 				},
 				{
 					apiGroups: ["authorization.k8s.io"]
 					resources: ["subjectaccessreviews"]
-					verbs: ["create"]
+					verbs:     ["create"]
 				},
 			]
 		}
 		"\(_name)-crb-csr": rbacv1.#ClusterRoleBinding & {
 			apiVersion: "rbac.authorization.k8s.io/v1"
 			kind:       "ClusterRoleBinding"
-			metadata: #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-certificatesigningrequests"}
+			metadata:   #ClusterObjectMeta & {#config: cfg, name: "\(_name)-controller-certificatesigningrequests"}
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io"
 				kind:     "ClusterRole"

@@ -29,14 +29,14 @@ import (
 		rules: [{
 			nonResourceRules: [{
 				nonResourceURLs: ["*"]
-				verbs: ["*"]
+				verbs:           ["*"]
 			}]
 			resourceRules: [{
-				apiGroups: ["*"]
+				apiGroups:    ["*"]
 				clusterScope: true
-				namespaces: ["*"]
-				resources: ["*"]
-				verbs: ["*"]
+				namespaces:   ["*"]
+				resources:    ["*"]
+				verbs:        ["*"]
 			}]
 			subjects: [
 				{

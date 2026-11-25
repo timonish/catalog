@@ -14,7 +14,7 @@ import (
 
 	apiVersion: "v1"
 	kind:       "Service"
-	metadata: #ClusterObjectMeta & {#config: _config}
+	metadata:   #ClusterObjectMeta & {#config: _config}
 	metadata: {
 		name:      "\(_config.metadata.name)-cert-controller-metrics"
 		namespace: _config.metadata.namespace

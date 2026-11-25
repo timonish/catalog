@@ -21,10 +21,10 @@ values: {
 	replicas: 2
 
 	disableComponentControllers: "fluentd"
-	watchNamespaces: ["fluent-system", "kube-system"]
+	watchNamespaces:             ["fluent-system", "kube-system"]
 
 	extraArgs: ["--zap-log-level=debug"]
-	env: [{name: "GOGC", value: "50"}]
+	env:       [{name: "GOGC", value: "50"}]
 
 	imagePullSecrets: [{name: "regcred"}]
 
@@ -41,7 +41,7 @@ values: {
 		matchExpressions: [{
 			key:      "kubernetes.io/os"
 			operator: "In"
-			values: ["linux"]
+			values:   ["linux"]
 		}]
 	}]
 	topologySpreadConstraints: [{
@@ -63,7 +63,7 @@ values: {
 	revisionHistoryLimit: 5
 
 	extraVolumes: [{
-		name: "tmp"
+		name:     "tmp"
 		emptyDir: {}
 	}]
 	extraVolumeMounts: [{
@@ -79,13 +79,13 @@ values: {
 	rbac: extraRules: [{
 		apiGroups: [""]
 		resources: ["nodes"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	}]
 
 	service: {
 		annotations: "team": "platform"
 		labels: "team":      "platform"
-		ipFamilies: ["IPv4"]
+		ipFamilies:     ["IPv4"]
 		ipFamilyPolicy: "SingleStack"
 	}
 
@@ -103,7 +103,7 @@ values: {
 		scrapeTimeout: "30s"
 		honorLabels:   true
 		tlsConfig: insecureSkipVerify: true
-		targetLabels: ["app.kubernetes.io/part-of"]
+		targetLabels:          ["app.kubernetes.io/part-of"]
 		sampleLimit:           1000
 		targetLimit:           10
 		labelLimit:            64
@@ -114,9 +114,9 @@ values: {
 			regex:  "pod_template_hash"
 		}]
 		relabelings: [{
-			action: "replace"
+			action:       "replace"
 			sourceLabels: ["__meta_kubernetes_pod_node_name"]
-			targetLabel: "node"
+			targetLabel:  "node"
 		}]
 	}
 }

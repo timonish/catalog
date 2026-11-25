@@ -56,10 +56,10 @@ _webhookNamespaceSelector: {
 		{
 			name: "prometheusrulevalidate.monitoring.coreos.com"
 			rules: [{
-				apiGroups: ["monitoring.coreos.com"]
+				apiGroups:   ["monitoring.coreos.com"]
 				apiVersions: ["*"]
-				operations: ["CREATE", "UPDATE"]
-				resources: ["prometheusrules"]
+				operations:  ["CREATE", "UPDATE"]
+				resources:   ["prometheusrules"]
 			}]
 			clientConfig: {
 				service: {
@@ -72,11 +72,11 @@ _webhookNamespaceSelector: {
 					caBundle: '\(base64.Encode(null, _config.webhook.tls.caBundle))'
 				}
 			}
-			failurePolicy:  _config.webhook.failurePolicy
-			timeoutSeconds: _config.webhook.timeoutSeconds
-			sideEffects:    "None"
+			failurePolicy:           _config.webhook.failurePolicy
+			timeoutSeconds:          _config.webhook.timeoutSeconds
+			sideEffects:             "None"
 			admissionReviewVersions: ["v1"]
-			namespaceSelector: _namespaceSelector
+			namespaceSelector:       _namespaceSelector
 			if _config.webhook.objectSelector != _|_ {
 				objectSelector: _config.webhook.objectSelector
 			}
@@ -94,8 +94,8 @@ _webhookNamespaceSelector: {
 				// The operator validates only the v1alpha1 payloads; the
 				// v1beta1 admission is handled through conversion.
 				apiVersions: ["v1alpha1"]
-				operations: ["CREATE", "UPDATE"]
-				resources: ["alertmanagerconfigs"]
+				operations:  ["CREATE", "UPDATE"]
+				resources:   ["alertmanagerconfigs"]
 			}]
 			clientConfig: {
 				service: {
@@ -108,11 +108,11 @@ _webhookNamespaceSelector: {
 					caBundle: '\(base64.Encode(null, _config.webhook.tls.caBundle))'
 				}
 			}
-			failurePolicy:  _config.webhook.failurePolicy
-			timeoutSeconds: _config.webhook.timeoutSeconds
-			sideEffects:    "None"
+			failurePolicy:           _config.webhook.failurePolicy
+			timeoutSeconds:          _config.webhook.timeoutSeconds
+			sideEffects:             "None"
 			admissionReviewVersions: ["v1"]
-			namespaceSelector: _namespaceSelector
+			namespaceSelector:       _namespaceSelector
 			if _config.webhook.objectSelector != _|_ {
 				objectSelector: _config.webhook.objectSelector
 			}
@@ -147,10 +147,10 @@ _webhookNamespaceSelector: {
 		// Normalizes the PrometheusRule rule data to strings.
 		name: "prometheusrulemutate.monitoring.coreos.com"
 		rules: [{
-			apiGroups: ["monitoring.coreos.com"]
+			apiGroups:   ["monitoring.coreos.com"]
 			apiVersions: ["*"]
-			operations: ["CREATE", "UPDATE"]
-			resources: ["prometheusrules"]
+			operations:  ["CREATE", "UPDATE"]
+			resources:   ["prometheusrules"]
 		}]
 		clientConfig: {
 			service: {
@@ -163,11 +163,11 @@ _webhookNamespaceSelector: {
 				caBundle: '\(base64.Encode(null, _config.webhook.tls.caBundle))'
 			}
 		}
-		failurePolicy:  _config.webhook.failurePolicy
-		timeoutSeconds: _config.webhook.timeoutSeconds
-		sideEffects:    "None"
+		failurePolicy:           _config.webhook.failurePolicy
+		timeoutSeconds:          _config.webhook.timeoutSeconds
+		sideEffects:             "None"
 		admissionReviewVersions: ["v1"]
-		namespaceSelector: _namespaceSelector
+		namespaceSelector:       _namespaceSelector
 		if _config.webhook.objectSelector != _|_ {
 			objectSelector: _config.webhook.objectSelector
 		}

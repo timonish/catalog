@@ -250,9 +250,9 @@ import (
 		podAnnotations?: timoniv1.#Annotations
 		podLabels?:      timoniv1.#Labels
 		// Extra arguments appended to the `certgen` command.
-		args: *[] | [...string]
-		resources?: timoniv1.#ResourceRequirements
-		affinity?:  corev1.#Affinity
+		args:         *[] | [...string]
+		resources?:   timoniv1.#ResourceRequirements
+		affinity?:    corev1.#Affinity
 		tolerations?: [...corev1.#Toleration]
 		nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
 		// The completed Job is deleted after this many seconds; it is
@@ -271,8 +271,8 @@ import (
 		enabled:     *false | bool
 		minReplicas: *1 | int & >0
 		maxReplicas: *minReplicas | int & >=minReplicas
-		metrics: *[] | [...]
-		behavior?: {...}
+		metrics:     *[] | [...]
+		behavior?:   {...}
 	}
 
 	// The ports of the controller container and Service: xDS gRPC,
@@ -293,12 +293,12 @@ import (
 		// Prefer routing to topologically closer controller pods,
 		// e.g. `PreferClose`; requires the topology injector.
 		trafficDistribution?: string & =~".+"
-		ipFamilies?: [..."IPv4" | "IPv6"]
-		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-		externalIPs?: [...string]
+		ipFamilies?:          [..."IPv4" | "IPv6"]
+		ipFamilyPolicy?:      "SingleStack" | "PreferDualStack" | "RequireDualStack"
+		externalIPs?:         [...string]
 		if type == "LoadBalancer" {
-			loadBalancerIP?:    string & =~".+"
-			loadBalancerClass?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
+			loadBalancerClass?:        string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -383,7 +383,7 @@ import (
 	env?: [...corev1.#EnvVar]
 
 	// Extra volumes and volume mounts added to the controller pod.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Pod optional settings.
@@ -403,7 +403,7 @@ import (
 		nodeAffinity?:   corev1.#NodeAffinity
 		podAffinity?:    corev1.#PodAffinity
 	}
-	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
+	topologySpreadConstraints?:    [...corev1.#TopologySpreadConstraint]
 	dnsPolicy?:                    "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
 	dnsConfig?:                    corev1.#PodDNSConfig
 	priorityClassName?:            string & =~".+"
@@ -508,9 +508,9 @@ import (
 	// binary: the Envoy fleet dials the xDS Service by DNS name, the
 	// certificate secrets are looked up by name, and the certgen Job
 	// patches the webhook configuration by name.
-	_serviceName:  "envoy-gateway"
-	_webhookName:  "envoy-gateway-topology-injector.\(metadata.namespace)"
-	_caSecretName: "\(metadata.name)-ca"
+	_serviceName:     "envoy-gateway"
+	_webhookName:     "envoy-gateway-topology-injector.\(metadata.namespace)"
+	_caSecretName:    "\(metadata.name)-ca"
 	_certSecretNames: ["envoy-gateway", "envoy", "envoy-rate-limit"]
 }
 
@@ -526,7 +526,7 @@ import (
 			if !config.tls.certManager.existingIssuer.enabled {
 				"\(config.metadata.name)-selfsigned-issuer": #SelfSignedIssuer & {_config: config}
 			}
-			"\(config.metadata.name)-ca-cert": #CACertificate & {_config: config}
+			"\(config.metadata.name)-ca-cert":   #CACertificate & {_config: config}
 			"\(config.metadata.name)-ca-issuer": #CAIssuer & {_config: config}
 			for cert in config._certSecretNames {
 				"\(config.metadata.name)-cert-\(cert)": #ControlPlaneCertificate & {
@@ -560,49 +560,49 @@ import (
 		}
 
 		if config.rbac.create {
-			"\(config.metadata.name)-cr": #ClusterRole & {_config: config}
+			"\(config.metadata.name)-cr":  #ClusterRole & {_config: config}
 			"\(config.metadata.name)-crb": #ClusterRoleBinding & {_config: config}
 			for ns in config._watchNamespaces {
 				"\(config.metadata.name)-role-\(ns)": #WatchedNamespaceRole & {_config: config, #namespace: ns}
-				"\(config.metadata.name)-rb-\(ns)": #WatchedNamespaceRoleBinding & {_config: config, #namespace: ns}
+				"\(config.metadata.name)-rb-\(ns)":   #WatchedNamespaceRoleBinding & {_config: config, #namespace: ns}
 			}
 			if len(config._watchNamespaces) > 0 {
 				"\(config.metadata.name)-ns-role": #ControllerNamespaceRole & {_config: config}
-				"\(config.metadata.name)-ns-rb": #ControllerNamespaceRoleBinding & {_config: config}
+				"\(config.metadata.name)-ns-rb":   #ControllerNamespaceRoleBinding & {_config: config}
 			}
 
 			"\(config.metadata.name)-infra-role": #InfraManagerRole & {_config: config}
-			"\(config.metadata.name)-infra-rb": #InfraManagerRoleBinding & {_config: config}
+			"\(config.metadata.name)-infra-rb":   #InfraManagerRoleBinding & {_config: config}
 			if config._gatewayNamespaceMode {
 				if config._watchConfigured {
-					"\(config.metadata.name)-infra-tokenreview-cr": #InfraTokenReviewClusterRole & {_config: config}
+					"\(config.metadata.name)-infra-tokenreview-cr":  #InfraTokenReviewClusterRole & {_config: config}
 					"\(config.metadata.name)-infra-tokenreview-crb": #InfraTokenReviewClusterRoleBinding & {_config: config}
 					for ns in config._watchNamespaces {
 						"\(config.metadata.name)-infra-role-\(ns)": #NamespacedInfraManagerRole & {_config: config, #namespace: ns}
-						"\(config.metadata.name)-infra-rb-\(ns)": #NamespacedInfraManagerRoleBinding & {_config: config, #namespace: ns}
+						"\(config.metadata.name)-infra-rb-\(ns)":   #NamespacedInfraManagerRoleBinding & {_config: config, #namespace: ns}
 					}
 				}
 				if !config._watchConfigured || config._watchTypeNamespaceSelector {
-					"\(config.metadata.name)-cluster-infra-cr": #ClusterInfraManagerClusterRole & {_config: config}
+					"\(config.metadata.name)-cluster-infra-cr":  #ClusterInfraManagerClusterRole & {_config: config}
 					"\(config.metadata.name)-cluster-infra-crb": #ClusterInfraManagerClusterRoleBinding & {_config: config}
 				}
 			}
 
 			"\(config.metadata.name)-leader-role": #LeaderElectionRole & {_config: config}
-			"\(config.metadata.name)-leader-rb": #LeaderElectionRoleBinding & {_config: config}
+			"\(config.metadata.name)-leader-rb":   #LeaderElectionRoleBinding & {_config: config}
 
 			"\(config.metadata.name)-certgen-role": #CertgenRole & {_config: config}
-			"\(config.metadata.name)-certgen-rb": #CertgenRoleBinding & {_config: config}
+			"\(config.metadata.name)-certgen-rb":   #CertgenRoleBinding & {_config: config}
 			if config.topologyInjector.enabled && config.tls.mode == "certgen" {
-				"\(config.metadata.name)-certgen-cr": #CertgenClusterRole & {_config: config}
+				"\(config.metadata.name)-certgen-cr":  #CertgenClusterRole & {_config: config}
 				"\(config.metadata.name)-certgen-crb": #CertgenClusterRoleBinding & {_config: config}
 			}
 		}
 
-		"\(config.metadata.name)-config": config._configMap
+		"\(config.metadata.name)-config":      config._configMap
 		"\(config.metadata.name)-certgen-job": #CertgenJob & {_config: config}
-		"\(config.metadata.name)-svc": #Service & {_config: config}
-		"\(config.metadata.name)-deploy": #Deployment & {_config: config}
+		"\(config.metadata.name)-svc":         #Service & {_config: config}
+		"\(config.metadata.name)-deploy":      #Deployment & {_config: config}
 
 		if config.topologyInjector.enabled {
 			"\(config.metadata.name)-mwc": #MutatingWebhookConfiguration & {_config: config}

@@ -69,10 +69,10 @@ import (
 				tag:        *"" | string
 				digest:     *"" | string
 			}
-			env?: [...corev1.#EnvVar]
-			args: *[] | [...string]
+			env?:               [...corev1.#EnvVar]
+			args:               *[] | [...string]
 			extraVolumeMounts?: [...corev1.#VolumeMount]
-			resources?: timoniv1.#ResourceRequirements
+			resources?:         timoniv1.#ResourceRequirements
 			// The sidecar security context, hardened by default like the
 			// main container.
 			securityContext: corev1.#SecurityContext & timoniv1.#ContainerSecurityContext
@@ -173,7 +173,7 @@ import (
 
 	// Limit the managed zones by domain suffixes, or exclude domains
 	// from being managed.
-	domainFilters: *[] | [...string]
+	domainFilters:  *[] | [...string]
 	excludeDomains: *[] | [...string]
 
 	// Filter the resources queried for endpoints by label, annotation
@@ -230,11 +230,11 @@ import (
 
 	// Extra volumes and volume mounts, e.g. for provider credential
 	// files projected from an existing Secret.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Init containers and extra containers added to the pod.
-	initContainers?: [...corev1.#Container]
+	initContainers?:  [...corev1.#Container]
 	extraContainers?: [...corev1.#Container]
 
 	// Pod optional settings.
@@ -252,7 +252,7 @@ import (
 		nodeAffinity?:   corev1.#NodeAffinity
 		podAffinity?:    corev1.#PodAffinity
 	}
-	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
+	topologySpreadConstraints?:     [...corev1.#TopologySpreadConstraint]
 	dnsConfig?:                     corev1.#PodDNSConfig
 	dnsPolicy?:                     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
 	priorityClassName?:             string & =~".+"
@@ -301,26 +301,26 @@ import (
 	// outside of this module. `extraRules` extends the source-derived
 	// rules.
 	rbac: {
-		create: *true | bool
+		create:      *true | bool
 		extraRules?: [...rbacv1.#PolicyRule]
 	}
 
 	// Service settings for the metrics and webhook endpoints.
 	service: {
-		enabled:    *true | bool
-		type:       *"ClusterIP" | "NodePort" | "LoadBalancer"
-		port:       *7979 | int & >0 & <=65535
-		clusterIP?: string & =~".+"
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		enabled:         *true | bool
+		type:            *"ClusterIP" | "NodePort" | "LoadBalancer"
+		port:            *7979 | int & >0 & <=65535
+		clusterIP?:      string & =~".+"
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-		externalIPs?: [...string]
+		externalIPs?:    [...string]
 		if type == "NodePort" {
 			// Zero lets the cluster assign the node port.
 			nodePort: *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?:    string & =~".+"
-			loadBalancerClass?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
+			loadBalancerClass?:        string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -380,23 +380,23 @@ import (
 
 		if config.rbac.create {
 			if !config.namespaced {
-				"\(config.metadata.name)-cr": #SourcesClusterRole & {_config: config}
+				"\(config.metadata.name)-cr":  #SourcesClusterRole & {_config: config}
 				"\(config.metadata.name)-crb": #SourcesClusterRoleBinding & {_config: config}
 			}
 			if config.namespaced {
 				"\(config.metadata.name)-role": #SourcesRole & {_config: config}
-				"\(config.metadata.name)-rb": #SourcesRoleBinding & {_config: config}
+				"\(config.metadata.name)-rb":   #SourcesRoleBinding & {_config: config}
 
 				// Watching Gateway API sources across the cluster needs
 				// namespace discovery; when the gateway namespace is
 				// pinned, no cluster-scoped RBAC is created at all.
 				if config._hasGatewaySources && config.gatewayNamespace == _|_ {
-					"\(config.metadata.name)-ns-cr": #NamespacesClusterRole & {_config: config}
+					"\(config.metadata.name)-ns-cr":  #NamespacesClusterRole & {_config: config}
 					"\(config.metadata.name)-ns-crb": #NamespacesClusterRoleBinding & {_config: config}
 				}
 				if config._hasGatewaySources && config.gatewayNamespace != _|_ {
 					"\(config.metadata.name)-gw-role": #GatewayRole & {_config: config}
-					"\(config.metadata.name)-gw-rb": #GatewayRoleBinding & {_config: config}
+					"\(config.metadata.name)-gw-rb":   #GatewayRoleBinding & {_config: config}
 				}
 			}
 		}

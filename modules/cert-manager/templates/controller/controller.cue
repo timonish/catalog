@@ -32,12 +32,12 @@ _component: "controller"
 // listener.
 #MetricsPort: {
 	#config: config.#Config
-	port: (config.#ListenPort & {#Address: #config.controller.config.metricsListenAddress}).port
+	port:    (config.#ListenPort & {#Address: #config.controller.config.metricsListenAddress}).port
 }
 
 #HealthzPort: {
 	#config: config.#Config
-	port: (config.#ListenPort & {#Address: #config.controller.config.healthzListenAddress}).port
+	port:    (config.#ListenPort & {#Address: #config.controller.config.healthzListenAddress}).port
 }
 
 // The controller configuration file rendered into an immutable
@@ -45,6 +45,6 @@ _component: "controller"
 #ConfigMap: timoniv1.#ImmutableConfig & {
 	#config: config.#Config
 	_config: #config
-	#Meta: #ObjectMeta & {#config: _config}
+	#Meta:   #ObjectMeta & {#config: _config}
 	#Data: "config.yaml": yaml.Marshal(_config.controller.config)
 }

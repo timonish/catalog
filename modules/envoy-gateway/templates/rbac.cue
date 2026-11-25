@@ -14,17 +14,17 @@ _namespacedRules: [
 	{
 		apiGroups: [""]
 		resources: ["configmaps", "secrets", "services"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	},
 	{
 		apiGroups: ["apps"]
 		resources: ["deployments", "daemonsets"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	},
 	{
 		apiGroups: ["discovery.k8s.io"]
 		resources: ["endpointslices"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	},
 	{
 		apiGroups: ["gateway.envoyproxy.io"]
@@ -89,7 +89,7 @@ _namespacedRules: [
 _topologyInjectorRule: rbacv1.#PolicyRule & {
 	apiGroups: [""]
 	resources: ["pods", "pods/binding"]
-	verbs: ["get", "list", "patch", "update", "watch"]
+	verbs:     ["get", "list", "patch", "update", "watch"]
 }
 
 // The controller rules over cluster-scoped resources.
@@ -98,22 +98,22 @@ _clusterRules: [
 	{
 		apiGroups: [""]
 		resources: ["nodes", "namespaces"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	},
 	{
 		apiGroups: ["gateway.networking.k8s.io"]
 		resources: ["gatewayclasses"]
-		verbs: ["get", "list", "patch", "update", "watch"]
+		verbs:     ["get", "list", "patch", "update", "watch"]
 	},
 	{
 		apiGroups: ["gateway.networking.k8s.io"]
 		resources: ["gatewayclasses/status"]
-		verbs: ["update"]
+		verbs:     ["update"]
 	},
 	{
 		apiGroups: ["multicluster.x-k8s.io"]
 		resources: ["serviceimports"]
-		verbs: ["get", "list", "watch"]
+		verbs:     ["get", "list", "watch"]
 	},
 ]
 
@@ -125,46 +125,46 @@ _infraRules: [
 	{
 		apiGroups: [""]
 		resources: ["serviceaccounts", "services", "configmaps"]
-		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
+		verbs:     ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
 	},
 	{
 		apiGroups: ["apps"]
 		resources: ["deployments", "daemonsets"]
-		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
+		verbs:     ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
 	},
 	{
 		apiGroups: ["autoscaling"]
 		resources: ["horizontalpodautoscalers"]
-		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
+		verbs:     ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
 	},
 	{
 		apiGroups: ["policy"]
 		resources: ["poddisruptionbudgets"]
-		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
+		verbs:     ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
 	},
 	{
 		apiGroups: ["certificates.k8s.io"]
 		resources: ["clustertrustbundles"]
-		verbs: ["list", "get", "watch"]
+		verbs:     ["list", "get", "watch"]
 	},
 ]
 
 _secretsReadRule: rbacv1.#PolicyRule & {
 	apiGroups: [""]
 	resources: ["secrets"]
-	verbs: ["get", "list", "watch"]
+	verbs:     ["get", "list", "watch"]
 }
 
 _endpointSliceReadRule: rbacv1.#PolicyRule & {
 	apiGroups: ["discovery.k8s.io"]
 	resources: ["endpointslices"]
-	verbs: ["get", "list", "watch"]
+	verbs:     ["get", "list", "watch"]
 }
 
 _tokenReviewRule: rbacv1.#PolicyRule & {
 	apiGroups: ["authentication.k8s.io"]
 	resources: ["tokenreviews"]
-	verbs: ["create"]
+	verbs:     ["create"]
 }
 
 // The controller ClusterRole. Without watched namespaces it carries
@@ -493,17 +493,17 @@ _tokenReviewRule: rbacv1.#PolicyRule & {
 		{
 			apiGroups: [""]
 			resources: ["configmaps"]
-			verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+			verbs:     ["get", "list", "watch", "create", "update", "patch", "delete"]
 		},
 		{
 			apiGroups: ["coordination.k8s.io"]
 			resources: ["leases"]
-			verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+			verbs:     ["get", "list", "watch", "create", "update", "patch", "delete"]
 		},
 		{
 			apiGroups: [""]
 			resources: ["events"]
-			verbs: ["create", "patch"]
+			verbs:     ["create", "patch"]
 		},
 	]
 }
@@ -548,7 +548,7 @@ _tokenReviewRule: rbacv1.#PolicyRule & {
 	rules: [{
 		apiGroups: [""]
 		resources: ["secrets"]
-		verbs: ["get", "create", "update"]
+		verbs:     ["get", "create", "update"]
 	}]
 }
 
@@ -593,13 +593,13 @@ _tokenReviewRule: rbacv1.#PolicyRule & {
 		{
 			apiGroups: ["admissionregistration.k8s.io"]
 			resources: ["mutatingwebhookconfigurations"]
-			verbs: ["get", "list", "watch"]
+			verbs:     ["get", "list", "watch"]
 		},
 		{
-			apiGroups: ["admissionregistration.k8s.io"]
-			resources: ["mutatingwebhookconfigurations"]
+			apiGroups:     ["admissionregistration.k8s.io"]
+			resources:     ["mutatingwebhookconfigurations"]
 			resourceNames: [_config._webhookName]
-			verbs: ["update", "patch"]
+			verbs:         ["update", "patch"]
 		},
 	]
 }

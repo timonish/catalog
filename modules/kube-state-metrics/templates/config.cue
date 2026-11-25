@@ -138,7 +138,7 @@ import (
 	metricAllowlist: *[] | [...string & =~".+"]
 
 	// The metrics not to expose, as exact names and/or regex patterns.
-	metricDenylist: *[] | [...string & =~".+"]
+	metricDenylist:    *[] | [...string & =~".+"]
 	_metricListsGuard: "valid"
 	_metricListsGuard: [
 		if len(metricAllowlist) > 0 && len(metricDenylist) > 0 {
@@ -333,18 +333,18 @@ import (
 
 	// Extra volumes and volume mounts for the kube-state-metrics
 	// container.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Extra containers and init containers added to the pods.
 	extraContainers?: [...corev1.#Container]
-	initContainers?: [...corev1.#Container]
+	initContainers?:  [...corev1.#Container]
 
 	// Pod optional settings.
 	podLabels?:      timoniv1.#Labels
 	podAnnotations?: timoniv1.#Annotations
-	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
-	tolerations?: [...corev1.#Toleration]
+	nodeSelector:    *{"kubernetes.io/os": "linux"} | {[string]: string}
+	tolerations?:    [...corev1.#Toleration]
 	// The affinity rules; Linux placement comes from the nodeSelector
 	// default. `podAntiAffinity` accepts the `soft` (default), `hard`
 	// and `none` presets for spreading the replicas across nodes, or
@@ -354,7 +354,7 @@ import (
 		nodeAffinity?:   corev1.#NodeAffinity
 		podAffinity?:    corev1.#PodAffinity
 	}
-	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
+	topologySpreadConstraints?:     [...corev1.#TopologySpreadConstraint]
 	dnsConfig?:                     corev1.#PodDNSConfig
 	priorityClassName?:             string & =~".+"
 	schedulerName?:                 string & =~".+"
@@ -418,7 +418,7 @@ import (
 	rbac: {
 		create:         *true | bool
 		useClusterRole: *true | bool
-		extraRules?: [...rbacv1.#PolicyRule]
+		extraRules?:    [...rbacv1.#PolicyRule]
 	}
 	_rbacGuard: "valid"
 	_rbacGuard: [
@@ -439,18 +439,18 @@ import (
 		if type != "ClusterIP" {
 			clusterIP?: string & =~".+"
 		}
-		annotations?: timoniv1.#Annotations
-		labels?:      timoniv1.#Labels
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		annotations?:    timoniv1.#Annotations
+		labels?:         timoniv1.#Labels
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-		externalIPs?: [...string]
+		externalIPs?:    [...string]
 		if type == "NodePort" {
 			// Zero lets the cluster assign the node ports.
 			nodePort:          *0 | int & >=0 & <=32767
 			telemetryNodePort: *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -521,26 +521,26 @@ import (
 
 		if config.rbac.create {
 			if config.rbac.useClusterRole {
-				"\(config.metadata.name)-cr": #ClusterRole & {_config: config}
+				"\(config.metadata.name)-cr":  #ClusterRole & {_config: config}
 				"\(config.metadata.name)-crb": #ClusterRoleBinding & {_config: config}
 			}
 			if !config.rbac.useClusterRole {
 				for ns in config.namespaces {
 					"\(config.metadata.name)-role-\(ns)": #Role & {_config: config, #namespace: ns}
-					"\(config.metadata.name)-rb-\(ns)": #RoleBinding & {_config: config, #namespace: ns}
+					"\(config.metadata.name)-rb-\(ns)":   #RoleBinding & {_config: config, #namespace: ns}
 				}
 
 				// The auth filter and Custom Resource State permissions
 				// are cluster-scoped and cannot be granted through the
 				// namespaced Roles.
 				if config.authFilter.enabled || config.customResourceState.enabled {
-					"\(config.metadata.name)-cluster-access-cr": #ClusterAccessClusterRole & {_config: config}
+					"\(config.metadata.name)-cluster-access-cr":  #ClusterAccessClusterRole & {_config: config}
 					"\(config.metadata.name)-cluster-access-crb": #ClusterAccessClusterRoleBinding & {_config: config}
 				}
 			}
 			if config.autosharding.enabled {
 				"\(config.metadata.name)-stsdiscovery-role": #StsDiscoveryRole & {_config: config}
-				"\(config.metadata.name)-stsdiscovery-rb": #StsDiscoveryRoleBinding & {_config: config}
+				"\(config.metadata.name)-stsdiscovery-rb":   #StsDiscoveryRoleBinding & {_config: config}
 			}
 		}
 
@@ -567,7 +567,7 @@ import (
 
 		if config.networkPolicy.enabled {
 			"\(config.metadata.name)-netpol-ingress": #NetworkPolicyIngress & {_config: config}
-			"\(config.metadata.name)-netpol-egress": #NetworkPolicyEgress & {_config: config}
+			"\(config.metadata.name)-netpol-egress":  #NetworkPolicyEgress & {_config: config}
 		}
 	}
 }

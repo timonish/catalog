@@ -50,7 +50,7 @@ import (
 			"\(_config.metadata.name).\(_config.metadata.namespace).svc.\(_config.tls.clusterDomain)",
 		]
 		secretName: _config.metadata.name
-		usages: ["server auth", "client auth"]
+		usages:     ["server auth", "client auth"]
 		privateKey: {
 			algorithm: "RSA"
 			size:      2048

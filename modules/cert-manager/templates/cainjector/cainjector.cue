@@ -43,7 +43,7 @@ _component: "cainjector"
 // The port of the metrics listener (0 when disabled).
 #MetricsPort: {
 	#config: config.#Config
-	port: (config.#ListenPort & {#Address: #config.cainjector.config.metricsListenAddress}).port
+	port:    (config.#ListenPort & {#Address: #config.cainjector.config.metricsListenAddress}).port
 }
 
 // The cainjector configuration file rendered into an immutable
@@ -51,6 +51,6 @@ _component: "cainjector"
 #ConfigMap: timoniv1.#ImmutableConfig & {
 	#config: config.#Config
 	_config: #config
-	#Meta: #ObjectMeta & {#config: _config}
+	#Meta:   #ObjectMeta & {#config: _config}
 	#Data: "config.yaml": yaml.Marshal(_config.cainjector.config)
 }

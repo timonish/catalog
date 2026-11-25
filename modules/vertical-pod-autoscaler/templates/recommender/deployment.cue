@@ -11,8 +11,8 @@ import (
 	#config: config.#Config
 	_config: #config
 
-	_r:  _config.recommender
-	_le: _r.leaderElection
+	_r:              _config.recommender
+	_le:             _r.leaderElection
 	_selectorLabels: #SelectorLabels & {#config: _config}
 
 	// The affinity rules generated from the affinity values;
@@ -24,7 +24,7 @@ import (
 
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
-	metadata: #ObjectMeta & {#config: _config}
+	metadata:   #ObjectMeta & {#config: _config}
 	if _r.deploymentAnnotations != _|_ {
 		metadata: annotations: _r.deploymentAnnotations
 	}

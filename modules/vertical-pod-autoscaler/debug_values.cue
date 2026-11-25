@@ -22,7 +22,7 @@ values: {
 		extraRules: [{
 			apiGroups: ["custom.metrics.k8s.io"]
 			resources: ["*"]
-			verbs: ["get", "list"]
+			verbs:     ["get", "list"]
 		}]
 	}
 	serviceMonitor: {
@@ -33,7 +33,7 @@ values: {
 		scheme:        "http"
 		additionalLabels: prometheus:     "default"
 		annotations: "example.com/debug": "true"
-		sampleLimit: 1000
+		sampleLimit:  1000
 		targetLabels: ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
 			action: "labeldrop"
@@ -45,8 +45,8 @@ values: {
 		replicas: 2
 		strategy: type: "Recreate"
 		resources: requests: cpu: "50m"
-		extraArgs: ["--recommendation-margin-fraction=0.2"]
-		env: [{name: "GOMAXPROCS", value: "2"}]
+		extraArgs:   ["--recommendation-margin-fraction=0.2"]
+		env:         [{name: "GOMAXPROCS", value: "2"}]
 		tolerations: [{key: "node-role.kubernetes.io/control-plane", operator: "Exists", effect: "NoSchedule"}]
 		topologySpreadConstraints: [{
 			maxSkew:           1
@@ -74,9 +74,9 @@ values: {
 			annotations: "example.com/debug": "true"
 			labels: "example.com/debug":      "true"
 			ipFamilyPolicy: "SingleStack"
-			ipFamilies: ["IPv4"]
+			ipFamilies:     ["IPv4"]
 		}
-		extraVolumes: [{name: "extra", emptyDir: {}}]
+		extraVolumes:      [{name: "extra", emptyDir: {}}]
 		extraVolumeMounts: [{name: "extra", mountPath: "/extra"}]
 		leaderElection: {
 			resourceNamespace: "kube-system"
@@ -101,7 +101,7 @@ values: {
 			port:           8443
 			targetPort:     8000
 			ipFamilyPolicy: "SingleStack"
-			ipFamilies: ["IPv4"]
+			ipFamilies:     ["IPv4"]
 		}
 		hostNetwork: true
 		dnsPolicy:   "ClusterFirstWithHostNet"
@@ -110,7 +110,7 @@ values: {
 			namespaceSelector: matchExpressions: [{
 				key:      "vpa-webhook"
 				operator: "NotIn"
-				values: ["disabled"]
+				values:   ["disabled"]
 			}]
 			objectSelector: matchLabels: "vpa-enabled": "true"
 			timeoutSeconds: 10

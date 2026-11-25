@@ -15,7 +15,7 @@ import (
 
 	apiVersion: "v1"
 	kind:       "Service"
-	metadata: #ObjectMeta & {#config: _config}
+	metadata:   #ObjectMeta & {#config: _config}
 	if _svc.annotations != _|_ {
 		metadata: annotations: _svc.annotations
 	}

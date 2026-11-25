@@ -54,7 +54,7 @@ import (
 			},
 		]
 		secretName: "\(_config.metadata.name)-webhook-tls"
-		usages: ["server auth"]
+		usages:     ["server auth"]
 		privateKey: {
 			algorithm: "RSA"
 			size:      2048

@@ -12,13 +12,13 @@ bundle: {
 				// The credential-free provider used by the upstream test
 				// suite; --dry-run additionally keeps it untouched.
 				provider: name: "inmemory"
-				sources: ["crd"]
+				sources:    ["crd"]
 				policy:     "sync"
 				txtOwnerId: "e2e"
 				// React to the DNSEndpoint fixture without waiting a
 				// full interval.
 				triggerLoopOnEvent: true
-				extraArgs: ["--dry-run"]
+				extraArgs:          ["--dry-run"]
 			}
 		}
 	}

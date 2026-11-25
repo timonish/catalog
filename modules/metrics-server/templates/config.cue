@@ -105,12 +105,12 @@ import (
 	tmpVolume: *{emptyDir: {}} | corev1.#VolumeSource
 
 	// Extra volumes and volume mounts for the metrics-server container.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Extra containers and init containers added to the pods.
 	extraContainers?: [...corev1.#Container]
-	initContainers?: [...corev1.#Container]
+	initContainers?:  [...corev1.#Container]
 
 	// The security preset applied to the pod identity defaults: the
 	// default "hardened" preset pins the image's non-root UID, while
@@ -128,10 +128,10 @@ import (
 	podLabels?:      timoniv1.#Labels
 	podAnnotations?: timoniv1.#Annotations
 	// Pods are scheduled on Linux nodes by default.
-	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
-	tolerations?: [...corev1.#Toleration]
+	nodeSelector:               *{"kubernetes.io/os": "linux"} | {[string]: string}
+	tolerations?:               [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
-	dnsConfig?: corev1.#PodDNSConfig
+	dnsConfig?:                 corev1.#PodDNSConfig
 	// Not in the chart: pods with hostNetwork enabled may need
 	// ClusterFirstWithHostNet to resolve cluster services.
 	dnsPolicy?:                     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
@@ -176,7 +176,7 @@ import (
 		}
 		labels?:      timoniv1.#Labels
 		annotations?: timoniv1.#Annotations
-		secrets?: [...timoniv1.#ObjectReference]
+		secrets?:     [...timoniv1.#ObjectReference]
 		// The token is mounted through the pod setting instead.
 		automountServiceAccountToken: *false | bool
 	}
@@ -187,19 +187,19 @@ import (
 
 	// Service settings.
 	service: {
-		type:       *"ClusterIP" | "NodePort" | "LoadBalancer"
-		port:       *443 | int & >0 & <=65535
-		clusterIP?: string & =~".+"
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		type:            *"ClusterIP" | "NodePort" | "LoadBalancer"
+		port:            *443 | int & >0 & <=65535
+		clusterIP?:      string & =~".+"
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-		externalIPs?: [...string]
+		externalIPs?:    [...string]
 		if type == "NodePort" {
 			// Zero lets the cluster assign the node port.
 			nodePort: *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?:    string & =~".+"
-			loadBalancerClass?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
+			loadBalancerClass?:        string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -246,7 +246,7 @@ import (
 		// The metrics endpoint is served over TLS; the certificate is
 		// not verified by default. With `tls.type: cert-manager`, set
 		// `tlsConfig` to verify against the issued CA.
-		scheme: *"https" | "http"
+		scheme:    *"https" | "http"
 		tlsConfig: *{insecureSkipVerify: true} | {...}
 	}
 	if serviceMonitor.enabled {
@@ -326,14 +326,14 @@ import (
 		}
 
 		if config.rbac.create {
-			"\(config.metadata.name)-cr": #ClusterRole & {_config: config}
-			"\(config.metadata.name)-cr-aggregated": #AggregatedClusterRole & {_config: config}
-			"\(config.metadata.name)-crb": #ClusterRoleBinding & {_config: config}
-			"\(config.metadata.name)-crb-delegator": #AuthDelegatorClusterRoleBinding & {_config: config}
+			"\(config.metadata.name)-cr":             #ClusterRole & {_config: config}
+			"\(config.metadata.name)-cr-aggregated":  #AggregatedClusterRole & {_config: config}
+			"\(config.metadata.name)-crb":            #ClusterRoleBinding & {_config: config}
+			"\(config.metadata.name)-crb-delegator":  #AuthDelegatorClusterRoleBinding & {_config: config}
 			"\(config.metadata.name)-rb-auth-reader": #AuthReaderRoleBinding & {_config: config}
 		}
 
-		"\(config.metadata.name)-svc": #Service & {_config: config}
+		"\(config.metadata.name)-svc":    #Service & {_config: config}
 		"\(config.metadata.name)-deploy": #Deployment & {_config: config}
 
 		if config.apiService.create {
@@ -352,10 +352,10 @@ import (
 			"\(config.metadata.name)-nanny-cm": #NannyConfigMap & {_config: config}
 
 			if config.rbac.create {
-				"\(config.metadata.name)-nanny-cr": #NannyClusterRole & {_config: config}
-				"\(config.metadata.name)-nanny-crb": #NannyClusterRoleBinding & {_config: config}
+				"\(config.metadata.name)-nanny-cr":   #NannyClusterRole & {_config: config}
+				"\(config.metadata.name)-nanny-crb":  #NannyClusterRoleBinding & {_config: config}
 				"\(config.metadata.name)-nanny-role": #NannyRole & {_config: config}
-				"\(config.metadata.name)-nanny-rb": #NannyRoleBinding & {_config: config}
+				"\(config.metadata.name)-nanny-rb":   #NannyRoleBinding & {_config: config}
 			}
 		}
 

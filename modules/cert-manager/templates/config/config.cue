@@ -194,9 +194,9 @@ import (
 	// The metrics Service settings; the Service is created when
 	// `prometheus.enabled` is set and the PodMonitor is not used.
 	service: {
-		annotations?: timoniv1.#Annotations
-		labels?:      timoniv1.#Labels
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		annotations?:    timoniv1.#Annotations
+		labels?:         timoniv1.#Labels
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 	}
 }
@@ -230,7 +230,7 @@ import (
 		loadBalancerIP?: string & =~".+"
 		annotations?:    timoniv1.#Annotations
 		labels?:         timoniv1.#Labels
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 	}
 
@@ -242,7 +242,7 @@ import (
 			matchExpressions: [{
 				key:      "cert-manager.io/disable-validation"
 				operator: "NotIn"
-				values: ["true"]
+				values:   ["true"]
 			}]
 		} | metav1.#LabelSelector
 		annotations?: timoniv1.#Annotations
@@ -295,9 +295,9 @@ import (
 	// The metrics Service settings; the Service is created when
 	// `prometheus.enabled` is set and the PodMonitor is not used.
 	service: {
-		annotations?: timoniv1.#Annotations
-		labels?:      timoniv1.#Labels
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		annotations?:    timoniv1.#Annotations
+		labels?:         timoniv1.#Labels
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 	}
 }

@@ -15,11 +15,11 @@ import (
 		matchExpressions: [{
 			key:      "eks.amazonaws.com/compute-type"
 			operator: "NotIn"
-			values: ["fargate"]
+			values:   ["fargate"]
 		}, {
 			key:      "type"
 			operator: "NotIn"
-			values: ["virtual-kubelet"]
+			values:   ["virtual-kubelet"]
 		}]
 	}]
 }
@@ -111,13 +111,13 @@ import (
 	// textfile collector. The `proc` and `sys` host volumes are always
 	// present — and `root` while `hostRootFsMount` is enabled — and can
 	// also be mounted into extra containers.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Extra containers and init containers added to the pods, e.g.
 	// sidecars writing textfile collector metrics.
 	extraContainers?: [...corev1.#Container]
-	initContainers?: [...corev1.#Container]
+	initContainers?:  [...corev1.#Container]
 
 	// The container resource requirements (optional).
 	resources?: timoniv1.#ResourceRequirements
@@ -189,7 +189,7 @@ import (
 	// kubelets, and user-supplied rules replace it entirely.
 	affinity: *#DefaultAffinity | corev1.#Affinity
 
-	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
+	topologySpreadConstraints?:     [...corev1.#TopologySpreadConstraint]
 	dnsConfig?:                     corev1.#PodDNSConfig
 	priorityClassName?:             string & =~".+"
 	schedulerName?:                 string & =~".+"
@@ -245,17 +245,17 @@ import (
 		// The name of the metrics port on the Service and the container.
 		portName: *"metrics" | string & =~".+"
 
-		clusterIP?: string & =~".+"
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		clusterIP?:      string & =~".+"
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-		externalIPs?: [...string]
+		externalIPs?:    [...string]
 		if type == "NodePort" {
 			// Zero lets the cluster assign the node port.
 			nodePort: *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?:    string & =~".+"
-			loadBalancerClass?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
+			loadBalancerClass?:        string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -414,7 +414,7 @@ import (
 
 		if config.networkPolicy.enabled {
 			"\(config.metadata.name)-netpol-ingress": #NetworkPolicyIngress & {_config: config}
-			"\(config.metadata.name)-netpol-egress": #NetworkPolicyEgress & {_config: config}
+			"\(config.metadata.name)-netpol-egress":  #NetworkPolicyEgress & {_config: config}
 		}
 
 		if config.verticalPodAutoscaler.enabled {

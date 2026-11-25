@@ -9,7 +9,7 @@ import (
 	#config: config.#Config
 	_config: #config
 
-	_meta: #ObjectMeta & {#config: _config}
+	_meta:      #ObjectMeta & {#config: _config}
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "NetworkPolicy"
 	metadata: {
@@ -21,7 +21,7 @@ import (
 	spec: {
 		podSelector: matchLabels: #SelectorLabels & {#config: _config}
 		policyTypes: ["Ingress"]
-		ingress: _config.cainjector.networkPolicy.ingress
+		ingress:     _config.cainjector.networkPolicy.ingress
 	}
 }
 
@@ -29,7 +29,7 @@ import (
 	#config: config.#Config
 	_config: #config
 
-	_meta: #ObjectMeta & {#config: _config}
+	_meta:      #ObjectMeta & {#config: _config}
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "NetworkPolicy"
 	metadata: {
@@ -41,6 +41,6 @@ import (
 	spec: {
 		podSelector: matchLabels: #SelectorLabels & {#config: _config}
 		policyTypes: ["Egress"]
-		egress: _config.cainjector.networkPolicy.egress
+		egress:      _config.cainjector.networkPolicy.egress
 	}
 }

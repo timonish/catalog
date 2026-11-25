@@ -12,7 +12,7 @@ import (
 
 	apiVersion: "policy/v1"
 	kind:       "PodDisruptionBudget"
-	metadata: #ObjectMeta & {#config: _config}
+	metadata:   #ObjectMeta & {#config: _config}
 	spec: {
 		selector: matchLabels: #SelectorLabels & {#config: _config}
 		if _pdb.minAvailable != _|_ {

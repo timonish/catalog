@@ -63,7 +63,7 @@ import (
 	namespaces: *[] | [...string & =~".+"]
 
 	// The namespaces excluded from watching; empty means none.
-	denyNamespaces: *[] | [...string & =~".+"]
+	denyNamespaces:   *[] | [...string & =~".+"]
 	_namespacesGuard: "valid"
 	_namespacesGuard: [
 		if len(namespaces) > 0 && len(denyNamespaces) > 0 {
@@ -75,10 +75,10 @@ import (
 	// The namespaces watched for the instance custom resources
 	// (Prometheus, Alertmanager, AlertmanagerConfig, ThanosRuler);
 	// empty means the `namespaces` scope.
-	prometheusInstanceNamespaces: *[] | [...string & =~".+"]
+	prometheusInstanceNamespaces:   *[] | [...string & =~".+"]
 	alertmanagerInstanceNamespaces: *[] | [...string & =~".+"]
-	alertmanagerConfigNamespaces: *[] | [...string & =~".+"]
-	thanosRulerInstanceNamespaces: *[] | [...string & =~".+"]
+	alertmanagerConfigNamespaces:   *[] | [...string & =~".+"]
+	thanosRulerInstanceNamespaces:  *[] | [...string & =~".+"]
 
 	// Label selectors filtering the instance custom resources this
 	// operator manages, for running multiple operators side by side.
@@ -207,14 +207,14 @@ import (
 	}
 
 	// Extra volumes and volume mounts for the operator container.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Pod optional settings.
 	podLabels?:      timoniv1.#Labels
 	podAnnotations?: timoniv1.#Annotations
-	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
-	tolerations?: [...corev1.#Toleration]
+	nodeSelector:    *{"kubernetes.io/os": "linux"} | {[string]: string}
+	tolerations?:    [...corev1.#Toleration]
 	// The affinity rules; Linux placement comes from the nodeSelector
 	// default. `podAntiAffinity` accepts the `soft` (default), `hard`
 	// and `none` presets for spreading the replicas across nodes, or
@@ -224,7 +224,7 @@ import (
 		nodeAffinity?:   corev1.#NodeAffinity
 		podAffinity?:    corev1.#PodAffinity
 	}
-	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
+	topologySpreadConstraints?:     [...corev1.#TopologySpreadConstraint]
 	dnsConfig?:                     corev1.#PodDNSConfig
 	priorityClassName?:             string & =~".+"
 	schedulerName?:                 string & =~".+"
@@ -278,23 +278,23 @@ import (
 	// Service settings for the operator web server (metrics and, when
 	// the admission webhook is enabled, the webhook endpoints).
 	service: {
-		type:         *"ClusterIP" | "NodePort" | "LoadBalancer"
-		port:         *8080 | int & >0 & <=65535
-		httpsPort:    *443 | int & >0 & <=65535
-		clusterIP?:   string & =~".+"
-		annotations?: timoniv1.#Annotations
-		labels?:      timoniv1.#Labels
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		type:            *"ClusterIP" | "NodePort" | "LoadBalancer"
+		port:            *8080 | int & >0 & <=65535
+		httpsPort:       *443 | int & >0 & <=65535
+		clusterIP?:      string & =~".+"
+		annotations?:    timoniv1.#Annotations
+		labels?:         timoniv1.#Labels
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-		externalIPs?: [...string]
+		externalIPs?:    [...string]
 		if type == "NodePort" {
 			// Zero lets the cluster assign the node ports.
 			nodePort:    *0 | int & >=0 & <=32767
 			nodePortTls: *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?:    string & =~".+"
-			loadBalancerClass?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
+			loadBalancerClass?:        string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -318,7 +318,7 @@ import (
 		// metrics included, over TLS; the certificate is not verified
 		// by default.
 		if webhook.enabled {
-			scheme: *"https" | "http"
+			scheme:    *"https" | "http"
 			tlsConfig: *{insecureSkipVerify: true} | {...}
 		}
 		if !webhook.enabled {
@@ -357,11 +357,11 @@ import (
 
 		// Fail closed by default; `Ignore` admits objects when the
 		// webhook is unreachable.
-		failurePolicy:  *"Fail" | "Ignore"
-		timeoutSeconds: *10 | int & >=1 & <=30
+		failurePolicy:      *"Fail" | "Ignore"
+		timeoutSeconds:     *10 | int & >=1 & <=30
 		namespaceSelector?: {...}
-		objectSelector?: {...}
-		matchConditions?: [...]
+		objectSelector?:    {...}
+		matchConditions?:   [...]
 
 		// TLS settings for the operator web server:
 		// - `cert-manager`: cert-manager.io issues and maintains the
@@ -369,8 +369,8 @@ import (
 		// - `existingSecret`: reuse an existing TLS secret, with the
 		//   PEM-encoded CA supplied in `caBundle`.
 		tls: {
-			type:       *"cert-manager" | "existingSecret"
-			minVersion: *"VersionTLS13" | "VersionTLS12" | "VersionTLS11" | "VersionTLS10"
+			type:          *"cert-manager" | "existingSecret"
+			minVersion:    *"VersionTLS13" | "VersionTLS12" | "VersionTLS11" | "VersionTLS10"
 			cipherSuites?: [...string & =~".+"]
 
 			certManager: {
@@ -439,7 +439,7 @@ import (
 		}
 
 		if config.rbac.create {
-			"\(config.metadata.name)-cr": #ClusterRole & {_config: config}
+			"\(config.metadata.name)-cr":  #ClusterRole & {_config: config}
 			"\(config.metadata.name)-crb": #ClusterRoleBinding & {_config: config}
 			if config.rbac.aggregateClusterRoles {
 				"\(config.metadata.name)-cr-view": #AggregatedViewClusterRole & {_config: config}
@@ -447,7 +447,7 @@ import (
 			}
 		}
 
-		"\(config.metadata.name)-svc": #Service & {_config: config}
+		"\(config.metadata.name)-svc":    #Service & {_config: config}
 		"\(config.metadata.name)-deploy": #Deployment & {_config: config}
 
 		if config.podDisruptionBudget.enabled {
@@ -460,7 +460,7 @@ import (
 
 		if config.networkPolicy.enabled {
 			"\(config.metadata.name)-netpol-ingress": #NetworkPolicyIngress & {_config: config}
-			"\(config.metadata.name)-netpol-egress": #NetworkPolicyEgress & {_config: config}
+			"\(config.metadata.name)-netpol-egress":  #NetworkPolicyEgress & {_config: config}
 		}
 
 		if config.webhook.enabled {

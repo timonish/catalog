@@ -34,11 +34,11 @@ _webhook: {
 	out: {
 		name: "validate.\(#resource).external-secrets.io"
 		rules: [{
-			apiGroups: ["external-secrets.io"]
+			apiGroups:   ["external-secrets.io"]
 			apiVersions: ["v1"]
-			operations: ["CREATE", "UPDATE", "DELETE"]
-			resources: ["\(#resource)s"]
-			scope: #scope
+			operations:  ["CREATE", "UPDATE", "DELETE"]
+			resources:   ["\(#resource)s"]
+			scope:       #scope
 		}]
 		clientConfig: {
 			service: {
@@ -52,9 +52,9 @@ _webhook: {
 			}
 		}
 		admissionReviewVersions: ["v1", "v1beta1"]
-		sideEffects:    "None"
-		timeoutSeconds: #config.webhook.timeoutSeconds
-		failurePolicy:  #config.webhook.failurePolicy
+		sideEffects:             "None"
+		timeoutSeconds:          #config.webhook.timeoutSeconds
+		failurePolicy:           #config.webhook.failurePolicy
 	}
 }
 
@@ -64,7 +64,7 @@ _webhook: {
 
 	apiVersion: "admissionregistration.k8s.io/v1"
 	kind:       "ValidatingWebhookConfiguration"
-	metadata: _webhookConfigMeta & {#config: _config, #name: "secretstore-validate"}
+	metadata:   _webhookConfigMeta & {#config: _config, #name: "secretstore-validate"}
 	webhooks: [
 		(_webhook & {#config: _config, #resource: "secretstore", #scope: "Namespaced"}).out,
 		(_webhook & {#config: _config, #resource: "clustersecretstore", #scope: "Cluster"}).out,
@@ -77,7 +77,7 @@ _webhook: {
 
 	apiVersion: "admissionregistration.k8s.io/v1"
 	kind:       "ValidatingWebhookConfiguration"
-	metadata: _webhookConfigMeta & {#config: _config, #name: "externalsecret-validate"}
+	metadata:   _webhookConfigMeta & {#config: _config, #name: "externalsecret-validate"}
 	webhooks: [
 		(_webhook & {#config: _config, #resource: "externalsecret", #scope: "Namespaced"}).out,
 	]

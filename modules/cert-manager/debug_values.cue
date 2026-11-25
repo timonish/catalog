@@ -37,7 +37,7 @@ values: {
 		scheme:        "http"
 		additionalLabels: release:       "kube-prometheus-stack"
 		annotations: "example.com/team": "platform"
-		sampleLimit: 1000
+		sampleLimit:  1000
 		targetLabels: ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
 			action: "labeldrop"
@@ -64,7 +64,7 @@ values: {
 			kubernetesAPIBurst:        50
 			clusterResourceNamespace:  "cert-manager"
 			enableCertificateOwnerRef: true
-			copiedAnnotationPrefixes: ["*", "-kubectl.kubernetes.io/"]
+			copiedAnnotationPrefixes:  ["*", "-kubectl.kubernetes.io/"]
 			numberOfConcurrentWorkers: 10
 			maxConcurrentChallenges:   30
 			enablePprof:               false
@@ -80,11 +80,11 @@ values: {
 				solverResourceLimitsCPU:     "100m"
 				solverResourceLimitsMemory:  "64Mi"
 				solverRunAsNonRoot:          true
-				solverNameservers: ["8.8.8.8:53"]
+				solverNameservers:           ["8.8.8.8:53"]
 				solverExtraLabels: "example.com/solver": "acme"
 			}
 			acmeDNS01Config: {
-				recursiveNameservers: ["8.8.8.8:53", "https://1.1.1.1/dns-query"]
+				recursiveNameservers:     ["8.8.8.8:53", "https://1.1.1.1/dns-query"]
 				recursiveNameserversOnly: true
 				checkRetryPeriod:         "10s"
 			}
@@ -103,24 +103,24 @@ values: {
 			}
 			limits: memory: "256Mi"
 		}
-		env: [{name: "HTTPS_PROXY", value: "http://proxy.example.com:3128"}]
-		extraArgs: ["--v=4"]
-		extraVolumes: [{name: "extra", emptyDir: {}}]
+		env:               [{name: "HTTPS_PROXY", value: "http://proxy.example.com:3128"}]
+		extraArgs:         ["--v=4"]
+		extraVolumes:      [{name: "extra", emptyDir: {}}]
 		extraVolumeMounts: [{name: "extra", mountPath: "/extra"}]
 		podLabels: "example.com/scope":             "pki"
 		podAnnotations: "example.com/scrape":       "true"
 		deploymentAnnotations: "example.com/owner": "platform"
 		priorityClassName:            "system-cluster-critical"
 		automountServiceAccountToken: true
-		hostAliases: [{ip: "127.0.0.1", hostnames: ["acme.local"]}]
-		dnsPolicy: "ClusterFirst"
+		hostAliases:                  [{ip: "127.0.0.1", hostnames: ["acme.local"]}]
+		dnsPolicy:                    "ClusterFirst"
 		dnsConfig: options: [{name: "ndots", value: "1"}]
 		tolerations: [{key: "node-role.kubernetes.io/control-plane", operator: "Exists", effect: "NoSchedule"}]
 		affinity: nodeAffinity: requiredDuringSchedulingIgnoredDuringExecution: nodeSelectorTerms: [{
 			matchExpressions: [{
 				key:      "kubernetes.io/os"
 				operator: "In"
-				values: ["linux"]
+				values:   ["linux"]
 			}]
 		}]
 		topologySpreadConstraints: [{
@@ -138,7 +138,7 @@ values: {
 			annotations: "example.com/metrics": "true"
 			labels: "example.com/scope":        "pki"
 			ipFamilyPolicy: "SingleStack"
-			ipFamilies: ["IPv4"]
+			ipFamilies:     ["IPv4"]
 		}
 		podDisruptionBudget: {
 			enabled:                    true
@@ -170,7 +170,7 @@ values: {
 			namespaceSelector: matchExpressions: [{
 				key:      "kubernetes.io/metadata.name"
 				operator: "NotIn"
-				values: ["kube-system"]
+				values:   ["kube-system"]
 			}]
 			annotations: "example.com/audit": "true"
 		}
@@ -199,7 +199,7 @@ values: {
 		service: {
 			annotations: "example.com/metrics": "true"
 			ipFamilyPolicy: "SingleStack"
-			ipFamilies: ["IPv4"]
+			ipFamilies:     ["IPv4"]
 		}
 		podDisruptionBudget: enabled: true
 		networkPolicy: enabled:       true

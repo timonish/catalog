@@ -51,14 +51,14 @@ import (
 		}
 		if config.controller.networkPolicy.enabled {
 			"controller-netpol-ingress": controller.#NetworkPolicyIngress & {#config: cfg}
-			"controller-netpol-egress": controller.#NetworkPolicyEgress & {#config: cfg}
+			"controller-netpol-egress":  controller.#NetworkPolicyEgress & {#config: cfg}
 		}
 
 		// Webhook.
 		if config.webhook.enabled {
-			"webhook-deploy": webhook.#Deployment & {#config: cfg}
-			"webhook-svc": webhook.#Service & {#config: cfg}
-			"webhook-validating-secretstore": webhook.#SecretStoreWebhookConfiguration & {#config: cfg}
+			"webhook-deploy":                    webhook.#Deployment & {#config: cfg}
+			"webhook-svc":                       webhook.#Service & {#config: cfg}
+			"webhook-validating-secretstore":    webhook.#SecretStoreWebhookConfiguration & {#config: cfg}
 			"webhook-validating-externalsecret": webhook.#ExternalSecretWebhookConfiguration & {#config: cfg}
 			if _certController {
 				"webhook-secret": webhook.#Secret & {#config: cfg}
@@ -82,7 +82,7 @@ import (
 			}
 			if config.webhook.networkPolicy.enabled {
 				"webhook-netpol-ingress": webhook.#NetworkPolicyIngress & {#config: cfg}
-				"webhook-netpol-egress": webhook.#NetworkPolicyEgress & {#config: cfg}
+				"webhook-netpol-egress":  webhook.#NetworkPolicyEgress & {#config: cfg}
 			}
 		}
 
@@ -105,7 +105,7 @@ import (
 			}
 			if config.certController.networkPolicy.enabled {
 				"cert-controller-netpol-ingress": certcontroller.#NetworkPolicyIngress & {#config: cfg}
-				"cert-controller-netpol-egress": certcontroller.#NetworkPolicyEgress & {#config: cfg}
+				"cert-controller-netpol-egress":  certcontroller.#NetworkPolicyEgress & {#config: cfg}
 			}
 		}
 

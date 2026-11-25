@@ -224,13 +224,13 @@ _collectorRules: [
 		{
 			apiGroups: [""]
 			resources: ["pods"]
-			verbs: ["get"]
+			verbs:     ["get"]
 		},
 		{
-			apiGroups: ["apps"]
+			apiGroups:     ["apps"]
 			resourceNames: [_config.metadata.name]
-			resources: ["statefulsets"]
-			verbs: ["get", "list", "watch"]
+			resources:     ["statefulsets"]
+			verbs:         ["get", "list", "watch"]
 		},
 	]
 }

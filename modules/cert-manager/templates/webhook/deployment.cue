@@ -15,7 +15,7 @@ import (
 	// configuration file.
 	#cmName: string
 
-	_webhook: _config.webhook
+	_webhook:        _config.webhook
 	_selectorLabels: #SelectorLabels & {#config: _config}
 
 	// The affinity rules generated from the affinity values;
@@ -28,7 +28,7 @@ import (
 
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
-	metadata: #ObjectMeta & {#config: _config}
+	metadata:   #ObjectMeta & {#config: _config}
 	if _webhook.deploymentAnnotations != _|_ {
 		metadata: annotations: _webhook.deploymentAnnotations
 	}

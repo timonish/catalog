@@ -11,7 +11,7 @@ import (
 	#config: config.#Config
 	_config: #config
 
-	_ac: _config.admissionController
+	_ac:             _config.admissionController
 	_selectorLabels: #SelectorLabels & {#config: _config}
 
 	// The affinity rules generated from the affinity values;
@@ -47,7 +47,7 @@ import (
 
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
-	metadata: #ObjectMeta & {#config: _config}
+	metadata:   #ObjectMeta & {#config: _config}
 	if _ac.deploymentAnnotations != _|_ {
 		metadata: annotations: _ac.deploymentAnnotations
 	}

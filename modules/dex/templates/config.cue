@@ -88,7 +88,7 @@ import (
 		// Derive the client IP from a forwarding header (e.g.
 		// `X-Forwarded-For`) when set by one of the trusted proxies.
 		clientRemoteIP?: {
-			header: string & =~".+"
+			header:         string & =~".+"
 			trustedProxies: [...string]
 		}
 	}
@@ -131,8 +131,8 @@ import (
 
 	// OAuth2 flow customization.
 	oauth2?: {
-		grantTypes?: [...string]
-		responseTypes?: [...string]
+		grantTypes?:            [...string]
+		responseTypes?:         [...string]
 		skipApprovalScreen?:    bool
 		alwaysShowLoginScreen?: bool
 		passwordConnector?:     string & =~".+"
@@ -164,13 +164,13 @@ import (
 		logoURL?: string & =~".+"
 		issuer?:  string & =~".+"
 		theme?:   string & =~".+"
-		extra?: {[string]: string}
+		extra?:   {[string]: string}
 	}
 
 	// The signer of the issued JWT tokens; defaults to signing keys
 	// managed by Dex in its storage.
 	signer?: {
-		type: "local" | "vault"
+		type:    "local" | "vault"
 		config?: {...}
 	}
 
@@ -183,7 +183,7 @@ import (
 
 	// Maintain a list of local email/password identities.
 	enablePasswordDB?: bool
-	staticPasswords?: [...#DexStaticPassword]
+	staticPasswords?:  [...#DexStaticPassword]
 	if staticPasswords != _|_ {
 		enablePasswordDB: true
 	}
@@ -193,9 +193,9 @@ import (
 // The config schema is connector-specific, see
 // https://dexidp.io/docs/connectors/
 #DexConnector: {
-	type: string & =~".+"
-	id:   string & =~".+"
-	name: string & =~".+"
+	type:    string & =~".+"
+	id:      string & =~".+"
+	name:    string & =~".+"
 	config?: {...}
 }
 
@@ -204,15 +204,15 @@ import (
 // set literally or read from an environment variable of the Dex
 // container, one of each pair.
 #DexStaticClient: {
-	id?:        string & =~".+"
-	idEnv?:     string & =~".+"
-	name:       string & =~".+"
-	secret?:    string & =~".+"
-	secretEnv?: string & =~".+"
-	public:     *false | bool
+	id?:           string & =~".+"
+	idEnv?:        string & =~".+"
+	name:          string & =~".+"
+	secret?:       string & =~".+"
+	secretEnv?:    string & =~".+"
+	public:        *false | bool
 	redirectURIs?: [...string]
 	trustedPeers?: [...string]
-	logoURL?: string & =~".+"
+	logoURL?:      string & =~".+"
 
 	if idEnv == _|_ {
 		id: string & =~".+"
@@ -243,7 +243,7 @@ import (
 	name?:              string
 	preferredUsername?: string
 	emailVerified?:     bool
-	groups?: [...string]
+	groups?:            [...string]
 }
 
 // Config defines the schema and defaults for the Instance values.
@@ -366,12 +366,12 @@ import (
 
 	// Extra volumes and volume mounts, e.g. the TLS certificates
 	// referenced in the Dex configuration.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Extra containers and init containers added to the pods.
 	extraContainers?: [...corev1.#Container]
-	initContainers?: [...corev1.#Container]
+	initContainers?:  [...corev1.#Container]
 
 	// The security preset applied to the pod identity defaults: the
 	// default "hardened" preset pins the image's non-root UID, while
@@ -389,10 +389,10 @@ import (
 	podLabels?:      timoniv1.#Labels
 	podAnnotations?: timoniv1.#Annotations
 	// Pods are scheduled on Linux nodes by default.
-	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
-	tolerations?: [...corev1.#Toleration]
-	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
-	hostAliases?: [...corev1.#HostAlias]
+	nodeSelector:                   *{"kubernetes.io/os": "linux"} | {[string]: string}
+	tolerations?:                   [...corev1.#Toleration]
+	topologySpreadConstraints?:     [...corev1.#TopologySpreadConstraint]
+	hostAliases?:                   [...corev1.#HostAlias]
 	dnsConfig?:                     corev1.#PodDNSConfig
 	dnsPolicy?:                     "ClusterFirst" | "ClusterFirstWithHostNet" | "Default" | "None"
 	priorityClassName?:             string & =~".+"
@@ -444,21 +444,21 @@ import (
 	rbac: {
 		create:              *true | bool
 		createClusterScoped: *true | bool
-		extraRules?: [...rbacv1.#PolicyRule]
+		extraRules?:         [...rbacv1.#PolicyRule]
 	}
 
 	// Service settings. The http port is always exposed, the https and
 	// grpc ports follow the listeners enabled in the Dex configuration,
 	// and the telemetry port (5558) is always exposed for scraping.
 	service: {
-		type:       *"ClusterIP" | "NodePort" | "LoadBalancer"
-		port:       *5556 | int & >0 & <=65535
-		httpsPort:  *5554 | int & >0 & <=65535
-		grpcPort:   *5557 | int & >0 & <=65535
-		clusterIP?: string & =~".+"
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		type:            *"ClusterIP" | "NodePort" | "LoadBalancer"
+		port:            *5556 | int & >0 & <=65535
+		httpsPort:       *5554 | int & >0 & <=65535
+		grpcPort:        *5557 | int & >0 & <=65535
+		clusterIP?:      string & =~".+"
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-		externalIPs?: [...string]
+		externalIPs?:    [...string]
 		if type != "ClusterIP" {
 			// Zero lets the cluster assign the node ports.
 			nodePort:      *0 | int & >=0 & <=32767
@@ -466,8 +466,8 @@ import (
 			grpcNodePort:  *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?:    string & =~".+"
-			loadBalancerClass?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
+			loadBalancerClass?:        string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -486,7 +486,7 @@ import (
 		if enabled {
 			hosts: [#IngressHost, ...#IngressHost]
 		}
-		tls?: [...networkingv1.#IngressTLS]
+		tls?:         [...networkingv1.#IngressTLS]
 		annotations?: timoniv1.#Annotations
 		labels?:      timoniv1.#Labels
 	}
@@ -532,8 +532,8 @@ import (
 		enabled:     *false | bool
 		minReplicas: *1 | int & >0
 		maxReplicas: *minReplicas | int & >=minReplicas
-		metrics: *[] | [...]
-		behavior?: {...}
+		metrics:     *[] | [...]
+		behavior?:   {...}
 	}
 
 	// Prometheus Operator ServiceMonitor (optional), created in the
@@ -561,11 +561,11 @@ import (
 
 		if config.rbac.create && (config._k8sStorage || config.rbac.extraRules != _|_) {
 			"\(config.metadata.name)-role": #Role & {_config: config}
-			"\(config.metadata.name)-rb": #RoleBinding & {_config: config}
+			"\(config.metadata.name)-rb":   #RoleBinding & {_config: config}
 		}
 
 		if config.rbac.create && config._k8sStorage && config.rbac.createClusterScoped {
-			"\(config.metadata.name)-cr": #ClusterRole & {_config: config}
+			"\(config.metadata.name)-cr":  #ClusterRole & {_config: config}
 			"\(config.metadata.name)-crb": #ClusterRoleBinding & {_config: config}
 		}
 
@@ -573,7 +573,7 @@ import (
 			"\(config.metadata.name)-secret": config._configSecret
 		}
 
-		"\(config.metadata.name)-svc": #Service & {_config: config}
+		"\(config.metadata.name)-svc":    #Service & {_config: config}
 		"\(config.metadata.name)-deploy": #Deployment & {_config: config}
 
 		if config.ingress.enabled {

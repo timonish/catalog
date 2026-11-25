@@ -139,7 +139,7 @@ import (
 			if enabled {
 				hosts: [#IngressHost, ...#IngressHost]
 			}
-			tls?: [...networkingv1.#IngressTLS]
+			tls?:         [...networkingv1.#IngressTLS]
 			annotations?: timoniv1.#Annotations
 			labels?:      timoniv1.#Labels
 		}
@@ -299,22 +299,22 @@ import (
 	tmpVolume: *{emptyDir: {}} | corev1.#VolumeSource
 
 	// Extra volumes and volume mounts, e.g. a CA certificates bundle.
-	extraVolumes?: [...corev1.#Volume]
+	extraVolumes?:      [...corev1.#Volume]
 	extraVolumeMounts?: [...corev1.#VolumeMount]
 
 	// Extra containers and init containers added to the pods.
 	extraContainers?: [...corev1.#Container]
-	initContainers?: [...corev1.#Container]
+	initContainers?:  [...corev1.#Container]
 
 	// Pod optional settings.
 	podLabels?:      timoniv1.#Labels
 	podAnnotations?: timoniv1.#Annotations
 	// Pods are scheduled on Linux nodes by default.
-	nodeSelector: *{"kubernetes.io/os": "linux"} | {[string]: string}
-	tolerations?: [...corev1.#Toleration]
+	nodeSelector:               *{"kubernetes.io/os": "linux"} | {[string]: string}
+	tolerations?:               [...corev1.#Toleration]
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint]
-	hostAliases?: [...corev1.#HostAlias]
-	dnsConfig?: corev1.#PodDNSConfig
+	hostAliases?:               [...corev1.#HostAlias]
+	dnsConfig?:                 corev1.#PodDNSConfig
 	// With the host network, the default flips so the pods keep
 	// resolving cluster services.
 	if hostNetwork {
@@ -386,21 +386,21 @@ import (
 	// Service settings. The metrics port is always exposed, the web
 	// port follows `web.enabled`.
 	service: {
-		type:       *"ClusterIP" | "NodePort" | "LoadBalancer"
-		port:       *8080 | int & >0 & <=65535
-		webPort:    *9080 | int & >0 & <=65535
-		clusterIP?: string & =~".+"
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		type:            *"ClusterIP" | "NodePort" | "LoadBalancer"
+		port:            *8080 | int & >0 & <=65535
+		webPort:         *9080 | int & >0 & <=65535
+		clusterIP?:      string & =~".+"
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
-		externalIPs?: [...string]
+		externalIPs?:    [...string]
 		if type != "ClusterIP" {
 			// Zero lets the cluster assign the node ports.
 			nodePort:    *0 | int & >=0 & <=32767
 			webNodePort: *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?:    string & =~".+"
-			loadBalancerClass?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
+			loadBalancerClass?:        string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {
@@ -466,12 +466,12 @@ import (
 		}
 
 		if config._serverOnly {
-			"\(config.metadata.name)-web-cr": #WebClusterRole & {_config: config}
+			"\(config.metadata.name)-web-cr":  #WebClusterRole & {_config: config}
 			"\(config.metadata.name)-web-crb": #WebClusterRoleBinding & {_config: config}
 		}
 
 		if config.web.enabled && config.web.rbac.createRoles {
-			"flux-web-user-cr": #WebUserClusterRole & {_config: config}
+			"flux-web-user-cr":  #WebUserClusterRole & {_config: config}
 			"flux-web-admin-cr": #WebAdminClusterRole & {_config: config}
 		}
 
@@ -483,7 +483,7 @@ import (
 			"\(config.metadata.name)-web-config": config._webConfigSecret
 		}
 
-		"\(config.metadata.name)-svc": #Service & {_config: config}
+		"\(config.metadata.name)-svc":    #Service & {_config: config}
 		"\(config.metadata.name)-deploy": #Deployment & {_config: config}
 
 		if config.web.enabled && config.web.networkPolicy.create {

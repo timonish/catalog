@@ -35,14 +35,14 @@ import (
 			{
 				apiGroups: [""]
 				resources: ["nodes"]
-				verbs: ["list", "watch"]
+				verbs:     ["list", "watch"]
 			}
 		},
 		if _podReaders {
 			{
 				apiGroups: [""]
 				resources: ["pods"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."service" || _has."contour-httpproxy" || _has."gloo-proxy" ||
@@ -51,14 +51,14 @@ import (
 			{
 				apiGroups: [""]
 				resources: ["services"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."service" {
 			{
 				apiGroups: ["discovery.k8s.io"]
 				resources: ["endpointslices"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."ingress" || _has."istio-gateway" || _has."istio-virtualservice" ||
@@ -67,56 +67,56 @@ import (
 			{
 				apiGroups: ["extensions", "networking.k8s.io"]
 				resources: ["ingresses"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."istio-gateway" || _has."istio-virtualservice" {
 			{
 				apiGroups: ["networking.istio.io"]
 				resources: ["gateways"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."istio-virtualservice" {
 			{
 				apiGroups: ["networking.istio.io"]
 				resources: ["virtualservices"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."ambassador-host" {
 			{
 				apiGroups: ["getambassador.io"]
 				resources: ["hosts", "ingresses"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."contour-httpproxy" {
 			{
 				apiGroups: ["projectcontour.io"]
 				resources: ["httpproxies"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."crd" {
 			{
 				apiGroups: ["externaldns.k8s.io"]
 				resources: ["dnsendpoints"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."crd" {
 			{
 				apiGroups: ["externaldns.k8s.io"]
 				resources: ["dnsendpoints/status"]
-				verbs: ["update"]
+				verbs:     ["update"]
 			}
 		},
 		if _config._hasGatewaySources && (!_config.namespaced || _config.gatewayNamespace == _|_) {
 			{
 				apiGroups: ["gateway.networking.k8s.io"]
 				resources: ["gateways"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _config._hasGatewaySources && (!_config.namespaced || _config.gatewayNamespace == _|_) &&
@@ -124,98 +124,98 @@ import (
 			{
 				apiGroups: ["gateway.networking.k8s.io"]
 				resources: ["listenersets"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _config._hasGatewaySources && !_config.namespaced {
 			{
 				apiGroups: [""]
 				resources: ["namespaces"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."gateway-httproute" {
 			{
 				apiGroups: ["gateway.networking.k8s.io"]
 				resources: ["httproutes"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."gateway-grpcroute" {
 			{
 				apiGroups: ["gateway.networking.k8s.io"]
 				resources: ["grpcroutes"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."gateway-tlsroute" {
 			{
 				apiGroups: ["gateway.networking.k8s.io"]
 				resources: ["tlsroutes"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."gateway-tcproute" {
 			{
 				apiGroups: ["gateway.networking.k8s.io"]
 				resources: ["tcproutes"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."gateway-udproute" {
 			{
 				apiGroups: ["gateway.networking.k8s.io"]
 				resources: ["udproutes"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."gloo-proxy" {
 			{
 				apiGroups: ["gloo.solo.io", "gateway.solo.io"]
 				resources: ["proxies", "virtualservices", "gateways"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."kong-tcpingress" {
 			{
 				apiGroups: ["configuration.konghq.com"]
 				resources: ["tcpingresses"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."traefik-proxy" {
 			{
 				apiGroups: ["traefik.containo.us", "traefik.io"]
 				resources: ["ingressroutes", "ingressroutetcps", "ingressrouteudps"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."openshift-route" {
 			{
 				apiGroups: ["route.openshift.io"]
 				resources: ["routes"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."skipper-routegroup" {
 			{
 				apiGroups: ["zalando.org"]
 				resources: ["routegroups"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _has."skipper-routegroup" {
 			{
 				apiGroups: ["zalando.org"]
 				resources: ["routegroups/status"]
-				verbs: ["patch", "update"]
+				verbs:     ["patch", "update"]
 			}
 		},
 		if _has."f5-virtualserver" || _has."f5-transportserver" {
 			{
 				apiGroups: ["cis.f5.com"]
 				resources: ["virtualservers", "transportservers"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 		if _config.rbac.extraRules != _|_ for r in _config.rbac.extraRules {r},
@@ -326,7 +326,7 @@ import (
 	rules: [{
 		apiGroups: [""]
 		resources: ["namespaces"]
-		verbs: ["get", "watch", "list"]
+		verbs:     ["get", "watch", "list"]
 	}]
 }
 
@@ -371,13 +371,13 @@ import (
 		{
 			apiGroups: ["gateway.networking.k8s.io"]
 			resources: ["gateways"]
-			verbs: ["get", "watch", "list"]
+			verbs:     ["get", "watch", "list"]
 		},
 		if _config.enableGatewayListenerSets {
 			{
 				apiGroups: ["gateway.networking.k8s.io"]
 				resources: ["listenersets"]
-				verbs: ["get", "watch", "list"]
+				verbs:     ["get", "watch", "list"]
 			}
 		},
 	]

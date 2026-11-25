@@ -226,9 +226,9 @@ import (
 	genericTargets: {
 		enabled: *false | bool
 		resources?: [...{
-			apiGroup: string
+			apiGroup:  string
 			resources: [string & =~".+", ...string & =~".+"]
-			verbs: [string & =~".+", ...string & =~".+"]
+			verbs:     [string & =~".+", ...string & =~".+"]
 		}]
 	}
 
@@ -355,17 +355,17 @@ import (
 	// set, with the `metrics.service` annotations and labels merged
 	// in; its network settings come from this block.
 	service: {
-		type:       *"ClusterIP" | "NodePort" | "LoadBalancer"
-		port:       *443 | int & >0 & <=65535
-		clusterIP?: string & =~".+"
-		ipFamilies?: [..."IPv4" | "IPv6"]
+		type:            *"ClusterIP" | "NodePort" | "LoadBalancer"
+		port:            *443 | int & >0 & <=65535
+		clusterIP?:      string & =~".+"
+		ipFamilies?:     [..."IPv4" | "IPv6"]
 		ipFamilyPolicy?: "SingleStack" | "PreferDualStack" | "RequireDualStack"
 		if type == "NodePort" {
 			nodePort: *0 | int & >=0 & <=32767
 		}
 		if type == "LoadBalancer" {
-			loadBalancerIP?:    string & =~".+"
-			loadBalancerClass?: string & =~".+"
+			loadBalancerIP?:           string & =~".+"
+			loadBalancerClass?:        string & =~".+"
 			loadBalancerSourceRanges?: [...string]
 		}
 		if type != "ClusterIP" {

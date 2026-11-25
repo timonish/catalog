@@ -24,7 +24,7 @@ bundle: {
 				// Secret target as well as a ConfigMap, covering the
 				// authorized-secrets RBAC branch.
 				secretTargets: {
-					enabled: true
+					enabled:           true
 					authorizedSecrets: ["e2e"]
 				}
 			}

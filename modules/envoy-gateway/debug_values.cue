@@ -30,7 +30,7 @@ values: {
 		provider: kubernetes: {
 			deploy: type: "GatewayNamespace"
 			watch: {
-				type: "Namespaces"
+				type:       "Namespaces"
 				namespaces: ["apps", "prod"]
 			}
 			// The typed image default must not close the deployment
@@ -108,7 +108,7 @@ values: {
 		annotations: "example.com/svc": "envoy-gateway"
 		labels: "example.com/scope":    "ingress"
 		loadBalancerSourceRanges: ["10.0.0.0/8"]
-		externalTrafficPolicy: "Local"
+		externalTrafficPolicy:    "Local"
 	}
 
 	serviceMonitor: {
@@ -120,7 +120,7 @@ values: {
 		honorLabels:   true
 		scheme:        "http"
 		sampleLimit:   1000
-		targetLabels: ["app.kubernetes.io/part-of"]
+		targetLabels:  ["app.kubernetes.io/part-of"]
 		metricRelabelings: [{
 			action: "labeldrop"
 			regex:  "instance"
@@ -146,7 +146,7 @@ values: {
 		value: "2"
 	}]
 	extraVolumes: [{
-		name: "tmp"
+		name:     "tmp"
 		emptyDir: {}
 	}]
 	extraVolumeMounts: [{
@@ -165,7 +165,7 @@ values: {
 		matchExpressions: [{
 			key:      "kubernetes.io/os"
 			operator: "In"
-			values: ["linux"]
+			values:   ["linux"]
 		}]
 	}]
 	topologySpreadConstraints: [{

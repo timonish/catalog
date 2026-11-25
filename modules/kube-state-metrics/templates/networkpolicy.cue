@@ -19,7 +19,7 @@ import (
 	spec: {
 		podSelector: matchLabels: _config.selector.labels
 		policyTypes: ["Ingress"]
-		ingress: _config.networkPolicy.ingress
+		ingress:     _config.networkPolicy.ingress
 	}
 }
 
@@ -38,6 +38,6 @@ import (
 	spec: {
 		podSelector: matchLabels: _config.selector.labels
 		policyTypes: ["Egress"]
-		egress: _config.networkPolicy.egress
+		egress:      _config.networkPolicy.egress
 	}
 }

@@ -78,8 +78,8 @@ package config
 	dynamic?: {
 		secretNamespace: string & =~".+"
 		secretName:      string & =~".+"
-		dnsNames: [string & =~".+", ...string & =~".+"]
-		leafDuration?: #Duration
+		dnsNames:        [string & =~".+", ...string & =~".+"]
+		leafDuration?:   #Duration
 	}
 
 	_guard: "valid"

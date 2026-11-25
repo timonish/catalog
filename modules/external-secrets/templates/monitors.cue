@@ -38,7 +38,7 @@ import (
 			matchExpressions: [{
 				key:      timoniv1.#StdLabelComponent
 				operator: "In"
-				values: ["controller", "webhook", "cert-controller"]
+				values:   ["controller", "webhook", "cert-controller"]
 			}]
 		}
 		namespaceSelector: matchNames: [cfg.metadata.namespace]

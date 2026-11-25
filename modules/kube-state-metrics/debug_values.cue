@@ -55,11 +55,11 @@ values: {
 		"volumeattachments",
 	]
 
-	metricAllowlist: ["kube_node_info", "kube_pod_.*"]
-	metricLabelsAllowlist: ["pods=[app.kubernetes.io/name]", "namespaces=[*]"]
+	metricAllowlist:            ["kube_node_info", "kube_pod_.*"]
+	metricLabelsAllowlist:      ["pods=[app.kubernetes.io/name]", "namespaces=[*]"]
 	metricAnnotationsAllowList: ["pods=[example.com/team]"]
 
-	namespaces: ["monitoring", "kube-system"]
+	namespaces:         ["monitoring", "kube-system"]
 	namespacesDenylist: ["kube-system"]
 
 	authFilter: enabled: true
@@ -73,7 +73,7 @@ values: {
 				kind:    "Certificate"
 			}
 			labelsFromPath: {
-				name: ["metadata", "name"]
+				name:      ["metadata", "name"]
 				namespace: ["metadata", "namespace"]
 			}
 			metrics: [{
@@ -108,7 +108,7 @@ values: {
 	startupProbe: failureThreshold: 5
 
 	extraVolumes: [{
-		name: "tmp"
+		name:     "tmp"
 		emptyDir: {}
 	}]
 	extraVolumeMounts: [{
@@ -138,7 +138,7 @@ values: {
 		matchExpressions: [{
 			key:      "kubernetes.io/os"
 			operator: "In"
-			values: ["linux"]
+			values:   ["linux"]
 		}]
 	}]
 	topologySpreadConstraints: [{
@@ -165,14 +165,14 @@ values: {
 		extraRules: [{
 			apiGroups: ["cert-manager.io"]
 			resources: ["certificates"]
-			verbs: ["list", "watch"]
+			verbs:     ["list", "watch"]
 		}]
 	}
 
 	service: {
 		annotations: "team": "platform"
 		labels: "team":      "platform"
-		ipFamilies: ["IPv4"]
+		ipFamilies:     ["IPv4"]
 		ipFamilyPolicy: "SingleStack"
 	}
 
@@ -187,10 +187,10 @@ values: {
 		additionalLabels: "release":                "e2e"
 		annotations: "team":                        "platform"
 		selectorOverride: "app.kubernetes.io/name": "kube-state-metrics"
-		jobLabel: "app.kubernetes.io/instance"
-		targetLabels: ["cluster"]
-		podTargetLabels: ["pod"]
-		namespaceSelector: ["monitoring"]
+		jobLabel:              "app.kubernetes.io/instance"
+		targetLabels:          ["cluster"]
+		podTargetLabels:       ["pod"]
+		namespaceSelector:     ["monitoring"]
 		sampleLimit:           1000
 		targetLimit:           10
 		labelLimit:            64
@@ -208,9 +208,9 @@ values: {
 				regex:  "pod_template_hash"
 			}]
 			relabelings: [{
-				action: "replace"
+				action:       "replace"
 				sourceLabels: ["__meta_kubernetes_pod_node_name"]
-				targetLabel: "node"
+				targetLabel:  "node"
 			}]
 		}
 		metrics: {

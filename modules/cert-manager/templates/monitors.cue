@@ -15,7 +15,7 @@ _monitorSelector: {
 	matchExpressions: [{
 		key:      timoniv1.#StdLabelComponent
 		operator: "In"
-		values: ["cainjector", "controller", "webhook"]
+		values:   ["cainjector", "controller", "webhook"]
 	}]
 }
 
@@ -45,8 +45,8 @@ _monitorMeta: {
 
 	apiVersion: "monitoring.coreos.com/v1"
 	kind:       "ServiceMonitor"
-	metadata: _monitorMeta & {#config: cfg, #monitor: _monitor}
-	spec: timoniv1.#MonitorSpec & {#Values: _monitor}
+	metadata:   _monitorMeta & {#config: cfg, #monitor: _monitor}
+	spec:       timoniv1.#MonitorSpec & {#Values: _monitor}
 	spec: {
 		selector: _monitorSelector & {#config: cfg}
 		namespaceSelector: matchNames: [cfg.metadata.namespace]
@@ -68,8 +68,8 @@ _monitorMeta: {
 
 	apiVersion: "monitoring.coreos.com/v1"
 	kind:       "PodMonitor"
-	metadata: _monitorMeta & {#config: cfg, #monitor: _monitor}
-	spec: timoniv1.#MonitorSpec & {#Values: _monitor}
+	metadata:   _monitorMeta & {#config: cfg, #monitor: _monitor}
+	spec:       timoniv1.#MonitorSpec & {#Values: _monitor}
 	spec: {
 		selector: _monitorSelector & {#config: cfg}
 		namespaceSelector: matchNames: [cfg.metadata.namespace]
